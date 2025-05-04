@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
   env: {
     BUILD_STATIC_EXPORT: JSON.stringify(isStaticExport),
   },
-  // Without "next dev --turbopack"
+  // Without --turbopack (next dev)
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   experimental: {
-    // With "next dev --turbopack"
+    // With --turbopack (next dev --turbopack)
     turbo: {
       rules: {
         '*.svg': {

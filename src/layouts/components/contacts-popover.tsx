@@ -1,3 +1,5 @@
+'use client';
+
 import type { BadgeProps } from '@mui/material/Badge';
 import type { IconButtonProps } from '@mui/material/IconButton';
 
