@@ -52,13 +52,19 @@ import {
   RenderCellPublish,
   RenderCellProduct,
   RenderCellCreatedAt,
+  RenderCellBio,
 } from '../product-table-row';
 
 // ----------------------------------------------------------------------
 
 const PUBLISH_OPTIONS = [
-  { value: 'published', label: 'Published' },
-  { value: 'draft', label: 'Draft' },
+  { value: true, label: 'Közzétéve' },
+  { value: false, label: 'Rejtve' },
+];
+
+const BIO_OPTIONS = [
+  { value: true, label: 'BIO' },
+  { value: false, label: 'Nem BIO' },
 ];
 
 const HIDE_COLUMNS = { category: false };
@@ -71,7 +77,7 @@ export function ProductListView() {
   const confirmDialog = useBoolean();
 
   const { products, productsLoading } = useGetProducts();
-
+  
   const [tableData, setTableData] = useState<IProductItem[]>(products);
   const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
   const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
@@ -166,10 +172,14 @@ export function ProductListView() {
       field: 'publish',
       headerName: 'Publish',
       width: 110,
-      type: 'singleSelect',
-      editable: true,
-      valueOptions: PUBLISH_OPTIONS,
       renderCell: (params) => <RenderCellPublish params={params} />,
+    },
+    {
+      field: 'bio',
+      headerName: 'BIO',
+      width: 90,
+  
+      renderCell: (params) => <RenderCellBio params={params} />,
     },
     {
       type: 'actions',
@@ -329,7 +339,7 @@ function CustomToolbar({
       <GridToolbarContainer>
         <ProductTableToolbar
           filters={filters}
-          options={{ stocks: PRODUCT_STOCK_OPTIONS, publishs: PUBLISH_OPTIONS }}
+          options={{ stocks: PRODUCT_STOCK_OPTIONS, publishs: PUBLISH_OPTIONS, bios: BIO_OPTIONS }}
         />
 
         <GridToolbarQuickFilter />

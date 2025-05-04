@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import { useMemo } from 'react';
 
 import { fetcher, endpoints } from 'src/lib/axios';
+import { supabase } from 'src/lib/supabase';
 
 // ----------------------------------------------------------------------
 
@@ -23,8 +24,16 @@ type ProductsData = {
 export function useGetProducts() {
   const url = endpoints.product.list;
 
-  const { data, isLoading, error, isValidating } = useSWR<ProductsData>(url, fetcher, swrOptions);
+  //const { data, isLoading, error, isValidating } = useSWR<ProductsData>(url, fetcher, swrOptions);
 
+  const { data, isLoading, error, isValidating } = useSWR<ProductsData>("products", async () =>  {
+    const response = await supabase.from("Products").select("*");
+    const { data: products, error } = response;
+    
+    if (error) throw error.message;
+    return { products };
+  });
+  console.log(data);
   const memoizedValue = useMemo(
     () => ({
       products: data?.products || [],

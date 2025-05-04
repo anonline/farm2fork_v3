@@ -24,6 +24,7 @@ type Props = {
   options: {
     stocks: { value: string; label: string }[];
     publishs: { value: string; label: string }[];
+    bios: { value: string; label: string }[];
   };
 };
 
@@ -144,6 +145,53 @@ export function ProductTableToolbar({ filters, options }: Props) {
           sx={{ textTransform: 'capitalize' }}
         >
           {options.publishs.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              <Checkbox
+                disableRipple
+                size="small"
+                checked={publish.includes(option.value)}
+                slotProps={{
+                  input: {
+                    id: `${option.value}-checkbox`,
+                    'aria-label': `${option.label} checkbox`,
+                  },
+                }}
+              />
+              {option.label}
+            </MenuItem>
+          ))}
+
+          <MenuItem
+            disableGutters
+            disableTouchRipple
+            onClick={handleFilterPublish}
+            sx={[
+              (theme) => ({
+                justifyContent: 'center',
+                fontWeight: theme.typography.button,
+                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+              }),
+            ]}
+          >
+            Apply
+          </MenuItem>
+        </Select>
+      </FormControl>
+
+      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+        <InputLabel htmlFor="filter-publish-select">Bio</InputLabel>
+        <Select
+          multiple
+          value={publish}
+          onChange={handleChangePublish}
+          onClose={handleFilterPublish}
+          input={<OutlinedInput label="Publish" />}
+          renderValue={(selected) => selected.map((value) => value).join(', ')}
+          inputProps={{ id: 'filter-publish-select' }}
+          sx={{ textTransform: 'capitalize' }}
+        >
+          {options.bios.map((option) => (
             <MenuItem key={option.value} value={option.value}>
               <Checkbox
                 disableRipple

@@ -31,6 +31,7 @@ export type IProductItem = {
   id: string;
   sku: string;
   name: string;
+  bio: boolean;
   code: string;
   price: number;
   taxes: number;

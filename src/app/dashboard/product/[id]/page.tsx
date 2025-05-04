@@ -6,6 +6,7 @@ import axios, { endpoints } from 'src/lib/axios';
 import { getProduct } from 'src/actions/product-ssr';
 
 import { ProductDetailsView } from 'src/sections/product/view';
+import { supabase } from 'src/lib/supabase';
 
 // ----------------------------------------------------------------------
 
@@ -17,9 +18,13 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
-
-  const { product } = await getProduct(id);
-
+  const response = await supabase.from("Products").select("*").eq("id", id);
+  const { data: product, error } = response;
+  if (error) throw error.message;
+  
+  
+  //const { product } = await getProduct(id);
+  
   return <ProductDetailsView product={product} />;
 }
 
@@ -37,12 +42,15 @@ export default async function Page({ params }: Props) {
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
 export async function generateStaticParams() {
-  const res = await axios.get(endpoints.product.list);
+  const res = await supabase.from("Products").select("*");
+  const { data:products, error } = res;
+  if (error) throw error.message;
+  //const res = await axios.get(endpoints.product.list);
   const data: IProductItem[] = CONFIG.isStaticExport
-    ? res.data.products
-    : res.data.products.slice(0, 1);
+    ? products
+    : products.slice(0, 1);
 
   return data.map((product: IProductItem) => ({
-    id: product.id,
+    id: product.id.toString(),
   }));
 }

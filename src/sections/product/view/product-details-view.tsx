@@ -84,7 +84,7 @@ export function ProductDetailsView({ product }: Props) {
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 5 }}>
-          {product && <ProductDetailsSummary disableActions product={product} />}
+        {product && <ProductDetailsSummary disableActions product={product} />}
         </Grid>
       </Grid>
 

@@ -13,7 +13,7 @@ export default function Layout({ children }: Props) {
   if (CONFIG.auth.skip) {
     return <DashboardLayout>{children}</DashboardLayout>;
   }
-
+  console.log('Layout', children);
   return (
     <AuthGuard>
       <DashboardLayout>{children}</DashboardLayout>
