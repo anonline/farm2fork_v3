@@ -1,10 +1,8 @@
 import type { SWRConfiguration } from 'swr';
 import type { IProductItem } from 'src/types/product';
-
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { supabase } from 'src/lib/supabase';
-
 import { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
@@ -28,9 +26,9 @@ export function useGetProducts() {
 
   const { data, isLoading, error, isValidating } = useSWR<ProductsData>("products", async () =>  {
     const response = await supabase.from("Products").select("*");
-    const { data: products, error } = response;
+    const { data: products, error: responseError } = response;
     
-    if (error) throw error.message;
+    if (responseError) throw responseError.message;
     return { products };
   });
   console.log(data);

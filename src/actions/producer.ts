@@ -1,12 +1,9 @@
 import type { SWRConfiguration } from 'swr';
-import type { IProductItem } from 'src/types/product';
-
+import { IProducerItem } from 'src/types/producer';
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { supabase } from 'src/lib/supabase';
-
 import { fetcher, endpoints } from 'src/lib/axios';
-import { IProducerItem } from 'src/types/producer';
 
 // ----------------------------------------------------------------------
 
@@ -30,10 +27,10 @@ export function useGetProducers() {
   const { data, isLoading, error, isValidating } = useSWR<ProducersData>("producers", async () =>  {
     const response = await supabase.from("Producers").select("*");
     
-    const { data: producers, error } = response;
+    const { data: producers, error:responseError } = response;
     
-    if (error) throw error.message;
-    return { producers };
+    if (responseError) throw responseError.message;
+    return { producers,  };
   }, swrOptions);
   
   const memoizedValue = useMemo(

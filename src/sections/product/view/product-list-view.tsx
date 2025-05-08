@@ -51,8 +51,9 @@ import {
   RenderCellPrice,
   RenderCellPublish,
   RenderCellProduct,
-  RenderCellCreatedAt,
   RenderCellBio,
+  RenderCellBio,
+  RenderCellCreatedAt,
 } from '../product-table-row';
 
 // ----------------------------------------------------------------------
