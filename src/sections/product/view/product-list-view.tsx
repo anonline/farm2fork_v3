@@ -52,7 +52,6 @@ import {
   RenderCellPublish,
   RenderCellProduct,
   RenderCellBio,
-  RenderCellBio,
   RenderCellCreatedAt,
 } from '../product-table-row';
 
