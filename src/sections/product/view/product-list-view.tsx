@@ -49,8 +49,8 @@ import { ProductTableFiltersResult } from '../product-table-filters-result';
 import {
   RenderCellStock,
   RenderCellPrice,
-  RenderCellPublish,
   RenderCellBio,
+  RenderCellPublish,
   RenderCellProduct,
   RenderCellCreatedAt,
 } from '../product-table-row';

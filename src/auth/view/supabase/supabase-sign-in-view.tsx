@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Typography } from '@mui/material';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
@@ -23,7 +25,6 @@ import { Form, Field } from 'src/components/hook-form';
 import { useAuthContext } from '../../hooks';
 import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
-import { Typography } from '@mui/material';
 
 import { signInWithPassword } from '../../context/supabase';
 
