@@ -37,22 +37,22 @@ export function OrderDetailsHistory({ history }: Props) {
       }}
     >
       <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Order time</Box>
+        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Rendelés időpontja</Box>
         {fDateTime(history?.orderTime)}
       </div>
 
       <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Payment time</Box>
+        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Fizetés időpontja</Box>
         {fDateTime(history?.orderTime)}
       </div>
 
       <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Delivery time for the carrier</Box>
+        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Szállítás dátuma</Box>
         {fDateTime(history?.orderTime)}
       </div>
 
       <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Completion time</Box>
+        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Lezárás dátuma</Box>
         {fDateTime(history?.orderTime)}
       </div>
     </Paper>
@@ -88,7 +88,7 @@ export function OrderDetailsHistory({ history }: Props) {
 
   return (
     <Card>
-      <CardHeader title="History" />
+      <CardHeader title="Előzmények" />
       <Box
         sx={{
           p: 3,

@@ -18,7 +18,7 @@ export function OrderDetailsDelivery({ delivery }: Props) {
   return (
     <>
       <CardHeader
-        title="Delivery"
+        title="Szállítási mód"
         action={
           <IconButton>
             <Iconify icon="solar:pen-bold" />
@@ -28,7 +28,7 @@ export function OrderDetailsDelivery({ delivery }: Props) {
       <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Ship by
+            Szállítás módja
           </Box>
 
           {delivery?.shipBy}

@@ -48,15 +48,15 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [{ value: 'all', label: 'Összes' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
-  { id: 'orderNumber', label: 'Order', width: 88 },
-  { id: 'name', label: 'Customer' },
-  { id: 'createdAt', label: 'Date', width: 140 },
-  { id: 'totalQuantity', label: 'Items', width: 120, align: 'center' },
-  { id: 'totalAmount', label: 'Price', width: 140 },
-  { id: 'status', label: 'Status', width: 110 },
+  { id: 'orderNumber', label: 'ID', width: 88 },
+  { id: 'status', label: '', width: 110 },
+  { id: 'name', label: 'Vásárló' },
+  { id: 'totalQuantity', label: 'Termékek', width: 120, align: 'center' },
+  { id: 'totalAmount', label: 'Br. összeg', width: 140 },
+  { id: 'createdAt', label: 'Dátum', width: 140 },
   { id: '', width: 88 },
 ];
 
@@ -155,11 +155,11 @@ export function OrderListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Összes rendelés"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Order', href: paths.dashboard.order.root },
-            { name: 'List' },
+            { name: 'Rendelések', href: paths.dashboard.order.root },
+            { name: 'Lista' },
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
         />
@@ -190,11 +190,12 @@ export function OrderListView() {
                     color={
                       (tab.value === 'completed' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
+                      (tab.value === 'inprogress' && 'info') ||
                       (tab.value === 'cancelled' && 'error') ||
                       'default'
                     }
                   >
-                    {['completed', 'pending', 'cancelled', 'refunded'].includes(tab.value)
+                    {['completed', 'pending', 'cancelled', 'refunded', 'inprogress', 'deleted'].includes(tab.value)
                       ? tableData.filter((user) => user.status === tab.value).length
                       : tableData.length}
                   </Label>

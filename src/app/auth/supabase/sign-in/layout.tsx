@@ -12,8 +12,9 @@ export default function Layout({ children }: Props) {
   return (
     <GuestGuard>
       <AuthSplitLayout
+        
         slotProps={{
-          section: { title: 'Hi, Welcome back' },
+          section: { title: '', subtitle: '', imgUrl: 'https://farm2fork.hu/wp-content/uploads/2025/01/Frame-1.png' },
         }}
       >
         {children}

@@ -62,6 +62,21 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
           {row.orderNumber}
         </Link>
       </TableCell>
+      
+      <TableCell>
+        <Label
+          variant="soft"
+          color={
+            (row.status === 'completed' && 'success') ||
+            (row.status === 'pending' && 'warning') ||
+            (row.status === 'inprogress' && 'info') ||
+            (row.status === 'cancelled' && 'error') ||
+            'default'
+          }
+        >
+          {row.status}
+        </Label>
+      </TableCell>
 
       <TableCell>
         <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
@@ -77,6 +92,13 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
         </Box>
       </TableCell>
 
+      
+
+      <TableCell align="center"> {row.totalQuantity} </TableCell>
+
+      <TableCell> {fCurrency(row.subtotal)} </TableCell>
+
+      
       <TableCell>
         <ListItemText
           primary={fDate(row.createdAt)}
@@ -91,24 +113,6 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
             },
           }}
         />
-      </TableCell>
-
-      <TableCell align="center"> {row.totalQuantity} </TableCell>
-
-      <TableCell> {fCurrency(row.subtotal)} </TableCell>
-
-      <TableCell>
-        <Label
-          variant="soft"
-          color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
-          }
-        >
-          {row.status}
-        </Label>
       </TableCell>
 
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>

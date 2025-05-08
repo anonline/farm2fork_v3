@@ -10,12 +10,49 @@ import type { NavMainProps } from './main/nav/types';
 
 export const navData: NavMainProps['data'] = [
   { title: 'Home', path: '/', icon: <Iconify width={22} icon="solar:home-angle-bold-duotone" /> },
-  {
+  { title: 'Termékek', 
+    path: '/termekek',
+    children: [
+      {
+        subheader: '',
+        items: [
+          { title: 'Összes termék', path: paths.about },
+          { title: 'Gyümölcsök', path: paths.contact },
+          { title: 'Feldolgozott termékek', path: paths.faqs }
+        ],
+      },
+      {
+        subheader:'',
+        items:[
+          { title: 'Szezon box', path: paths.pricing },
+          { title: 'Gombák', path: paths.payment },
+          { title: 'Pékáru', path: paths.maintenance },
+        ],
+      },
+    ]
+  },
+  { title: 'Termelők', path: '/termelok' },
+  { title: 'Rólunk', path: '/rolunk' },
+  { title: 'Tudnivalók', 
+    path: '#tudnivalok',
+    children: [
+      {
+        subheader: '',
+        items: [
+          { title: 'Szezonalitás', path: paths.about },
+          { title: 'Tárolás', path: paths.contact },
+          { title: 'Rendelés menete', path: paths.faqs },
+          { title: 'GYIK', path: paths.faqs }
+        ],
+      },
+    ]
+  },
+  /*{
     title: 'Components',
     path: paths.components,
     icon: <Iconify width={22} icon="solar:atom-bold-duotone" />,
-  },
-  {
+  },*/
+  /*{
     title: 'Pages',
     path: '/pages',
     icon: <Iconify width={22} icon="solar:file-bold-duotone" />,
@@ -72,5 +109,5 @@ export const navData: NavMainProps['data'] = [
     title: 'Docs',
     icon: <Iconify width={22} icon="solar:notebook-bold-duotone" />,
     path: paths.docs,
-  },
+  },*/
 ];

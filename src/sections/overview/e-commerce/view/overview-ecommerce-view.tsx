@@ -35,7 +35,7 @@ export function OverviewEcommerceView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 8 }}>
+        {/*<Grid size={{ xs: 12, md: 8 }}>
           <EcommerceWelcome
             title={`Congratulations 🎉  \n ${user?.displayName}`}
             description="Best seller of the month you have done 57.6% more sales today."
@@ -50,11 +50,11 @@ export function OverviewEcommerceView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceNewProducts list={_ecommerceNewProducts} />
-        </Grid>
+        </Grid>*/}
 
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
-            title="Product sold"
+            title="Eladott termékek"
             percent={2.6}
             total={765}
             chart={{
@@ -66,7 +66,7 @@ export function OverviewEcommerceView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
-            title="Total balance"
+            title="Eladási érték"
             percent={-0.1}
             total={18765}
             chart={{
@@ -79,7 +79,7 @@ export function OverviewEcommerceView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
-            title="Sales profit"
+            title="Profit"
             percent={0.6}
             total={4876}
             chart={{
@@ -92,13 +92,13 @@ export function OverviewEcommerceView() {
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <EcommerceSaleByGender
-            title="Sale by gender"
+            title="Legnépszerűbb kategóriák"
             total={2324}
             chart={{
               series: [
-                { label: 'Mens', value: 25 },
-                { label: 'Womens', value: 50 },
-                { label: 'Kids', value: 75 },
+                { label: 'Zöldség', value: 25 },
+                { label: 'Gyümölcs', value: 50 },
+                { label: 'Egyéb', value: 75 },
               ],
             }}
           />
@@ -106,7 +106,7 @@ export function OverviewEcommerceView() {
 
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <EcommerceYearlySales
-            title="Yearly sales"
+            title="Termék eladások"
             subheader="(+43%) than last year"
             chart={{
               categories: [
@@ -171,10 +171,10 @@ export function OverviewEcommerceView() {
 
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <EcommerceBestSalesman
-            title="Best salesman"
+            title="Legsikeresebb termelők"
             tableData={_ecommerceBestSalesman}
             headCells={[
-              { id: 'name', label: 'Seller' },
+              { id: 'name', label: 'Termelő' },
               { id: 'category', label: 'Product' },
               { id: 'country', label: 'Country', align: 'center' },
               { id: 'totalAmount', label: 'Total', align: 'right' },

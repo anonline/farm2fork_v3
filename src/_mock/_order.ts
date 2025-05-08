@@ -3,10 +3,12 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const ORDER_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'refunded', label: 'Refunded' },
+  { value: 'pending', label: 'Új rendelés' },
+  { value: 'inprogress', label: 'Folyamatban' },
+  { value: 'completed', label: 'Kész' },
+  { value: 'cancelled', label: 'Visszamondott' },
+  { value: 'refunded', label: 'Visszatérített' },
+  { value: 'deleted', label: 'Törölt' },
 ];
 
 const ITEMS = Array.from({ length: 3 }, (_, index) => ({
@@ -80,6 +82,8 @@ export const _orders = Array.from({ length: 20 }, (_, index) => {
       (index % 2 && 'completed') ||
       (index % 3 && 'pending') ||
       (index % 4 && 'cancelled') ||
+      (index % 5 && 'inprogress') ||
+      (index % 6 && 'deleted') ||
       'refunded',
   };
 });

@@ -34,7 +34,7 @@ export function HomeView() {
 
       <BackToTopButton />
 
-      <HomeHero />
+      {/*<HomeHero />
 
       <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
         <HomeMinimal />
@@ -56,7 +56,7 @@ export function HomeView() {
         <HomeZoneUI />
 
         <HomeAdvertisement />
-      </Stack>
+      </Stack>*/}
     </>
   );
 }

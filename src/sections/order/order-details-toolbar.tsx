@@ -80,12 +80,13 @@ export function OrderDetailsToolbar({
 
           <Stack spacing={0.5}>
             <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
-              <Typography variant="h4"> Order {orderNumber} </Typography>
+              <Typography variant="h4"> Rendelés {orderNumber} </Typography>
               <Label
                 variant="soft"
                 color={
                   (status === 'completed' && 'success') ||
                   (status === 'pending' && 'warning') ||
+                  (status === 'inprogress' && 'info') ||
                   (status === 'cancelled' && 'error') ||
                   'default'
                 }
@@ -124,11 +125,11 @@ export function OrderDetailsToolbar({
             variant="outlined"
             startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
           >
-            Print
+            Szállítólevél
           </Button>
 
           <Button color="inherit" variant="contained" startIcon={<Iconify icon="solar:pen-bold" />}>
-            Edit
+            Szerkesztés
           </Button>
         </Box>
       </Box>

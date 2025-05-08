@@ -2,7 +2,7 @@
 
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
-import type { IProductItem, IProductTableFilters } from 'src/types/product';
+import { IProducerItem, IProducerTableFilters } from 'src/types/producer';
 import type {
   GridColDef,
   GridSlotProps,
@@ -34,8 +34,6 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { PRODUCT_STOCK_OPTIONS } from 'src/_mock';
-import { useGetProducts } from 'src/actions/product';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
@@ -44,22 +42,21 @@ import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ProductTableToolbar } from '../product-table-toolbar';
-import { ProductTableFiltersResult } from '../product-table-filters-result';
+import { ProducerTableToolbar } from '../producer-table-toolbar';
+import { ProducerTableFiltersResult } from '../producer-table-filters-result';
 import {
-  RenderCellStock,
-  RenderCellPrice,
-  RenderCellPublish,
-  RenderCellProduct,
+  RenderCellProducingTags,
+  RenderCellName,
   RenderCellCreatedAt,
   RenderCellBio,
-} from '../product-table-row';
+} from '../producer-table-row';
+import { useGetProducers } from 'src/actions/producer';
 
 // ----------------------------------------------------------------------
 
 const PUBLISH_OPTIONS = [
-  { value: 'true', label: 'Közzétéve' },
-  { value: 'false', label: 'Rejtve' },
+  { value: true, label: 'Közzétéve' },
+  { value: false, label: 'Rejtve' },
 ];
 
 const BIO_OPTIONS = [
@@ -73,28 +70,28 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 
 // ----------------------------------------------------------------------
 
-export function ProductListView() {
+export function ProducerListView() {
   const confirmDialog = useBoolean();
 
-  const { products, productsLoading } = useGetProducts();
-
-  const [tableData, setTableData] = useState<IProductItem[]>(products);
+  const { producers, producersLoading } = useGetProducers();
+  
+  const [tableData, setTableData] = useState<IProducerItem[]>(producers);
   const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
   const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
 
-  const filters = useSetState<IProductTableFilters>({ publish: [], stock: [], bio: [] });
+  const filters = useSetState<IProducerTableFilters>({ bio: [] });
   const { state: currentFilters } = filters;
 
   const [columnVisibilityModel, setColumnVisibilityModel] =
     useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
+    if (producers.length) {
+      setTableData(producers);
     }
-  }, [products]);
+  }, [producers]);
 
-  const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
+  const canReset = currentFilters.bio.length > 0;
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -102,10 +99,10 @@ export function ProductListView() {
   });
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
+    (id: number) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
+      toast.success('Törlés sikeres!');
 
       setTableData(deleteRow);
     },
@@ -115,7 +112,7 @@ export function ProductListView() {
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
 
-    toast.success('Delete success!');
+    toast.success('Törlés sikeres!');
 
     setTableData(deleteRows);
   }, [selectedRowIds, tableData]);
@@ -138,47 +135,32 @@ export function ProductListView() {
   const columns: GridColDef[] = [
     { field: 'category', headerName: 'Category', filterable: false },
     {
-      field: 'publish',
-      headerName: '',
-      width: 110,
-      renderCell: (params) => <RenderCellPublish params={params} />,
-    },
-    {
       field: 'bio',
       headerName: '',
-      width: 90,
-
+      width: 80,
+  
       renderCell: (params) => <RenderCellBio params={params} />,
     },
     {
       field: 'name',
-      headerName: 'Termék',
+      headerName: 'Termelő',
       flex: 1,
       minWidth: 360,
       hideable: false,
       renderCell: (params) => (
-        <RenderCellProduct params={params} href={paths.dashboard.product.details(params.row.id)} />
+        <RenderCellName params={params} href={paths.dashboard.producer.details(params.row.id)} />
       ),
     },
     {
-      field: 'inventoryType',
-      headerName: 'Készlet',
-      width: 160,
-      type: 'singleSelect',
-      valueOptions: PRODUCT_STOCK_OPTIONS,
-      renderCell: (params) => <RenderCellStock params={params} />,
+      field: 'producingTags',
+      headerName: 'Mit termel?',
+      width: 460,
+      
+      renderCell: (params) => <RenderCellProducingTags params={params} />,
     },
-    {
-      field: 'price',
-      headerName: 'Ár',
-      width: 140,
-      editable: true,
-      renderCell: (params) => <RenderCellPrice params={params} />,
-    },
-
     {
       field: 'createdAt',
-      headerName: 'Dátum',
+      headerName: 'Create at',
       width: 160,
       renderCell: (params) => <RenderCellCreatedAt params={params} />,
     },
@@ -196,19 +178,19 @@ export function ProductListView() {
         <GridActionsLinkItem
           showInMenu
           icon={<Iconify icon="solar:eye-bold" />}
-          label="Megtekintés"
+          label="View"
           href={paths.dashboard.product.details(params.row.id)}
         />,
         <GridActionsLinkItem
           showInMenu
           icon={<Iconify icon="solar:pen-bold" />}
-          label="Szerkesztés"
+          label="Edit"
           href={paths.dashboard.product.edit(params.row.id)}
         />,
         <GridActionsCellItem
           showInMenu
           icon={<Iconify icon="solar:trash-bin-trash-bold" />}
-          label="Törlés"
+          label="Delete"
           onClick={() => handleDeleteRow(params.row.id)}
           sx={{ color: 'error.main' }}
         />,
@@ -225,10 +207,10 @@ export function ProductListView() {
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
+      title="Törlés"
       content={
         <>
-          Are you sure want to delete <strong> {selectedRowIds.length} </strong> items?
+          Biztosan törölni szeretnéd ezt a  <strong> {selectedRowIds.length} </strong> elemet?
         </>
       }
       action={
@@ -240,7 +222,7 @@ export function ProductListView() {
             confirmDialog.onFalse();
           }}
         >
-          Delete
+          Törlés
         </Button>
       }
     />
@@ -250,11 +232,11 @@ export function ProductListView() {
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Termelők"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Product', href: paths.dashboard.product.root },
-            { name: 'List' },
+            { name: 'Termelők', href: paths.dashboard.product.root },
+            { name: 'Lista' },
           ]}
           action={
             <Button
@@ -263,7 +245,7 @@ export function ProductListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New product
+              Új termelő
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
@@ -283,7 +265,7 @@ export function ProductListView() {
             disableRowSelectionOnClick
             rows={dataFiltered}
             columns={columns}
-            loading={productsLoading}
+            loading={producersLoading}
             getRowHeight={() => 'auto'}
             pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
@@ -293,7 +275,7 @@ export function ProductListView() {
             slots={{
               toolbar: CustomToolbarCallback,
               noRowsOverlay: () => <EmptyContent />,
-              noResultsOverlay: () => <EmptyContent title="No results found" />,
+              noResultsOverlay: () => <EmptyContent title="Nincsenek megjeleníthető elemek" />,
             }}
             slotProps={{
               toolbar: { setFilterButtonEl },
@@ -322,7 +304,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
   canReset: boolean;
   filteredResults: number;
   selectedRowIds: GridRowSelectionModel;
-  filters: UseSetStateReturn<IProductTableFilters>;
+  filters: UseSetStateReturn<IProducerTableFilters>;
 
   onOpenConfirmDeleteRows: () => void;
 };
@@ -338,9 +320,9 @@ function CustomToolbar({
   return (
     <>
       <GridToolbarContainer>
-        <ProductTableToolbar
+        <ProducerTableToolbar
           filters={filters}
-          options={{ stocks: PRODUCT_STOCK_OPTIONS, publishs: PUBLISH_OPTIONS, bios: BIO_OPTIONS }}
+          options={{ bios: BIO_OPTIONS }}
         />
 
         <GridToolbarQuickFilter />
@@ -372,7 +354,7 @@ function CustomToolbar({
       </GridToolbarContainer>
 
       {canReset && (
-        <ProductTableFiltersResult
+        <ProducerTableFiltersResult
           filters={filters}
           totalResults={filteredResults}
           sx={{ p: 2.5, pt: 0 }}
@@ -410,20 +392,15 @@ export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsL
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: IProductItem[];
-  filters: IProductTableFilters;
+  inputData: IProducerItem[];
+  filters: IProducerTableFilters;
 };
 
 function applyFilter({ inputData, filters }: ApplyFilterProps) {
-  const { stock, publish } = filters;
+  const { bio } = filters;
 
-  if (stock.length) {
-    inputData = inputData.filter((product) => stock.includes(product.inventoryType));
+  if (bio.length) {
+    inputData = inputData.filter((producer) => bio.includes(producer.bio.toString()));
   }
-
-  if (publish.length) {
-    inputData = inputData.filter((product) => publish.includes(product.publish));
-  }
-
   return inputData;
 }

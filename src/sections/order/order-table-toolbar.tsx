@@ -93,7 +93,7 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }: Props) {
         }}
       >
         <DatePicker
-          label="Start date"
+          label="Kezdő dátum"
           value={currentFilters.startDate}
           onChange={handleFilterStartDate}
           slotProps={{ textField: { fullWidth: true } }}
@@ -101,14 +101,14 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }: Props) {
         />
 
         <DatePicker
-          label="End date"
+          label="Vég dátum"
           value={currentFilters.endDate}
           onChange={handleFilterEndDate}
           slotProps={{
             textField: {
               fullWidth: true,
               error: dateError,
-              helperText: dateError ? 'End date must be later than start date' : null,
+              helperText: dateError ? 'Végdátumnak későbbinek kell lennie, mint a kezdő dátum.' : null,
             },
           }}
           sx={{
@@ -133,7 +133,7 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }: Props) {
             fullWidth
             value={currentFilters.name}
             onChange={handleFilterName}
-            placeholder="Search customer or order number..."
+            placeholder="Vásárló vagy rendelésszám keresése..."
             slotProps={{
               input: {
                 startAdornment: (

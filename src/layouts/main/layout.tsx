@@ -98,13 +98,13 @@ export function MainLayout({
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
             {/** @slot Settings button */}
-            <SettingsButton />
+            {/*<SettingsButton />*/}
 
             {/** @slot Sign in button */}
             <SignInButton />
 
             {/** @slot Purchase button */}
-            <Button
+            {/*<Button
               variant="contained"
               rel="noopener"
               target="_blank"
@@ -115,7 +115,7 @@ export function MainLayout({
               })}
             >
               Purchase
-            </Button>
+            </Button>*/}
           </Box>
         </>
       ),

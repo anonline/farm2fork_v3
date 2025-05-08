@@ -20,7 +20,7 @@ export function OrderDetailsCustomer({ customer }: Props) {
   return (
     <>
       <CardHeader
-        title="Customer info"
+        title="Vásárló"
         action={
           <IconButton>
             <Iconify icon="solar:pen-bold" />

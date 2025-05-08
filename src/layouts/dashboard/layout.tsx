@@ -145,10 +145,10 @@ export function DashboardLayout({
           )}
 
           {/** @slot Workspace popover */}
-          <WorkspacesPopover
+          {/*<WorkspacesPopover
             data={_workspaces}
             sx={{ ...(isNavHorizontal && { color: 'var(--layout-nav-text-primary-color)' }) }}
-          />
+          />*/}
         </>
       ),
       rightArea: (

@@ -34,7 +34,7 @@ export function OverviewAppView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 8 }}>
+        {/*<Grid size={{ xs: 12, md: 8 }}>
           <AppWelcome
             title={`Welcome back 👋 \n ${user?.displayName}`}
             description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
@@ -49,13 +49,13 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppFeatured list={_appFeatured} />
-        </Grid>
+        </Grid>*/}
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total active users"
+            title="Új rendelések"
             percent={2.6}
-            total={18765}
+            total={185}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [15, 18, 12, 51, 68, 11, 39, 37],
@@ -65,7 +65,7 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total installed"
+            title="Folyamatban lévő rendelések"
             percent={0.2}
             total={4876}
             chart={{
@@ -91,14 +91,14 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AppCurrentDownload
-            title="Current download"
-            subheader="Downloaded by operating system"
+            title="Folyamatban lévő rendelések"
+            subheader="Szállítási adatai"
             chart={{
               series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
+                { label: 'Házhozszállítás', value: 12244 },
+                { label: 'Farm2Fork raktár', value: 53345 },
+                { label: 'BioKert', value: 44313 },
+                { label: 'Replacc', value: 78343 },
               ],
             }}
           />

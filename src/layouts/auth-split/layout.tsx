@@ -79,7 +79,7 @@ export function AuthSplitLayout({
           </Link>
 
           {/** @slot Settings button */}
-          <SettingsButton />
+          {/*<SettingsButton />*/}
         </Box>
       ),
     };
@@ -107,7 +107,7 @@ export function AuthSplitLayout({
     <MainSection
       {...slotProps?.main}
       sx={[
-        (theme) => ({ [theme.breakpoints.up(layoutQuery)]: { flexDirection: 'row' } }),
+        (theme) => ({ [theme.breakpoints.up(layoutQuery)]: { flexDirection: 'row-reverse' } }),
         ...(Array.isArray(slotProps?.main?.sx)
           ? (slotProps?.main?.sx ?? [])
           : [slotProps?.main?.sx]),
@@ -118,31 +118,8 @@ export function AuthSplitLayout({
         method={CONFIG.auth.method}
         {...slotProps?.section}
         methods={[
-          {
-            label: 'Jwt',
-            path: paths.auth.jwt.signIn,
-            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-jwt.svg`,
-          },
-          {
-            label: 'Firebase',
-            path: paths.auth.firebase.signIn,
-            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-firebase.svg`,
-          },
-          {
-            label: 'Amplify',
-            path: paths.auth.amplify.signIn,
-            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-amplify.svg`,
-          },
-          {
-            label: 'Auth0',
-            path: paths.auth.auth0.signIn,
-            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-auth0.svg`,
-          },
-          {
-            label: 'Supabase',
-            path: paths.auth.supabase.signIn,
-            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-supabase.svg`,
-          },
+          
+          
         ]}
       />
       <AuthSplitContent layoutQuery={layoutQuery} {...slotProps?.content}>
@@ -164,7 +141,7 @@ export function AuthSplitLayout({
       /** **************************************
        * @Styles
        *************************************** */
-      cssVars={{ '--layout-auth-content-width': '420px', ...cssVars }}
+      cssVars={{ '--layout-auth-content-width': '70%', ...cssVars }}
       sx={sx}
     >
       {renderMain()}

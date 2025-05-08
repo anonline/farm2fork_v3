@@ -16,7 +16,7 @@ export function OrderDetailsPayment({ payment }: Props) {
   return (
     <>
       <CardHeader
-        title="Payment"
+        title="Fizetési mód"
         action={
           <IconButton>
             <Iconify icon="solar:pen-bold" />

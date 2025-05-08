@@ -47,32 +47,32 @@ export function OrderDetailsItems({
       }}
     >
       <Box sx={{ display: 'flex' }}>
-        <Box sx={{ color: 'text.secondary' }}>Subtotal</Box>
+        <Box sx={{ color: 'text.secondary' }}>Termék végösszeg</Box>
         <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
       </Box>
 
       <Box sx={{ display: 'flex' }}>
-        <Box sx={{ color: 'text.secondary' }}>Shipping</Box>
+        <Box sx={{ color: 'text.secondary' }}>Szállítás</Box>
         <Box sx={{ width: 160, ...(shipping && { color: 'error.main' }) }}>
           {shipping ? `- ${fCurrency(shipping)}` : '-'}
         </Box>
       </Box>
 
       <Box sx={{ display: 'flex' }}>
-        <Box sx={{ color: 'text.secondary' }}>Discount</Box>
+        <Box sx={{ color: 'text.secondary' }}>Kedvezmény</Box>
         <Box sx={{ width: 160, ...(discount && { color: 'error.main' }) }}>
           {discount ? `- ${fCurrency(discount)}` : '-'}
         </Box>
       </Box>
 
       <Box sx={{ display: 'flex' }}>
-        <Box sx={{ color: 'text.secondary' }}>Taxes</Box>
+        <Box sx={{ color: 'text.secondary' }}>Adó</Box>
 
         <Box sx={{ width: 160 }}>{taxes ? fCurrency(taxes) : '-'}</Box>
       </Box>
 
       <Box sx={{ display: 'flex', typography: 'subtitle1' }}>
-        <div>Total</div>
+        <div>Br. végösszeg</div>
         <Box sx={{ width: 160 }}>{fCurrency(totalAmount) || '-'}</Box>
       </Box>
     </Box>
@@ -81,7 +81,7 @@ export function OrderDetailsItems({
   return (
     <Card sx={sx} {...other}>
       <CardHeader
-        title="Details"
+        title="Részletek"
         action={
           <IconButton>
             <Iconify icon="solar:pen-bold" />
@@ -115,6 +115,8 @@ export function OrderDetailsItems({
                 },
               }}
             />
+
+            <Box sx={{ width: 110, typography: 'subtitle2' }}>$10/ea</Box>
 
             <Box sx={{ typography: 'body2' }}>x{item.quantity}</Box>
 

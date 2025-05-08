@@ -18,7 +18,8 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
-  const response = await supabase.from("Products").select("*").eq("id", id);
+  
+  const response = await supabase.from("Products").select("*").eq("id", id).single();
   const { data: product, error } = response;
   if (error) throw error.message;
   

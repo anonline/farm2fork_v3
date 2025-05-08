@@ -64,57 +64,66 @@ export const navData: NavSectionProps['data'] = [
    * Overview
    */
   {
-    subheader: 'Overview',
+    subheader: 'Statisztikák',
     items: [
-      { title: 'App', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Ecommerce', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-      { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
-      { title: 'Banking', path: paths.dashboard.general.banking, icon: ICONS.banking },
-      { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
-      { title: 'File', path: paths.dashboard.general.file, icon: ICONS.file },
-      { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
+      { title: 'Vezérlőpult', path: paths.dashboard.root, icon: ICONS.dashboard },
+      { title: 'Eladás', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
+      //{ title: 'Analitika', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
+      //{ title: 'Banking', path: paths.dashboard.general.banking, icon: ICONS.banking },
+      //{ title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
+      { title: 'Összesítők', path: paths.dashboard.general.file, icon: ICONS.file },
+      //{ title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
     ],
   },
   /**
    * Management
    */
   {
-    subheader: 'Management',
+    subheader: 'Kezelés',
     items: [
       {
-        title: 'User',
-        path: paths.dashboard.user.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'Profile', path: paths.dashboard.user.root },
-          { title: 'Cards', path: paths.dashboard.user.cards },
-          { title: 'List', path: paths.dashboard.user.list },
-          { title: 'Create', path: paths.dashboard.user.new },
-          { title: 'Edit', path: paths.dashboard.user.demo.edit },
-          { title: 'Account', path: paths.dashboard.user.account },
-        ],
-      },
-      {
-        title: 'Product',
-        path: paths.dashboard.product.root,
-        icon: ICONS.product,
-        children: [
-          { title: 'List', path: paths.dashboard.product.root },
-          { title: 'Details', path: paths.dashboard.product.demo.details },
-          { title: 'Create', path: paths.dashboard.product.new },
-          { title: 'Edit', path: paths.dashboard.product.demo.edit },
-        ],
-      },
-      {
-        title: 'Order',
+        title: 'Rendelések',
         path: paths.dashboard.order.root,
         icon: ICONS.order,
         children: [
-          { title: 'List', path: paths.dashboard.order.root },
-          { title: 'Details', path: paths.dashboard.order.demo.details },
+          { title: 'Összes rendelés', path: paths.dashboard.order.root },
+          { title: 'Részletek', path: paths.dashboard.order.demo.details },
         ],
       },
       {
+        title: 'Termékek',
+        path: paths.dashboard.product.root,
+        icon: ICONS.product,
+        children: [
+          { title: 'Összes termék', path: paths.dashboard.product.root },
+          { title: 'Részletek', path: paths.dashboard.product.demo.details },
+          { title: 'Új termék', path: paths.dashboard.product.new },
+          { title: 'Szerkesztés', path: paths.dashboard.product.demo.edit },
+        ],
+      },
+      {
+        title: 'Termelők',
+        path: paths.dashboard.producer.root,
+        icon: ICONS.course,
+        children: [
+          { title: 'Összes termelő', path: paths.dashboard.producer.root },
+          { title: 'Új termelő', path: paths.dashboard.producer.new },
+        ],
+      },
+      {
+        title: 'Felhasználók',
+        path: paths.dashboard.user.root,
+        icon: ICONS.user,
+        children: [
+          //{ title: 'Profile', path: paths.dashboard.user.root },
+          //{ title: 'Cards', path: paths.dashboard.user.cards },
+          { title: 'Összes felhasználó', path: paths.dashboard.user.list },
+          { title: 'Új felhasználó', path: paths.dashboard.user.new },
+          //{ title: 'Edit', path: paths.dashboard.user.demo.edit },
+          { title: 'Profil', path: paths.dashboard.user.account },
+        ],
+      },
+      /*{
         title: 'Invoice',
         path: paths.dashboard.invoice.root,
         icon: ICONS.invoice,
@@ -124,9 +133,9 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Create', path: paths.dashboard.invoice.new },
           { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
         ],
-      },
+      },*/
       {
-        title: 'Blog',
+        title: 'Hírek',
         path: paths.dashboard.post.root,
         icon: ICONS.blog,
         children: [
@@ -136,7 +145,7 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Edit', path: paths.dashboard.post.demo.edit },
         ],
       },
-      {
+      /*{
         title: 'Job',
         path: paths.dashboard.job.root,
         icon: ICONS.job,
@@ -146,8 +155,8 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Create', path: paths.dashboard.job.new },
           { title: 'Edit', path: paths.dashboard.job.demo.edit },
         ],
-      },
-      {
+      },*/
+      /*{
         title: 'Tour',
         path: paths.dashboard.tour.root,
         icon: ICONS.tour,
@@ -157,9 +166,9 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Create', path: paths.dashboard.tour.new },
           { title: 'Edit', path: paths.dashboard.tour.demo.edit },
         ],
-      },
+      },*/
       { title: 'File manager', path: paths.dashboard.fileManager, icon: ICONS.folder },
-      {
+      /*{
         title: 'Mail',
         path: paths.dashboard.mail,
         icon: ICONS.mail,
@@ -171,14 +180,14 @@ export const navData: NavSectionProps['data'] = [
       },
       { title: 'Chat', path: paths.dashboard.chat, icon: ICONS.chat },
       { title: 'Calendar', path: paths.dashboard.calendar, icon: ICONS.calendar },
-      { title: 'Kanban', path: paths.dashboard.kanban, icon: ICONS.kanban },
+      { title: 'Kanban', path: paths.dashboard.kanban, icon: ICONS.kanban },*/
     ],
   },
   /**
    * Item state
    */
   {
-    subheader: 'Misc',
+    subheader: 'Beállítások',
     items: [
       {
         /**
@@ -195,7 +204,7 @@ export const navData: NavSectionProps['data'] = [
          * Combine with the `checkPermissions` prop to build conditional expressions.
          * Example usage can be found in: src/sections/_examples/extra/navigation-bar-view/nav-vertical.{jsx | tsx}
          */
-        title: 'Permission',
+        title: 'Jogosultságok',
         path: paths.dashboard.permission,
         icon: ICONS.lock,
         allowedRoles: ['admin', 'manager'],

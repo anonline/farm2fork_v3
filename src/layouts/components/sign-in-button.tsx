@@ -13,11 +13,12 @@ export function SignInButton({ sx, ...other }: ButtonProps) {
     <Button
       component={RouterLink}
       href={CONFIG.auth.redirectPath}
-      variant="outlined"
+      variant="contained"
+      color="primary"
       sx={sx}
       {...other}
     >
-      Sign in
+      Belépés
     </Button>
   );
 }

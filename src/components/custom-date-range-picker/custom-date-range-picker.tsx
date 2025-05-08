@@ -99,8 +99,8 @@ export function CustomDateRangePicker({
             </>
           ) : (
             <>
-              <DatePicker label="Start date" value={startDate} onChange={onChangeStartDate} />
-              <DatePicker label="End date" value={endDate} onChange={onChangeEndDate} />
+              <DatePicker label="Kezdő dátum" value={startDate} onChange={onChangeStartDate} />
+              <DatePicker label="Vég dátum" value={endDate} onChange={onChangeEndDate} />
             </>
           )}
         </Box>

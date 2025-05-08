@@ -50,7 +50,7 @@ export function AuthSplitSection({
           px: 3,
           pb: 3,
           width: 1,
-          maxWidth: 480,
+          maxWidth: "50%",
           display: 'none',
           position: 'relative',
           pt: 'var(--layout-header-desktop-height)',
@@ -80,9 +80,9 @@ export function AuthSplitSection({
 
       <Box
         component="img"
-        alt="Dashboard illustration"
+        alt="Bejelentkezés háttérkép"
         src={imgUrl}
-        sx={{ width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
+        sx={{ aspectRatio: '3/3', objectFit: 'cover', borderRadius: 2, height: 1}}
       />
 
       {!!methods?.length && method && (
