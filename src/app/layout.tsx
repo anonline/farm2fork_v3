@@ -26,6 +26,7 @@ import { AuthProvider as AmplifyAuthProvider } from 'src/auth/context/amplify';
 import { AuthProvider as SupabaseAuthProvider } from 'src/auth/context/supabase';
 import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase';
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
 // ----------------------------------------------------------------------
 
 const AuthProvider =
@@ -106,6 +107,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         <ProgressBar />
                         <SettingsDrawer defaultSettings={defaultSettings} />
                         {children}
+                        <SpeedInsights />
                       </CheckoutProvider>
                     </MotionLazy>
                   </ThemeProvider>
