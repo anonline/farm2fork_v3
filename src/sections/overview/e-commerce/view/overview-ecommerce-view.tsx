@@ -1,13 +1,10 @@
 'use client';
 
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { MotivationIllustration } from 'src/assets/illustrations';
 import {
-  _ecommerceNewProducts,
   _ecommerceBestSalesman,
   _ecommerceSalesOverview,
   _ecommerceLatestProducts,
@@ -15,8 +12,6 @@ import {
 
 import { useMockedUser } from 'src/auth/hooks';
 
-import { EcommerceWelcome } from '../ecommerce-welcome';
-import { EcommerceNewProducts } from '../ecommerce-new-products';
 import { EcommerceYearlySales } from '../ecommerce-yearly-sales';
 import { EcommerceBestSalesman } from '../ecommerce-best-salesman';
 import { EcommerceSaleByGender } from '../ecommerce-sale-by-gender';

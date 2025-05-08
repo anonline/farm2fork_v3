@@ -20,7 +20,6 @@ import { AuthSplitContent } from './content';
 import { MainSection } from '../core/main-section';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { SettingsButton } from '../components/settings-button';
 
 import type { AuthSplitSectionProps } from './section';
 import type { AuthSplitContentProps } from './content';

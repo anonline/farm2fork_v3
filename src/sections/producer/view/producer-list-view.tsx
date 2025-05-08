@@ -2,6 +2,7 @@
 
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { IProducerItem, IProducerTableFilters } from 'src/types/producer';
 import type {
   GridColDef,
   GridSlotProps,
@@ -11,9 +12,7 @@ import type {
 } from '@mui/x-data-grid';
 
 import { useState, useEffect, useCallback } from 'react';
-
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
-import { IProducerItem, IProducerTableFilters } from 'src/types/producer';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -34,6 +33,7 @@ import {
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+
 import { useGetProducers } from 'src/actions/producer';
 import { DashboardContent } from 'src/layouts/dashboard';
 

@@ -1,5 +1,6 @@
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { IProducerTableFilters } from 'src/types/producer';
 
 import { useState, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
@@ -15,8 +16,6 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-
-import { IProducerTableFilters } from 'src/types/producer';
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +42,7 @@ export function ProducerTableToolbar({ filters, options }: Props) {
   }, []);
 
   const handleFilterBio = useCallback(() => {
-    updateFilters({ bio: bio });
+    updateFilters({ bio });
   }, [bio, updateFilters]);
 
   const renderMenuActions = () => (

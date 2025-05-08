@@ -4,8 +4,8 @@ import type { IProducerItem } from 'src/types/producer';
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
+import { endpoints } from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
-import { fetcher, endpoints } from 'src/lib/axios';
 
 
 // ----------------------------------------------------------------------

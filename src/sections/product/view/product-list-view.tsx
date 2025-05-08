@@ -47,9 +47,9 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ProductTableToolbar } from '../product-table-toolbar';
 import { ProductTableFiltersResult } from '../product-table-filters-result';
 import {
+  RenderCellBio,
   RenderCellStock,
   RenderCellPrice,
-  RenderCellBio,
   RenderCellPublish,
   RenderCellProduct,
   RenderCellCreatedAt,
