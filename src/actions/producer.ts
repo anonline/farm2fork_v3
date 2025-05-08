@@ -1,9 +1,12 @@
 import type { SWRConfiguration } from 'swr';
-import { IProducerItem } from 'src/types/producer';
+import type { IProducerItem } from 'src/types/producer';
+
 import useSWR from 'swr';
 import { useMemo } from 'react';
+
 import { supabase } from 'src/lib/supabase';
 import { fetcher, endpoints } from 'src/lib/axios';
+
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +33,7 @@ export function useGetProducers() {
     const { data: producers, error:responseError } = response;
     
     if (responseError) throw responseError.message;
-    return { producers,  };
+    return { producers };
   }, swrOptions);
   
   const memoizedValue = useMemo(
@@ -58,9 +61,9 @@ export function useGetProducer(producerId: string) {
 
   const { data, isLoading, error, isValidating } = useSWR<ProducerData>("producer", async () =>  {
     const response = await supabase.from("Producers").select("*").eq("id", producerId).single();
-    const { data: producer, error } = response;
+    const { data: producer, error:responseError } = response;
     
-    if (error) throw error.message;
+    if (responseError) throw responseError.message;
     return { producer };
   }, swrOptions);
 
@@ -88,9 +91,9 @@ export function useSearchProducers(query: string) {
 
   const { data, isLoading, error, isValidating } = useSWR<ProducerSearchResultsData>(url, async () =>  {
     const response = await supabase.from("Producers").select("*").ilike("name", query).single();
-    const { data: producer, error } = response;
+    const { data: producer, error:responseError } = response;
     
-    if (error) throw error.message;
+    if (responseError) throw responseError.message;
     return { results: producer };
   }, {
     ...swrOptions,

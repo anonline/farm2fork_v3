@@ -1,6 +1,6 @@
-import type { IProducerTableFilters } from 'src/types/producer';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { FiltersResultProps } from 'src/components/filters-result';
+import type { IProducerTableFilters } from 'src/types/producer';
 
 import { useCallback } from 'react';
 import { upperFirst } from 'es-toolkit';

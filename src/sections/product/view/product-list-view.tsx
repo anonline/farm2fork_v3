@@ -50,8 +50,8 @@ import {
   RenderCellStock,
   RenderCellPrice,
   RenderCellPublish,
-  RenderCellProduct,
   RenderCellBio,
+  RenderCellProduct,
   RenderCellCreatedAt,
 } from '../product-table-row';
 

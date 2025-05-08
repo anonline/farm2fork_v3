@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import type { IProductItem } from 'src/types/product';
+
 import { CONFIG } from 'src/global-config';
 import { supabase } from 'src/lib/supabase';
+
 import { ProductDetailsView } from 'src/sections/product/view';
 
 // ----------------------------------------------------------------------

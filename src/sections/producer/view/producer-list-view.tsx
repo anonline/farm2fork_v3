@@ -9,9 +9,11 @@ import type {
   GridActionsCellItemProps,
   GridColumnVisibilityModel,
 } from '@mui/x-data-grid';
-import { IProducerItem, IProducerTableFilters } from 'src/types/producer';
+
 import { useState, useEffect, useCallback } from 'react';
+import { IProducerItem, IProducerTableFilters } from 'src/types/producer';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
@@ -28,21 +30,26 @@ import {
   GridToolbarFilterButton,
   GridToolbarColumnsButton,
 } from '@mui/x-data-grid';
+
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+
 import { DashboardContent } from 'src/layouts/dashboard';
+
+import { useGetProducers } from 'src/actions/producer';
+
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { useGetProducers } from 'src/actions/producer';
+
 import { ProducerTableToolbar } from '../producer-table-toolbar';
 import { ProducerTableFiltersResult } from '../producer-table-filters-result';
 import {
-  RenderCellProducingTags,
-  RenderCellName,
   RenderCellBio,
+  RenderCellName,
+  RenderCellProducingTags,
   RenderCellCreatedAt,
 } from '../producer-table-row';
 
