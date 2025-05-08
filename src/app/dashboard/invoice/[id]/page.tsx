@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { IInvoice } from 'src/types/invoice';
 
 import { CONFIG } from 'src/global-config';
 import { _invoices } from 'src/_mock/_invoice';
@@ -35,10 +34,10 @@ export default async function Page({ params }: Props) {
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-export async function generateStaticParams() {
+/*export async function generateStaticParams() {
   const data: IInvoice[] = CONFIG.isStaticExport ? _invoices : _invoices.slice(0, 1);
 
   return data.map((invoice) => ({
     id: invoice.id,
   }));
-}
+}*/

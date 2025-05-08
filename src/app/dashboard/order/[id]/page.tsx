@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { IOrderItem } from 'src/types/order';
 
 import { _orders } from 'src/_mock/_order';
 import { CONFIG } from 'src/global-config';
@@ -35,10 +34,10 @@ export default async function Page({ params }: Props) {
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-export async function generateStaticParams() {
+/*export async function generateStaticParams() {
   const data: IOrderItem[] = CONFIG.isStaticExport ? _orders : _orders.slice(0, 1);
 
   return data.map((order) => ({
     id: order.id,
   }));
-}
+}*/

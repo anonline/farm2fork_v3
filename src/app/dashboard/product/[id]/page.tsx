@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { IProductItem } from 'src/types/product';
 
 import { CONFIG } from 'src/global-config';
 import { supabase } from 'src/lib/supabase';
@@ -40,7 +39,7 @@ export default async function Page({ params }: Props) {
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-export async function generateStaticParams() {
+/*export async function generateStaticParams() {
   const res = await supabase.from("Products").select("*");
   const { data:products, error } = res;
   if (error) throw error.message;
@@ -52,4 +51,4 @@ export async function generateStaticParams() {
   return data.map((product: IProductItem) => ({
     id: product.id.toString(),
   }));
-}
+}*/

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { ITourItem } from 'src/types/tour';
 
 import { _tours } from 'src/_mock/_tour';
 import { CONFIG } from 'src/global-config';
@@ -34,10 +33,10 @@ export default async function Page({ params }: Props) {
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-export async function generateStaticParams() {
+/*export async function generateStaticParams() {
   const data: ITourItem[] = CONFIG.isStaticExport ? _tours : _tours.slice(0, 1);
 
   return data.map((tour) => ({
     id: tour.id,
   }));
-}
+}*/

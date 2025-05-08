@@ -1,11 +1,7 @@
 import type { Metadata } from 'next';
-import type { IPostItem } from 'src/types/blog';
-
-import { kebabCase } from 'es-toolkit';
 
 import { CONFIG } from 'src/global-config';
 import { getPost } from 'src/actions/blog-ssr';
-import axios, { endpoints } from 'src/lib/axios';
 
 import { PostEditView } from 'src/sections/blog/view';
 
@@ -18,10 +14,11 @@ type Props = {
 };
 
 export default async function Page({ params }: Props) {
+  
   const { title } = await params;
 
   const { post } = await getPost(title);
-
+  
   return <PostEditView post={post} />;
 }
 
@@ -37,7 +34,7 @@ export default async function Page({ params }: Props) {
  * https://nextjs.org/docs/app/building-your-application/deploying/static-exports
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
- */
+ *//*
 export async function generateStaticParams() {
   const res = await axios.get(endpoints.post.list);
   const data: IPostItem[] = CONFIG.isStaticExport ? res.data.posts : res.data.posts.slice(0, 1);
@@ -45,4 +42,4 @@ export async function generateStaticParams() {
   return data.map((post) => ({
     title: kebabCase(post.title),
   }));
-}
+}*/

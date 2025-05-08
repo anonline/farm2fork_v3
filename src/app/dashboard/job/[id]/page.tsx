@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { IJobItem } from 'src/types/job';
 
 import { _jobs } from 'src/_mock/_job';
 import { CONFIG } from 'src/global-config';
@@ -35,10 +34,10 @@ export default async function Page({ params }: Props) {
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-export async function generateStaticParams() {
+/*export async function generateStaticParams() {
   const data: IJobItem[] = CONFIG.isStaticExport ? _jobs : _jobs.slice(0, 1);
 
   return data.map((job) => ({
     id: job.id,
   }));
-}
+}*/

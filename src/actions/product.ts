@@ -33,7 +33,7 @@ export function useGetProducts() {
     if (responseError) throw responseError.message;
     return { products };
   });
-  console.log(data);
+  
   const memoizedValue = useMemo(
     () => ({
       products: data?.products || [],

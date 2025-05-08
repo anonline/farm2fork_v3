@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { IUserItem } from 'src/types/user';
 
 import { CONFIG } from 'src/global-config';
 import { _userList } from 'src/_mock/_user';
@@ -35,10 +34,10 @@ export default async function Page({ params }: Props) {
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-export async function generateStaticParams() {
+/*export async function generateStaticParams() {
   const data: IUserItem[] = CONFIG.isStaticExport ? _userList : _userList.slice(0, 1);
 
   return data.map((user) => ({
     id: user.id,
   }));
-}
+}*/
