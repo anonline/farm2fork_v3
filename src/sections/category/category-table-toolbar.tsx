@@ -1,22 +1,13 @@
-import type { IProductTableFilters } from 'src/types/product';
-import type { SelectChangeEvent } from '@mui/material/Select';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { ICategoryTableFilter } from 'src/types/category';
 
-import { useState, useCallback } from 'react';
-import { varAlpha } from 'minimal-shared/utils';
 import { usePopover } from 'minimal-shared/hooks';
 
-import Select from '@mui/material/Select';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-import { ICategoryTableFilter } from 'src/types/category';
 
 // ----------------------------------------------------------------------
 

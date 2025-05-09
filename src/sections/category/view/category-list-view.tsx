@@ -2,7 +2,7 @@
 
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
-
+import type { ICategoryItem, ICategoryTableFilter } from 'src/types/category';
 import type {
   GridColDef,
   GridSlotProps,
@@ -34,8 +34,8 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useGetProducts } from 'src/actions/product';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useGetProductCategories } from 'src/actions/category';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -46,12 +46,10 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { CategoryTableToolbar } from '../category-table-toolbar';
 import { CategoryTableFiltersResult } from '../category-table-filters-result';
 import {
-  RenderCellCreatedAt,
   RenderCellEnabled,
-  RenderCellCategory
+  RenderCellCategory,
+  RenderCellCreatedAt
 } from '../category-table-row';
-import { ICategoryItem, ICategoryTableFilter } from 'src/types/category';
-import { useGetProductCategories } from 'src/actions/category';
 
 // ----------------------------------------------------------------------
 

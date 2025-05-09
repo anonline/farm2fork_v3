@@ -1,11 +1,11 @@
 import type { SWRConfiguration } from 'swr';
 import type { IProductItem } from 'src/types/product';
+import type { ICategoryItem } from 'src/types/category';
 
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
-import { ICategoryItem } from 'src/types/category';
 
 // ----------------------------------------------------------------------
 
