@@ -7,9 +7,9 @@ import { AccountGeneralView } from 'src/sections/account/view';
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: `Account general settings | Dashboard - ${CONFIG.appName}`,
+    title: `Account general settings | Dashboard - ${CONFIG.appName}`,
 };
 
 export default function Page() {
-  return <AccountGeneralView />;
+    return <AccountGeneralView />;
 }

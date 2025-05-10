@@ -3,17 +3,17 @@ import axios, { endpoints } from 'src/lib/axios';
 // ----------------------------------------------------------------------
 
 export async function getProducts() {
-  const res = await axios.get(endpoints.product.list);
+    const res = await axios.get(endpoints.product.list);
 
-  return res.data;
+    return res.data;
 }
 
 // ----------------------------------------------------------------------
 
 export async function getProduct(id: string) {
-  const URL = id ? `${endpoints.product.details}?productId=${id}` : '';
+    const URL = id ? `${endpoints.product.details}?productId=${id}` : '';
 
-  const res = await axios.get(URL);
+    const res = await axios.get(URL);
 
-  return res.data;
+    return res.data;
 }

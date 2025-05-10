@@ -6,9 +6,9 @@ import { fallbackLng } from '../locales-config';
 // ----------------------------------------------------------------------
 
 export function formatNumberLocale() {
-  const lng = i18next.resolvedLanguage ?? fallbackLng;
+    const lng = i18next.resolvedLanguage ?? fallbackLng;
 
-  const currentLang = allLangs.find((lang) => lang.value === lng);
+    const currentLang = allLangs.find((lang) => lang.value === lng);
 
-  return { code: currentLang?.numberFormat.code, currency: currentLang?.numberFormat.currency };
+    return { code: currentLang?.numberFormat.code, currency: currentLang?.numberFormat.currency };
 }

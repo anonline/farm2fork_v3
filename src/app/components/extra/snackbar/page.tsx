@@ -9,5 +9,5 @@ import { SnackbarView } from 'src/sections/_examples/extra/snackbar-view';
 export const metadata: Metadata = { title: `Snackbar | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <SnackbarView />;
+    return <SnackbarView />;
 }

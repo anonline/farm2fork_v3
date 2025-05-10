@@ -16,17 +16,17 @@ import { useTranslate } from './use-locales';
 // ----------------------------------------------------------------------
 
 type Props = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 export function LocalizationProvider({ children }: Props) {
-  const { currentLang } = useTranslate();
+    const { currentLang } = useTranslate();
 
-  dayjs.locale(currentLang.adapterLocale);
+    dayjs.locale(currentLang.adapterLocale);
 
-  return (
-    <Provider dateAdapter={AdapterDayjs} adapterLocale={currentLang.adapterLocale}>
-      {children}
-    </Provider>
-  );
+    return (
+        <Provider dateAdapter={AdapterDayjs} adapterLocale={currentLang.adapterLocale}>
+            {children}
+        </Provider>
+    );
 }

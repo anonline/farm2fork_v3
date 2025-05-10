@@ -122,35 +122,35 @@ for (var i=1; i &#x3C;= 20; i++) {
 `;
 
 const componentBoxStyles: SxProps<Theme> = {
-  py: 0,
+    py: 0,
 };
 
 // ----------------------------------------------------------------------
 
 export function MarkdownView() {
-  return (
-    <ComponentLayout
-      heroProps={{
-        heading: 'Markdown',
-        moreLinks: ['https://www.npmjs.com/package/react-markdown'],
-      }}
-      containerProps={{
-        maxWidth: 'lg',
-        sx: {
-          rowGap: 5,
-          columnGap: 3,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-        },
-      }}
-    >
-      <ComponentBox title="Html content" sx={componentBoxStyles}>
-        <Markdown children={htmlContent} />
-      </ComponentBox>
+    return (
+        <ComponentLayout
+            heroProps={{
+                heading: 'Markdown',
+                moreLinks: ['https://www.npmjs.com/package/react-markdown'],
+            }}
+            containerProps={{
+                maxWidth: 'lg',
+                sx: {
+                    rowGap: 5,
+                    columnGap: 3,
+                    display: 'grid',
+                    gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+                },
+            }}
+        >
+            <ComponentBox title="Html content" sx={componentBoxStyles}>
+                <Markdown children={htmlContent} />
+            </ComponentBox>
 
-      <ComponentBox title="Mardown content" sx={componentBoxStyles}>
-        <Markdown children={mardownContent} />
-      </ComponentBox>
-    </ComponentLayout>
-  );
+            <ComponentBox title="Mardown content" sx={componentBoxStyles}>
+                <Markdown children={mardownContent} />
+            </ComponentBox>
+        </ComponentLayout>
+    );
 }

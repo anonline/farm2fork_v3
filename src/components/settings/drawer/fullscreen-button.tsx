@@ -10,29 +10,29 @@ import { Iconify } from '../../iconify';
 // ----------------------------------------------------------------------
 
 export function FullScreenButton() {
-  const [fullscreen, setFullscreen] = useState(false);
+    const [fullscreen, setFullscreen] = useState(false);
 
-  const handleToggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setFullscreen(true);
-    } else if (document.exitFullscreen) {
-      document.exitFullscreen();
-      setFullscreen(false);
-    }
-  }, []);
+    const handleToggleFullscreen = useCallback(() => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            setFullscreen(true);
+        } else if (document.exitFullscreen) {
+            document.exitFullscreen();
+            setFullscreen(false);
+        }
+    }, []);
 
-  return (
-    <Tooltip title={fullscreen ? 'Exit' : 'Fullscreen'}>
-      <IconButton onClick={handleToggleFullscreen} color={fullscreen ? 'primary' : 'default'}>
-        <Iconify
-          icon={
-            fullscreen
-              ? 'solar:quit-full-screen-square-outline'
-              : 'solar:full-screen-square-outline'
-          }
-        />
-      </IconButton>
-    </Tooltip>
-  );
+    return (
+        <Tooltip title={fullscreen ? 'Exit' : 'Fullscreen'}>
+            <IconButton onClick={handleToggleFullscreen} color={fullscreen ? 'primary' : 'default'}>
+                <Iconify
+                    icon={
+                        fullscreen
+                            ? 'solar:quit-full-screen-square-outline'
+                            : 'solar:full-screen-square-outline'
+                    }
+                />
+            </IconButton>
+        </Tooltip>
+    );
 }

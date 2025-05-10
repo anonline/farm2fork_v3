@@ -10,60 +10,60 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type ToolbarProps = BoxProps & {
-  isText: boolean;
-  isMulti: boolean;
-  onRefresh: () => void;
-  onChangeText: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onChangeMulti: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    isText: boolean;
+    isMulti: boolean;
+    onRefresh: () => void;
+    onChangeText: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChangeMulti: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export function Toolbar({
-  sx,
-  isText,
-  isMulti,
-  onRefresh,
-  onChangeText,
-  onChangeMulti,
-  ...other
+    sx,
+    isText,
+    isMulti,
+    onRefresh,
+    onChangeText,
+    onChangeMulti,
+    ...other
 }: ToolbarProps) {
-  return (
-    <Box
-      sx={[
-        () => ({
-          display: 'flex',
-          alignItems: 'center',
-        }),
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-      {...other}
-    >
-      <FormControlLabel
-        label="Text object"
-        control={
-          <Switch
-            checked={isText}
-            onChange={onChangeText}
-            slotProps={{ input: { id: 'text-switch' } }}
-          />
-        }
-      />
-
-      <Box sx={{ flexGrow: 1 }} />
-      {!isText && (
-        <FormControlLabel
-          label="MultiItem"
-          control={
-            <Switch
-              checked={isMulti}
-              onChange={onChangeMulti}
-              slotProps={{ input: { id: 'multi-item-switch' } }}
+    return (
+        <Box
+            sx={[
+                () => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                }),
+                ...(Array.isArray(sx) ? sx : [sx]),
+            ]}
+            {...other}
+        >
+            <FormControlLabel
+                label="Text object"
+                control={
+                    <Switch
+                        checked={isText}
+                        onChange={onChangeText}
+                        slotProps={{ input: { id: 'text-switch' } }}
+                    />
+                }
             />
-          }
-        />
-      )}
-      <IconButton onClick={onRefresh}>
-        <Iconify icon="solar:restart-bold" />
-      </IconButton>
-    </Box>
-  );
+
+            <Box sx={{ flexGrow: 1 }} />
+            {!isText && (
+                <FormControlLabel
+                    label="MultiItem"
+                    control={
+                        <Switch
+                            checked={isMulti}
+                            onChange={onChangeMulti}
+                            slotProps={{ input: { id: 'multi-item-switch' } }}
+                        />
+                    }
+                />
+            )}
+            <IconButton onClick={onRefresh}>
+                <Iconify icon="solar:restart-bold" />
+            </IconButton>
+        </Box>
+    );
 }

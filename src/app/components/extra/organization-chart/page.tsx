@@ -7,9 +7,9 @@ import { OrganizationalChartView } from 'src/sections/_examples/extra/organizati
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: `Organizational chart | Components - ${CONFIG.appName}`,
+    title: `Organizational chart | Components - ${CONFIG.appName}`,
 };
 
 export default function Page() {
-  return <OrganizationalChartView />;
+    return <OrganizationalChartView />;
 }

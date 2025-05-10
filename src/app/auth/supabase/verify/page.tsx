@@ -9,5 +9,5 @@ import { SupabaseVerifyView } from 'src/auth/view/supabase';
 export const metadata: Metadata = { title: `Verify | Supabase - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <SupabaseVerifyView />;
+    return <SupabaseVerifyView />;
 }

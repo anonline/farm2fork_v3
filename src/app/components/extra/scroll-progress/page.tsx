@@ -9,5 +9,5 @@ import { ScrollProgressView } from 'src/sections/_examples/extra/scroll-progress
 export const metadata: Metadata = { title: `Scroll progress | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <ScrollProgressView />;
+    return <ScrollProgressView />;
 }

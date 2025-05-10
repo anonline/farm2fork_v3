@@ -7,9 +7,9 @@ import { CheckoutContext } from './checkout-context';
 // ----------------------------------------------------------------------
 
 export function useCheckoutContext() {
-  const context = use(CheckoutContext);
+    const context = use(CheckoutContext);
 
-  if (!context) throw new Error('useCheckoutContext must be use inside CheckoutProvider');
+    if (!context) throw new Error('useCheckoutContext must be use inside CheckoutProvider');
 
-  return context;
+    return context;
 }

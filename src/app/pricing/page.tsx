@@ -9,5 +9,5 @@ import { PricingView } from 'src/sections/pricing/view';
 export const metadata: Metadata = { title: `Pricing - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <PricingView />;
+    return <PricingView />;
 }

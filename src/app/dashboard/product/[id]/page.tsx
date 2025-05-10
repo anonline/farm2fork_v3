@@ -10,20 +10,19 @@ import { ProductDetailsView } from 'src/sections/product/view';
 export const metadata: Metadata = { title: `Product details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
-  
-  const response = await supabase.from("Products").select("*").eq("id", id).single();
-  const { data: product, error } = response;
-  if (error) throw error.message;
-  
-  
-  //const { product } = await getProduct(id);
-  
-  return <ProductDetailsView product={product} />;
+    const { id } = await params;
+
+    const response = await supabase.from('Products').select('*').eq('id', id).single();
+    const { data: product, error } = response;
+    if (error) throw error.message;
+
+    //const { product } = await getProduct(id);
+
+    return <ProductDetailsView product={product} />;
 }
 
 // ----------------------------------------------------------------------

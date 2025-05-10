@@ -20,58 +20,58 @@ import { signOut as firebaseSignOut } from 'src/auth/context/firebase/action';
 // ----------------------------------------------------------------------
 
 const signOut =
-  (CONFIG.auth.method === 'supabase' && supabaseSignOut) ||
-  (CONFIG.auth.method === 'firebase' && firebaseSignOut) ||
-  (CONFIG.auth.method === 'amplify' && amplifySignOut) ||
-  jwtSignOut;
+    (CONFIG.auth.method === 'supabase' && supabaseSignOut) ||
+    (CONFIG.auth.method === 'firebase' && firebaseSignOut) ||
+    (CONFIG.auth.method === 'amplify' && amplifySignOut) ||
+    jwtSignOut;
 
 type Props = ButtonProps & {
-  onClose?: () => void;
+    onClose?: () => void;
 };
 
 export function SignOutButton({ onClose, sx, ...other }: Props) {
-  const router = useRouter();
+    const router = useRouter();
 
-  const { checkUserSession } = useAuthContext();
+    const { checkUserSession } = useAuthContext();
 
-  const { logout: signOutAuth0 } = useAuth0();
+    const { logout: signOutAuth0 } = useAuth0();
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await signOut();
-      await checkUserSession?.();
+    const handleLogout = useCallback(async () => {
+        try {
+            await signOut();
+            await checkUserSession?.();
 
-      onClose?.();
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      toast.error('Unable to logout!');
-    }
-  }, [checkUserSession, onClose, router]);
+            onClose?.();
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            toast.error('Unable to logout!');
+        }
+    }, [checkUserSession, onClose, router]);
 
-  const handleLogoutAuth0 = useCallback(async () => {
-    try {
-      await signOutAuth0();
+    const handleLogoutAuth0 = useCallback(async () => {
+        try {
+            await signOutAuth0();
 
-      onClose?.();
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      toast.error('Unable to logout!');
-    }
-  }, [onClose, router, signOutAuth0]);
+            onClose?.();
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            toast.error('Unable to logout!');
+        }
+    }, [onClose, router, signOutAuth0]);
 
-  return (
-    <Button
-      fullWidth
-      variant="soft"
-      size="large"
-      color="error"
-      onClick={CONFIG.auth.method === 'auth0' ? handleLogoutAuth0 : handleLogout}
-      sx={sx}
-      {...other}
-    >
-      Logout
-    </Button>
-  );
+    return (
+        <Button
+            fullWidth
+            variant="soft"
+            size="large"
+            color="error"
+            onClick={CONFIG.auth.method === 'auth0' ? handleLogoutAuth0 : handleLogout}
+            sx={sx}
+            {...other}
+        >
+            Logout
+        </Button>
+    );
 }

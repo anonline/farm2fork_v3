@@ -7,25 +7,25 @@ import type { PhoneInputProps } from '../phone-input';
 // ----------------------------------------------------------------------
 
 export type RHFPhoneInputProps = Omit<PhoneInputProps, 'value' | 'onChange'> & {
-  name: string;
+    name: string;
 };
 
 export function RHFPhoneInput({ name, helperText, ...other }: RHFPhoneInputProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <PhoneInput
-          {...field}
-          fullWidth
-          error={!!error}
-          helperText={error?.message ?? helperText}
-          {...other}
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <PhoneInput
+                    {...field}
+                    fullWidth
+                    error={!!error}
+                    helperText={error?.message ?? helperText}
+                    {...other}
+                />
+            )}
         />
-      )}
-    />
-  );
+    );
 }

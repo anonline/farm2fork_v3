@@ -9,5 +9,5 @@ import { ChipView } from 'src/sections/_examples/mui/chip-view';
 export const metadata: Metadata = { title: `Chip | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <ChipView />;
+    return <ChipView />;
 }

@@ -10,16 +10,15 @@ import { PostEditView } from 'src/sections/blog/view';
 export const metadata: Metadata = { title: `Post edit | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ title: string }>;
+    params: Promise<{ title: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  
-  const { title } = await params;
+    const { title } = await params;
 
-  const { post } = await getPost(title);
-  
-  return <PostEditView post={post} />;
+    const { post } = await getPost(title);
+
+    return <PostEditView post={post} />;
 }
 
 // ----------------------------------------------------------------------
@@ -34,7 +33,7 @@ export default async function Page({ params }: Props) {
  * https://nextjs.org/docs/app/building-your-application/deploying/static-exports
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
- *//*
+ */ /*
 export async function generateStaticParams() {
   const res = await axios.get(endpoints.post.list);
   const data: IPostItem[] = CONFIG.isStaticExport ? res.data.posts : res.data.posts.slice(0, 1);

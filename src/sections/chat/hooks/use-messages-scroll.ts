@@ -5,33 +5,33 @@ import { useRef, useEffect, useCallback } from 'react';
 // ----------------------------------------------------------------------
 
 export type UseMessagesScrollReturn = {
-  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+    messagesEndRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export function useMessagesScroll(messages: IChatMessage[]): UseMessagesScrollReturn {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = useCallback(() => {
-    if (!messages) {
-      return;
-    }
+    const scrollToBottom = useCallback(() => {
+        if (!messages) {
+            return;
+        }
 
-    if (!messagesEndRef.current) {
-      return;
-    }
+        if (!messagesEndRef.current) {
+            return;
+        }
 
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
-    }
-  }, [messages]);
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages]);
 
-  useEffect(
-    () => {
-      scrollToBottom();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messages]
-  );
+    useEffect(
+        () => {
+            scrollToBottom();
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [messages]
+    );
 
-  return { messagesEndRef };
+    return { messagesEndRef };
 }

@@ -7,9 +7,9 @@ import { ProductDetailsSkeleton } from 'src/sections/product/product-skeleton';
 // ----------------------------------------------------------------------
 
 export default function Loading() {
-  return (
-    <Container sx={{ mt: 5, mb: 10 }}>
-      <ProductDetailsSkeleton />
-    </Container>
-  );
+    return (
+        <Container sx={{ mt: 5, mb: 10 }}>
+            <ProductDetailsSkeleton />
+        </Container>
+    );
 }

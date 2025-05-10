@@ -17,51 +17,53 @@ import { Iconify } from 'src/components/iconify';
 const emails = ['username@gmail.com', 'user02@gmail.com'];
 
 export function SimpleDialog() {
-  const openDialog = useBoolean();
+    const openDialog = useBoolean();
 
-  const [selectedValue, setSelectedValue] = useState(emails[1]);
+    const [selectedValue, setSelectedValue] = useState(emails[1]);
 
-  const handleClose = useCallback(
-    (value: string) => {
-      openDialog.onFalse();
-      setSelectedValue(value);
-    },
-    [openDialog]
-  );
+    const handleClose = useCallback(
+        (value: string) => {
+            openDialog.onFalse();
+            setSelectedValue(value);
+        },
+        [openDialog]
+    );
 
-  return (
-    <>
-      <Button variant="outlined" onClick={openDialog.onTrue}>
-        Open simple dialog
-      </Button>
+    return (
+        <>
+            <Button variant="outlined" onClick={openDialog.onTrue}>
+                Open simple dialog
+            </Button>
 
-      <Typography variant="subtitle1">Selected: {selectedValue}</Typography>
+            <Typography variant="subtitle1">Selected: {selectedValue}</Typography>
 
-      <Dialog open={openDialog.value} onClose={() => handleClose(selectedValue)}>
-        <DialogTitle>Set backup account</DialogTitle>
+            <Dialog open={openDialog.value} onClose={() => handleClose(selectedValue)}>
+                <DialogTitle>Set backup account</DialogTitle>
 
-        <Box component="ul" sx={{ '& li': { display: 'flex' } }}>
-          {emails.map((email) => (
-            <li key={email}>
-              <ListItemButton onClick={() => handleClose(email)}>
-                <Avatar sx={{ mr: 2, color: 'info.lighter', bgcolor: 'info.darker' }}>
-                  <Iconify icon="solar:user-rounded-bold" />
-                </Avatar>
-                <ListItemText primary={email} />
-              </ListItemButton>
-            </li>
-          ))}
+                <Box component="ul" sx={{ '& li': { display: 'flex' } }}>
+                    {emails.map((email) => (
+                        <li key={email}>
+                            <ListItemButton onClick={() => handleClose(email)}>
+                                <Avatar
+                                    sx={{ mr: 2, color: 'info.lighter', bgcolor: 'info.darker' }}
+                                >
+                                    <Iconify icon="solar:user-rounded-bold" />
+                                </Avatar>
+                                <ListItemText primary={email} />
+                            </ListItemButton>
+                        </li>
+                    ))}
 
-          <li>
-            <ListItemButton autoFocus onClick={() => handleClose('addAccount')}>
-              <Avatar sx={{ mr: 2 }}>
-                <Iconify icon="mingcute:add-line" />
-              </Avatar>
-              <ListItemText primary="Add account" />
-            </ListItemButton>
-          </li>
-        </Box>
-      </Dialog>
-    </>
-  );
+                    <li>
+                        <ListItemButton autoFocus onClick={() => handleClose('addAccount')}>
+                            <Avatar sx={{ mr: 2 }}>
+                                <Iconify icon="mingcute:add-line" />
+                            </Avatar>
+                            <ListItemText primary="Add account" />
+                        </ListItemButton>
+                    </li>
+                </Box>
+            </Dialog>
+        </>
+    );
 }

@@ -24,151 +24,151 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 export type UserQuickEditSchemaType = zod.infer<typeof UserQuickEditSchema>;
 
 export const UserQuickEditSchema = zod.object({
-  name: zod.string().min(1, { message: 'Name is required!' }),
-  email: zod
-    .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-    // message for null value
-    message: 'Country is required!',
-  }),
-  state: zod.string().min(1, { message: 'State is required!' }),
-  city: zod.string().min(1, { message: 'City is required!' }),
-  address: zod.string().min(1, { message: 'Address is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-  company: zod.string().min(1, { message: 'Company is required!' }),
-  role: zod.string().min(1, { message: 'Role is required!' }),
-  // Not required
-  status: zod.string(),
+    name: zod.string().min(1, { message: 'Name is required!' }),
+    email: zod
+        .string()
+        .min(1, { message: 'Email is required!' })
+        .email({ message: 'Email must be a valid email address!' }),
+    phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+    country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+        // message for null value
+        message: 'Country is required!',
+    }),
+    state: zod.string().min(1, { message: 'State is required!' }),
+    city: zod.string().min(1, { message: 'City is required!' }),
+    address: zod.string().min(1, { message: 'Address is required!' }),
+    zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
+    company: zod.string().min(1, { message: 'Company is required!' }),
+    role: zod.string().min(1, { message: 'Role is required!' }),
+    // Not required
+    status: zod.string(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  currentUser?: IUserItem;
+    open: boolean;
+    onClose: () => void;
+    currentUser?: IUserItem;
 };
 
 export function UserQuickEditForm({ currentUser, open, onClose }: Props) {
-  const defaultValues: UserQuickEditSchemaType = {
-    name: '',
-    email: '',
-    phoneNumber: '',
-    address: '',
-    country: '',
-    state: '',
-    city: '',
-    zipCode: '',
-    status: '',
-    company: '',
-    role: '',
-  };
+    const defaultValues: UserQuickEditSchemaType = {
+        name: '',
+        email: '',
+        phoneNumber: '',
+        address: '',
+        country: '',
+        state: '',
+        city: '',
+        zipCode: '',
+        status: '',
+        company: '',
+        role: '',
+    };
 
-  const methods = useForm<UserQuickEditSchemaType>({
-    mode: 'all',
-    resolver: zodResolver(UserQuickEditSchema),
-    defaultValues,
-    values: currentUser,
-  });
+    const methods = useForm<UserQuickEditSchemaType>({
+        mode: 'all',
+        resolver: zodResolver(UserQuickEditSchema),
+        defaultValues,
+        values: currentUser,
+    });
 
-  const {
-    reset,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        reset,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    const promise = new Promise((resolve) => setTimeout(resolve, 1000));
+    const onSubmit = handleSubmit(async (data) => {
+        const promise = new Promise((resolve) => setTimeout(resolve, 1000));
 
-    try {
-      reset();
-      onClose();
+        try {
+            reset();
+            onClose();
 
-      toast.promise(promise, {
-        loading: 'Loading...',
-        success: 'Update success!',
-        error: 'Update error!',
-      });
+            toast.promise(promise, {
+                loading: 'Loading...',
+                success: 'Update success!',
+                error: 'Update error!',
+            });
 
-      await promise;
+            await promise;
 
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+            console.info('DATA', data);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
-  return (
-    <Dialog
-      fullWidth
-      maxWidth={false}
-      open={open}
-      onClose={onClose}
-      slotProps={{
-        paper: {
-          sx: { maxWidth: 720 },
-        },
-      }}
-    >
-      <DialogTitle>Quick update</DialogTitle>
-
-      <Form methods={methods} onSubmit={onSubmit}>
-        <DialogContent>
-          <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
-            Account is waiting for confirmation
-          </Alert>
-
-          <Box
-            sx={{
-              rowGap: 3,
-              columnGap: 2,
-              display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+    return (
+        <Dialog
+            fullWidth
+            maxWidth={false}
+            open={open}
+            onClose={onClose}
+            slotProps={{
+                paper: {
+                    sx: { maxWidth: 720 },
+                },
             }}
-          >
-            <Field.Select name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </Field.Select>
+        >
+            <DialogTitle>Quick update</DialogTitle>
 
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
+            <Form methods={methods} onSubmit={onSubmit}>
+                <DialogContent>
+                    <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
+                        Account is waiting for confirmation
+                    </Alert>
 
-            <Field.Text name="name" label="Full name" />
-            <Field.Text name="email" label="Email address" />
-            <Field.Phone name="phoneNumber" label="Phone number" />
+                    <Box
+                        sx={{
+                            rowGap: 3,
+                            columnGap: 2,
+                            display: 'grid',
+                            gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+                        }}
+                    >
+                        <Field.Select name="status" label="Status">
+                            {USER_STATUS_OPTIONS.map((status) => (
+                                <MenuItem key={status.value} value={status.value}>
+                                    {status.label}
+                                </MenuItem>
+                            ))}
+                        </Field.Select>
 
-            <Field.CountrySelect
-              fullWidth
-              name="country"
-              label="Country"
-              placeholder="Choose a country"
-            />
+                        <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
 
-            <Field.Text name="state" label="State/region" />
-            <Field.Text name="city" label="City" />
-            <Field.Text name="address" label="Address" />
-            <Field.Text name="zipCode" label="Zip/code" />
-            <Field.Text name="company" label="Company" />
-            <Field.Text name="role" label="Role" />
-          </Box>
-        </DialogContent>
+                        <Field.Text name="name" label="Full name" />
+                        <Field.Text name="email" label="Email address" />
+                        <Field.Phone name="phoneNumber" label="Phone number" />
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+                        <Field.CountrySelect
+                            fullWidth
+                            name="country"
+                            label="Country"
+                            placeholder="Choose a country"
+                        />
 
-          <Button type="submit" variant="contained" loading={isSubmitting}>
-            Update
-          </Button>
-        </DialogActions>
-      </Form>
-    </Dialog>
-  );
+                        <Field.Text name="state" label="State/region" />
+                        <Field.Text name="city" label="City" />
+                        <Field.Text name="address" label="Address" />
+                        <Field.Text name="zipCode" label="Zip/code" />
+                        <Field.Text name="company" label="Company" />
+                        <Field.Text name="role" label="Role" />
+                    </Box>
+                </DialogContent>
+
+                <DialogActions>
+                    <Button variant="outlined" onClick={onClose}>
+                        Cancel
+                    </Button>
+
+                    <Button type="submit" variant="contained" loading={isSubmitting}>
+                        Update
+                    </Button>
+                </DialogActions>
+            </Form>
+        </Dialog>
+    );
 }

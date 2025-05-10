@@ -16,89 +16,95 @@ import type { OtherSchemaType } from './schema';
 // ----------------------------------------------------------------------
 
 const defaultValues: OtherSchemaType = {
-  editor: '',
-  singleUpload: '',
-  multiUpload: [],
+    editor: '',
+    singleUpload: '',
+    multiUpload: [],
 };
 
 type Props = {
-  debug: boolean;
-  onClose: () => void;
+    debug: boolean;
+    onClose: () => void;
 };
 
 export function OtherDemo({ debug, onClose }: Props) {
-  const methods = useForm<OtherSchemaType>({
-    resolver: zodResolver(OtherSchema),
-    defaultValues,
-  });
+    const methods = useForm<OtherSchemaType>({
+        resolver: zodResolver(OtherSchema),
+        defaultValues,
+    });
 
-  const {
-    watch,
-    reset,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting, errors },
-  } = methods;
+    const {
+        watch,
+        reset,
+        setValue,
+        handleSubmit,
+        formState: { isSubmitting, errors },
+    } = methods;
 
-  const values = watch();
+    const values = watch();
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      reset();
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            reset();
+            console.info('DATA', data);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
-  return (
-    <>
-      {isSubmitting && (
-        <Backdrop open sx={[(theme) => ({ zIndex: theme.zIndex.modal + 1 })]}>
-          <CircularProgress color="warning" />
-        </Backdrop>
-      )}
+    return (
+        <>
+            {isSubmitting && (
+                <Backdrop open sx={[(theme) => ({ zIndex: theme.zIndex.modal + 1 })]}>
+                    <CircularProgress color="warning" />
+                </Backdrop>
+            )}
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        {debug && <ValuesPreview onCloseDebug={onClose} />}
+            <Form methods={methods} onSubmit={onSubmit}>
+                {debug && <ValuesPreview onCloseDebug={onClose} />}
 
-        <FormActions
-          loading={isSubmitting}
-          disabled={Object.keys(errors).length === 0}
-          onReset={() => reset()}
-        />
+                <FormActions
+                    loading={isSubmitting}
+                    disabled={Object.keys(errors).length === 0}
+                    onReset={() => reset()}
+                />
 
-        <FormGrid sx={{ gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' } }}>
-          <ComponentBox title="Upload" sx={componentBoxStyles}>
-            <Field.Upload
-              name="singleUpload"
-              maxSize={3145728}
-              onDelete={() => setValue('singleUpload', null, { shouldValidate: true })}
-            />
+                <FormGrid
+                    sx={{ gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' } }}
+                >
+                    <ComponentBox title="Upload" sx={componentBoxStyles}>
+                        <Field.Upload
+                            name="singleUpload"
+                            maxSize={3145728}
+                            onDelete={() =>
+                                setValue('singleUpload', null, { shouldValidate: true })
+                            }
+                        />
 
-            <Field.Upload
-              multiple
-              thumbnail
-              name="multiUpload"
-              maxSize={3145728}
-              onRemove={(inputFile) =>
-                setValue(
-                  'multiUpload',
-                  values.multiUpload.filter((file) => file !== inputFile),
-                  { shouldValidate: true }
-                )
-              }
-              onRemoveAll={() => setValue('multiUpload', [], { shouldValidate: true })}
-              onUpload={() => console.info('ON UPLOAD')}
-            />
-          </ComponentBox>
+                        <Field.Upload
+                            multiple
+                            thumbnail
+                            name="multiUpload"
+                            maxSize={3145728}
+                            onRemove={(inputFile) =>
+                                setValue(
+                                    'multiUpload',
+                                    values.multiUpload.filter((file) => file !== inputFile),
+                                    { shouldValidate: true }
+                                )
+                            }
+                            onRemoveAll={() =>
+                                setValue('multiUpload', [], { shouldValidate: true })
+                            }
+                            onUpload={() => console.info('ON UPLOAD')}
+                        />
+                    </ComponentBox>
 
-          <ComponentBox title="Editor" sx={{ display: 'block' }}>
-            <Field.Editor fullItem name="editor" sx={{ maxHeight: 480 }} />
-          </ComponentBox>
-        </FormGrid>
-      </Form>
-    </>
-  );
+                    <ComponentBox title="Editor" sx={{ display: 'block' }}>
+                        <Field.Editor fullItem name="editor" sx={{ maxHeight: 480 }} />
+                    </ComponentBox>
+                </FormGrid>
+            </Form>
+        </>
+    );
 }

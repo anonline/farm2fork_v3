@@ -21,16 +21,11 @@ export function RenderCellProducingTags({ params }: ParamsProps) {
     return (
         <>
             {producingTags.length > 0 &&
-            producingTags.map((tag: string, index: number) => (
-                <Label
-                key={index}
-                variant="soft"
-                color='default'
-                sx={{mr: 0.5, mb: 0.5}}
-                >
-                {tag}
-                </Label>
-            ))}
+                producingTags.map((tag: string, index: number) => (
+                    <Label key={index} variant="soft" color="default" sx={{ mr: 0.5, mb: 0.5 }}>
+                        {tag}
+                    </Label>
+                ))}
         </>
     );
 }
@@ -78,7 +73,7 @@ export function RenderCellName({ params, href }: ParamsProps & { href: string })
                         {params.row.name}
                     </Link>
                 }
-                secondary={params.row.companyName + " | " + params.row.location}
+                secondary={params.row.companyName + ' | ' + params.row.location}
                 slotProps={{
                     primary: { noWrap: true },
                     secondary: { sx: { color: 'text.disabled' } },

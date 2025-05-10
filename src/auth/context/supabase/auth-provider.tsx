@@ -19,69 +19,69 @@ import type { AuthState } from '../../types';
  */
 
 type Props = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 export function AuthProvider({ children }: Props) {
-  const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
+    const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
 
-  const checkUserSession = useCallback(async () => {
-    try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
+    const checkUserSession = useCallback(async () => {
+        try {
+            const {
+                data: { session },
+                error,
+            } = await supabase.auth.getSession();
 
-      if (error) {
-        setState({ user: null, loading: false });
-        console.error(error);
-        throw error;
-      }
+            if (error) {
+                setState({ user: null, loading: false });
+                console.error(error);
+                throw error;
+            }
 
-      if (session) {
-        const accessToken = session?.access_token;
+            if (session) {
+                const accessToken = session?.access_token;
 
-        setState({ user: { ...session, ...session?.user }, loading: false });
-        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-      } else {
-        setState({ user: null, loading: false });
-        delete axios.defaults.headers.common.Authorization;
-      }
-    } catch (error) {
-      console.error(error);
-      setState({ user: null, loading: false });
-    }
-  }, [setState]);
+                setState({ user: { ...session, ...session?.user }, loading: false });
+                axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+            } else {
+                setState({ user: null, loading: false });
+                delete axios.defaults.headers.common.Authorization;
+            }
+        } catch (error) {
+            console.error(error);
+            setState({ user: null, loading: false });
+        }
+    }, [setState]);
 
-  useEffect(() => {
-    checkUserSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    useEffect(() => {
+        checkUserSession();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+    const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+    const status = state.loading ? 'loading' : checkAuthenticated;
 
-  const memoizedValue = useMemo(
-    () => ({
-      user: state.user
-        ? {
-            ...state.user,
-            id: state.user?.id,
-            accessToken: state.user?.access_token,
-            displayName: state.user?.user_metadata.display_name,
-            role: state.user?.role ?? 'admin',
-          }
-        : null,
-      checkUserSession,
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
-    }),
-    [checkUserSession, state.user, status]
-  );
+    const memoizedValue = useMemo(
+        () => ({
+            user: state.user
+                ? {
+                      ...state.user,
+                      id: state.user?.id,
+                      accessToken: state.user?.access_token,
+                      displayName: state.user?.user_metadata.display_name,
+                      role: state.user?.role ?? 'admin',
+                  }
+                : null,
+            checkUserSession,
+            loading: status === 'loading',
+            authenticated: status === 'authenticated',
+            unauthenticated: status === 'unauthenticated',
+        }),
+        [checkUserSession, state.user, status]
+    );
 
-  return <AuthContext value={memoizedValue}>{children}</AuthContext>;
+    return <AuthContext value={memoizedValue}>{children}</AuthContext>;
 }

@@ -1,12 +1,12 @@
 {
-  "app": "Application",
-  "job": "Emploi",
-  "user": "Utilisateur",
-  "travel": "Voyage",
-  "invoice": "Facture",
-  "blog": {
-    "title": "Blog",
-    "caption": "Raccourcis clavier personnalisés."
-  },
-  "subheader": "Sous-titre"
+    "app": "Application",
+    "job": "Emploi",
+    "user": "Utilisateur",
+    "travel": "Voyage",
+    "invoice": "Facture",
+    "blog": {
+        "title": "Blog",
+        "caption": "Raccourcis clavier personnalisés."
+    },
+    "subheader": "Sous-titre"
 }

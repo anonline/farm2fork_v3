@@ -29,39 +29,39 @@ import type { LanguageValue } from './locales-config';
  */
 
 export async function detectLanguage() {
-  const cookieStore = await cookies();
+    const cookieStore = await cookies();
 
-  const language = cookieStore.get(cookieName)?.value ?? fallbackLng;
+    const language = cookieStore.get(cookieName)?.value ?? fallbackLng;
 
-  return language as LanguageValue;
+    return language as LanguageValue;
 }
 
 // ----------------------------------------------------------------------
 
 export const getServerTranslations = cache(async (ns = defaultNS, options = {}) => {
-  const language = await detectLanguage();
+    const language = await detectLanguage();
 
-  const i18nextInstance = await initServerI18next(language, ns);
+    const i18nextInstance = await initServerI18next(language, ns);
 
-  return {
-    t: i18nextInstance.getFixedT(
-      language,
-      Array.isArray(ns) ? ns[0] : ns,
-      (options as Record<string, any>).keyPrefix
-    ),
-    i18n: i18nextInstance,
-  };
+    return {
+        t: i18nextInstance.getFixedT(
+            language,
+            Array.isArray(ns) ? ns[0] : ns,
+            (options as Record<string, any>).keyPrefix
+        ),
+        i18n: i18nextInstance,
+    };
 });
 
 // ----------------------------------------------------------------------
 
 const initServerI18next = async (language: string, namespace: string) => {
-  const i18nInstance = createInstance();
+    const i18nInstance = createInstance();
 
-  await i18nInstance
-    .use(initReactI18next)
-    .use(resourcesToBackend((lang: string, ns: string) => import(`./langs/${lang}/${ns}.json`)))
-    .init(i18nOptions(language, namespace));
+    await i18nInstance
+        .use(initReactI18next)
+        .use(resourcesToBackend((lang: string, ns: string) => import(`./langs/${lang}/${ns}.json`)))
+        .init(i18nOptions(language, namespace));
 
-  return i18nInstance;
+    return i18nInstance;
 };

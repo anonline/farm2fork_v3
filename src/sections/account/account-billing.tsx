@@ -11,28 +11,28 @@ import { AccountBillingAddress } from './account-billing-address';
 // ----------------------------------------------------------------------
 
 type Props = {
-  plans: {
-    subscription: string;
-    price: number;
-    primary: boolean;
-  }[];
-  cards: IPaymentCard[];
-  addressBook: IAddressItem[];
-  invoices: IUserAccountBillingHistory[];
+    plans: {
+        subscription: string;
+        price: number;
+        primary: boolean;
+    }[];
+    cards: IPaymentCard[];
+    addressBook: IAddressItem[];
+    invoices: IUserAccountBillingHistory[];
 };
 
 export function AccountBilling({ cards, plans, invoices, addressBook }: Props) {
-  return (
-    <Grid container spacing={5}>
-      <Grid size={{ xs: 12, md: 8 }}>
-        <AccountBillingPlan plans={plans} cardList={cards} addressBook={addressBook} />
-        <AccountBillingPayment cards={cards} />
-        <AccountBillingAddress addressBook={addressBook} />
-      </Grid>
+    return (
+        <Grid container spacing={5}>
+            <Grid size={{ xs: 12, md: 8 }}>
+                <AccountBillingPlan plans={plans} cardList={cards} addressBook={addressBook} />
+                <AccountBillingPayment cards={cards} />
+                <AccountBillingAddress addressBook={addressBook} />
+            </Grid>
 
-      <Grid size={{ xs: 12, md: 4 }}>
-        <AccountBillingHistory invoices={invoices} />
-      </Grid>
-    </Grid>
-  );
+            <Grid size={{ xs: 12, md: 4 }}>
+                <AccountBillingHistory invoices={invoices} />
+            </Grid>
+        </Grid>
+    );
 }

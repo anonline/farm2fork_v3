@@ -9,5 +9,5 @@ import { TreeView } from 'src/sections/_examples/mui/tree-view';
 export const metadata: Metadata = { title: `Tree view | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <TreeView />;
+    return <TreeView />;
 }

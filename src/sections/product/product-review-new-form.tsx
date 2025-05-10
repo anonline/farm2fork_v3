@@ -19,87 +19,87 @@ import { Form, Field } from 'src/components/hook-form';
 export type ReviewSchemaType = zod.infer<typeof ReviewSchema>;
 
 export const ReviewSchema = zod.object({
-  rating: zod.number().min(1, 'Rating must be greater than or equal to 1!'),
-  name: zod.string().min(1, { message: 'Name is required!' }),
-  review: zod.string().min(1, { message: 'Review is required!' }),
-  email: zod
-    .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    rating: zod.number().min(1, 'Rating must be greater than or equal to 1!'),
+    name: zod.string().min(1, { message: 'Name is required!' }),
+    review: zod.string().min(1, { message: 'Review is required!' }),
+    email: zod
+        .string()
+        .min(1, { message: 'Email is required!' })
+        .email({ message: 'Email must be a valid email address!' }),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = DialogProps & {
-  onClose: () => void;
+    onClose: () => void;
 };
 
 export function ProductReviewNewForm({ onClose, ...other }: Props) {
-  const defaultValues: ReviewSchemaType = {
-    rating: 0,
-    review: '',
-    name: '',
-    email: '',
-  };
+    const defaultValues: ReviewSchemaType = {
+        rating: 0,
+        review: '',
+        name: '',
+        email: '',
+    };
 
-  const methods = useForm<ReviewSchemaType>({
-    mode: 'all',
-    resolver: zodResolver(ReviewSchema),
-    defaultValues,
-  });
+    const methods = useForm<ReviewSchemaType>({
+        mode: 'all',
+        resolver: zodResolver(ReviewSchema),
+        defaultValues,
+    });
 
-  const {
-    reset,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        reset,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      onClose();
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            reset();
+            onClose();
+            console.info('DATA', data);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
-  const onCancel = useCallback(() => {
-    onClose();
-    reset();
-  }, [onClose, reset]);
+    const onCancel = useCallback(() => {
+        onClose();
+        reset();
+    }, [onClose, reset]);
 
-  return (
-    <Dialog onClose={onClose} {...other}>
-      <Form methods={methods} onSubmit={onSubmit}>
-        <DialogTitle> Add Review </DialogTitle>
+    return (
+        <Dialog onClose={onClose} {...other}>
+            <Form methods={methods} onSubmit={onSubmit}>
+                <DialogTitle> Add Review </DialogTitle>
 
-        <DialogContent>
-          <div>
-            <Typography variant="body2" sx={{ mb: 1 }}>
-              Your review about this product:
-            </Typography>
-            <Field.Rating name="rating" />
-          </div>
+                <DialogContent>
+                    <div>
+                        <Typography variant="body2" sx={{ mb: 1 }}>
+                            Your review about this product:
+                        </Typography>
+                        <Field.Rating name="rating" />
+                    </div>
 
-          <Field.Text name="review" label="Review *" multiline rows={3} sx={{ mt: 3 }} />
+                    <Field.Text name="review" label="Review *" multiline rows={3} sx={{ mt: 3 }} />
 
-          <Field.Text name="name" label="Name *" sx={{ mt: 3 }} />
+                    <Field.Text name="name" label="Name *" sx={{ mt: 3 }} />
 
-          <Field.Text name="email" label="Email *" sx={{ mt: 3 }} />
-        </DialogContent>
+                    <Field.Text name="email" label="Email *" sx={{ mt: 3 }} />
+                </DialogContent>
 
-        <DialogActions>
-          <Button color="inherit" variant="outlined" onClick={onCancel}>
-            Cancel
-          </Button>
+                <DialogActions>
+                    <Button color="inherit" variant="outlined" onClick={onCancel}>
+                        Cancel
+                    </Button>
 
-          <Button type="submit" variant="contained" loading={isSubmitting}>
-            Post
-          </Button>
-        </DialogActions>
-      </Form>
-    </Dialog>
-  );
+                    <Button type="submit" variant="contained" loading={isSubmitting}>
+                        Post
+                    </Button>
+                </DialogActions>
+            </Form>
+        </Dialog>
+    );
 }

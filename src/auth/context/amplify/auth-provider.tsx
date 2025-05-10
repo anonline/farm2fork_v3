@@ -26,76 +26,76 @@ import type { AuthState } from '../../types';
  */
 
 Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: CONFIG.amplify.userPoolId,
-      userPoolClientId: CONFIG.amplify.userPoolWebClientId,
+    Auth: {
+        Cognito: {
+            userPoolId: CONFIG.amplify.userPoolId,
+            userPoolClientId: CONFIG.amplify.userPoolWebClientId,
+        },
     },
-  },
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 export function AuthProvider({ children }: Props) {
-  const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
+    const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
 
-  const checkUserSession = useCallback(async () => {
-    try {
-      const authSession = (await fetchAuthSession({ forceRefresh: true })).tokens;
+    const checkUserSession = useCallback(async () => {
+        try {
+            const authSession = (await fetchAuthSession({ forceRefresh: true })).tokens;
 
-      if (authSession) {
-        const userAttributes = await fetchUserAttributes();
+            if (authSession) {
+                const userAttributes = await fetchUserAttributes();
 
-        const accessToken = authSession.accessToken.toString();
+                const accessToken = authSession.accessToken.toString();
 
-        setState({ user: { ...authSession, ...userAttributes }, loading: false });
-        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-      } else {
-        setState({ user: null, loading: false });
-        delete axios.defaults.headers.common.Authorization;
-      }
-    } catch (error) {
-      console.error(error);
-      setState({ user: null, loading: false });
-    }
-  }, [setState]);
+                setState({ user: { ...authSession, ...userAttributes }, loading: false });
+                axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+            } else {
+                setState({ user: null, loading: false });
+                delete axios.defaults.headers.common.Authorization;
+            }
+        } catch (error) {
+            console.error(error);
+            setState({ user: null, loading: false });
+        }
+    }, [setState]);
 
-  useEffect(() => {
-    checkUserSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    useEffect(() => {
+        checkUserSession();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+    const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+    const status = state.loading ? 'loading' : checkAuthenticated;
 
-  const memoizedValue = useMemo(
-    () => ({
-      user: state.user
-        ? {
-            ...state.user,
-            id: state.user?.sub,
-            accessToken: state.user?.accessToken?.toString(),
-            displayName:
-              state.user?.given_name &&
-              state.user?.family_name &&
-              `${state.user?.given_name} ${state.user?.family_name}`,
-            role: state.user?.role ?? 'admin',
-          }
-        : null,
-      checkUserSession,
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
-    }),
-    [checkUserSession, state.user, status]
-  );
+    const memoizedValue = useMemo(
+        () => ({
+            user: state.user
+                ? {
+                      ...state.user,
+                      id: state.user?.sub,
+                      accessToken: state.user?.accessToken?.toString(),
+                      displayName:
+                          state.user?.given_name &&
+                          state.user?.family_name &&
+                          `${state.user?.given_name} ${state.user?.family_name}`,
+                      role: state.user?.role ?? 'admin',
+                  }
+                : null,
+            checkUserSession,
+            loading: status === 'loading',
+            authenticated: status === 'authenticated',
+            unauthenticated: status === 'unauthenticated',
+        }),
+        [checkUserSession, state.user, status]
+    );
 
-  return <AuthContext value={memoizedValue}>{children}</AuthContext>;
+    return <AuthContext value={memoizedValue}>{children}</AuthContext>;
 }

@@ -25,132 +25,136 @@ import { getNavItem } from './utils/get-nav-item';
 // ----------------------------------------------------------------------
 
 type Props = {
-  selected: boolean;
-  collapse: boolean;
-  onCloseMobile: () => void;
-  conversation: IChatConversation;
+    selected: boolean;
+    collapse: boolean;
+    onCloseMobile: () => void;
+    conversation: IChatConversation;
 };
 
 export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }: Props) {
-  const { user } = useMockedUser();
+    const { user } = useMockedUser();
 
-  const router = useRouter();
+    const router = useRouter();
 
-  const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
+    const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
-  const { group, displayName, displayText, participants, lastActivity, hasOnlineInGroup } =
-    getNavItem({ conversation, currentUserId: `${user?.id}` });
+    const { group, displayName, displayText, participants, lastActivity, hasOnlineInGroup } =
+        getNavItem({ conversation, currentUserId: `${user?.id}` });
 
-  const singleParticipant = participants[0];
+    const singleParticipant = participants[0];
 
-  const handleClickConversation = useCallback(async () => {
-    try {
-      if (!mdUp) {
-        onCloseMobile();
-      }
+    const handleClickConversation = useCallback(async () => {
+        try {
+            if (!mdUp) {
+                onCloseMobile();
+            }
 
-      await clickConversation(conversation.id);
+            await clickConversation(conversation.id);
 
-      const redirectPath = `${paths.dashboard.chat}?id=${conversation.id}`;
+            const redirectPath = `${paths.dashboard.chat}?id=${conversation.id}`;
 
-      startTransition(() => {
-        router.push(redirectPath);
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }, [conversation.id, mdUp, onCloseMobile, router]);
+            startTransition(() => {
+                router.push(redirectPath);
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }, [conversation.id, mdUp, onCloseMobile, router]);
 
-  const renderGroup = () => (
-    <Badge variant={hasOnlineInGroup ? 'online' : 'invisible'} badgeContent="">
-      <AvatarGroup variant="compact" sx={{ width: 48, height: 48 }}>
-        {participants.slice(0, 2).map((participant) => (
-          <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
-        ))}
-      </AvatarGroup>
-    </Badge>
-  );
-
-  const renderSingle = () => (
-    <Badge variant={singleParticipant?.status} badgeContent="">
-      <Avatar
-        alt={singleParticipant?.name}
-        src={singleParticipant?.avatarUrl}
-        sx={{ width: 48, height: 48 }}
-      />
-    </Badge>
-  );
-
-  return (
-    <Box component="li" sx={{ display: 'flex' }}>
-      <ListItemButton
-        onClick={handleClickConversation}
-        sx={{
-          py: 1.5,
-          px: 2.5,
-          gap: 2,
-          ...(selected && { bgcolor: 'action.selected' }),
-        }}
-      >
-        <Badge
-          color="error"
-          overlap="circular"
-          badgeContent={collapse ? conversation.unreadCount : 0}
-        >
-          {group ? renderGroup() : renderSingle()}
+    const renderGroup = () => (
+        <Badge variant={hasOnlineInGroup ? 'online' : 'invisible'} badgeContent="">
+            <AvatarGroup variant="compact" sx={{ width: 48, height: 48 }}>
+                {participants.slice(0, 2).map((participant) => (
+                    <Avatar
+                        key={participant.id}
+                        alt={participant.name}
+                        src={participant.avatarUrl}
+                    />
+                ))}
+            </AvatarGroup>
         </Badge>
+    );
 
-        {!collapse && (
-          <>
-            <ListItemText
-              primary={displayName}
-              secondary={displayText}
-              slotProps={{
-                primary: { noWrap: true },
-                secondary: {
-                  noWrap: true,
-                  sx: {
-                    ...(conversation.unreadCount && {
-                      color: 'text.primary',
-                      fontWeight: 'fontWeightSemiBold',
-                    }),
-                  },
-                },
-              }}
+    const renderSingle = () => (
+        <Badge variant={singleParticipant?.status} badgeContent="">
+            <Avatar
+                alt={singleParticipant?.name}
+                src={singleParticipant?.avatarUrl}
+                sx={{ width: 48, height: 48 }}
             />
+        </Badge>
+    );
 
-            <Box
-              sx={{
-                display: 'flex',
-                alignSelf: 'stretch',
-                alignItems: 'flex-end',
-                flexDirection: 'column',
-              }}
+    return (
+        <Box component="li" sx={{ display: 'flex' }}>
+            <ListItemButton
+                onClick={handleClickConversation}
+                sx={{
+                    py: 1.5,
+                    px: 2.5,
+                    gap: 2,
+                    ...(selected && { bgcolor: 'action.selected' }),
+                }}
             >
-              <Typography
-                noWrap
-                variant="body2"
-                component="span"
-                sx={{ mb: 1.5, fontSize: 12, color: 'text.disabled' }}
-              >
-                {fToNow(lastActivity)}
-              </Typography>
+                <Badge
+                    color="error"
+                    overlap="circular"
+                    badgeContent={collapse ? conversation.unreadCount : 0}
+                >
+                    {group ? renderGroup() : renderSingle()}
+                </Badge>
 
-              {!!conversation.unreadCount && (
-                <Box
-                  component="span"
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: 'info.main',
-                  }}
-                />
-              )}
-            </Box>
-          </>
-        )}
-      </ListItemButton>
-    </Box>
-  );
+                {!collapse && (
+                    <>
+                        <ListItemText
+                            primary={displayName}
+                            secondary={displayText}
+                            slotProps={{
+                                primary: { noWrap: true },
+                                secondary: {
+                                    noWrap: true,
+                                    sx: {
+                                        ...(conversation.unreadCount && {
+                                            color: 'text.primary',
+                                            fontWeight: 'fontWeightSemiBold',
+                                        }),
+                                    },
+                                },
+                            }}
+                        />
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignSelf: 'stretch',
+                                alignItems: 'flex-end',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <Typography
+                                noWrap
+                                variant="body2"
+                                component="span"
+                                sx={{ mb: 1.5, fontSize: 12, color: 'text.disabled' }}
+                            >
+                                {fToNow(lastActivity)}
+                            </Typography>
+
+                            {!!conversation.unreadCount && (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        width: 8,
+                                        height: 8,
+                                        borderRadius: '50%',
+                                        bgcolor: 'info.main',
+                                    }}
+                                />
+                            )}
+                        </Box>
+                    </>
+                )}
+            </ListItemButton>
+        </Box>
+    );
 }

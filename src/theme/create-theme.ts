@@ -19,50 +19,52 @@ import type { ThemeOptions } from './types';
 // ----------------------------------------------------------------------
 
 export const baseTheme: ThemeOptions = {
-  colorSchemes: {
-    light: {
-      palette: palette.light,
-      shadows: shadows.light,
-      customShadows: customShadows.light,
+    colorSchemes: {
+        light: {
+            palette: palette.light,
+            shadows: shadows.light,
+            customShadows: customShadows.light,
+        },
+        dark: {
+            palette: palette.dark,
+            shadows: shadows.dark,
+            customShadows: customShadows.dark,
+        },
     },
-    dark: {
-      palette: palette.dark,
-      shadows: shadows.dark,
-      customShadows: customShadows.dark,
-    },
-  },
-  mixins,
-  components,
-  typography,
-  shape: { borderRadius: 8 },
-  direction: themeConfig.direction,
-  cssVariables: themeConfig.cssVariables,
-  defaultColorScheme: themeConfig.defaultMode,
+    mixins,
+    components,
+    typography,
+    shape: { borderRadius: 8 },
+    direction: themeConfig.direction,
+    cssVariables: themeConfig.cssVariables,
+    defaultColorScheme: themeConfig.defaultMode,
 };
 
 // ----------------------------------------------------------------------
 
 type CreateThemeProps = {
-  settingsState?: SettingsState;
-  themeOverrides?: ThemeOptions;
-  localeComponents?: { components?: Components<Theme> };
+    settingsState?: SettingsState;
+    themeOverrides?: ThemeOptions;
+    localeComponents?: { components?: Components<Theme> };
 };
 
 export function createTheme({
-  settingsState,
-  themeOverrides = {},
-  localeComponents = {},
+    settingsState,
+    themeOverrides = {},
+    localeComponents = {},
 }: CreateThemeProps = {}): Theme {
-  // Update core theme settings
-  const updatedCore = settingsState ? updateCoreWithSettings(baseTheme, settingsState) : baseTheme;
+    // Update core theme settings
+    const updatedCore = settingsState
+        ? updateCoreWithSettings(baseTheme, settingsState)
+        : baseTheme;
 
-  // Update component settings
-  const updatedComponents = settingsState
-    ? updateComponentsWithSettings(components, settingsState)
-    : {};
+    // Update component settings
+    const updatedComponents = settingsState
+        ? updateComponentsWithSettings(components, settingsState)
+        : {};
 
-  // Create and return the final theme
-  const theme = createMuiTheme(updatedCore, updatedComponents, localeComponents, themeOverrides);
+    // Create and return the final theme
+    const theme = createMuiTheme(updatedCore, updatedComponents, localeComponents, themeOverrides);
 
-  return theme;
+    return theme;
 }

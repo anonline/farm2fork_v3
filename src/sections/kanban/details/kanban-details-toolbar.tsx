@@ -18,132 +18,134 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  liked: boolean;
-  taskName: string;
-  taskStatus: string;
-  onDelete: () => void;
-  onLikeToggle: () => void;
-  onCloseDetails: () => void;
+    liked: boolean;
+    taskName: string;
+    taskStatus: string;
+    onDelete: () => void;
+    onLikeToggle: () => void;
+    onCloseDetails: () => void;
 };
 
 export function KanbanDetailsToolbar({
-  sx,
-  liked,
-  taskName,
-  onDelete,
-  taskStatus,
-  onLikeToggle,
-  onCloseDetails,
-  ...other
+    sx,
+    liked,
+    taskName,
+    onDelete,
+    taskStatus,
+    onLikeToggle,
+    onCloseDetails,
+    ...other
 }: Props) {
-  const smUp = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+    const smUp = useMediaQuery((theme) => theme.breakpoints.up('sm'));
 
-  const menuActions = usePopover();
-  const confirmDialog = useBoolean();
+    const menuActions = usePopover();
+    const confirmDialog = useBoolean();
 
-  const [status, setStatus] = useState(taskStatus);
+    const [status, setStatus] = useState(taskStatus);
 
-  const handleChangeStatus = useCallback(
-    (newValue: string) => {
-      menuActions.onClose();
-      setStatus(newValue);
-    },
-    [menuActions]
-  );
+    const handleChangeStatus = useCallback(
+        (newValue: string) => {
+            menuActions.onClose();
+            setStatus(newValue);
+        },
+        [menuActions]
+    );
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'top-right' } }}
-    >
-      <MenuList>
-        {['To do', 'In progress', 'Ready to test', 'Done'].map((option) => (
-          <MenuItem
-            key={option}
-            selected={status === option}
-            onClick={() => handleChangeStatus(option)}
-          >
-            {option}
-          </MenuItem>
-        ))}
-      </MenuList>
-    </CustomPopover>
-  );
-
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={confirmDialog.value}
-      onClose={confirmDialog.onFalse}
-      title="Delete"
-      content={
-        <>
-          Are you sure want to delete <strong> {taskName} </strong>?
-        </>
-      }
-      action={
-        <Button variant="contained" color="error" onClick={onDelete}>
-          Delete
-        </Button>
-      }
-    />
-  );
-
-  return (
-    <>
-      <Box
-        sx={[
-          (theme) => ({
-            display: 'flex',
-            alignItems: 'center',
-            p: theme.spacing(2.5, 1, 2.5, 2.5),
-            borderBottom: `solid 1px ${theme.vars.palette.divider}`,
-          }),
-          ...(Array.isArray(sx) ? sx : [sx]),
-        ]}
-        {...other}
-      >
-        {!smUp && (
-          <Tooltip title="Back">
-            <IconButton onClick={onCloseDetails} sx={{ mr: 1 }}>
-              <Iconify icon="eva:arrow-ios-back-fill" />
-            </IconButton>
-          </Tooltip>
-        )}
-
-        <Button
-          size="small"
-          variant="soft"
-          endIcon={<Iconify icon="eva:arrow-ios-downward-fill" width={16} sx={{ ml: -0.5 }} />}
-          onClick={menuActions.onOpen}
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+            slotProps={{ arrow: { placement: 'top-right' } }}
         >
-          {status}
-        </Button>
+            <MenuList>
+                {['To do', 'In progress', 'Ready to test', 'Done'].map((option) => (
+                    <MenuItem
+                        key={option}
+                        selected={status === option}
+                        onClick={() => handleChangeStatus(option)}
+                    >
+                        {option}
+                    </MenuItem>
+                ))}
+            </MenuList>
+        </CustomPopover>
+    );
 
-        <Box component="span" sx={{ flexGrow: 1 }} />
+    const renderConfirmDialog = () => (
+        <ConfirmDialog
+            open={confirmDialog.value}
+            onClose={confirmDialog.onFalse}
+            title="Delete"
+            content={
+                <>
+                    Are you sure want to delete <strong> {taskName} </strong>?
+                </>
+            }
+            action={
+                <Button variant="contained" color="error" onClick={onDelete}>
+                    Delete
+                </Button>
+            }
+        />
+    );
 
-        <Box sx={{ display: 'flex' }}>
-          <Tooltip title="Like">
-            <IconButton color={liked ? 'default' : 'primary'} onClick={onLikeToggle}>
-              <Iconify icon="solar:like-bold" />
-            </IconButton>
-          </Tooltip>
+    return (
+        <>
+            <Box
+                sx={[
+                    (theme) => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: theme.spacing(2.5, 1, 2.5, 2.5),
+                        borderBottom: `solid 1px ${theme.vars.palette.divider}`,
+                    }),
+                    ...(Array.isArray(sx) ? sx : [sx]),
+                ]}
+                {...other}
+            >
+                {!smUp && (
+                    <Tooltip title="Back">
+                        <IconButton onClick={onCloseDetails} sx={{ mr: 1 }}>
+                            <Iconify icon="eva:arrow-ios-back-fill" />
+                        </IconButton>
+                    </Tooltip>
+                )}
 
-          <Tooltip title="Delete task">
-            <IconButton onClick={confirmDialog.onTrue}>
-              <Iconify icon="solar:trash-bin-trash-bold" />
-            </IconButton>
-          </Tooltip>
+                <Button
+                    size="small"
+                    variant="soft"
+                    endIcon={
+                        <Iconify icon="eva:arrow-ios-downward-fill" width={16} sx={{ ml: -0.5 }} />
+                    }
+                    onClick={menuActions.onOpen}
+                >
+                    {status}
+                </Button>
 
-          <IconButton>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </Box>
-      </Box>
+                <Box component="span" sx={{ flexGrow: 1 }} />
 
-      {renderMenuActions()}
-      {renderConfirmDialog()}
-    </>
-  );
+                <Box sx={{ display: 'flex' }}>
+                    <Tooltip title="Like">
+                        <IconButton color={liked ? 'default' : 'primary'} onClick={onLikeToggle}>
+                            <Iconify icon="solar:like-bold" />
+                        </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Delete task">
+                        <IconButton onClick={confirmDialog.onTrue}>
+                            <Iconify icon="solar:trash-bin-trash-bold" />
+                        </IconButton>
+                    </Tooltip>
+
+                    <IconButton>
+                        <Iconify icon="eva:more-vertical-fill" />
+                    </IconButton>
+                </Box>
+            </Box>
+
+            {renderMenuActions()}
+            {renderConfirmDialog()}
+        </>
+    );
 }

@@ -5,5 +5,5 @@ import { AccountNotifications } from '../account-notifications';
 // ----------------------------------------------------------------------
 
 export function AccountNotificationsView() {
-  return <AccountNotifications />;
+    return <AccountNotifications />;
 }

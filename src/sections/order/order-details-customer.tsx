@@ -13,49 +13,49 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = {
-  customer?: IOrderCustomer;
+    customer?: IOrderCustomer;
 };
 
 export function OrderDetailsCustomer({ customer }: Props) {
-  return (
-    <>
-      <CardHeader
-        title="Vásárló"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
-      <Box sx={{ p: 3, display: 'flex' }}>
-        <Avatar
-          alt={customer?.name}
-          src={customer?.avatarUrl}
-          sx={{ width: 48, height: 48, mr: 2 }}
-        />
+    return (
+        <>
+            <CardHeader
+                title="Vásárló"
+                action={
+                    <IconButton>
+                        <Iconify icon="solar:pen-bold" />
+                    </IconButton>
+                }
+            />
+            <Box sx={{ p: 3, display: 'flex' }}>
+                <Avatar
+                    alt={customer?.name}
+                    src={customer?.avatarUrl}
+                    sx={{ width: 48, height: 48, mr: 2 }}
+                />
 
-        <Stack spacing={0.5} sx={{ typography: 'body2', alignItems: 'flex-start' }}>
-          <Typography variant="subtitle2">{customer?.name}</Typography>
+                <Stack spacing={0.5} sx={{ typography: 'body2', alignItems: 'flex-start' }}>
+                    <Typography variant="subtitle2">{customer?.name}</Typography>
 
-          <Box sx={{ color: 'text.secondary' }}>{customer?.email}</Box>
+                    <Box sx={{ color: 'text.secondary' }}>{customer?.email}</Box>
 
-          <div>
-            IP address:
-            <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-              {customer?.ipAddress}
+                    <div>
+                        IP address:
+                        <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
+                            {customer?.ipAddress}
+                        </Box>
+                    </div>
+
+                    <Button
+                        size="small"
+                        color="error"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                        sx={{ mt: 1 }}
+                    >
+                        Add to Blacklist
+                    </Button>
+                </Stack>
             </Box>
-          </div>
-
-          <Button
-            size="small"
-            color="error"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ mt: 1 }}
-          >
-            Add to Blacklist
-          </Button>
-        </Stack>
-      </Box>
-    </>
-  );
+        </>
+    );
 }

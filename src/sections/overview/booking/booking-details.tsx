@@ -31,207 +31,212 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  title?: string;
-  subheader?: string;
-  headCells: TableHeadCellProps[];
-  tableData: {
-    id: string;
-    status: string;
-    checkIn: IDateValue;
-    checkOut: IDateValue;
-    destination: {
-      name: string;
-      coverUrl: string;
-    };
-    customer: {
-      name: string;
-      avatarUrl: string;
-      phoneNumber: string;
-    };
-  }[];
+    title?: string;
+    subheader?: string;
+    headCells: TableHeadCellProps[];
+    tableData: {
+        id: string;
+        status: string;
+        checkIn: IDateValue;
+        checkOut: IDateValue;
+        destination: {
+            name: string;
+            coverUrl: string;
+        };
+        customer: {
+            name: string;
+            avatarUrl: string;
+            phoneNumber: string;
+        };
+    }[];
 };
 
 export function BookingDetails({ title, subheader, headCells, tableData, sx, ...other }: Props) {
-  return (
-    <Card sx={sx} {...other}>
-      <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
+    return (
+        <Card sx={sx} {...other}>
+            <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
-      <Scrollbar sx={{ minHeight: 462 }}>
-        <Table sx={{ minWidth: 960 }}>
-          <TableHeadCustom headCells={headCells} />
+            <Scrollbar sx={{ minHeight: 462 }}>
+                <Table sx={{ minWidth: 960 }}>
+                    <TableHeadCustom headCells={headCells} />
 
-          <TableBody>
-            {tableData.map((row) => (
-              <RowItem key={row.id} row={row} />
-            ))}
-          </TableBody>
-        </Table>
-      </Scrollbar>
+                    <TableBody>
+                        {tableData.map((row) => (
+                            <RowItem key={row.id} row={row} />
+                        ))}
+                    </TableBody>
+                </Table>
+            </Scrollbar>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+            <Divider sx={{ borderStyle: 'dashed' }} />
 
-      <Box sx={{ p: 2, textAlign: 'right' }}>
-        <Button
-          size="small"
-          color="inherit"
-          endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
-        >
-          View all
-        </Button>
-      </Box>
-    </Card>
-  );
+            <Box sx={{ p: 2, textAlign: 'right' }}>
+                <Button
+                    size="small"
+                    color="inherit"
+                    endIcon={
+                        <Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />
+                    }
+                >
+                    View all
+                </Button>
+            </Box>
+        </Card>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type RowItemProps = {
-  row: Props['tableData'][number];
+    row: Props['tableData'][number];
 };
 
 function RowItem({ row }: RowItemProps) {
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const { mode } = useColorScheme();
-  const lightMode = mode === 'light';
+    const { mode } = useColorScheme();
+    const lightMode = mode === 'light';
 
-  const handleDownload = () => {
-    menuActions.onClose();
-    console.info('DOWNLOAD', row.id);
-  };
+    const handleDownload = () => {
+        menuActions.onClose();
+        console.info('DOWNLOAD', row.id);
+    };
 
-  const handlePrint = () => {
-    menuActions.onClose();
-    console.info('PRINT', row.id);
-  };
+    const handlePrint = () => {
+        menuActions.onClose();
+        console.info('PRINT', row.id);
+    };
 
-  const handleShare = () => {
-    menuActions.onClose();
-    console.info('SHARE', row.id);
-  };
+    const handleShare = () => {
+        menuActions.onClose();
+        console.info('SHARE', row.id);
+    };
 
-  const handleDelete = () => {
-    menuActions.onClose();
-    console.info('DELETE', row.id);
-  };
+    const handleDelete = () => {
+        menuActions.onClose();
+        console.info('DELETE', row.id);
+    };
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
-    >
-      <MenuList>
-        <MenuItem onClick={handleDownload}>
-          <Iconify icon="eva:cloud-download-fill" />
-          Download
-        </MenuItem>
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+            slotProps={{ arrow: { placement: 'right-top' } }}
+        >
+            <MenuList>
+                <MenuItem onClick={handleDownload}>
+                    <Iconify icon="eva:cloud-download-fill" />
+                    Download
+                </MenuItem>
 
-        <MenuItem onClick={handlePrint}>
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
+                <MenuItem onClick={handlePrint}>
+                    <Iconify icon="solar:printer-minimalistic-bold" />
+                    Print
+                </MenuItem>
 
-        <MenuItem onClick={handleShare}>
-          <Iconify icon="solar:share-bold" />
-          Share
-        </MenuItem>
+                <MenuItem onClick={handleShare}>
+                    <Iconify icon="solar:share-bold" />
+                    Share
+                </MenuItem>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+                <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
+                <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+                    <Iconify icon="solar:trash-bin-trash-bold" />
+                    Delete
+                </MenuItem>
+            </MenuList>
+        </CustomPopover>
+    );
 
-  return (
-    <>
-      <TableRow>
-        <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar
-              variant="rounded"
-              alt={row.destination.name}
-              src={row.destination.coverUrl}
-              sx={{ width: 48, height: 48 }}
-            />
-            {row.destination.name}
-          </Box>
-        </TableCell>
+    return (
+        <>
+            <TableRow>
+                <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar
+                            variant="rounded"
+                            alt={row.destination.name}
+                            src={row.destination.coverUrl}
+                            sx={{ width: 48, height: 48 }}
+                        />
+                        {row.destination.name}
+                    </Box>
+                </TableCell>
 
-        <TableCell>
-          <ListItemText
-            primary={row.customer.name}
-            secondary={row.customer.phoneNumber}
-            slotProps={{
-              primary: {
-                noWrap: true,
-                sx: { typography: 'body2' },
-              },
-              secondary: {
-                sx: { mt: 0.5, typography: 'caption' },
-              },
-            }}
-          />
-        </TableCell>
+                <TableCell>
+                    <ListItemText
+                        primary={row.customer.name}
+                        secondary={row.customer.phoneNumber}
+                        slotProps={{
+                            primary: {
+                                noWrap: true,
+                                sx: { typography: 'body2' },
+                            },
+                            secondary: {
+                                sx: { mt: 0.5, typography: 'caption' },
+                            },
+                        }}
+                    />
+                </TableCell>
 
-        <TableCell>
-          <ListItemText
-            primary={fDate(row.checkIn)}
-            secondary={fTime(row.checkIn)}
-            slotProps={{
-              primary: {
-                noWrap: true,
-                sx: { typography: 'body2' },
-              },
-              secondary: {
-                sx: { mt: 0.5, typography: 'caption' },
-              },
-            }}
-          />
-        </TableCell>
+                <TableCell>
+                    <ListItemText
+                        primary={fDate(row.checkIn)}
+                        secondary={fTime(row.checkIn)}
+                        slotProps={{
+                            primary: {
+                                noWrap: true,
+                                sx: { typography: 'body2' },
+                            },
+                            secondary: {
+                                sx: { mt: 0.5, typography: 'caption' },
+                            },
+                        }}
+                    />
+                </TableCell>
 
-        <TableCell>
-          <ListItemText
-            primary={fDate(row.checkOut)}
-            secondary={fTime(row.checkOut)}
-            slotProps={{
-              primary: {
-                noWrap: true,
-                sx: { typography: 'body2' },
-              },
-              secondary: {
-                sx: { mt: 0.5, typography: 'caption' },
-              },
-            }}
-          />
-        </TableCell>
+                <TableCell>
+                    <ListItemText
+                        primary={fDate(row.checkOut)}
+                        secondary={fTime(row.checkOut)}
+                        slotProps={{
+                            primary: {
+                                noWrap: true,
+                                sx: { typography: 'body2' },
+                            },
+                            secondary: {
+                                sx: { mt: 0.5, typography: 'caption' },
+                            },
+                        }}
+                    />
+                </TableCell>
 
-        <TableCell>
-          <Label
-            variant={lightMode ? 'soft' : 'filled'}
-            color={
-              (row.status === 'Paid' && 'success') ||
-              (row.status === 'Pending' && 'warning') ||
-              'error'
-            }
-          >
-            {row.status}
-          </Label>
-        </TableCell>
+                <TableCell>
+                    <Label
+                        variant={lightMode ? 'soft' : 'filled'}
+                        color={
+                            (row.status === 'Paid' && 'success') ||
+                            (row.status === 'Pending' && 'warning') ||
+                            'error'
+                        }
+                    >
+                        {row.status}
+                    </Label>
+                </TableCell>
 
-        <TableCell align="right" sx={{ pr: 1 }}>
-          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
-      </TableRow>
+                <TableCell align="right" sx={{ pr: 1 }}>
+                    <IconButton
+                        color={menuActions.open ? 'inherit' : 'default'}
+                        onClick={menuActions.onOpen}
+                    >
+                        <Iconify icon="eva:more-vertical-fill" />
+                    </IconButton>
+                </TableCell>
+            </TableRow>
 
-      {renderMenuActions()}
-    </>
-  );
+            {renderMenuActions()}
+        </>
+    );
 }

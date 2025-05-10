@@ -14,73 +14,77 @@ import { formatPatterns } from 'src/utils/format-time';
 // ----------------------------------------------------------------------
 
 type RHFDatePickerProps = DatePickerProps<Dayjs> & {
-  name: string;
+    name: string;
 };
 
 export function RHFDatePicker({ name, slotProps, ...other }: RHFDatePickerProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <DatePicker
-          {...field}
-          value={dayjs(field.value)}
-          onChange={(newValue) => field.onChange(dayjs(newValue).format())}
-          format={formatPatterns.split.date}
-          slotProps={{
-            ...slotProps,
-            textField: {
-              fullWidth: true,
-              error: !!error,
-              helperText: error?.message ?? (slotProps?.textField as TextFieldProps)?.helperText,
-              ...slotProps?.textField,
-            },
-          }}
-          {...other}
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <DatePicker
+                    {...field}
+                    value={dayjs(field.value)}
+                    onChange={(newValue) => field.onChange(dayjs(newValue).format())}
+                    format={formatPatterns.split.date}
+                    slotProps={{
+                        ...slotProps,
+                        textField: {
+                            fullWidth: true,
+                            error: !!error,
+                            helperText:
+                                error?.message ??
+                                (slotProps?.textField as TextFieldProps)?.helperText,
+                            ...slotProps?.textField,
+                        },
+                    }}
+                    {...other}
+                />
+            )}
         />
-      )}
-    />
-  );
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type RHFMobileDateTimePickerProps = MobileDateTimePickerProps<Dayjs> & {
-  name: string;
+    name: string;
 };
 
 export function RHFMobileDateTimePicker({
-  name,
-  slotProps,
-  ...other
+    name,
+    slotProps,
+    ...other
 }: RHFMobileDateTimePickerProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <MobileDateTimePicker
-          {...field}
-          value={dayjs(field.value)}
-          onChange={(newValue) => field.onChange(dayjs(newValue).format())}
-          format={formatPatterns.split.dateTime}
-          slotProps={{
-            textField: {
-              fullWidth: true,
-              error: !!error,
-              helperText: error?.message ?? (slotProps?.textField as TextFieldProps)?.helperText,
-              ...slotProps?.textField,
-            },
-            ...slotProps,
-          }}
-          {...other}
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <MobileDateTimePicker
+                    {...field}
+                    value={dayjs(field.value)}
+                    onChange={(newValue) => field.onChange(dayjs(newValue).format())}
+                    format={formatPatterns.split.dateTime}
+                    slotProps={{
+                        textField: {
+                            fullWidth: true,
+                            error: !!error,
+                            helperText:
+                                error?.message ??
+                                (slotProps?.textField as TextFieldProps)?.helperText,
+                            ...slotProps?.textField,
+                        },
+                        ...slotProps,
+                    }}
+                    {...other}
+                />
+            )}
         />
-      )}
-    />
-  );
+    );
 }

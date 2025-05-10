@@ -11,14 +11,14 @@ import { navData } from 'src/sections/_examples/extra/multi-language-view/nav-co
 export const metadata: Metadata = { title: `Multi language | Components - ${CONFIG.appName}` };
 
 export default async function Page() {
-  let ssrNavData;
+    let ssrNavData;
 
-  if (!CONFIG.isStaticExport) {
-    const { t } = await getServerTranslations('navbar');
-    const data = navData(t);
+    if (!CONFIG.isStaticExport) {
+        const { t } = await getServerTranslations('navbar');
+        const data = navData(t);
 
-    ssrNavData = data;
-  }
+        ssrNavData = data;
+    }
 
-  return <MultiLanguageView ssrNavData={ssrNavData} />;
+    return <MultiLanguageView ssrNavData={ssrNavData} />;
 }

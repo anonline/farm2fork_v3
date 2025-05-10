@@ -10,15 +10,15 @@ import { ProductEditView } from 'src/sections/product/view';
 export const metadata: Metadata = { title: `Product edit | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+    const { id } = await params;
 
-  const { product } = await getProduct(id);
+    const { product } = await getProduct(id);
 
-  return <ProductEditView product={product} />;
+    return <ProductEditView product={product} />;
 }
 
 // ----------------------------------------------------------------------

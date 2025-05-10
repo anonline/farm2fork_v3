@@ -1,173 +1,230 @@
-import { useBoolean } from 'minimal-shared/hooks';
+import { Fragment } from 'react';
+import { useTabs, useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
+import { Tab, Alert } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { CONFIG } from 'src/global-config';
+import { useGetFaqCategories } from 'src/actions/faq';
 
 import { Iconify } from 'src/components/iconify';
+import { CustomTabs } from 'src/components/custom-tabs';
+
+import { F2FFaqsList } from './faqs-list';
 
 // ----------------------------------------------------------------------
 
 const CATEGORIES = [
-  {
-    label: 'Managing your account',
-    icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-account.svg`,
-    href: '#',
-  },
-  { label: 'Payment', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-payment.svg`, href: '#' },
-  { label: 'Delivery', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-delivery.svg`, href: '#' },
-  {
-    label: 'Problem with the product',
-    icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-package.svg`,
-    href: '#',
-  },
-  {
-    label: 'Return & refund',
-    icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-refund.svg`,
-    href: '#',
-  },
-  {
-    label: 'Guarantees and assurances',
-    icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-assurances.svg`,
-    href: '#',
-  },
+    {
+        label: 'Managing your account',
+        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-account.svg`,
+        href: '#',
+    },
+    { label: 'Payment', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-payment.svg`, href: '#' },
+    { label: 'Delivery', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-delivery.svg`, href: '#' },
+    {
+        label: 'Problem with the product',
+        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-package.svg`,
+        href: '#',
+    },
+    {
+        label: 'Return & refund',
+        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-refund.svg`,
+        href: '#',
+    },
+    {
+        label: 'Guarantees and assurances',
+        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-assurances.svg`,
+        href: '#',
+    },
 ];
 
 // ----------------------------------------------------------------------
 
 export function FaqsCategory() {
-  const navOpen = useBoolean();
+    const navOpen = useBoolean();
+    const customTabs = useTabs('-1');
 
-  const renderMobile = () => (
-    <>
-      <Box
-        sx={[
-          (theme) => ({
-            p: 2,
-            top: 0,
-            left: 0,
-            width: 1,
-            position: 'absolute',
-            display: { xs: 'block', md: 'none' },
-            borderBottom: `solid 1px ${theme.vars.palette.divider}`,
-          }),
-        ]}
-      >
-        <Button startIcon={<Iconify icon="solar:list-bold" />} onClick={navOpen.onTrue}>
-          Categories
-        </Button>
-      </Box>
+    const { faqsCategories, faqsCategoriesLoading } = useGetFaqCategories();
 
-      <Drawer open={navOpen.value} onClose={navOpen.onFalse}>
+    const renderMobile = () => (
+        <>
+            <Box
+                sx={[
+                    (theme) => ({
+                        p: 2,
+                        top: 0,
+                        left: 0,
+                        width: 1,
+                        position: 'absolute',
+                        display: { xs: 'block', md: 'none' },
+                        borderBottom: `solid 1px ${theme.vars.palette.divider}`,
+                    }),
+                ]}
+            >
+                <Button startIcon={<Iconify icon="solar:list-bold" />} onClick={navOpen.onTrue}>
+                    Categories
+                </Button>
+            </Box>
+
+            <Drawer open={navOpen.value} onClose={navOpen.onFalse}>
+                <Box
+                    sx={{
+                        p: 1,
+                        gap: 1,
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                    }}
+                >
+                    {CATEGORIES.map((category) => (
+                        <ItemMobile key={category.label} category={category} />
+                    ))}
+                </Box>
+            </Drawer>
+        </>
+    );
+
+    const renderDesktop = () => (
         <Box
-          sx={{
-            p: 1,
-            gap: 1,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-          }}
+            sx={{
+                display: { xs: 'none', md: 'block' },
+                width: '100%',
+            }}
         >
-          {CATEGORIES.map((category) => (
-            <ItemMobile key={category.label} category={category} />
-          ))}
+            <Box
+                sx={{
+                    width: '80%',
+                    placeSelf: 'center',
+                }}
+            >
+                <CustomTabs
+                    value={customTabs.value}
+                    onChange={customTabs.onChange}
+                    variant="fullWidth"
+                    sx={{ width: 1, borderRadius: 1, mb: 5, mt: 0 }}
+                    slotProps={{
+                        indicatorContent: {
+                            sx: { borderRadius: 1 },
+                        },
+                    }}
+                >
+                    <Tab key='-1' value='-1' label='Összes' /> 
+
+                    {faqsCategories?.map((category) => (
+                        <Tab key={category.id} value={category.id} label={category.name} />
+                    ))}
+                </CustomTabs>
+            </Box>
+            <Paper
+                variant="outlined"
+                elevation={0}
+                sx={{ p: 0, width: 1, border: 0, borderRadius: 1.5, typography: 'body2',  }}
+            >
+                {faqsCategories?.map((category) => {
+                    const isAll = customTabs.value == '-1';
+                    const isSelected = category.id.toString() == customTabs.value || isAll;
+                
+                    if (!isSelected) return null;
+                
+                    if (category.faqs?.length) {
+                        return <F2FFaqsList key={category.id} data={category.faqs} sx={{boxShadow:'none'}}/>;
+                    }
+                    
+                    if(!isAll) {
+                        return (
+                            <Alert key={category.id} severity="warning" sx={{}}>
+                                Sajnos nincs elérhető kérdés a kategóriában. Kérjük vegye fel a kapcsolatot velünk elérhetőségeink bármelyikén.
+                            </Alert>
+                        );
+                    }
+                    return null;
+                })}
+            </Paper>
         </Box>
-      </Drawer>
-    </>
-  );
+    );
 
-  const renderDesktop = () => (
-    <Box
-      sx={{
-        gap: 3,
-        display: { xs: 'none', md: 'grid' },
-        gridTemplateColumns: { md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
-      }}
-    >
-      {CATEGORIES.map((category) => (
-        <ItemDesktop key={category.label} category={category} />
-      ))}
-    </Box>
-  );
-
-  return (
-    <>
-      {renderMobile()}
-      {renderDesktop()}
-    </>
-  );
+    return (
+        <>
+            {renderMobile()}
+            {renderDesktop()}
+        </>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type ItemProps = {
-  category: (typeof CATEGORIES)[number];
+    category: (typeof CATEGORIES)[number];
 };
 
 function ItemDesktop({ category }: ItemProps) {
-  return (
-    <Paper
-      variant="outlined"
-      sx={[
-        (theme) => ({
-          p: 3,
-          borderRadius: 2,
-          bgcolor: 'unset',
-          cursor: 'pointer',
-          textAlign: 'center',
-          '&:hover': { bgcolor: 'background.paper', boxShadow: theme.vars.customShadows.z20 },
-        }),
-      ]}
-    >
-      <Avatar
-        alt={category.icon}
-        src={category.icon}
-        sx={{
-          mb: 2,
-          width: 80,
-          height: 80,
-          mx: 'auto',
-        }}
-      />
+    return (
+        <Paper
+            variant="outlined"
+            sx={[
+                (theme) => ({
+                    p: 3,
+                    borderRadius: 2,
+                    bgcolor: 'unset',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    '&:hover': {
+                        bgcolor: 'background.paper',
+                        boxShadow: theme.vars.customShadows.z20,
+                    },
+                }),
+            ]}
+        >
+            <Avatar
+                alt={category.icon}
+                src={category.icon}
+                sx={{
+                    mb: 2,
+                    width: 80,
+                    height: 80,
+                    mx: 'auto',
+                }}
+            />
 
-      <Typography
-        variant="subtitle2"
-        sx={(theme) => ({
-          ...theme.mixins.maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
-        })}
-      >
-        {category.label}
-      </Typography>
-    </Paper>
-  );
+            <Typography
+                variant="subtitle2"
+                sx={(theme) => ({
+                    ...theme.mixins.maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
+                })}
+            >
+                {category.label}
+            </Typography>
+        </Paper>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 function ItemMobile({ category }: ItemProps) {
-  return (
-    <ListItemButton
-      key={category.label}
-      sx={{
-        py: 2,
-        maxWidth: 140,
-        borderRadius: 1,
-        textAlign: 'center',
-        alignItems: 'center',
-        typography: 'subtitle2',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        bgcolor: 'background.neutral',
-      }}
-    >
-      <Avatar alt={category.icon} src={category.icon} sx={{ width: 48, height: 48, mb: 1 }} />
+    return (
+        <ListItemButton
+            key={category.label}
+            sx={{
+                py: 2,
+                maxWidth: 140,
+                borderRadius: 1,
+                textAlign: 'center',
+                alignItems: 'center',
+                typography: 'subtitle2',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                bgcolor: 'background.neutral',
+            }}
+        >
+            <Avatar alt={category.icon} src={category.icon} sx={{ width: 48, height: 48, mb: 1 }} />
 
-      {category.label}
-    </ListItemButton>
-  );
+            {category.label}
+        </ListItemButton>
+    );
 }

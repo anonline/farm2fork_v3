@@ -8,26 +8,26 @@ import { useScroll } from 'framer-motion';
 // ----------------------------------------------------------------------
 
 export type UseScrollProgressReturn = {
-  scrollXProgress: MotionValue<number>;
-  scrollYProgress: MotionValue<number>;
-  elementRef: React.RefObject<HTMLDivElement | null>;
+    scrollXProgress: MotionValue<number>;
+    scrollYProgress: MotionValue<number>;
+    elementRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export type UseScrollProgress = 'document' | 'container';
 
 export function useScrollProgress(target: UseScrollProgress = 'document'): UseScrollProgressReturn {
-  const elementRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-  const options = { container: elementRef };
+    const options = { container: elementRef };
 
-  const { scrollYProgress, scrollXProgress } = useScroll(
-    target === 'container' ? options : undefined
-  );
+    const { scrollYProgress, scrollXProgress } = useScroll(
+        target === 'container' ? options : undefined
+    );
 
-  const memoizedValue = useMemo(
-    () => ({ elementRef, scrollXProgress, scrollYProgress }),
-    [elementRef, scrollXProgress, scrollYProgress]
-  );
+    const memoizedValue = useMemo(
+        () => ({ elementRef, scrollXProgress, scrollYProgress }),
+        [elementRef, scrollXProgress, scrollYProgress]
+    );
 
-  return memoizedValue;
+    return memoizedValue;
 }

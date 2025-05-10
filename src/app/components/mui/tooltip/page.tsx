@@ -9,5 +9,5 @@ import { TooltipView } from 'src/sections/_examples/mui/tooltip-view';
 export const metadata: Metadata = { title: `Tooltip | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <TooltipView />;
+    return <TooltipView />;
 }

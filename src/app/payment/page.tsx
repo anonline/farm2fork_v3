@@ -9,5 +9,5 @@ import { PaymentView } from 'src/sections/payment/view';
 export const metadata: Metadata = { title: `Payment - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <PaymentView />;
+    return <PaymentView />;
 }

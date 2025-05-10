@@ -33,56 +33,56 @@ const defaultValue = `
 // ----------------------------------------------------------------------
 
 export function EditorView() {
-  const [checked, setChecked] = useState(true);
+    const [checked, setChecked] = useState(true);
 
-  const [content, setContent] = useState(defaultValue);
+    const [content, setContent] = useState(defaultValue);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setChecked(event.target.checked);
+    };
 
-  return (
-    <ComponentLayout
-      heroProps={{
-        heading: 'Editor',
-        moreLinks: ['https://tiptap.dev/docs/editor/introduction'],
-      }}
-      containerProps={{ maxWidth: false }}
-    >
-      <FormControlLabel
-        control={<Switch name="fullItem" checked={checked} onChange={handleChange} />}
-        label="Full item"
-        sx={{ mb: 3 }}
-      />
-
-      <Box
-        sx={{
-          rowGap: 5,
-          columnGap: 3,
-          display: 'grid',
-          alignItems: 'flex-start',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', lg: 'repeat(2, 1fr)' },
-        }}
-      >
-        <Editor
-          fullItem={checked}
-          value={content}
-          onChange={(value) => setContent(value)}
-          sx={{ maxHeight: 720 }}
-        />
-
-        <Box
-          sx={{
-            p: 3,
-            borderRadius: 2,
-            overflowX: 'auto',
-            bgcolor: 'background.neutral',
-          }}
+    return (
+        <ComponentLayout
+            heroProps={{
+                heading: 'Editor',
+                moreLinks: ['https://tiptap.dev/docs/editor/introduction'],
+            }}
+            containerProps={{ maxWidth: false }}
         >
-          <Typography variant="h6">Preview</Typography>
-          <Markdown children={content} />
-        </Box>
-      </Box>
-    </ComponentLayout>
-  );
+            <FormControlLabel
+                control={<Switch name="fullItem" checked={checked} onChange={handleChange} />}
+                label="Full item"
+                sx={{ mb: 3 }}
+            />
+
+            <Box
+                sx={{
+                    rowGap: 5,
+                    columnGap: 3,
+                    display: 'grid',
+                    alignItems: 'flex-start',
+                    gridTemplateColumns: { xs: 'repeat(1, 1fr)', lg: 'repeat(2, 1fr)' },
+                }}
+            >
+                <Editor
+                    fullItem={checked}
+                    value={content}
+                    onChange={(value) => setContent(value)}
+                    sx={{ maxHeight: 720 }}
+                />
+
+                <Box
+                    sx={{
+                        p: 3,
+                        borderRadius: 2,
+                        overflowX: 'auto',
+                        bgcolor: 'background.neutral',
+                    }}
+                >
+                    <Typography variant="h6">Preview</Typography>
+                    <Markdown children={content} />
+                </Box>
+            </Box>
+        </ComponentLayout>
+    );
 }

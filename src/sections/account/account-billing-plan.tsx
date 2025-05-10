@@ -23,217 +23,220 @@ import { PaymentCardListDialog } from '../payment/payment-card-list-dialog';
 // ----------------------------------------------------------------------
 
 type Props = {
-  cardList: IPaymentCard[];
-  addressBook: IAddressItem[];
-  plans: {
-    price: number;
-    primary: boolean;
-    subscription: string;
-  }[];
+    cardList: IPaymentCard[];
+    addressBook: IAddressItem[];
+    plans: {
+        price: number;
+        primary: boolean;
+        subscription: string;
+    }[];
 };
 
 export function AccountBillingPlan({ cardList, addressBook, plans }: Props) {
-  const openAddress = useBoolean();
+    const openAddress = useBoolean();
 
-  const openCards = useBoolean();
+    const openCards = useBoolean();
 
-  const primaryCard = cardList.find((card) => card.primary) || null;
-  const primaryAddress = addressBook.find((address) => address.primary) || null;
+    const primaryCard = cardList.find((card) => card.primary) || null;
+    const primaryAddress = addressBook.find((address) => address.primary) || null;
 
-  const [selectedPlan, setSelectedPlan] = useState('');
-  const [selectedCard, setSelectedCard] = useState<IPaymentCard | null>(primaryCard);
-  const [selectedAddress, setSelectedAddress] = useState<IAddressItem | null>(primaryAddress);
+    const [selectedPlan, setSelectedPlan] = useState('');
+    const [selectedCard, setSelectedCard] = useState<IPaymentCard | null>(primaryCard);
+    const [selectedAddress, setSelectedAddress] = useState<IAddressItem | null>(primaryAddress);
 
-  const handleSelectPlan = useCallback(
-    (newValue: string) => {
-      const currentPlan = plans.find((plan) => plan.primary);
-      if (currentPlan?.subscription !== newValue) {
-        setSelectedPlan(newValue);
-      }
-    },
-    [plans]
-  );
+    const handleSelectPlan = useCallback(
+        (newValue: string) => {
+            const currentPlan = plans.find((plan) => plan.primary);
+            if (currentPlan?.subscription !== newValue) {
+                setSelectedPlan(newValue);
+            }
+        },
+        [plans]
+    );
 
-  const handleSelectAddress = useCallback((newValue: IAddressItem | null) => {
-    setSelectedAddress(newValue);
-  }, []);
+    const handleSelectAddress = useCallback((newValue: IAddressItem | null) => {
+        setSelectedAddress(newValue);
+    }, []);
 
-  const handleSelectCard = useCallback((newValue: IPaymentCard | null) => {
-    setSelectedCard(newValue);
-  }, []);
+    const handleSelectCard = useCallback((newValue: IPaymentCard | null) => {
+        setSelectedCard(newValue);
+    }, []);
 
-  const renderPlans = () =>
-    plans.map((plan) => (
-      <Grid key={plan.subscription} size={{ xs: 12, md: 4 }}>
-        <Paper
-          variant="outlined"
-          onClick={() => handleSelectPlan(plan.subscription)}
-          sx={[
-            (theme) => ({
-              p: 2.5,
-              borderRadius: 1.5,
-              cursor: 'pointer',
-              position: 'relative',
-              ...(plan.primary && { opacity: 0.48, cursor: 'default' }),
-              ...(plan.subscription === selectedPlan && {
-                boxShadow: `0 0 0 2px ${theme.vars.palette.text.primary}`,
-              }),
-            }),
-          ]}
-        >
-          {plan.primary && (
-            <Label
-              color="info"
-              startIcon={<Iconify icon="eva:star-fill" />}
-              sx={{ position: 'absolute', top: 8, right: 8 }}
-            >
-              Current
-            </Label>
-          )}
+    const renderPlans = () =>
+        plans.map((plan) => (
+            <Grid key={plan.subscription} size={{ xs: 12, md: 4 }}>
+                <Paper
+                    variant="outlined"
+                    onClick={() => handleSelectPlan(plan.subscription)}
+                    sx={[
+                        (theme) => ({
+                            p: 2.5,
+                            borderRadius: 1.5,
+                            cursor: 'pointer',
+                            position: 'relative',
+                            ...(plan.primary && { opacity: 0.48, cursor: 'default' }),
+                            ...(plan.subscription === selectedPlan && {
+                                boxShadow: `0 0 0 2px ${theme.vars.palette.text.primary}`,
+                            }),
+                        }),
+                    ]}
+                >
+                    {plan.primary && (
+                        <Label
+                            color="info"
+                            startIcon={<Iconify icon="eva:star-fill" />}
+                            sx={{ position: 'absolute', top: 8, right: 8 }}
+                        >
+                            Current
+                        </Label>
+                    )}
 
-          {plan.subscription === 'basic' && <PlanFreeIcon />}
-          {plan.subscription === 'starter' && <PlanStarterIcon />}
-          {plan.subscription === 'premium' && <PlanPremiumIcon />}
+                    {plan.subscription === 'basic' && <PlanFreeIcon />}
+                    {plan.subscription === 'starter' && <PlanStarterIcon />}
+                    {plan.subscription === 'premium' && <PlanPremiumIcon />}
 
-          <Box
-            sx={{
-              typography: 'subtitle2',
-              mt: 2,
-              mb: 0.5,
-              textTransform: 'capitalize',
-            }}
-          >
-            {plan.subscription}
-          </Box>
+                    <Box
+                        sx={{
+                            typography: 'subtitle2',
+                            mt: 2,
+                            mb: 0.5,
+                            textTransform: 'capitalize',
+                        }}
+                    >
+                        {plan.subscription}
+                    </Box>
 
-          <Box sx={{ display: 'flex', typography: 'h4', alignItems: 'center' }}>
-            {plan.price || 'Free'}
+                    <Box sx={{ display: 'flex', typography: 'h4', alignItems: 'center' }}>
+                        {plan.price || 'Free'}
 
-            {!!plan.price && (
-              <Box component="span" sx={{ typography: 'body2', color: 'text.disabled', ml: 0.5 }}>
-                /mo
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      </Grid>
-    ));
-
-  return (
-    <>
-      <Card>
-        <CardHeader title="Plan" />
-
-        <Grid container spacing={2} sx={{ p: 3 }}>
-          {renderPlans()}
-        </Grid>
-
-        <Stack spacing={2} sx={{ p: 3, pt: 0, typography: 'body2' }}>
-          <Grid container spacing={{ xs: 0.5, md: 2 }}>
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Plan
+                        {!!plan.price && (
+                            <Box
+                                component="span"
+                                sx={{ typography: 'body2', color: 'text.disabled', ml: 0.5 }}
+                            >
+                                /mo
+                            </Box>
+                        )}
+                    </Box>
+                </Paper>
             </Grid>
+        ));
 
-            <Grid
-              sx={{ typography: 'subtitle2', textTransform: 'capitalize' }}
-              size={{ xs: 12, md: 8 }}
-            >
-              {selectedPlan || '-'}
-            </Grid>
-          </Grid>
+    return (
+        <>
+            <Card>
+                <CardHeader title="Plan" />
 
-          <Grid container spacing={{ xs: 0.5, md: 2 }}>
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Billing name
-            </Grid>
+                <Grid container spacing={2} sx={{ p: 3 }}>
+                    {renderPlans()}
+                </Grid>
 
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Button
-                onClick={openAddress.onTrue}
-                endIcon={<Iconify width={16} icon="eva:arrow-ios-downward-fill" />}
-                sx={{ typography: 'subtitle2', p: 0, borderRadius: 0 }}
-              >
-                {selectedAddress?.name}
-              </Button>
-            </Grid>
-          </Grid>
+                <Stack spacing={2} sx={{ p: 3, pt: 0, typography: 'body2' }}>
+                    <Grid container spacing={{ xs: 0.5, md: 2 }}>
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
+                            Plan
+                        </Grid>
 
-          <Grid container spacing={{ xs: 0.5, md: 2 }}>
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Billing address
-            </Grid>
+                        <Grid
+                            sx={{ typography: 'subtitle2', textTransform: 'capitalize' }}
+                            size={{ xs: 12, md: 8 }}
+                        >
+                            {selectedPlan || '-'}
+                        </Grid>
+                    </Grid>
 
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 8 }}>
-              {selectedAddress?.fullAddress}
-            </Grid>
-          </Grid>
+                    <Grid container spacing={{ xs: 0.5, md: 2 }}>
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
+                            Billing name
+                        </Grid>
 
-          <Grid container spacing={{ xs: 0.5, md: 2 }}>
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Billing phone number
-            </Grid>
+                        <Grid size={{ xs: 12, md: 8 }}>
+                            <Button
+                                onClick={openAddress.onTrue}
+                                endIcon={<Iconify width={16} icon="eva:arrow-ios-downward-fill" />}
+                                sx={{ typography: 'subtitle2', p: 0, borderRadius: 0 }}
+                            >
+                                {selectedAddress?.name}
+                            </Button>
+                        </Grid>
+                    </Grid>
 
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 8 }}>
-              {selectedAddress?.phoneNumber}
-            </Grid>
-          </Grid>
+                    <Grid container spacing={{ xs: 0.5, md: 2 }}>
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
+                            Billing address
+                        </Grid>
 
-          <Grid container spacing={{ xs: 0.5, md: 2 }}>
-            <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Payment method
-            </Grid>
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 8 }}>
+                            {selectedAddress?.fullAddress}
+                        </Grid>
+                    </Grid>
 
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Button
-                onClick={openCards.onTrue}
-                endIcon={<Iconify width={16} icon="eva:arrow-ios-downward-fill" />}
-                sx={{ typography: 'subtitle2', p: 0, borderRadius: 0 }}
-              >
-                {selectedCard?.cardNumber}
-              </Button>
-            </Grid>
-          </Grid>
-        </Stack>
+                    <Grid container spacing={{ xs: 0.5, md: 2 }}>
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
+                            Billing phone number
+                        </Grid>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 8 }}>
+                            {selectedAddress?.phoneNumber}
+                        </Grid>
+                    </Grid>
 
-        <Box
-          sx={{
-            p: 3,
-            gap: 1.5,
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button variant="outlined">Cancel plan</Button>
-          <Button variant="contained">Upgrade plan</Button>
-        </Box>
-      </Card>
+                    <Grid container spacing={{ xs: 0.5, md: 2 }}>
+                        <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
+                            Payment method
+                        </Grid>
 
-      <PaymentCardListDialog
-        list={cardList}
-        open={openCards.value}
-        onClose={openCards.onFalse}
-        selected={(selectedId: string) => selectedCard?.id === selectedId}
-        onSelect={handleSelectCard}
-      />
+                        <Grid size={{ xs: 12, md: 8 }}>
+                            <Button
+                                onClick={openCards.onTrue}
+                                endIcon={<Iconify width={16} icon="eva:arrow-ios-downward-fill" />}
+                                sx={{ typography: 'subtitle2', p: 0, borderRadius: 0 }}
+                            >
+                                {selectedCard?.cardNumber}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Stack>
 
-      <AddressListDialog
-        list={addressBook}
-        open={openAddress.value}
-        onClose={openAddress.onFalse}
-        selected={(selectedId: string) => selectedAddress?.id === selectedId}
-        onSelect={handleSelectAddress}
-        action={
-          <Button
-            size="small"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ alignSelf: 'flex-end' }}
-          >
-            New
-          </Button>
-        }
-      />
-    </>
-  );
+                <Divider sx={{ borderStyle: 'dashed' }} />
+
+                <Box
+                    sx={{
+                        p: 3,
+                        gap: 1.5,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                    }}
+                >
+                    <Button variant="outlined">Cancel plan</Button>
+                    <Button variant="contained">Upgrade plan</Button>
+                </Box>
+            </Card>
+
+            <PaymentCardListDialog
+                list={cardList}
+                open={openCards.value}
+                onClose={openCards.onFalse}
+                selected={(selectedId: string) => selectedCard?.id === selectedId}
+                onSelect={handleSelectCard}
+            />
+
+            <AddressListDialog
+                list={addressBook}
+                open={openAddress.value}
+                onClose={openAddress.onFalse}
+                selected={(selectedId: string) => selectedAddress?.id === selectedId}
+                onSelect={handleSelectAddress}
+                action={
+                    <Button
+                        size="small"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                        sx={{ alignSelf: 'flex-end' }}
+                    >
+                        New
+                    </Button>
+                }
+            />
+        </>
+    );
 }

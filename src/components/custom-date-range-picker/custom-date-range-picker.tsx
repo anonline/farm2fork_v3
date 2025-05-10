@@ -20,106 +20,114 @@ import type { UseDateRangePickerReturn } from './use-date-range-picker';
 // ----------------------------------------------------------------------
 
 export type CustomDateRangePickerProps = DialogProps &
-  UseDateRangePickerReturn & {
-    onSubmit?: () => void;
-  };
+    UseDateRangePickerReturn & {
+        onSubmit?: () => void;
+    };
 
 export function CustomDateRangePicker({
-  open,
-  error,
-  onClose,
-  onSubmit,
-  /********/
-  startDate,
-  endDate,
-  onChangeStartDate,
-  onChangeEndDate,
-  /********/
-  slotProps,
-  variant = 'input',
-  title = 'Select date range',
-  ...other
+    open,
+    error,
+    onClose,
+    onSubmit,
+    /********/
+    startDate,
+    endDate,
+    onChangeStartDate,
+    onChangeEndDate,
+    /********/
+    slotProps,
+    variant = 'input',
+    title = 'Select date range',
+    ...other
 }: CustomDateRangePickerProps) {
-  const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
+    const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
-  const isCalendarView = variant === 'calendar';
+    const isCalendarView = variant === 'calendar';
 
-  const handleSubmit = useCallback(() => {
-    onClose();
-    onSubmit?.();
-  }, [onClose, onSubmit]);
+    const handleSubmit = useCallback(() => {
+        onClose();
+        onSubmit?.();
+    }, [onClose, onSubmit]);
 
-  const contentStyles: SxProps<Theme> = {
-    py: 1,
-    gap: 3,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    ...(isCalendarView && mdUp && { flexDirection: 'row' }),
-  };
+    const contentStyles: SxProps<Theme> = {
+        py: 1,
+        gap: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        ...(isCalendarView && mdUp && { flexDirection: 'row' }),
+    };
 
-  const blockStyles: SxProps<Theme> = {
-    borderRadius: 2,
-    border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-  };
+    const blockStyles: SxProps<Theme> = {
+        borderRadius: 2,
+        border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
+    };
 
-  const dialogPaperSx = (slotProps?.paper as PaperProps)?.sx;
+    const dialogPaperSx = (slotProps?.paper as PaperProps)?.sx;
 
-  return (
-    <Dialog
-      fullWidth
-      open={open}
-      onClose={onClose}
-      maxWidth={isCalendarView ? false : 'xs'}
-      slotProps={{
-        ...slotProps,
-        paper: {
-          ...slotProps?.paper,
-          sx: [
-            { ...(isCalendarView && { maxWidth: 720 }) },
-            ...(Array.isArray(dialogPaperSx) ? dialogPaperSx : [dialogPaperSx]),
-          ],
-        },
-      }}
-      {...other}
-    >
-      <DialogTitle sx={{ pb: 2 }}>{title}</DialogTitle>
+    return (
+        <Dialog
+            fullWidth
+            open={open}
+            onClose={onClose}
+            maxWidth={isCalendarView ? false : 'xs'}
+            slotProps={{
+                ...slotProps,
+                paper: {
+                    ...slotProps?.paper,
+                    sx: [
+                        { ...(isCalendarView && { maxWidth: 720 }) },
+                        ...(Array.isArray(dialogPaperSx) ? dialogPaperSx : [dialogPaperSx]),
+                    ],
+                },
+            }}
+            {...other}
+        >
+            <DialogTitle sx={{ pb: 2 }}>{title}</DialogTitle>
 
-      <DialogContent sx={{ ...(isCalendarView && mdUp && { overflow: 'unset' }) }}>
-        <Box sx={contentStyles}>
-          {isCalendarView ? (
-            <>
-              <Box sx={blockStyles}>
-                <DateCalendar value={startDate} onChange={onChangeStartDate} />
-              </Box>
+            <DialogContent sx={{ ...(isCalendarView && mdUp && { overflow: 'unset' }) }}>
+                <Box sx={contentStyles}>
+                    {isCalendarView ? (
+                        <>
+                            <Box sx={blockStyles}>
+                                <DateCalendar value={startDate} onChange={onChangeStartDate} />
+                            </Box>
 
-              <Box sx={blockStyles}>
-                <DateCalendar value={endDate} onChange={onChangeEndDate} />
-              </Box>
-            </>
-          ) : (
-            <>
-              <DatePicker label="Kezdő dátum" value={startDate} onChange={onChangeStartDate} />
-              <DatePicker label="Vég dátum" value={endDate} onChange={onChangeEndDate} />
-            </>
-          )}
-        </Box>
+                            <Box sx={blockStyles}>
+                                <DateCalendar value={endDate} onChange={onChangeEndDate} />
+                            </Box>
+                        </>
+                    ) : (
+                        <>
+                            <DatePicker
+                                label="Kezdő dátum"
+                                value={startDate}
+                                onChange={onChangeStartDate}
+                            />
+                            <DatePicker
+                                label="Vég dátum"
+                                value={endDate}
+                                onChange={onChangeEndDate}
+                            />
+                        </>
+                    )}
+                </Box>
 
-        {error && (
-          <FormHelperText error sx={{ px: 2 }}>
-            End date must be later than start date
-          </FormHelperText>
-        )}
-      </DialogContent>
+                {error && (
+                    <FormHelperText error sx={{ px: 2 }}>
+                        End date must be later than start date
+                    </FormHelperText>
+                )}
+            </DialogContent>
 
-      <DialogActions>
-        <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button disabled={error} variant="contained" onClick={handleSubmit}>
-          Apply
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+            <DialogActions>
+                <Button variant="outlined" color="inherit" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button disabled={error} variant="contained" onClick={handleSubmit}>
+                    Apply
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 }

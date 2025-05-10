@@ -35,255 +35,269 @@ import { PostDetailsPreview } from './post-details-preview';
 export type NewPostSchemaType = zod.infer<typeof NewPostSchema>;
 
 export const NewPostSchema = zod.object({
-  title: zod.string().min(1, { message: 'Title is required!' }),
-  description: zod.string().min(1, { message: 'Description is required!' }),
-  content: schemaHelper
-    .editor()
-    .min(100, { message: 'Content must be at least 100 characters' })
-    .max(500, { message: 'Content must be less than 500 characters' }),
-  coverUrl: schemaHelper.file({ message: 'Cover is required!' }),
-  tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-  metaKeywords: zod.string().array().min(1, { message: 'Meta keywords is required!' }),
-  // Not required
-  metaTitle: zod.string(),
-  metaDescription: zod.string(),
+    title: zod.string().min(1, { message: 'Title is required!' }),
+    description: zod.string().min(1, { message: 'Description is required!' }),
+    content: schemaHelper
+        .editor()
+        .min(100, { message: 'Content must be at least 100 characters' })
+        .max(500, { message: 'Content must be less than 500 characters' }),
+    coverUrl: schemaHelper.file({ message: 'Cover is required!' }),
+    tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
+    metaKeywords: zod.string().array().min(1, { message: 'Meta keywords is required!' }),
+    // Not required
+    metaTitle: zod.string(),
+    metaDescription: zod.string(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentPost?: IPostItem;
+    currentPost?: IPostItem;
 };
 
 export function PostNewEditForm({ currentPost }: Props) {
-  const router = useRouter();
+    const router = useRouter();
 
-  const showPreview = useBoolean();
-  const openDetails = useBoolean(true);
-  const openProperties = useBoolean(true);
+    const showPreview = useBoolean();
+    const openDetails = useBoolean(true);
+    const openProperties = useBoolean(true);
 
-  const defaultValues: NewPostSchemaType = {
-    title: '',
-    description: '',
-    content: '',
-    coverUrl: null,
-    tags: [],
-    metaKeywords: [],
-    metaTitle: '',
-    metaDescription: '',
-  };
+    const defaultValues: NewPostSchemaType = {
+        title: '',
+        description: '',
+        content: '',
+        coverUrl: null,
+        tags: [],
+        metaKeywords: [],
+        metaTitle: '',
+        metaDescription: '',
+    };
 
-  const methods = useForm<NewPostSchemaType>({
-    mode: 'all',
-    resolver: zodResolver(NewPostSchema),
-    defaultValues,
-    values: currentPost,
-  });
+    const methods = useForm<NewPostSchemaType>({
+        mode: 'all',
+        resolver: zodResolver(NewPostSchema),
+        defaultValues,
+        values: currentPost,
+    });
 
-  const {
-    reset,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting, isValid },
-  } = methods;
+    const {
+        reset,
+        watch,
+        setValue,
+        handleSubmit,
+        formState: { isSubmitting, isValid },
+    } = methods;
 
-  const values = watch();
+    const values = watch();
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      showPreview.onFalse();
-      toast.success(currentPost ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.post.root);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            reset();
+            showPreview.onFalse();
+            toast.success(currentPost ? 'Update success!' : 'Create success!');
+            router.push(paths.dashboard.post.root);
+            console.info('DATA', data);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
-  const handleRemoveFile = useCallback(() => {
-    setValue('coverUrl', null);
-  }, [setValue]);
+    const handleRemoveFile = useCallback(() => {
+        setValue('coverUrl', null);
+    }, [setValue]);
 
-  const renderCollapseButton = (value: boolean, onToggle: () => void) => (
-    <IconButton onClick={onToggle}>
-      <Iconify icon={value ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-forward-fill'} />
-    </IconButton>
-  );
+    const renderCollapseButton = (value: boolean, onToggle: () => void) => (
+        <IconButton onClick={onToggle}>
+            <Iconify icon={value ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-forward-fill'} />
+        </IconButton>
+    );
 
-  const renderDetails = () => (
-    <Card>
-      <CardHeader
-        title="Details"
-        subheader="Title, short description, image..."
-        action={renderCollapseButton(openDetails.value, openDetails.onToggle)}
-        sx={{ mb: 3 }}
-      />
+    const renderDetails = () => (
+        <Card>
+            <CardHeader
+                title="Details"
+                subheader="Title, short description, image..."
+                action={renderCollapseButton(openDetails.value, openDetails.onToggle)}
+                sx={{ mb: 3 }}
+            />
 
-      <Collapse in={openDetails.value}>
-        <Divider />
+            <Collapse in={openDetails.value}>
+                <Divider />
 
-        <Stack spacing={3} sx={{ p: 3 }}>
-          <Field.Text name="title" label="Post title" />
+                <Stack spacing={3} sx={{ p: 3 }}>
+                    <Field.Text name="title" label="Post title" />
 
-          <Field.Text name="description" label="Description" multiline rows={3} />
+                    <Field.Text name="description" label="Description" multiline rows={3} />
 
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Content</Typography>
-            <Field.Editor name="content" sx={{ maxHeight: 480 }} />
-          </Stack>
+                    <Stack spacing={1.5}>
+                        <Typography variant="subtitle2">Content</Typography>
+                        <Field.Editor name="content" sx={{ maxHeight: 480 }} />
+                    </Stack>
 
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Cover</Typography>
-            <Field.Upload name="coverUrl" maxSize={3145728} onDelete={handleRemoveFile} />
-          </Stack>
-        </Stack>
-      </Collapse>
-    </Card>
-  );
+                    <Stack spacing={1.5}>
+                        <Typography variant="subtitle2">Cover</Typography>
+                        <Field.Upload
+                            name="coverUrl"
+                            maxSize={3145728}
+                            onDelete={handleRemoveFile}
+                        />
+                    </Stack>
+                </Stack>
+            </Collapse>
+        </Card>
+    );
 
-  const renderProperties = () => (
-    <Card>
-      <CardHeader
-        title="Properties"
-        subheader="Additional functions and attributes..."
-        action={renderCollapseButton(openProperties.value, openProperties.onToggle)}
-        sx={{ mb: 3 }}
-      />
+    const renderProperties = () => (
+        <Card>
+            <CardHeader
+                title="Properties"
+                subheader="Additional functions and attributes..."
+                action={renderCollapseButton(openProperties.value, openProperties.onToggle)}
+                sx={{ mb: 3 }}
+            />
 
-      <Collapse in={openProperties.value}>
-        <Divider />
+            <Collapse in={openProperties.value}>
+                <Divider />
 
-        <Stack spacing={3} sx={{ p: 3 }}>
-          <Field.Autocomplete
-            name="tags"
-            label="Tags"
-            placeholder="+ Tags"
-            multiple
-            freeSolo
-            disableCloseOnSelect
-            options={_tags.map((option) => option)}
-            getOptionLabel={(option) => option}
-            renderOption={(props, option) => (
-              <li {...props} key={option}>
-                {option}
-              </li>
-            )}
-            renderTags={(selected, getTagProps) =>
-              selected.map((option, index) => (
-                <Chip
-                  {...getTagProps({ index })}
-                  key={option}
-                  label={option}
-                  size="small"
-                  color="info"
-                  variant="soft"
-                />
-              ))
-            }
-          />
+                <Stack spacing={3} sx={{ p: 3 }}>
+                    <Field.Autocomplete
+                        name="tags"
+                        label="Tags"
+                        placeholder="+ Tags"
+                        multiple
+                        freeSolo
+                        disableCloseOnSelect
+                        options={_tags.map((option) => option)}
+                        getOptionLabel={(option) => option}
+                        renderOption={(props, option) => (
+                            <li {...props} key={option}>
+                                {option}
+                            </li>
+                        )}
+                        renderTags={(selected, getTagProps) =>
+                            selected.map((option, index) => (
+                                <Chip
+                                    {...getTagProps({ index })}
+                                    key={option}
+                                    label={option}
+                                    size="small"
+                                    color="info"
+                                    variant="soft"
+                                />
+                            ))
+                        }
+                    />
 
-          <Field.Text name="metaTitle" label="Meta title" />
+                    <Field.Text name="metaTitle" label="Meta title" />
 
-          <Field.Text
-            name="metaDescription"
-            label="Meta description"
-            fullWidth
-            multiline
-            rows={3}
-          />
+                    <Field.Text
+                        name="metaDescription"
+                        label="Meta description"
+                        fullWidth
+                        multiline
+                        rows={3}
+                    />
 
-          <Field.Autocomplete
-            name="metaKeywords"
-            label="Meta keywords"
-            placeholder="+ Keywords"
-            multiple
-            freeSolo
-            disableCloseOnSelect
-            options={_tags.map((option) => option)}
-            getOptionLabel={(option) => option}
-            renderOption={(props, option) => (
-              <li {...props} key={option}>
-                {option}
-              </li>
-            )}
-            renderTags={(selected, getTagProps) =>
-              selected.map((option, index) => (
-                <Chip
-                  {...getTagProps({ index })}
-                  key={option}
-                  label={option}
-                  size="small"
-                  color="info"
-                  variant="soft"
-                />
-              ))
-            }
-          />
+                    <Field.Autocomplete
+                        name="metaKeywords"
+                        label="Meta keywords"
+                        placeholder="+ Keywords"
+                        multiple
+                        freeSolo
+                        disableCloseOnSelect
+                        options={_tags.map((option) => option)}
+                        getOptionLabel={(option) => option}
+                        renderOption={(props, option) => (
+                            <li {...props} key={option}>
+                                {option}
+                            </li>
+                        )}
+                        renderTags={(selected, getTagProps) =>
+                            selected.map((option, index) => (
+                                <Chip
+                                    {...getTagProps({ index })}
+                                    key={option}
+                                    label={option}
+                                    size="small"
+                                    color="info"
+                                    variant="soft"
+                                />
+                            ))
+                        }
+                    />
 
-          <FormControlLabel
-            label="Enable comments"
-            control={<Switch defaultChecked slotProps={{ input: { id: 'comments-switch' } }} />}
-          />
-        </Stack>
-      </Collapse>
-    </Card>
-  );
+                    <FormControlLabel
+                        label="Enable comments"
+                        control={
+                            <Switch
+                                defaultChecked
+                                slotProps={{ input: { id: 'comments-switch' } }}
+                            />
+                        }
+                    />
+                </Stack>
+            </Collapse>
+        </Card>
+    );
 
-  const renderActions = () => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-      }}
-    >
-      <FormControlLabel
-        label="Publish"
-        control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
-        sx={{ pl: 3, flexGrow: 1 }}
-      />
-
-      <div>
-        <Button color="inherit" variant="outlined" size="large" onClick={showPreview.onTrue}>
-          Preview
-        </Button>
-
-        <Button
-          type="submit"
-          variant="contained"
-          size="large"
-          loading={isSubmitting}
-          sx={{ ml: 2 }}
+    const renderActions = () => (
+        <Box
+            sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+            }}
         >
-          {!currentPost ? 'Create post' : 'Save changes'}
-        </Button>
-      </div>
-    </Box>
-  );
+            <FormControlLabel
+                label="Publish"
+                control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
+                sx={{ pl: 3, flexGrow: 1 }}
+            />
 
-  return (
-    <Form methods={methods} onSubmit={onSubmit}>
-      <Stack spacing={5} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-        {renderDetails()}
-        {renderProperties()}
-        {renderActions()}
-      </Stack>
+            <div>
+                <Button
+                    color="inherit"
+                    variant="outlined"
+                    size="large"
+                    onClick={showPreview.onTrue}
+                >
+                    Preview
+                </Button>
 
-      <PostDetailsPreview
-        isValid={isValid}
-        onSubmit={onSubmit}
-        title={values.title}
-        open={showPreview.value}
-        content={values.content}
-        onClose={showPreview.onFalse}
-        coverUrl={values.coverUrl}
-        isSubmitting={isSubmitting}
-        description={values.description}
-      />
-    </Form>
-  );
+                <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    loading={isSubmitting}
+                    sx={{ ml: 2 }}
+                >
+                    {!currentPost ? 'Create post' : 'Save changes'}
+                </Button>
+            </div>
+        </Box>
+    );
+
+    return (
+        <Form methods={methods} onSubmit={onSubmit}>
+            <Stack spacing={5} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+                {renderDetails()}
+                {renderProperties()}
+                {renderActions()}
+            </Stack>
+
+            <PostDetailsPreview
+                isValid={isValid}
+                onSubmit={onSubmit}
+                title={values.title}
+                open={showPreview.value}
+                content={values.content}
+                onClose={showPreview.onFalse}
+                coverUrl={values.coverUrl}
+                isSubmitting={isSubmitting}
+                description={values.description}
+            />
+        </Form>
+    );
 }

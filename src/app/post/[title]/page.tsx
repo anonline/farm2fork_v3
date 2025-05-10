@@ -10,16 +10,16 @@ import { PostDetailsHomeView } from 'src/sections/blog/view';
 export const metadata: Metadata = { title: `Post details - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ title: string }>;
+    params: Promise<{ title: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { title } = await params;
+    const { title } = await params;
 
-  const { post } = await getPost(title);
-  const { latestPosts } = await getLatestPosts(title);
+    const { post } = await getPost(title);
+    const { latestPosts } = await getLatestPosts(title);
 
-  return <PostDetailsHomeView post={post} latestPosts={latestPosts} />;
+    return <PostDetailsHomeView post={post} latestPosts={latestPosts} />;
 }
 
 // ----------------------------------------------------------------------

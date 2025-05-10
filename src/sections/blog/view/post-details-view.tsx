@@ -33,107 +33,113 @@ import { PostDetailsToolbar } from '../post-details-toolbar';
 // ----------------------------------------------------------------------
 
 type Props = {
-  post?: IPostItem;
+    post?: IPostItem;
 };
 
 export function PostDetailsView({ post }: Props) {
-  const [publish, setPublish] = useState('');
+    const [publish, setPublish] = useState('');
 
-  const handleChangePublish = useCallback((newValue: string) => {
-    setPublish(newValue);
-  }, []);
+    const handleChangePublish = useCallback((newValue: string) => {
+        setPublish(newValue);
+    }, []);
 
-  useEffect(() => {
-    if (post) {
-      setPublish(post?.publish);
-    }
-  }, [post]);
+    useEffect(() => {
+        if (post) {
+            setPublish(post?.publish);
+        }
+    }, [post]);
 
-  return (
-    <DashboardContent maxWidth={false} disablePadding>
-      <Container maxWidth={false} sx={{ px: { sm: 5 } }}>
-        <PostDetailsToolbar
-          backHref={paths.dashboard.post.root}
-          editHref={paths.dashboard.post.edit(`${post?.title}`)}
-          liveHref={paths.post.details(`${post?.title}`)}
-          publish={`${publish}`}
-          onChangePublish={handleChangePublish}
-          publishOptions={POST_PUBLISH_OPTIONS}
-        />
-      </Container>
-
-      <PostDetailsHero title={`${post?.title}`} coverUrl={`${post?.coverUrl}`} />
-
-      <Box
-        sx={{
-          pb: 5,
-          mx: 'auto',
-          maxWidth: 720,
-          mt: { xs: 5, md: 10 },
-          px: { xs: 2, sm: 3 },
-        }}
-      >
-        <Typography variant="subtitle1">{post?.description}</Typography>
-
-        <Markdown children={post?.content} />
-
-        <Stack
-          spacing={3}
-          sx={[
-            (theme) => ({
-              py: 3,
-              borderTop: `dashed 1px ${theme.vars.palette.divider}`,
-              borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
-            }),
-          ]}
-        >
-          <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
-            {post?.tags.map((tag) => <Chip key={tag} label={tag} variant="soft" />)}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel
-              label={fShortenNumber(post?.totalFavorites)}
-              control={
-                <Checkbox
-                  defaultChecked
-                  size="small"
-                  color="error"
-                  icon={<Iconify icon="solar:heart-bold" />}
-                  checkedIcon={<Iconify icon="solar:heart-bold" />}
-                  slotProps={{
-                    input: {
-                      id: 'favorite-checkbox',
-                      'aria-label': 'Favorite checkbox',
-                    },
-                  }}
+    return (
+        <DashboardContent maxWidth={false} disablePadding>
+            <Container maxWidth={false} sx={{ px: { sm: 5 } }}>
+                <PostDetailsToolbar
+                    backHref={paths.dashboard.post.root}
+                    editHref={paths.dashboard.post.edit(`${post?.title}`)}
+                    liveHref={paths.post.details(`${post?.title}`)}
+                    publish={`${publish}`}
+                    onChangePublish={handleChangePublish}
+                    publishOptions={POST_PUBLISH_OPTIONS}
                 />
-              }
-              sx={{ mr: 1 }}
-            />
+            </Container>
 
-            <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 32, height: 32 } }}>
-              {post?.favoritePerson.map((person) => (
-                <Avatar key={person.name} alt={person.name} src={person.avatarUrl} />
-              ))}
-            </AvatarGroup>
-          </Box>
-        </Stack>
+            <PostDetailsHero title={`${post?.title}`} coverUrl={`${post?.coverUrl}`} />
 
-        <Box sx={{ mb: 3, mt: 5, display: 'flex' }}>
-          <Typography variant="h4">Comments</Typography>
+            <Box
+                sx={{
+                    pb: 5,
+                    mx: 'auto',
+                    maxWidth: 720,
+                    mt: { xs: 5, md: 10 },
+                    px: { xs: 2, sm: 3 },
+                }}
+            >
+                <Typography variant="subtitle1">{post?.description}</Typography>
 
-          <Typography variant="subtitle2" sx={{ color: 'text.disabled' }}>
-            ({post?.comments.length})
-          </Typography>
-        </Box>
+                <Markdown children={post?.content} />
 
-        <PostCommentForm />
+                <Stack
+                    spacing={3}
+                    sx={[
+                        (theme) => ({
+                            py: 3,
+                            borderTop: `dashed 1px ${theme.vars.palette.divider}`,
+                            borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
+                        }),
+                    ]}
+                >
+                    <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
+                        {post?.tags.map((tag) => <Chip key={tag} label={tag} variant="soft" />)}
+                    </Box>
 
-        <Divider sx={{ mt: 5, mb: 2 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormControlLabel
+                            label={fShortenNumber(post?.totalFavorites)}
+                            control={
+                                <Checkbox
+                                    defaultChecked
+                                    size="small"
+                                    color="error"
+                                    icon={<Iconify icon="solar:heart-bold" />}
+                                    checkedIcon={<Iconify icon="solar:heart-bold" />}
+                                    slotProps={{
+                                        input: {
+                                            id: 'favorite-checkbox',
+                                            'aria-label': 'Favorite checkbox',
+                                        },
+                                    }}
+                                />
+                            }
+                            sx={{ mr: 1 }}
+                        />
 
-        <PostCommentList comments={post?.comments ?? []} />
-      </Box>
-    </DashboardContent>
-  );
+                        <AvatarGroup
+                            sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 32, height: 32 } }}
+                        >
+                            {post?.favoritePerson.map((person) => (
+                                <Avatar
+                                    key={person.name}
+                                    alt={person.name}
+                                    src={person.avatarUrl}
+                                />
+                            ))}
+                        </AvatarGroup>
+                    </Box>
+                </Stack>
+
+                <Box sx={{ mb: 3, mt: 5, display: 'flex' }}>
+                    <Typography variant="h4">Comments</Typography>
+
+                    <Typography variant="subtitle2" sx={{ color: 'text.disabled' }}>
+                        ({post?.comments.length})
+                    </Typography>
+                </Box>
+
+                <PostCommentForm />
+
+                <Divider sx={{ mt: 5, mb: 2 }} />
+
+                <PostCommentList comments={post?.comments ?? []} />
+            </Box>
+        </DashboardContent>
+    );
 }

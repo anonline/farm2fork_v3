@@ -16,11 +16,11 @@ import type { AvatarGroupExtendVariant } from './core/components/avatar';
 import type { ButtonGroupExtendVariant } from './core/components/button-group';
 import type { PaginationExtendColor, PaginationExtendVariant } from './core/components/pagination';
 import type {
-  GreyExtend,
-  TypeTextExtend,
-  CommonColorsExtend,
-  PaletteColorExtend,
-  TypeBackgroundExtend,
+    GreyExtend,
+    TypeTextExtend,
+    CommonColorsExtend,
+    PaletteColorExtend,
+    TypeBackgroundExtend,
 } from './core/palette';
 
 // ----------------------------------------------------------------------
@@ -36,17 +36,17 @@ import type {
  * @from {@link file://./core/palette.ts}
  */
 declare module '@mui/material/styles' {
-  // grey
-  interface Color extends GreyExtend {}
-  // text
-  interface TypeText extends TypeTextExtend {}
-  // black & white
-  interface CommonColors extends CommonColorsExtend {}
-  // background
-  interface TypeBackground extends TypeBackgroundExtend {}
-  // primary, secondary, info, success, warning, error
-  interface PaletteColor extends PaletteColorExtend {}
-  interface SimplePaletteColorOptions extends Partial<PaletteColorExtend> {}
+    // grey
+    interface Color extends GreyExtend {}
+    // text
+    interface TypeText extends TypeTextExtend {}
+    // black & white
+    interface CommonColors extends CommonColorsExtend {}
+    // background
+    interface TypeBackground extends TypeBackgroundExtend {}
+    // primary, secondary, info, success, warning, error
+    interface PaletteColor extends PaletteColorExtend {}
+    interface SimplePaletteColorOptions extends Partial<PaletteColorExtend> {}
 }
 
 /**
@@ -55,26 +55,26 @@ declare module '@mui/material/styles' {
  * @from {@link file://./core/typography.ts}
  */
 declare module '@mui/material/styles' {
-  interface TypographyVariants extends FontStyleExtend {}
-  interface TypographyVariantsOptions extends Partial<FontStyleExtend> {}
+    interface TypographyVariants extends FontStyleExtend {}
+    interface TypographyVariantsOptions extends Partial<FontStyleExtend> {}
 }
 
 declare module '@mui/material/styles' {
-  /**
-   * Custom shadows
-   * @from {@link file://./core/custom-shadows.ts}
-   */
-  interface Theme {
-    customShadows: CustomShadows;
-  }
-  interface ThemeOptions {
-    customShadows?: CustomShadows;
-  }
-  interface ThemeVars {
-    customShadows: CustomShadows;
-    typography: Theme['typography'];
-    transitions: Theme['transitions'];
-  }
+    /**
+     * Custom shadows
+     * @from {@link file://./core/custom-shadows.ts}
+     */
+    interface Theme {
+        customShadows: CustomShadows;
+    }
+    interface ThemeOptions {
+        customShadows?: CustomShadows;
+    }
+    interface ThemeVars {
+        customShadows: CustomShadows;
+        typography: Theme['typography'];
+        transitions: Theme['transitions'];
+    }
 }
 
 /** **************************************
@@ -87,7 +87,7 @@ declare module '@mui/material/styles' {
  * @from {@link file://./core/components/avatar.tsx}
  */
 declare module '@mui/material/AvatarGroup' {
-  interface AvatarGroupPropsVariantOverrides extends AvatarGroupExtendVariant {}
+    interface AvatarGroupPropsVariantOverrides extends AvatarGroupExtendVariant {}
 }
 
 /**
@@ -96,7 +96,7 @@ declare module '@mui/material/AvatarGroup' {
  * @from {@link file://./core/components/badge.tsx}
  */
 declare module '@mui/material/Badge' {
-  interface BadgePropsVariantOverrides extends BadgeExtendVariant {}
+    interface BadgePropsVariantOverrides extends BadgeExtendVariant {}
 }
 
 /**
@@ -105,7 +105,7 @@ declare module '@mui/material/Badge' {
  * @from {@link file://./core/components/button.tsx}
  */
 declare module '@mui/material/Button' {
-  interface ButtonPropsVariantOverrides extends ButtonExtendVariant {}
+    interface ButtonPropsVariantOverrides extends ButtonExtendVariant {}
 }
 
 /**
@@ -114,7 +114,7 @@ declare module '@mui/material/Button' {
  * @from {@link file://./core/components/button-group.tsx}
  */
 declare module '@mui/material/ButtonGroup' {
-  interface ButtonGroupPropsVariantOverrides extends ButtonGroupExtendVariant {}
+    interface ButtonGroupPropsVariantOverrides extends ButtonGroupExtendVariant {}
 }
 
 /**
@@ -123,7 +123,7 @@ declare module '@mui/material/ButtonGroup' {
  * @from {@link file://./core/components/button-fab.tsx}
  */
 declare module '@mui/material/Fab' {
-  interface FabPropsVariantOverrides extends FabExtendVariant {}
+    interface FabPropsVariantOverrides extends FabExtendVariant {}
 }
 
 /**
@@ -132,7 +132,7 @@ declare module '@mui/material/Fab' {
  * @from {@link file://./core/components/chip.tsx}
  */
 declare module '@mui/material/Chip' {
-  interface ChipPropsVariantOverrides extends ChipExtendVariant {}
+    interface ChipPropsVariantOverrides extends ChipExtendVariant {}
 }
 
 /**
@@ -141,8 +141,8 @@ declare module '@mui/material/Chip' {
  * @from {@link file://./core/components/pagination.tsx}
  */
 declare module '@mui/material/Pagination' {
-  interface PaginationPropsVariantOverrides extends PaginationExtendVariant {}
-  interface PaginationPropsColorOverrides extends PaginationExtendColor {}
+    interface PaginationPropsVariantOverrides extends PaginationExtendVariant {}
+    interface PaginationPropsColorOverrides extends PaginationExtendColor {}
 }
 
 /**
@@ -151,7 +151,7 @@ declare module '@mui/material/Pagination' {
  * @from {@link file://./core/components/slider.tsx}
  */
 declare module '@mui/material/Slider' {
-  interface SliderPropsColorOverrides extends SliderExtendColor {}
+    interface SliderPropsColorOverrides extends SliderExtendColor {}
 }
 
 /** **************************************
@@ -161,6 +161,6 @@ declare module '@mui/material/Slider' {
  * @from {@link file://./core/mixins.ts}
  */
 declare module '@mui/material/styles' {
-  interface Mixins extends MixinsExtend {}
-  interface MixinsOptions extends Partial<MixinsExtend> {}
+    interface Mixins extends MixinsExtend {}
+    interface MixinsOptions extends Partial<MixinsExtend> {}
 }

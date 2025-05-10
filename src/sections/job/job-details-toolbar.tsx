@@ -17,95 +17,95 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  backHref: string;
-  editHref: string;
-  liveHref: string;
-  publish: string;
-  onChangePublish: (newValue: string) => void;
-  publishOptions: { value: string; label: string }[];
+    backHref: string;
+    editHref: string;
+    liveHref: string;
+    publish: string;
+    onChangePublish: (newValue: string) => void;
+    publishOptions: { value: string; label: string }[];
 };
 
 export function JobDetailsToolbar({
-  sx,
-  publish,
-  backHref,
-  editHref,
-  liveHref,
-  publishOptions,
-  onChangePublish,
-  ...other
+    sx,
+    publish,
+    backHref,
+    editHref,
+    liveHref,
+    publishOptions,
+    onChangePublish,
+    ...other
 }: Props) {
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-    >
-      <MenuList>
-        {publishOptions.map((option) => (
-          <MenuItem
-            key={option.value}
-            selected={option.value === publish}
-            onClick={() => {
-              menuActions.onClose();
-              onChangePublish(option.value);
-            }}
-          >
-            {option.value === 'published' && <Iconify icon="eva:cloud-upload-fill" />}
-            {option.value === 'draft' && <Iconify icon="solar:file-text-bold" />}
-            {option.label}
-          </MenuItem>
-        ))}
-      </MenuList>
-    </CustomPopover>
-  );
-
-  return (
-    <>
-      <Box
-        sx={[{ mb: 3, gap: 1.5, display: 'flex' }, ...(Array.isArray(sx) ? sx : [sx])]}
-        {...other}
-      >
-        <Button
-          component={RouterLink}
-          href={backHref}
-          startIcon={<Iconify icon="eva:arrow-ios-back-fill" width={16} />}
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
         >
-          Back
-        </Button>
+            <MenuList>
+                {publishOptions.map((option) => (
+                    <MenuItem
+                        key={option.value}
+                        selected={option.value === publish}
+                        onClick={() => {
+                            menuActions.onClose();
+                            onChangePublish(option.value);
+                        }}
+                    >
+                        {option.value === 'published' && <Iconify icon="eva:cloud-upload-fill" />}
+                        {option.value === 'draft' && <Iconify icon="solar:file-text-bold" />}
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </MenuList>
+        </CustomPopover>
+    );
 
-        <Box sx={{ flexGrow: 1 }} />
+    return (
+        <>
+            <Box
+                sx={[{ mb: 3, gap: 1.5, display: 'flex' }, ...(Array.isArray(sx) ? sx : [sx])]}
+                {...other}
+            >
+                <Button
+                    component={RouterLink}
+                    href={backHref}
+                    startIcon={<Iconify icon="eva:arrow-ios-back-fill" width={16} />}
+                >
+                    Back
+                </Button>
 
-        {publish === 'published' && (
-          <Tooltip title="Go Live">
-            <IconButton component={RouterLink} href={liveHref}>
-              <Iconify icon="eva:external-link-fill" />
-            </IconButton>
-          </Tooltip>
-        )}
+                <Box sx={{ flexGrow: 1 }} />
 
-        <Tooltip title="Edit">
-          <IconButton component={RouterLink} href={editHref}>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        </Tooltip>
+                {publish === 'published' && (
+                    <Tooltip title="Go Live">
+                        <IconButton component={RouterLink} href={liveHref}>
+                            <Iconify icon="eva:external-link-fill" />
+                        </IconButton>
+                    </Tooltip>
+                )}
 
-        <Button
-          color="inherit"
-          variant="contained"
-          loading={!publish}
-          loadingIndicator="Loading…"
-          endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          onClick={menuActions.onOpen}
-          sx={{ textTransform: 'capitalize' }}
-        >
-          {publish}
-        </Button>
-      </Box>
+                <Tooltip title="Edit">
+                    <IconButton component={RouterLink} href={editHref}>
+                        <Iconify icon="solar:pen-bold" />
+                    </IconButton>
+                </Tooltip>
 
-      {renderMenuActions()}
-    </>
-  );
+                <Button
+                    color="inherit"
+                    variant="contained"
+                    loading={!publish}
+                    loadingIndicator="Loading…"
+                    endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                    onClick={menuActions.onOpen}
+                    sx={{ textTransform: 'capitalize' }}
+                >
+                    {publish}
+                </Button>
+            </Box>
+
+            {renderMenuActions()}
+        </>
+    );
 }

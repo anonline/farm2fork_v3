@@ -4,7 +4,7 @@ import type { Theme, SxProps } from '@mui/material/styles';
 // ----------------------------------------------------------------------
 
 export type MarkdownProps = Options &
-  React.ComponentProps<'div'> & {
-    asHtml?: boolean;
-    sx?: SxProps<Theme>;
-  };
+    React.ComponentProps<'div'> & {
+        asHtml?: boolean;
+        sx?: SxProps<Theme>;
+    };

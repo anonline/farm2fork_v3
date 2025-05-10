@@ -13,84 +13,84 @@ import { AuthContext } from '../auth-context';
 // ----------------------------------------------------------------------
 
 type Props = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 export function AuthProvider({ children }: Props) {
-  const { domain, clientId, callbackUrl } = CONFIG.auth0;
+    const { domain, clientId, callbackUrl } = CONFIG.auth0;
 
-  const onRedirectCallback = useCallback((appState?: AppState) => {
-    window.location.replace(appState?.returnTo || window.location.pathname);
-  }, []);
+    const onRedirectCallback = useCallback((appState?: AppState) => {
+        window.location.replace(appState?.returnTo || window.location.pathname);
+    }, []);
 
-  if (!(domain && clientId && callbackUrl)) {
-    return null;
-  }
+    if (!(domain && clientId && callbackUrl)) {
+        return null;
+    }
 
-  return (
-    <Auth0Provider
-      domain={domain}
-      clientId={clientId}
-      authorizationParams={{ redirect_uri: callbackUrl }}
-      onRedirectCallback={onRedirectCallback}
-      cacheLocation="localstorage"
-    >
-      <AuthProviderContainer>{children}</AuthProviderContainer>
-    </Auth0Provider>
-  );
+    return (
+        <Auth0Provider
+            domain={domain}
+            clientId={clientId}
+            authorizationParams={{ redirect_uri: callbackUrl }}
+            onRedirectCallback={onRedirectCallback}
+            cacheLocation="localstorage"
+        >
+            <AuthProviderContainer>{children}</AuthProviderContainer>
+        </Auth0Provider>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 function AuthProviderContainer({ children }: Props) {
-  const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
+    const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  const getAccessToken = useCallback(async () => {
-    try {
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
+    const getAccessToken = useCallback(async () => {
+        try {
+            if (isAuthenticated) {
+                const token = await getAccessTokenSilently();
 
-        setAccessToken(token);
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-      } else {
-        setAccessToken(null);
-        delete axios.defaults.headers.common.Authorization;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [getAccessTokenSilently, isAuthenticated]);
+                setAccessToken(token);
+                axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+            } else {
+                setAccessToken(null);
+                delete axios.defaults.headers.common.Authorization;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }, [getAccessTokenSilently, isAuthenticated]);
 
-  useEffect(() => {
-    getAccessToken();
-  }, [getAccessToken]);
+    useEffect(() => {
+        getAccessToken();
+    }, [getAccessToken]);
 
-  // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
-  const checkAuthenticated = isAuthenticated ? 'authenticated' : 'unauthenticated';
+    const checkAuthenticated = isAuthenticated ? 'authenticated' : 'unauthenticated';
 
-  const status = isLoading ? 'loading' : checkAuthenticated;
+    const status = isLoading ? 'loading' : checkAuthenticated;
 
-  const memoizedValue = useMemo(
-    () => ({
-      user: user
-        ? {
-            ...user,
-            id: user?.sub,
-            accessToken,
-            displayName: user?.name,
-            photoURL: user?.picture,
-            role: user?.role ?? 'admin',
-          }
-        : null,
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
-    }),
-    [accessToken, status, user]
-  );
+    const memoizedValue = useMemo(
+        () => ({
+            user: user
+                ? {
+                      ...user,
+                      id: user?.sub,
+                      accessToken,
+                      displayName: user?.name,
+                      photoURL: user?.picture,
+                      role: user?.role ?? 'admin',
+                  }
+                : null,
+            loading: status === 'loading',
+            authenticated: status === 'authenticated',
+            unauthenticated: status === 'unauthenticated',
+        }),
+        [accessToken, status, user]
+    );
 
-  return <AuthContext value={memoizedValue}>{children}</AuthContext>;
+    return <AuthContext value={memoizedValue}>{children}</AuthContext>;
 }

@@ -7,9 +7,9 @@ import { CenteredUpdatePasswordView } from 'src/auth/view/auth-demo/centered';
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: `Update password | Layout centered - ${CONFIG.appName}`,
+    title: `Update password | Layout centered - ${CONFIG.appName}`,
 };
 
 export default function Page() {
-  return <CenteredUpdatePasswordView />;
+    return <CenteredUpdatePasswordView />;
 }

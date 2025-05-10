@@ -17,90 +17,90 @@ import { fDateTime } from 'src/utils/format-time';
 // ----------------------------------------------------------------------
 
 type Props = {
-  history?: IOrderHistory;
+    history?: IOrderHistory;
 };
 
 export function OrderDetailsHistory({ history }: Props) {
-  const renderSummary = () => (
-    <Paper
-      variant="outlined"
-      sx={{
-        p: 2.5,
-        gap: 2,
-        minWidth: 260,
-        flexShrink: 0,
-        borderRadius: 2,
-        display: 'flex',
-        typography: 'body2',
-        borderStyle: 'dashed',
-        flexDirection: 'column',
-      }}
-    >
-      <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Rendelés időpontja</Box>
-        {fDateTime(history?.orderTime)}
-      </div>
+    const renderSummary = () => (
+        <Paper
+            variant="outlined"
+            sx={{
+                p: 2.5,
+                gap: 2,
+                minWidth: 260,
+                flexShrink: 0,
+                borderRadius: 2,
+                display: 'flex',
+                typography: 'body2',
+                borderStyle: 'dashed',
+                flexDirection: 'column',
+            }}
+        >
+            <div>
+                <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Rendelés időpontja</Box>
+                {fDateTime(history?.orderTime)}
+            </div>
 
-      <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Fizetés időpontja</Box>
-        {fDateTime(history?.orderTime)}
-      </div>
+            <div>
+                <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Fizetés időpontja</Box>
+                {fDateTime(history?.orderTime)}
+            </div>
 
-      <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Szállítás dátuma</Box>
-        {fDateTime(history?.orderTime)}
-      </div>
+            <div>
+                <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Szállítás dátuma</Box>
+                {fDateTime(history?.orderTime)}
+            </div>
 
-      <div>
-        <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Lezárás dátuma</Box>
-        {fDateTime(history?.orderTime)}
-      </div>
-    </Paper>
-  );
+            <div>
+                <Box sx={{ mb: 0.5, color: 'text.disabled' }}>Lezárás dátuma</Box>
+                {fDateTime(history?.orderTime)}
+            </div>
+        </Paper>
+    );
 
-  const renderTimeline = () => (
-    <Timeline
-      sx={{ p: 0, m: 0, [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 } }}
-    >
-      {history?.timeline.map((item, index) => {
-        const firstTime = index === 0;
-        const lastTime = index === history.timeline.length - 1;
+    const renderTimeline = () => (
+        <Timeline
+            sx={{ p: 0, m: 0, [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 } }}
+        >
+            {history?.timeline.map((item, index) => {
+                const firstTime = index === 0;
+                const lastTime = index === history.timeline.length - 1;
 
-        return (
-          <TimelineItem key={item.title}>
-            <TimelineSeparator>
-              <TimelineDot color={(firstTime && 'primary') || 'grey'} />
-              {lastTime ? null : <TimelineConnector />}
-            </TimelineSeparator>
+                return (
+                    <TimelineItem key={item.title}>
+                        <TimelineSeparator>
+                            <TimelineDot color={(firstTime && 'primary') || 'grey'} />
+                            {lastTime ? null : <TimelineConnector />}
+                        </TimelineSeparator>
 
-            <TimelineContent>
-              <Typography variant="subtitle2">{item.title}</Typography>
+                        <TimelineContent>
+                            <Typography variant="subtitle2">{item.title}</Typography>
 
-              <Box sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}>
-                {fDateTime(item.time)}
-              </Box>
-            </TimelineContent>
-          </TimelineItem>
-        );
-      })}
-    </Timeline>
-  );
+                            <Box sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}>
+                                {fDateTime(item.time)}
+                            </Box>
+                        </TimelineContent>
+                    </TimelineItem>
+                );
+            })}
+        </Timeline>
+    );
 
-  return (
-    <Card>
-      <CardHeader title="Előzmények" />
-      <Box
-        sx={{
-          p: 3,
-          gap: 3,
-          display: 'flex',
-          alignItems: { md: 'flex-start' },
-          flexDirection: { xs: 'column-reverse', md: 'row' },
-        }}
-      >
-        {renderTimeline()}
-        {renderSummary()}
-      </Box>
-    </Card>
-  );
+    return (
+        <Card>
+            <CardHeader title="Előzmények" />
+            <Box
+                sx={{
+                    p: 3,
+                    gap: 3,
+                    display: 'flex',
+                    alignItems: { md: 'flex-start' },
+                    flexDirection: { xs: 'column-reverse', md: 'row' },
+                }}
+            >
+                {renderTimeline()}
+                {renderSummary()}
+            </Box>
+        </Card>
+    );
 }

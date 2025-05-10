@@ -16,85 +16,85 @@ import { KanbanDetails } from '../details/kanban-details';
 // ----------------------------------------------------------------------
 
 type TaskItemProps = {
-  disabled?: boolean;
-  sx?: SxProps<Theme>;
-  task: IKanbanTask;
-  columnId: UniqueIdentifier;
+    disabled?: boolean;
+    sx?: SxProps<Theme>;
+    task: IKanbanTask;
+    columnId: UniqueIdentifier;
 };
 
 export function KanbanTaskItem({ task, disabled, columnId, sx }: TaskItemProps) {
-  const taskDetailsDialog = useBoolean();
+    const taskDetailsDialog = useBoolean();
 
-  const { setNodeRef, listeners, isDragging, isSorting, transform, transition } = useSortable({
-    id: task?.id,
-  });
+    const { setNodeRef, listeners, isDragging, isSorting, transform, transition } = useSortable({
+        id: task?.id,
+    });
 
-  const mounted = useMountStatus();
-  const mountedWhileDragging = isDragging && !mounted;
+    const mounted = useMountStatus();
+    const mountedWhileDragging = isDragging && !mounted;
 
-  const handleDeleteTask = useCallback(async () => {
-    try {
-      deleteTask(columnId, task.id);
-      toast.success('Delete success!', { position: 'top-center' });
-    } catch (error) {
-      console.error(error);
-    }
-  }, [columnId, task.id]);
+    const handleDeleteTask = useCallback(async () => {
+        try {
+            deleteTask(columnId, task.id);
+            toast.success('Delete success!', { position: 'top-center' });
+        } catch (error) {
+            console.error(error);
+        }
+    }, [columnId, task.id]);
 
-  const handleUpdateTask = useCallback(
-    async (taskData: IKanbanTask) => {
-      try {
-        updateTask(columnId, taskData);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [columnId]
-  );
+    const handleUpdateTask = useCallback(
+        async (taskData: IKanbanTask) => {
+            try {
+                updateTask(columnId, taskData);
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        [columnId]
+    );
 
-  const renderTaskDetailsDialog = () => (
-    <KanbanDetails
-      task={task}
-      open={taskDetailsDialog.value}
-      onClose={taskDetailsDialog.onFalse}
-      onUpdateTask={handleUpdateTask}
-      onDeleteTask={handleDeleteTask}
-    />
-  );
+    const renderTaskDetailsDialog = () => (
+        <KanbanDetails
+            task={task}
+            open={taskDetailsDialog.value}
+            onClose={taskDetailsDialog.onFalse}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
+        />
+    );
 
-  return (
-    <>
-      <ItemBase
-        ref={disabled ? undefined : setNodeRef}
-        task={task}
-        open={taskDetailsDialog.value}
-        onClick={taskDetailsDialog.onTrue}
-        stateProps={{
-          transform,
-          listeners,
-          transition,
-          sorting: isSorting,
-          dragging: isDragging,
-          fadeIn: mountedWhileDragging,
-        }}
-        sx={sx}
-      />
+    return (
+        <>
+            <ItemBase
+                ref={disabled ? undefined : setNodeRef}
+                task={task}
+                open={taskDetailsDialog.value}
+                onClick={taskDetailsDialog.onTrue}
+                stateProps={{
+                    transform,
+                    listeners,
+                    transition,
+                    sorting: isSorting,
+                    dragging: isDragging,
+                    fadeIn: mountedWhileDragging,
+                }}
+                sx={sx}
+            />
 
-      {renderTaskDetailsDialog()}
-    </>
-  );
+            {renderTaskDetailsDialog()}
+        </>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 function useMountStatus() {
-  const [isMounted, setIsMounted] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => setIsMounted(true), 500);
+    useEffect(() => {
+        const timeout = setTimeout(() => setIsMounted(true), 500);
 
-    return () => clearTimeout(timeout);
-  }, []);
+        return () => clearTimeout(timeout);
+    }, []);
 
-  return isMounted;
+    return isMounted;
 }

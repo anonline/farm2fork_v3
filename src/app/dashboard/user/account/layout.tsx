@@ -3,9 +3,9 @@ import { AccountLayout } from 'src/sections/account/account-layout';
 // ----------------------------------------------------------------------
 
 type Props = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 export default function Layout({ children }: Props) {
-  return <AccountLayout> {children}</AccountLayout>;
+    return <AccountLayout> {children}</AccountLayout>;
 }

@@ -9,5 +9,5 @@ import { FaqsView } from 'src/sections/faqs/view';
 export const metadata: Metadata = { title: `Faqs - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <FaqsView />;
+    return <FaqsView />;
 }

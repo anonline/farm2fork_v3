@@ -9,5 +9,5 @@ import { ContactView } from 'src/sections/contact/view';
 export const metadata: Metadata = { title: `Contact us - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <ContactView />;
+    return <ContactView />;
 }

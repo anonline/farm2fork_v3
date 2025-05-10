@@ -26,117 +26,124 @@ import type { UseNavCollapseReturn } from './hooks/use-collapse-nav';
 // ----------------------------------------------------------------------
 
 type Props = {
-  loading: boolean;
-  participants: IChatParticipant[];
-  collapseNav: UseNavCollapseReturn;
+    loading: boolean;
+    participants: IChatParticipant[];
+    collapseNav: UseNavCollapseReturn;
 };
 
 export function ChatHeaderDetail({ collapseNav, participants, loading }: Props) {
-  const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
+    const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
 
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const isGroup = participants.length > 1;
+    const isGroup = participants.length > 1;
 
-  const singleParticipant = participants[0];
+    const singleParticipant = participants[0];
 
-  const { collapseDesktop, onCollapseDesktop, onOpenMobile } = collapseNav;
+    const { collapseDesktop, onCollapseDesktop, onOpenMobile } = collapseNav;
 
-  const handleToggleNav = useCallback(() => {
-    if (lgUp) {
-      onCollapseDesktop();
-    } else {
-      onOpenMobile();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lgUp]);
-
-  const renderGroup = () => (
-    <AvatarGroup max={3} sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 32, height: 32 } }}>
-      {participants.map((participant) => (
-        <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
-      ))}
-    </AvatarGroup>
-  );
-
-  const renderSingle = () => (
-    <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-      <Badge variant={singleParticipant?.status} badgeContent="">
-        <Avatar src={singleParticipant?.avatarUrl} alt={singleParticipant?.name} />
-      </Badge>
-
-      <ListItemText
-        primary={singleParticipant?.name}
-        secondary={
-          singleParticipant?.status === 'offline'
-            ? fToNow(singleParticipant?.lastActivity)
-            : singleParticipant?.status
+    const handleToggleNav = useCallback(() => {
+        if (lgUp) {
+            onCollapseDesktop();
+        } else {
+            onOpenMobile();
         }
-      />
-    </Box>
-  );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lgUp]);
 
-  if (loading) {
-    return <ChatHeaderSkeleton />;
-  }
+    const renderGroup = () => (
+        <AvatarGroup
+            max={3}
+            sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 32, height: 32 } }}
+        >
+            {participants.map((participant) => (
+                <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
+            ))}
+        </AvatarGroup>
+    );
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-    >
-      <MenuList>
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:bell-off-bold" />
-          Hide notifications
-        </MenuItem>
+    const renderSingle = () => (
+        <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+            <Badge variant={singleParticipant?.status} badgeContent="">
+                <Avatar src={singleParticipant?.avatarUrl} alt={singleParticipant?.name} />
+            </Badge>
 
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:forbidden-circle-bold" />
-          Block
-        </MenuItem>
+            <ListItemText
+                primary={singleParticipant?.name}
+                secondary={
+                    singleParticipant?.status === 'offline'
+                        ? fToNow(singleParticipant?.lastActivity)
+                        : singleParticipant?.status
+                }
+            />
+        </Box>
+    );
 
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:danger-triangle-bold" />
-          Report
-        </MenuItem>
+    if (loading) {
+        return <ChatHeaderSkeleton />;
+    }
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+        >
+            <MenuList>
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:bell-off-bold" />
+                    Hide notifications
+                </MenuItem>
 
-        <MenuItem onClick={() => menuActions.onClose()} sx={{ color: 'error.main' }}>
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:forbidden-circle-bold" />
+                    Block
+                </MenuItem>
 
-  return (
-    <>
-      {isGroup ? renderGroup() : renderSingle()}
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:danger-triangle-bold" />
+                    Report
+                </MenuItem>
 
-      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
-        <IconButton>
-          <Iconify icon="solar:phone-bold" />
-        </IconButton>
+                <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <IconButton>
-          <Iconify icon="solar:videocamera-record-bold" />
-        </IconButton>
+                <MenuItem onClick={() => menuActions.onClose()} sx={{ color: 'error.main' }}>
+                    <Iconify icon="solar:trash-bin-trash-bold" />
+                    Delete
+                </MenuItem>
+            </MenuList>
+        </CustomPopover>
+    );
 
-        <IconButton onClick={handleToggleNav}>
-          <Iconify
-            icon={!collapseDesktop ? 'custom:sidebar-unfold-fill' : 'custom:sidebar-fold-fill'}
-          />
-        </IconButton>
+    return (
+        <>
+            {isGroup ? renderGroup() : renderSingle()}
 
-        <IconButton onClick={menuActions.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
-      </Box>
+            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                <IconButton>
+                    <Iconify icon="solar:phone-bold" />
+                </IconButton>
 
-      {renderMenuActions()}
-    </>
-  );
+                <IconButton>
+                    <Iconify icon="solar:videocamera-record-bold" />
+                </IconButton>
+
+                <IconButton onClick={handleToggleNav}>
+                    <Iconify
+                        icon={
+                            !collapseDesktop
+                                ? 'custom:sidebar-unfold-fill'
+                                : 'custom:sidebar-fold-fill'
+                        }
+                    />
+                </IconButton>
+
+                <IconButton onClick={menuActions.onOpen}>
+                    <Iconify icon="eva:more-vertical-fill" />
+                </IconButton>
+            </Box>
+
+            {renderMenuActions()}
+        </>
+    );
 }

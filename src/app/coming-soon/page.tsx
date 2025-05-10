@@ -9,5 +9,5 @@ import { ComingSoonView } from 'src/sections/coming-soon/view';
 export const metadata: Metadata = { title: `Coming soon - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <ComingSoonView />;
+    return <ComingSoonView />;
 }

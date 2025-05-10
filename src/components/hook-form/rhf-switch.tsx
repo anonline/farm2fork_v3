@@ -20,142 +20,146 @@ import { HelperText } from './help-text';
 // ----------------------------------------------------------------------
 
 export type RHFSwitchProps = Omit<FormControlLabelProps, 'control'> & {
-  name: string;
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    switch?: SwitchProps;
-    helperText?: FormHelperTextProps;
-  };
+    name: string;
+    helperText?: React.ReactNode;
+    slotProps?: {
+        wrapper?: BoxProps;
+        switch?: SwitchProps;
+        helperText?: FormHelperTextProps;
+    };
 };
 
 export function RHFSwitch({ name, helperText, label, slotProps, sx, ...other }: RHFSwitchProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <Box {...slotProps?.wrapper}>
-          <FormControlLabel
-            label={label}
-            control={
-              <Switch
-                {...field}
-                checked={field.value}
-                {...slotProps?.switch}
-                slotProps={{
-                  ...slotProps?.switch?.slotProps,
-                  input: {
-                    id: `${name}-switch`,
-                    ...(!label && { 'aria-label': `${name} switch` }),
-                    ...slotProps?.switch?.slotProps?.input,
-                  },
-                }}
-              />
-            }
-            sx={[{ mx: 0 }, ...(Array.isArray(sx) ? (sx ?? []) : [sx])]}
-            {...other}
-          />
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <Box {...slotProps?.wrapper}>
+                    <FormControlLabel
+                        label={label}
+                        control={
+                            <Switch
+                                {...field}
+                                checked={field.value}
+                                {...slotProps?.switch}
+                                slotProps={{
+                                    ...slotProps?.switch?.slotProps,
+                                    input: {
+                                        id: `${name}-switch`,
+                                        ...(!label && { 'aria-label': `${name} switch` }),
+                                        ...slotProps?.switch?.slotProps?.input,
+                                    },
+                                }}
+                            />
+                        }
+                        sx={[{ mx: 0 }, ...(Array.isArray(sx) ? (sx ?? []) : [sx])]}
+                        {...other}
+                    />
 
-          <HelperText
-            {...slotProps?.helperText}
-            errorMessage={error?.message}
-            helperText={helperText}
-          />
-        </Box>
-      )}
-    />
-  );
+                    <HelperText
+                        {...slotProps?.helperText}
+                        errorMessage={error?.message}
+                        helperText={helperText}
+                    />
+                </Box>
+            )}
+        />
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type RHFMultiSwitchProps = FormGroupProps & {
-  name: string;
-  label?: string;
-  helperText?: React.ReactNode;
-  options: {
-    label: string;
-    value: string;
-  }[];
-  slotProps?: {
-    wrapper?: FormControlProps;
-    switch: SwitchProps;
-    formLabel?: FormLabelProps;
-    helperText?: FormHelperTextProps;
-  };
+    name: string;
+    label?: string;
+    helperText?: React.ReactNode;
+    options: {
+        label: string;
+        value: string;
+    }[];
+    slotProps?: {
+        wrapper?: FormControlProps;
+        switch: SwitchProps;
+        formLabel?: FormLabelProps;
+        helperText?: FormHelperTextProps;
+    };
 };
 
 export function RHFMultiSwitch({
-  name,
-  label,
-  options,
-  helperText,
-  slotProps,
-  ...other
+    name,
+    label,
+    options,
+    helperText,
+    slotProps,
+    ...other
 }: RHFMultiSwitchProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  const getSelected = (selectedItems: string[], item: string) =>
-    selectedItems.includes(item)
-      ? selectedItems.filter((value) => value !== item)
-      : [...selectedItems, item];
+    const getSelected = (selectedItems: string[], item: string) =>
+        selectedItems.includes(item)
+            ? selectedItems.filter((value) => value !== item)
+            : [...selectedItems, item];
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <FormControl component="fieldset" {...slotProps?.wrapper}>
-          {label && (
-            <FormLabel
-              component="legend"
-              {...slotProps?.formLabel}
-              sx={[
-                { mb: 1, typography: 'body2' },
-                ...(Array.isArray(slotProps?.formLabel?.sx)
-                  ? (slotProps?.formLabel?.sx ?? [])
-                  : [slotProps?.formLabel?.sx]),
-              ]}
-            >
-              {label}
-            </FormLabel>
-          )}
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <FormControl component="fieldset" {...slotProps?.wrapper}>
+                    {label && (
+                        <FormLabel
+                            component="legend"
+                            {...slotProps?.formLabel}
+                            sx={[
+                                { mb: 1, typography: 'body2' },
+                                ...(Array.isArray(slotProps?.formLabel?.sx)
+                                    ? (slotProps?.formLabel?.sx ?? [])
+                                    : [slotProps?.formLabel?.sx]),
+                            ]}
+                        >
+                            {label}
+                        </FormLabel>
+                    )}
 
-          <FormGroup {...other}>
-            {options.map((option) => (
-              <FormControlLabel
-                key={option.value}
-                control={
-                  <Switch
-                    checked={field.value.includes(option.value)}
-                    onChange={() => field.onChange(getSelected(field.value, option.value))}
-                    {...slotProps?.switch}
-                    slotProps={{
-                      ...slotProps?.switch?.slotProps,
-                      input: {
-                        id: `${option.label}-switch`,
-                        ...(!option.label && { 'aria-label': `${option.label} switch` }),
-                        ...slotProps?.switch?.slotProps?.input,
-                      },
-                    }}
-                  />
-                }
-                label={option.label}
-              />
-            ))}
-          </FormGroup>
+                    <FormGroup {...other}>
+                        {options.map((option) => (
+                            <FormControlLabel
+                                key={option.value}
+                                control={
+                                    <Switch
+                                        checked={field.value.includes(option.value)}
+                                        onChange={() =>
+                                            field.onChange(getSelected(field.value, option.value))
+                                        }
+                                        {...slotProps?.switch}
+                                        slotProps={{
+                                            ...slotProps?.switch?.slotProps,
+                                            input: {
+                                                id: `${option.label}-switch`,
+                                                ...(!option.label && {
+                                                    'aria-label': `${option.label} switch`,
+                                                }),
+                                                ...slotProps?.switch?.slotProps?.input,
+                                            },
+                                        }}
+                                    />
+                                }
+                                label={option.label}
+                            />
+                        ))}
+                    </FormGroup>
 
-          <HelperText
-            {...slotProps?.helperText}
-            disableGutters
-            errorMessage={error?.message}
-            helperText={helperText}
-          />
-        </FormControl>
-      )}
-    />
-  );
+                    <HelperText
+                        {...slotProps?.helperText}
+                        disableGutters
+                        errorMessage={error?.message}
+                        helperText={helperText}
+                    />
+                </FormControl>
+            )}
+        />
+    );
 }

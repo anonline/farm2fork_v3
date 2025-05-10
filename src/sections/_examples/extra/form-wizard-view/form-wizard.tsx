@@ -16,33 +16,33 @@ import { Stepper, StepOne, StepTwo, StepThree, StepCompleted } from './form-step
 const STEPS = ['Step one', 'Step two', 'Step three'];
 
 const StepOneSchema = zod.object({
-  firstName: zod.string().min(1, { message: 'Full name is required!' }),
-  lastName: zod.string().min(1, { message: 'Last name is required!' }),
+    firstName: zod.string().min(1, { message: 'Full name is required!' }),
+    lastName: zod.string().min(1, { message: 'Last name is required!' }),
 });
 
 const StepTwoSchema = zod.object({
-  age: schemaHelper.nullableInput(
-    zod
-      .number({ coerce: true })
-      .int()
-      .min(1, { message: 'Age is required!' })
-      .max(80, { message: 'Age must be between 1 and 80' }),
-    // message for null value
-    { message: 'Age is required!' }
-  ),
+    age: schemaHelper.nullableInput(
+        zod
+            .number({ coerce: true })
+            .int()
+            .min(1, { message: 'Age is required!' })
+            .max(80, { message: 'Age must be between 1 and 80' }),
+        // message for null value
+        { message: 'Age is required!' }
+    ),
 });
 
 const StepThreeSchema = zod.object({
-  email: zod
-    .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    email: zod
+        .string()
+        .min(1, { message: 'Email is required!' })
+        .email({ message: 'Email must be a valid email address!' }),
 });
 
 const WizardSchema = zod.object({
-  stepOne: StepOneSchema,
-  stepTwo: StepTwoSchema,
-  stepThree: StepThreeSchema,
+    stepOne: StepOneSchema,
+    stepTwo: StepTwoSchema,
+    stepThree: StepThreeSchema,
 });
 
 type WizardSchemaType = zod.infer<typeof WizardSchema>;
@@ -50,124 +50,132 @@ type WizardSchemaType = zod.infer<typeof WizardSchema>;
 // ----------------------------------------------------------------------
 
 const defaultValues: WizardSchemaType = {
-  stepOne: { firstName: '', lastName: '' },
-  stepTwo: { age: null },
-  stepThree: { email: '' },
+    stepOne: { firstName: '', lastName: '' },
+    stepTwo: { age: null },
+    stepThree: { email: '' },
 };
 
 export function FormWizard() {
-  const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState(0);
 
-  const methods = useForm<WizardSchemaType>({
-    mode: 'onChange',
-    resolver: zodResolver(WizardSchema),
-    defaultValues,
-  });
+    const methods = useForm<WizardSchemaType>({
+        mode: 'onChange',
+        resolver: zodResolver(WizardSchema),
+        defaultValues,
+    });
 
-  const {
-    reset,
-    trigger,
-    clearErrors,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        reset,
+        trigger,
+        clearErrors,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const handleNext = useCallback(
-    async (step?: 'stepOne' | 'stepTwo') => {
-      if (step) {
-        const isValid = await trigger(step);
+    const handleNext = useCallback(
+        async (step?: 'stepOne' | 'stepTwo') => {
+            if (step) {
+                const isValid = await trigger(step);
 
-        if (isValid) {
-          clearErrors();
-          setActiveStep((currentStep) => currentStep + 1);
+                if (isValid) {
+                    clearErrors();
+                    setActiveStep((currentStep) => currentStep + 1);
+                }
+            } else {
+                setActiveStep((currentStep) => currentStep + 1);
+            }
+        },
+        [trigger, clearErrors]
+    );
+
+    const handleBack = useCallback(() => {
+        setActiveStep((currentStep) => currentStep - 1);
+    }, []);
+
+    const handleReset = useCallback(() => {
+        reset();
+        setActiveStep(0);
+    }, [reset]);
+
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            console.info('DATA', data);
+            handleNext();
+        } catch (error) {
+            console.error(error);
         }
-      } else {
-        setActiveStep((currentStep) => currentStep + 1);
-      }
-    },
-    [trigger, clearErrors]
-  );
+    });
 
-  const handleBack = useCallback(() => {
-    setActiveStep((currentStep) => currentStep - 1);
-  }, []);
+    const completedStep = activeStep === STEPS.length;
 
-  const handleReset = useCallback(() => {
-    reset();
-    setActiveStep(0);
-  }, [reset]);
-
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.info('DATA', data);
-      handleNext();
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
-  const completedStep = activeStep === STEPS.length;
-
-  return (
-    <Card
-      sx={{
-        p: 5,
-        width: 1,
-        mx: 'auto',
-        maxWidth: 720,
-      }}
-    >
-      <Stepper steps={STEPS} activeStep={activeStep} />
-
-      <Form methods={methods} onSubmit={onSubmit}>
-        <Box
-          sx={[
-            (theme) => ({
-              p: 3,
-              mb: 3,
-              gap: 3,
-              minHeight: 240,
-              display: 'flex',
-              borderRadius: 1.5,
-              flexDirection: 'column',
-              border: `dashed 1px ${theme.vars.palette.divider}`,
-            }),
-          ]}
+    return (
+        <Card
+            sx={{
+                p: 5,
+                width: 1,
+                mx: 'auto',
+                maxWidth: 720,
+            }}
         >
-          {activeStep === 0 && <StepOne />}
-          {activeStep === 1 && <StepTwo />}
-          {activeStep === 2 && <StepThree />}
-          {completedStep && <StepCompleted onReset={handleReset} />}
-        </Box>
+            <Stepper steps={STEPS} activeStep={activeStep} />
 
-        {!completedStep && (
-          <Box sx={{ display: 'flex' }}>
-            {activeStep !== 0 && <Button onClick={handleBack}>Back</Button>}
+            <Form methods={methods} onSubmit={onSubmit}>
+                <Box
+                    sx={[
+                        (theme) => ({
+                            p: 3,
+                            mb: 3,
+                            gap: 3,
+                            minHeight: 240,
+                            display: 'flex',
+                            borderRadius: 1.5,
+                            flexDirection: 'column',
+                            border: `dashed 1px ${theme.vars.palette.divider}`,
+                        }),
+                    ]}
+                >
+                    {activeStep === 0 && <StepOne />}
+                    {activeStep === 1 && <StepTwo />}
+                    {activeStep === 2 && <StepThree />}
+                    {completedStep && <StepCompleted onReset={handleReset} />}
+                </Box>
 
-            <Box sx={{ flex: '1 1 auto' }} />
+                {!completedStep && (
+                    <Box sx={{ display: 'flex' }}>
+                        {activeStep !== 0 && <Button onClick={handleBack}>Back</Button>}
 
-            {activeStep === 0 && (
-              <Button type="submit" variant="contained" onClick={() => handleNext('stepOne')}>
-                Next
-              </Button>
-            )}
+                        <Box sx={{ flex: '1 1 auto' }} />
 
-            {activeStep === 1 && (
-              <Button type="submit" variant="contained" onClick={() => handleNext('stepTwo')}>
-                Next
-              </Button>
-            )}
+                        {activeStep === 0 && (
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                onClick={() => handleNext('stepOne')}
+                            >
+                                Next
+                            </Button>
+                        )}
 
-            {activeStep === STEPS.length - 1 && (
-              <Button type="submit" variant="contained" loading={isSubmitting}>
-                Save changes
-              </Button>
-            )}
-          </Box>
-        )}
-      </Form>
-    </Card>
-  );
+                        {activeStep === 1 && (
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                onClick={() => handleNext('stepTwo')}
+                            >
+                                Next
+                            </Button>
+                        )}
+
+                        {activeStep === STEPS.length - 1 && (
+                            <Button type="submit" variant="contained" loading={isSubmitting}>
+                                Save changes
+                            </Button>
+                        )}
+                    </Box>
+                )}
+            </Form>
+        </Card>
+    );
 }

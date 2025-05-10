@@ -10,15 +10,15 @@ import { TourDetailsView } from 'src/sections/tour/view';
 export const metadata: Metadata = { title: `Tour details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+    const { id } = await params;
 
-  const currentTour = _tours.find((tour) => tour.id === id);
+    const currentTour = _tours.find((tour) => tour.id === id);
 
-  return <TourDetailsView tour={currentTour} />;
+    return <TourDetailsView tour={currentTour} />;
 }
 
 // ----------------------------------------------------------------------

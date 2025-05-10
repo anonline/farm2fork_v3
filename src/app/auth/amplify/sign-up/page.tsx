@@ -9,5 +9,5 @@ import { AmplifySignUpView } from 'src/auth/view/amplify';
 export const metadata: Metadata = { title: `Sign up | Amplify - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <AmplifySignUpView />;
+    return <AmplifySignUpView />;
 }

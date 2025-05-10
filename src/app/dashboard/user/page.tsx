@@ -9,5 +9,5 @@ import { UserProfileView } from 'src/sections/user/view';
 export const metadata: Metadata = { title: `User profile | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <UserProfileView />;
+    return <UserProfileView />;
 }

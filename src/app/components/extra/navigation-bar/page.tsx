@@ -9,5 +9,5 @@ import { NavigationBarView } from 'src/sections/_examples/extra/navigation-bar-v
 export const metadata: Metadata = { title: `Navigation bar | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <NavigationBarView />;
+    return <NavigationBarView />;
 }

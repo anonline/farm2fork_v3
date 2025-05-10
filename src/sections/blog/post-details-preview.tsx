@@ -17,79 +17,81 @@ import { PostDetailsHero } from './post-details-hero';
 // ----------------------------------------------------------------------
 
 type Props = {
-  title: string;
-  open: boolean;
-  content: string;
-  isValid: boolean;
-  description: string;
-  onClose: () => void;
-  onSubmit: () => void;
-  isSubmitting: boolean;
-  coverUrl: FileUploadType;
+    title: string;
+    open: boolean;
+    content: string;
+    isValid: boolean;
+    description: string;
+    onClose: () => void;
+    onSubmit: () => void;
+    isSubmitting: boolean;
+    coverUrl: FileUploadType;
 };
 
 export function PostDetailsPreview({
-  open,
-  title,
-  content,
-  isValid,
-  onClose,
-  coverUrl,
-  onSubmit,
-  description,
-  isSubmitting,
+    open,
+    title,
+    content,
+    isValid,
+    onClose,
+    coverUrl,
+    onSubmit,
+    description,
+    isSubmitting,
 }: Props) {
-  let previewUrl = '';
+    let previewUrl = '';
 
-  if (coverUrl) {
-    if (typeof coverUrl === 'string') {
-      previewUrl = coverUrl;
-    } else {
-      previewUrl = URL.createObjectURL(coverUrl);
+    if (coverUrl) {
+        if (typeof coverUrl === 'string') {
+            previewUrl = coverUrl;
+        } else {
+            previewUrl = URL.createObjectURL(coverUrl);
+        }
     }
-  }
 
-  const hasHero = title || previewUrl;
+    const hasHero = title || previewUrl;
 
-  const hasContent = title || description || content || previewUrl;
+    const hasContent = title || description || content || previewUrl;
 
-  return (
-    <Dialog fullScreen open={open} onClose={onClose}>
-      <DialogActions sx={{ py: 2, px: 3 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Preview
-        </Typography>
+    return (
+        <Dialog fullScreen open={open} onClose={onClose}>
+            <DialogActions sx={{ py: 2, px: 3 }}>
+                <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                    Preview
+                </Typography>
 
-        <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancel
-        </Button>
+                <Button variant="outlined" color="inherit" onClick={onClose}>
+                    Cancel
+                </Button>
 
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={!isValid}
-          loading={isSubmitting}
-          onClick={onSubmit}
-        >
-          Post
-        </Button>
-      </DialogActions>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={!isValid}
+                    loading={isSubmitting}
+                    onClick={onSubmit}
+                >
+                    Post
+                </Button>
+            </DialogActions>
 
-      <Divider />
+            <Divider />
 
-      {hasContent ? (
-        <Scrollbar>
-          {(hasHero || previewUrl) && <PostDetailsHero title={title} coverUrl={previewUrl} />}
-          <Container sx={{ mt: 5, mb: 10 }}>
-            <Box sx={{ mx: 'auto', maxWidth: 720 }}>
-              <Typography variant="h6">{description}</Typography>
-              <Markdown>{content}</Markdown>
-            </Box>
-          </Container>
-        </Scrollbar>
-      ) : (
-        <EmptyContent filled title="Empty content!" />
-      )}
-    </Dialog>
-  );
+            {hasContent ? (
+                <Scrollbar>
+                    {(hasHero || previewUrl) && (
+                        <PostDetailsHero title={title} coverUrl={previewUrl} />
+                    )}
+                    <Container sx={{ mt: 5, mb: 10 }}>
+                        <Box sx={{ mx: 'auto', maxWidth: 720 }}>
+                            <Typography variant="h6">{description}</Typography>
+                            <Markdown>{content}</Markdown>
+                        </Box>
+                    </Container>
+                </Scrollbar>
+            ) : (
+                <EmptyContent filled title="Empty content!" />
+            )}
+        </Dialog>
+    );
 }

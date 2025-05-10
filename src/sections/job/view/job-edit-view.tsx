@@ -13,24 +13,24 @@ import { JobNewEditForm } from '../job-new-edit-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-  job?: IJobItem;
+    job?: IJobItem;
 };
 
 export function JobEditView({ job }: Props) {
-  return (
-    <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Edit"
-        backHref={paths.dashboard.job.root}
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Job', href: paths.dashboard.job.root },
-          { name: job?.title },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
+    return (
+        <DashboardContent>
+            <CustomBreadcrumbs
+                heading="Edit"
+                backHref={paths.dashboard.job.root}
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Job', href: paths.dashboard.job.root },
+                    { name: job?.title },
+                ]}
+                sx={{ mb: { xs: 3, md: 5 } }}
+            />
 
-      <JobNewEditForm currentJob={job} />
-    </DashboardContent>
-  );
+            <JobNewEditForm currentJob={job} />
+        </DashboardContent>
+    );
 }

@@ -29,123 +29,135 @@ import { updatePassword } from '../../context/supabase';
 export type UpdatePasswordSchemaType = zod.infer<typeof UpdatePasswordSchema>;
 
 export const UpdatePasswordSchema = zod
-  .object({
-    password: zod
-      .string()
-      .min(1, { message: 'Password is required!' })
-      .min(6, { message: 'Password must be at least 6 characters!' }),
-    confirmPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match!',
-    path: ['confirmPassword'],
-  });
+    .object({
+        password: zod
+            .string()
+            .min(1, { message: 'Password is required!' })
+            .min(6, { message: 'Password must be at least 6 characters!' }),
+        confirmPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match!',
+        path: ['confirmPassword'],
+    });
 
 // ----------------------------------------------------------------------
 
 export function SupabaseUpdatePasswordView() {
-  const router = useRouter();
+    const router = useRouter();
 
-  const showPassword = useBoolean();
+    const showPassword = useBoolean();
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const defaultValues: UpdatePasswordSchemaType = {
-    password: '',
-    confirmPassword: '',
-  };
+    const defaultValues: UpdatePasswordSchemaType = {
+        password: '',
+        confirmPassword: '',
+    };
 
-  const methods = useForm<UpdatePasswordSchemaType>({
-    resolver: zodResolver(UpdatePasswordSchema),
-    defaultValues,
-  });
+    const methods = useForm<UpdatePasswordSchemaType>({
+        resolver: zodResolver(UpdatePasswordSchema),
+        defaultValues,
+    });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await updatePassword({ password: data.password });
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await updatePassword({ password: data.password });
 
-      router.push(paths.dashboard.root);
-    } catch (error) {
-      console.error(error);
-      const feedbackMessage = getErrorMessage(error);
-      setErrorMessage(feedbackMessage);
-    }
-  });
+            router.push(paths.dashboard.root);
+        } catch (error) {
+            console.error(error);
+            const feedbackMessage = getErrorMessage(error);
+            setErrorMessage(feedbackMessage);
+        }
+    });
 
-  const renderForm = () => (
-    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text
-        name="password"
-        label="Password"
-        placeholder="6+ characters"
-        type={showPassword.value ? 'text' : 'password'}
-        slotProps={{
-          inputLabel: { shrink: true },
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={showPassword.onToggle} edge="end">
-                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+    const renderForm = () => (
+        <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+            <Field.Text
+                name="password"
+                label="Password"
+                placeholder="6+ characters"
+                type={showPassword.value ? 'text' : 'password'}
+                slotProps={{
+                    inputLabel: { shrink: true },
+                    input: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton onClick={showPassword.onToggle} edge="end">
+                                    <Iconify
+                                        icon={
+                                            showPassword.value
+                                                ? 'solar:eye-bold'
+                                                : 'solar:eye-closed-bold'
+                                        }
+                                    />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    },
+                }}
+            />
 
-      <Field.Text
-        name="confirmPassword"
-        label="Confirm password"
-        type={showPassword.value ? 'text' : 'password'}
-        slotProps={{
-          inputLabel: { shrink: true },
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={showPassword.onToggle} edge="end">
-                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+            <Field.Text
+                name="confirmPassword"
+                label="Confirm password"
+                type={showPassword.value ? 'text' : 'password'}
+                slotProps={{
+                    inputLabel: { shrink: true },
+                    input: {
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton onClick={showPassword.onToggle} edge="end">
+                                    <Iconify
+                                        icon={
+                                            showPassword.value
+                                                ? 'solar:eye-bold'
+                                                : 'solar:eye-closed-bold'
+                                        }
+                                    />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    },
+                }}
+            />
 
-      <Button
-        fullWidth
-        type="submit"
-        size="large"
-        variant="contained"
-        loading={isSubmitting}
-        loadingIndicator="Update password..."
-      >
-        Update password
-      </Button>
-    </Box>
-  );
+            <Button
+                fullWidth
+                type="submit"
+                size="large"
+                variant="contained"
+                loading={isSubmitting}
+                loadingIndicator="Update password..."
+            >
+                Update password
+            </Button>
+        </Box>
+    );
 
-  return (
-    <>
-      <FormHead
-        icon={<NewPasswordIcon />}
-        title="Update password"
-        description="Successful updates enable access using the new password."
-      />
+    return (
+        <>
+            <FormHead
+                icon={<NewPasswordIcon />}
+                title="Update password"
+                description="Successful updates enable access using the new password."
+            />
 
-      {!!errorMessage && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {errorMessage}
-        </Alert>
-      )}
+            {!!errorMessage && (
+                <Alert severity="error" sx={{ mb: 3 }}>
+                    {errorMessage}
+                </Alert>
+            )}
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm()}
-      </Form>
-    </>
-  );
+            <Form methods={methods} onSubmit={onSubmit}>
+                {renderForm()}
+            </Form>
+        </>
+    );
 }

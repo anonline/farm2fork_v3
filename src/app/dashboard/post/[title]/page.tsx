@@ -10,15 +10,15 @@ import { PostDetailsView } from 'src/sections/blog/view';
 export const metadata: Metadata = { title: `Post details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ title: string }>;
+    params: Promise<{ title: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { title } = await params;
+    const { title } = await params;
 
-  const { post } = await getPost(title);
+    const { post } = await getPost(title);
 
-  return <PostDetailsView post={post} />;
+    return <PostDetailsView post={post} />;
 }
 
 // ----------------------------------------------------------------------

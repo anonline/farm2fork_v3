@@ -9,5 +9,5 @@ import { TypographyView } from 'src/sections/_examples/foundation/typography-vie
 export const metadata: Metadata = { title: `Typography | Foundations - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <TypographyView />;
+    return <TypographyView />;
 }
