@@ -13,3 +13,8 @@ export type IFaqCategoryItem = {
     order: number;
     faqs: IFaqItem[] | null;
 };
+
+export type IFaqTableFilters = {
+    question: string;
+    category: string;
+};

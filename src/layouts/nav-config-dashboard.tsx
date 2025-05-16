@@ -85,10 +85,15 @@ export const navData: NavSectionProps['data'] = [
                 title: 'Rendelések',
                 path: paths.dashboard.order.root,
                 icon: ICONS.order,
-                children: [
-                    { title: 'Összes rendelés', path: paths.dashboard.order.root },
-                    { title: 'Részletek', path: paths.dashboard.order.demo.details },
-                ],
+                info: (
+                    <Label
+                        color="success"
+                        variant="inverted"
+                        startIcon={<Iconify icon="solar:cart-3-bold" />}
+                    >
+                        184
+                    </Label>
+                ),
             },
             {
                 title: 'Termékek',
@@ -191,6 +196,12 @@ export const navData: NavSectionProps['data'] = [
         subheader: 'Beállítások',
         items: [
             {
+                title: 'GYIK',
+                path: paths.dashboard.faqs.root,
+                icon: ICONS.menuItem,
+                caption: 'Gyakran Ismételt Kérdések'
+            },
+            {
                 /**
                  * Permissions can be set for each item by using the `allowedRoles` property.
                  * - If `allowedRoles` is not set (default), all roles can see the item.
@@ -263,13 +274,7 @@ export const navData: NavSectionProps['data'] = [
                     </Label>
                 ),
             },
-            {
-                title: 'Caption',
-                path: '#caption',
-                icon: ICONS.menuItem,
-                caption:
-                    'Quisque malesuada placerat nisl. In hac habitasse platea dictumst. Cras id dui. Pellentesque commodo eros a enim. Morbi mollis tellus ac sapien.',
-            },
+            
             {
                 title: 'Params',
                 path: '/dashboard/params?id=e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1',
