@@ -84,11 +84,12 @@ export type IUserItem = {
   status: string;
   address: string;
   country: string;
-  zipCode: string;
+  zip: string;
   company: string;
   avatarUrl: string;
-  phoneNumber: string;
+  phone: string;
   isVerified: boolean;
+  createdAt: IDateValue;
 };
 
 export type IUserAccountBillingHistory = {

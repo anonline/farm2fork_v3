@@ -14,3 +14,6 @@ const supabaseKey = CONFIG.supabase.key;
 export const supabase = isSupabase
   ? createClient(supabaseUrl, supabaseKey)
   : ({} as SupabaseClient<any, 'public', any>);
+
+
+

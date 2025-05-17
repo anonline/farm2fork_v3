@@ -20,8 +20,8 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { _roles, USER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -59,10 +59,14 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 ];
 
 // ----------------------------------------------------------------------
+type Props = {
+  _userList: IUserItem[]
+};
 
-export function UserListView() {
+export function UserListView( usersData: Readonly<Props>) {
   const table = useTable();
-
+  const _userList = usersData._userList;
+  console.log(_userList);
   const confirmDialog = useBoolean();
 
   const [tableData, setTableData] = useState<IUserItem[]>(_userList);

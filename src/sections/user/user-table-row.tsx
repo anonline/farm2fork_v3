@@ -34,7 +34,7 @@ type Props = {
   onDeleteRow: () => void;
 };
 
-export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }: Props) {
+export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }: Readonly<Props>) {
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
@@ -126,7 +126,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
           </Box>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phoneNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phone}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.company}</TableCell>
 
