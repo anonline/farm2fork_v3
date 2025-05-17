@@ -74,8 +74,8 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total downloads"
-            percent={-0.1}
+            title="Összes felhaszáló"
+            percent={2.44}
             total={678}
             chart={{
               colors: [theme.palette.error.main],
