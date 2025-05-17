@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { getUsers } from 'src/actions/user-ssr';
 
 import { CONFIG } from 'src/global-config';
+import { getUsers } from 'src/actions/user-ssr';
 
 import { UserListView } from 'src/sections/user/view';
 

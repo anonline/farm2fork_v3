@@ -1,6 +1,6 @@
-import { createServerClient } from '@supabase/ssr'
-import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
+import { createServerClient } from '@supabase/ssr'
 
 import { CONFIG } from 'src/global-config';
 

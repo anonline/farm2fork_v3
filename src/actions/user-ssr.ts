@@ -1,7 +1,8 @@
 import type { IUserItem } from 'src/types/user';
 
-import { supabaseAdmin } from 'src/lib/supabase-ssr';
 import { cookies } from 'next/headers'
+
+import { supabaseAdmin } from 'src/lib/supabase-ssr';
 
 // ----------------------------------------------------------------------
 
