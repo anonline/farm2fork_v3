@@ -29,7 +29,7 @@ export const UserQuickEditSchema = zod.object({
     .string()
     .min(1, { message: 'Email is required!' })
     .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  phone: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
   country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
     // message for null value
     message: 'Country is required!',
@@ -37,7 +37,7 @@ export const UserQuickEditSchema = zod.object({
   state: zod.string().min(1, { message: 'State is required!' }),
   city: zod.string().min(1, { message: 'City is required!' }),
   address: zod.string().min(1, { message: 'Address is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
+  zip: zod.string().min(1, { message: 'Zip code is required!' }),
   company: zod.string().min(1, { message: 'Company is required!' }),
   role: zod.string().min(1, { message: 'Role is required!' }),
   // Not required
@@ -56,12 +56,12 @@ export function UserQuickEditForm({ currentUser, open, onClose }: Props) {
   const defaultValues: UserQuickEditSchemaType = {
     name: '',
     email: '',
-    phoneNumber: '',
+    phone: '',
     address: '',
     country: '',
     state: '',
     city: '',
-    zipCode: '',
+    zip: '',
     status: '',
     company: '',
     role: '',
