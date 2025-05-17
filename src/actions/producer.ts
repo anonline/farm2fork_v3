@@ -23,10 +23,6 @@ type ProducersData = {
 };
 
 export function useGetProducers() {
-  const url = endpoints.product.list;
-
-  //const { data, isLoading, error, isValidating } = useSWR<ProductsData>(url, fetcher, swrOptions);
-
   const { data, isLoading, error, isValidating } = useSWR<ProducersData>("producers", async () => {
     const response = await supabase.from("Producers").select("*");
 
@@ -38,7 +34,7 @@ export function useGetProducers() {
 
   const memoizedValue = useMemo(
     () => ({
-      producers: data?.producers || [],
+      producers: data?.producers ?? [],
       producersLoading: isLoading,
       producersError: error,
       producersValidating: isValidating,
@@ -100,7 +96,7 @@ export function useSearchProducers(query: string) {
 
   const memoizedValue = useMemo(
     () => ({
-      searchResults: data?.results || [],
+      searchResults: data?.results ?? [],
       searchLoading: isLoading,
       searchError: error,
       searchValidating: isValidating,
