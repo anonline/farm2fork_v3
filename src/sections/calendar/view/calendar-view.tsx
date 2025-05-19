@@ -39,231 +39,232 @@ import { CalendarFiltersResult } from '../calendar-filters-result';
 // ----------------------------------------------------------------------
 
 export function CalendarView() {
-  const theme = useTheme();
+    const theme = useTheme();
 
-  const openFilters = useBoolean();
+    const openFilters = useBoolean();
 
-  const { events, eventsLoading } = useGetEvents();
+    const { events, eventsLoading } = useGetEvents();
 
-  const filters = useSetState<ICalendarFilters>({ colors: [], startDate: null, endDate: null });
-  const { state: currentFilters } = filters;
+    const filters = useSetState<ICalendarFilters>({ colors: [], startDate: null, endDate: null });
+    const { state: currentFilters } = filters;
 
-  const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
+    const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
-  const {
-    calendarRef,
-    /********/
-    view,
-    date,
-    /********/
-    onDatePrev,
-    onDateNext,
-    onDateToday,
-    onDropEvent,
-    onChangeView,
-    onSelectRange,
-    onClickEvent,
-    onResizeEvent,
-    onInitialView,
-    /********/
-    openForm,
-    onOpenForm,
-    onCloseForm,
-    /********/
-    selectEventId,
-    selectedRange,
-    /********/
-    onClickEventInFilters,
-  } = useCalendar();
+    const {
+        calendarRef,
+        /********/
+        view,
+        date,
+        /********/
+        onDatePrev,
+        onDateNext,
+        onDateToday,
+        onDropEvent,
+        onChangeView,
+        onSelectRange,
+        onClickEvent,
+        onResizeEvent,
+        onInitialView,
+        /********/
+        openForm,
+        onOpenForm,
+        onCloseForm,
+        /********/
+        selectEventId,
+        selectedRange,
+        /********/
+        onClickEventInFilters,
+    } = useCalendar();
 
-  const currentEvent = useEvent(events, selectEventId, selectedRange, openForm);
+    const currentEvent = useEvent(events, selectEventId, selectedRange, openForm);
 
-  useEffect(() => {
-    onInitialView();
-  }, [onInitialView]);
+    useEffect(() => {
+        onInitialView();
+    }, [onInitialView]);
 
-  const canReset =
-    currentFilters.colors.length > 0 || (!!currentFilters.startDate && !!currentFilters.endDate);
+    const canReset =
+        currentFilters.colors.length > 0 ||
+        (!!currentFilters.startDate && !!currentFilters.endDate);
 
-  const dataFiltered = applyFilter({
-    inputData: events,
-    filters: currentFilters,
-    dateError,
-  });
+    const dataFiltered = applyFilter({
+        inputData: events,
+        filters: currentFilters,
+        dateError,
+    });
 
-  const renderResults = () => (
-    <CalendarFiltersResult
-      filters={filters}
-      totalResults={dataFiltered.length}
-      sx={{ mb: { xs: 3, md: 5 } }}
-    />
-  );
-
-  const flexStyles: SxProps<Theme> = {
-    flex: '1 1 auto',
-    display: 'flex',
-    flexDirection: 'column',
-  };
-
-  return (
-    <>
-      <DashboardContent maxWidth="xl" sx={{ ...flexStyles }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Typography variant="h4">Calendar</Typography>
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={onOpenForm}
-          >
-            New event
-          </Button>
-        </Box>
-
-        {canReset && renderResults()}
-
-        <Card
-          sx={{
-            ...flexStyles,
-            minHeight: '50vh',
-          }}
-        >
-          <CalendarRoot
-            sx={{
-              ...flexStyles,
-              '.fc.fc-media-screen': { flex: '1 1 auto' },
-            }}
-          >
-            <CalendarToolbar
-              date={fDate(date)}
-              view={view}
-              canReset={canReset}
-              loading={eventsLoading}
-              onNextDate={onDateNext}
-              onPrevDate={onDatePrev}
-              onToday={onDateToday}
-              onChangeView={onChangeView}
-              onOpenFilters={openFilters.onTrue}
-            />
-
-            <Calendar
-              weekends
-              editable
-              droppable
-              selectable
-              rerenderDelay={10}
-              allDayMaintainDuration
-              eventResizableFromStart
-              ref={calendarRef}
-              initialDate={date}
-              initialView={view}
-              dayMaxEventRows={3}
-              eventDisplay="block"
-              events={dataFiltered}
-              headerToolbar={false}
-              select={onSelectRange}
-              eventClick={onClickEvent}
-              aspectRatio={3}
-              eventDrop={(arg) => {
-                startTransition(() => {
-                  onDropEvent(arg, updateEvent);
-                });
-              }}
-              eventResize={(arg) => {
-                startTransition(() => {
-                  onResizeEvent(arg, updateEvent);
-                });
-              }}
-              plugins={[
-                listPlugin,
-                dayGridPlugin,
-                timelinePlugin,
-                timeGridPlugin,
-                interactionPlugin,
-              ]}
-            />
-          </CalendarRoot>
-        </Card>
-      </DashboardContent>
-
-      <Dialog
-        fullWidth
-        maxWidth="xs"
-        open={openForm}
-        onClose={onCloseForm}
-        transitionDuration={{
-          enter: theme.transitions.duration.shortest,
-          exit: theme.transitions.duration.shortest - 80,
-        }}
-        slotProps={{
-          paper: {
-            sx: {
-              display: 'flex',
-              overflow: 'hidden',
-              flexDirection: 'column',
-              '& form': {
-                ...flexStyles,
-                minHeight: 0,
-              },
-            },
-          },
-        }}
-      >
-        <DialogTitle sx={{ minHeight: 76 }}>
-          {openForm && <> {currentEvent?.id ? 'Edit' : 'Add'} event</>}
-        </DialogTitle>
-
-        <CalendarForm
-          currentEvent={currentEvent}
-          colorOptions={CALENDAR_COLOR_OPTIONS}
-          onClose={onCloseForm}
+    const renderResults = () => (
+        <CalendarFiltersResult
+            filters={filters}
+            totalResults={dataFiltered.length}
+            sx={{ mb: { xs: 3, md: 5 } }}
         />
-      </Dialog>
+    );
 
-      <CalendarFilters
-        events={events}
-        filters={filters}
-        canReset={canReset}
-        dateError={dateError}
-        open={openFilters.value}
-        onClose={openFilters.onFalse}
-        onClickEvent={onClickEventInFilters}
-        colorOptions={CALENDAR_COLOR_OPTIONS}
-      />
-    </>
-  );
+    const flexStyles: SxProps<Theme> = {
+        flex: '1 1 auto',
+        display: 'flex',
+        flexDirection: 'column',
+    };
+
+    return (
+        <>
+            <DashboardContent maxWidth="xl" sx={{ ...flexStyles }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        mb: { xs: 3, md: 5 },
+                    }}
+                >
+                    <Typography variant="h4">Calendar</Typography>
+                    <Button
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                        onClick={onOpenForm}
+                    >
+                        New event
+                    </Button>
+                </Box>
+
+                {canReset && renderResults()}
+
+                <Card
+                    sx={{
+                        ...flexStyles,
+                        minHeight: '50vh',
+                    }}
+                >
+                    <CalendarRoot
+                        sx={{
+                            ...flexStyles,
+                            '.fc.fc-media-screen': { flex: '1 1 auto' },
+                        }}
+                    >
+                        <CalendarToolbar
+                            date={fDate(date)}
+                            view={view}
+                            canReset={canReset}
+                            loading={eventsLoading}
+                            onNextDate={onDateNext}
+                            onPrevDate={onDatePrev}
+                            onToday={onDateToday}
+                            onChangeView={onChangeView}
+                            onOpenFilters={openFilters.onTrue}
+                        />
+
+                        <Calendar
+                            weekends
+                            editable
+                            droppable
+                            selectable
+                            rerenderDelay={10}
+                            allDayMaintainDuration
+                            eventResizableFromStart
+                            ref={calendarRef}
+                            initialDate={date}
+                            initialView={view}
+                            dayMaxEventRows={3}
+                            eventDisplay="block"
+                            events={dataFiltered}
+                            headerToolbar={false}
+                            select={onSelectRange}
+                            eventClick={onClickEvent}
+                            aspectRatio={3}
+                            eventDrop={(arg) => {
+                                startTransition(() => {
+                                    onDropEvent(arg, updateEvent);
+                                });
+                            }}
+                            eventResize={(arg) => {
+                                startTransition(() => {
+                                    onResizeEvent(arg, updateEvent);
+                                });
+                            }}
+                            plugins={[
+                                listPlugin,
+                                dayGridPlugin,
+                                timelinePlugin,
+                                timeGridPlugin,
+                                interactionPlugin,
+                            ]}
+                        />
+                    </CalendarRoot>
+                </Card>
+            </DashboardContent>
+
+            <Dialog
+                fullWidth
+                maxWidth="xs"
+                open={openForm}
+                onClose={onCloseForm}
+                transitionDuration={{
+                    enter: theme.transitions.duration.shortest,
+                    exit: theme.transitions.duration.shortest - 80,
+                }}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            display: 'flex',
+                            overflow: 'hidden',
+                            flexDirection: 'column',
+                            '& form': {
+                                ...flexStyles,
+                                minHeight: 0,
+                            },
+                        },
+                    },
+                }}
+            >
+                <DialogTitle sx={{ minHeight: 76 }}>
+                    {openForm && <> {currentEvent?.id ? 'Edit' : 'Add'} event</>}
+                </DialogTitle>
+
+                <CalendarForm
+                    currentEvent={currentEvent}
+                    colorOptions={CALENDAR_COLOR_OPTIONS}
+                    onClose={onCloseForm}
+                />
+            </Dialog>
+
+            <CalendarFilters
+                events={events}
+                filters={filters}
+                canReset={canReset}
+                dateError={dateError}
+                open={openFilters.value}
+                onClose={openFilters.onFalse}
+                onClickEvent={onClickEventInFilters}
+                colorOptions={CALENDAR_COLOR_OPTIONS}
+            />
+        </>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  dateError: boolean;
-  filters: ICalendarFilters;
-  inputData: ICalendarEvent[];
+    dateError: boolean;
+    filters: ICalendarFilters;
+    inputData: ICalendarEvent[];
 };
 
 function applyFilter({ inputData, filters, dateError }: ApplyFilterProps) {
-  const { colors, startDate, endDate } = filters;
+    const { colors, startDate, endDate } = filters;
 
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+    const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
-  inputData = stabilizedThis.map((el) => el[0]);
+    inputData = stabilizedThis.map((el) => el[0]);
 
-  if (colors.length) {
-    inputData = inputData.filter((event) => colors.includes(event.color as string));
-  }
-
-  if (!dateError) {
-    if (startDate && endDate) {
-      inputData = inputData.filter((event) => fIsBetween(event.start, startDate, endDate));
+    if (colors.length) {
+        inputData = inputData.filter((event) => colors.includes(event.color as string));
     }
-  }
 
-  return inputData;
+    if (!dateError) {
+        if (startDate && endDate) {
+            inputData = inputData.filter((event) => fIsBetween(event.start, startDate, endDate));
+        }
+    }
+
+    return inputData;
 }

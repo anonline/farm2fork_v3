@@ -10,14 +10,14 @@ import { UserEditView } from 'src/sections/user/view';
 export const metadata: Metadata = { title: `User edit | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 };
 
 export default async function Page({ params }: Readonly<Props>) {
   const { id } = await params;
   const currentUser = await getUserById(id);
 
-  return <UserEditView user={currentUser} />;
+    return <UserEditView user={currentUser} />;
 }
 
 // ----------------------------------------------------------------------

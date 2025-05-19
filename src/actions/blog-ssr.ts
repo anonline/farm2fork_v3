@@ -3,27 +3,27 @@ import axios, { endpoints } from 'src/lib/axios';
 // ----------------------------------------------------------------------
 
 export async function getPosts() {
-  const res = await axios.get(endpoints.post.list);
+    const res = await axios.get(endpoints.post.list);
 
-  return res.data;
+    return res.data;
 }
 
 // ----------------------------------------------------------------------
 
 export async function getPost(title: string) {
-  const URL = title ? `${endpoints.post.details}?title=${title}` : '';
+    const URL = title ? `${endpoints.post.details}?title=${title}` : '';
 
-  const res = await axios.get(URL);
+    const res = await axios.get(URL);
 
-  return res.data;
+    return res.data;
 }
 
 // ----------------------------------------------------------------------
 
 export async function getLatestPosts(title: string) {
-  const URL = title ? `${endpoints.post.latest}?title=${title}` : '';
+    const URL = title ? `${endpoints.post.latest}?title=${title}` : '';
 
-  const res = await axios.get(URL);
+    const res = await axios.get(URL);
 
-  return res.data;
+    return res.data;
 }

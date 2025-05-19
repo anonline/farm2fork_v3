@@ -16,73 +16,82 @@ import { Scrollbar } from 'src/components/scrollbar';
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  title?: string;
-  subheader?: string;
-  list: {
-    id: string;
-    name: string;
-    email: string;
-    avatarUrl: string;
-  }[];
+    title?: string;
+    subheader?: string;
+    list: {
+        id: string;
+        name: string;
+        email: string;
+        avatarUrl: string;
+    }[];
 };
 
 export function BankingContacts({ title, subheader, list, sx, ...other }: Props) {
-  return (
-    <Card sx={sx} {...other}>
-      <CardHeader
-        title={title}
-        subheader={subheader}
-        action={
-          <Button
-            size="small"
-            color="inherit"
-            endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
-          >
-            View all
-          </Button>
-        }
-      />
+    return (
+        <Card sx={sx} {...other}>
+            <CardHeader
+                title={title}
+                subheader={subheader}
+                action={
+                    <Button
+                        size="small"
+                        color="inherit"
+                        endIcon={
+                            <Iconify
+                                icon="eva:arrow-ios-forward-fill"
+                                width={18}
+                                sx={{ ml: -0.5 }}
+                            />
+                        }
+                    >
+                        View all
+                    </Button>
+                }
+            />
 
-      <Scrollbar sx={{ minHeight: 364 }}>
-        <Box
-          sx={{
-            p: 3,
-            gap: 3,
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: 360,
-          }}
-        >
-          {list.map((item) => (
-            <Item key={item.id} item={item} />
-          ))}
-        </Box>
-      </Scrollbar>
-    </Card>
-  );
+            <Scrollbar sx={{ minHeight: 364 }}>
+                <Box
+                    sx={{
+                        p: 3,
+                        gap: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minWidth: 360,
+                    }}
+                >
+                    {list.map((item) => (
+                        <Item key={item.id} item={item} />
+                    ))}
+                </Box>
+            </Scrollbar>
+        </Card>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type ItemProps = BoxProps & {
-  item: Props['list'][number];
+    item: Props['list'][number];
 };
 
 function Item({ item, sx, ...other }: ItemProps) {
-  return (
-    <Box
-      sx={[{ gap: 2, display: 'flex', alignItems: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]}
-      {...other}
-    >
-      <Avatar src={item.avatarUrl} />
+    return (
+        <Box
+            sx={[
+                { gap: 2, display: 'flex', alignItems: 'center' },
+                ...(Array.isArray(sx) ? sx : [sx]),
+            ]}
+            {...other}
+        >
+            <Avatar src={item.avatarUrl} />
 
-      <ListItemText primary={item.name} secondary={item.email} />
+            <ListItemText primary={item.name} secondary={item.email} />
 
-      <Tooltip title="Quick transfer">
-        <IconButton>
-          <Iconify icon="solar:transfer-horizontal-bold-duotone" />
-        </IconButton>
-      </Tooltip>
-    </Box>
-  );
+            <Tooltip title="Quick transfer">
+                <IconButton>
+                    <Iconify icon="solar:transfer-horizontal-bold-duotone" />
+                </IconButton>
+            </Tooltip>
+        </Box>
+    );
 }

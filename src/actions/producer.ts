@@ -7,19 +7,18 @@ import { useMemo } from 'react';
 import { endpoints } from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
 
-
 // ----------------------------------------------------------------------
 
 const swrOptions: SWRConfiguration = {
-  revalidateIfStale: false,
-  revalidateOnFocus: false,
-  revalidateOnReconnect: false,
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
 };
 
 // ----------------------------------------------------------------------
 
 type ProducersData = {
-  producers: IProducerItem[];
+    producers: IProducerItem[];
 };
 
 export function useGetProducers() {
@@ -43,13 +42,13 @@ export function useGetProducers() {
     [data?.producers, error, isLoading, isValidating]
   );
 
-  return memoizedValue;
+    return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
 
 type ProducerData = {
-  producer: IProducerItem;
+    producer: IProducerItem;
 };
 
 export function useGetProducer(producerId: string) {
@@ -61,27 +60,27 @@ export function useGetProducer(producerId: string) {
     return { producer };
   }, swrOptions);
 
-  const memoizedValue = useMemo(
-    () => ({
-      product: data?.producer,
-      productLoading: isLoading,
-      productError: error,
-      productValidating: isValidating,
-    }),
-    [data?.producer, error, isLoading, isValidating]
-  );
+    const memoizedValue = useMemo(
+        () => ({
+            product: data?.producer,
+            productLoading: isLoading,
+            productError: error,
+            productValidating: isValidating,
+        }),
+        [data?.producer, error, isLoading, isValidating]
+    );
 
-  return memoizedValue;
+    return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
 
 type ProducerSearchResultsData = {
-  results: IProducerItem[];
+    results: IProducerItem[];
 };
 
 export function useSearchProducers(query: string) {
-  const url = query ? [endpoints.product.search, { params: { query } }] : '';
+    const url = query ? [endpoints.product.search, { params: { query } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR<ProducerSearchResultsData>(url, async () => {
     const response = await supabase.from("Producers").select("*").ilike("name", query).single();
@@ -105,5 +104,5 @@ export function useSearchProducers(query: string) {
     [data?.results, error, isLoading, isValidating]
   );
 
-  return memoizedValue;
+    return memoizedValue;
 }

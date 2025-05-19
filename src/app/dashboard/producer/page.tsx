@@ -9,5 +9,5 @@ import { ProducerListView } from 'src/sections/producer/view';
 export const metadata: Metadata = { title: `Termelők | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <ProducerListView />;
+    return <ProducerListView />;
 }

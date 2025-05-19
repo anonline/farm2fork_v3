@@ -23,84 +23,84 @@ import { FormReturnLink } from '../../components/form-return-link';
 export type ResetPasswordSchemaType = zod.infer<typeof ResetPasswordSchema>;
 
 export const ResetPasswordSchema = zod.object({
-  email: zod
-    .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    email: zod
+        .string()
+        .min(1, { message: 'Email is required!' })
+        .email({ message: 'Email must be a valid email address!' }),
 });
 
 // ----------------------------------------------------------------------
 
 export function AmplifyResetPasswordView() {
-  const router = useRouter();
+    const router = useRouter();
 
-  const defaultValues: ResetPasswordSchemaType = {
-    email: '',
-  };
+    const defaultValues: ResetPasswordSchemaType = {
+        email: '',
+    };
 
-  const methods = useForm<ResetPasswordSchemaType>({
-    resolver: zodResolver(ResetPasswordSchema),
-    defaultValues,
-  });
+    const methods = useForm<ResetPasswordSchemaType>({
+        resolver: zodResolver(ResetPasswordSchema),
+        defaultValues,
+    });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const createRedirectPath = (query: string) => {
-    const queryString = new URLSearchParams({ email: query }).toString();
-    return `${paths.auth.amplify.updatePassword}?${queryString}`;
-  };
+    const createRedirectPath = (query: string) => {
+        const queryString = new URLSearchParams({ email: query }).toString();
+        return `${paths.auth.amplify.updatePassword}?${queryString}`;
+    };
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await resetPassword({ username: data.email });
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await resetPassword({ username: data.email });
 
-      const redirectPath = createRedirectPath(data.email);
+            const redirectPath = createRedirectPath(data.email);
 
-      router.push(redirectPath);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+            router.push(redirectPath);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
-  const renderForm = () => (
-    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text
-        autoFocus
-        name="email"
-        label="Email address"
-        placeholder="example@gmail.com"
-        slotProps={{ inputLabel: { shrink: true } }}
-      />
+    const renderForm = () => (
+        <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+            <Field.Text
+                autoFocus
+                name="email"
+                label="Email address"
+                placeholder="example@gmail.com"
+                slotProps={{ inputLabel: { shrink: true } }}
+            />
 
-      <Button
-        fullWidth
-        size="large"
-        type="submit"
-        variant="contained"
-        loading={isSubmitting}
-        loadingIndicator="Send request..."
-      >
-        Send request
-      </Button>
-    </Box>
-  );
+            <Button
+                fullWidth
+                size="large"
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                loadingIndicator="Send request..."
+            >
+                Send request
+            </Button>
+        </Box>
+    );
 
-  return (
-    <>
-      <FormHead
-        icon={<PasswordIcon />}
-        title="Forgot your password?"
-        description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
-      />
+    return (
+        <>
+            <FormHead
+                icon={<PasswordIcon />}
+                title="Forgot your password?"
+                description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
+            />
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm()}
-      </Form>
+            <Form methods={methods} onSubmit={onSubmit}>
+                {renderForm()}
+            </Form>
 
-      <FormReturnLink href={paths.auth.amplify.signIn} />
-    </>
-  );
+            <FormReturnLink href={paths.auth.amplify.signIn} />
+        </>
+    );
 }

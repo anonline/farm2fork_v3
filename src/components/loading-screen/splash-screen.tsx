@@ -12,45 +12,45 @@ import { AnimateLogoZoom } from '../animate';
 // ----------------------------------------------------------------------
 
 export type SplashScreenProps = React.ComponentProps<'div'> & {
-  portal?: boolean;
-  sx?: SxProps<Theme>;
-  slotProps?: {
-    wrapper?: React.ComponentProps<typeof LoadingWrapper>;
-  };
+    portal?: boolean;
+    sx?: SxProps<Theme>;
+    slotProps?: {
+        wrapper?: React.ComponentProps<typeof LoadingWrapper>;
+    };
 };
 
 export function SplashScreen({ portal = true, slotProps, sx, ...other }: SplashScreenProps) {
-  const PortalWrapper = portal ? Portal : Fragment;
+    const PortalWrapper = portal ? Portal : Fragment;
 
-  return (
-    <PortalWrapper>
-      <LoadingWrapper {...slotProps?.wrapper}>
-        <LoadingContent sx={sx} {...other}>
-          <AnimateLogoZoom />
-        </LoadingContent>
-      </LoadingWrapper>
-    </PortalWrapper>
-  );
+    return (
+        <PortalWrapper>
+            <LoadingWrapper {...slotProps?.wrapper}>
+                <LoadingContent sx={sx} {...other}>
+                    <AnimateLogoZoom />
+                </LoadingContent>
+            </LoadingWrapper>
+        </PortalWrapper>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 const LoadingWrapper = styled('div')({
-  flexGrow: 1,
-  display: 'flex',
-  flexDirection: 'column',
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
 });
 
 const LoadingContent = styled('div')(({ theme }) => ({
-  right: 0,
-  bottom: 0,
-  zIndex: 9998,
-  flexGrow: 1,
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  position: 'fixed',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: theme.vars.palette.background.default,
+    right: 0,
+    bottom: 0,
+    zIndex: 9998,
+    flexGrow: 1,
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    position: 'fixed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.vars.palette.background.default,
 }));

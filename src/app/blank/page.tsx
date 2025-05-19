@@ -10,9 +10,9 @@ import { CONFIG } from 'src/global-config';
 export const metadata: Metadata = { title: `Blank - ${CONFIG.appName}` };
 
 export default function Page() {
-  return (
-    <Container>
-      <Typography variant="h4">Blank</Typography>
-    </Container>
-  );
+    return (
+        <Container>
+            <Typography variant="h4">Blank</Typography>
+        </Container>
+    );
 }

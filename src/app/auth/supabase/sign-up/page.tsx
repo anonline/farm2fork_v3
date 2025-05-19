@@ -9,5 +9,5 @@ import { SupabaseSignUpView } from 'src/auth/view/supabase';
 export const metadata: Metadata = { title: `Sign up | Supabase - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <SupabaseSignUpView />;
+    return <SupabaseSignUpView />;
 }

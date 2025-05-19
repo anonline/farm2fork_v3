@@ -12,33 +12,33 @@ import { HelperText } from './help-text';
 // ----------------------------------------------------------------------
 
 export type RHFSliderProps = SliderProps & {
-  name: string;
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    helperText?: FormHelperTextProps;
-  };
+    name: string;
+    helperText?: React.ReactNode;
+    slotProps?: {
+        wrapper?: BoxProps;
+        helperText?: FormHelperTextProps;
+    };
 };
 
 export function RHFSlider({ name, helperText, slotProps, ...other }: RHFSliderProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <Box {...slotProps?.wrapper}>
-          <Slider {...field} valueLabelDisplay="auto" {...other} />
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <Box {...slotProps?.wrapper}>
+                    <Slider {...field} valueLabelDisplay="auto" {...other} />
 
-          <HelperText
-            {...slotProps?.helperText}
-            disableGutters
-            errorMessage={error?.message}
-            helperText={helperText}
-          />
-        </Box>
-      )}
-    />
-  );
+                    <HelperText
+                        {...slotProps?.helperText}
+                        disableGutters
+                        errorMessage={error?.message}
+                        helperText={helperText}
+                    />
+                </Box>
+            )}
+        />
+    );
 }

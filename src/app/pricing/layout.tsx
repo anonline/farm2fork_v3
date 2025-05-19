@@ -3,9 +3,9 @@ import { SimpleLayout } from 'src/layouts/simple';
 // ----------------------------------------------------------------------
 
 type Props = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 export default function Layout({ children }: Props) {
-  return <SimpleLayout>{children}</SimpleLayout>;
+    return <SimpleLayout>{children}</SimpleLayout>;
 }

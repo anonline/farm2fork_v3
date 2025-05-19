@@ -18,129 +18,129 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 const VIEW_OPTIONS = [
-  { value: 'dayGridMonth', label: 'Month', icon: 'mingcute:calendar-month-line' },
-  { value: 'timeGridWeek', label: 'Week', icon: 'mingcute:calendar-week-line' },
-  { value: 'timeGridDay', label: 'Day', icon: 'mingcute:calendar-day-line' },
-  { value: 'listWeek', label: 'Agenda', icon: 'custom:calendar-agenda-outline' },
+    { value: 'dayGridMonth', label: 'Month', icon: 'mingcute:calendar-month-line' },
+    { value: 'timeGridWeek', label: 'Week', icon: 'mingcute:calendar-week-line' },
+    { value: 'timeGridDay', label: 'Day', icon: 'mingcute:calendar-day-line' },
+    { value: 'listWeek', label: 'Agenda', icon: 'custom:calendar-agenda-outline' },
 ] as const;
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  loading: boolean;
-  canReset: boolean;
-  view: ICalendarView;
-  date: IDateValue;
-  onToday: () => void;
-  onNextDate: () => void;
-  onPrevDate: () => void;
-  onOpenFilters: () => void;
-  onChangeView: (newView: ICalendarView) => void;
+    loading: boolean;
+    canReset: boolean;
+    view: ICalendarView;
+    date: IDateValue;
+    onToday: () => void;
+    onNextDate: () => void;
+    onPrevDate: () => void;
+    onOpenFilters: () => void;
+    onChangeView: (newView: ICalendarView) => void;
 };
 
 export function CalendarToolbar({
-  date,
-  view,
-  loading,
-  onToday,
-  canReset,
-  onNextDate,
-  onPrevDate,
-  onChangeView,
-  onOpenFilters,
+    date,
+    view,
+    loading,
+    onToday,
+    canReset,
+    onNextDate,
+    onPrevDate,
+    onChangeView,
+    onOpenFilters,
 }: Props) {
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const selectedItem = VIEW_OPTIONS.filter((item) => item.value === view)[0];
+    const selectedItem = VIEW_OPTIONS.filter((item) => item.value === view)[0];
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'top-left' } }}
-    >
-      <MenuList>
-        {VIEW_OPTIONS.map((viewOption) => (
-          <MenuItem
-            key={viewOption.value}
-            selected={viewOption.value === view}
-            onClick={() => {
-              menuActions.onClose();
-              onChangeView(viewOption.value);
-            }}
-          >
-            <Iconify icon={viewOption.icon} />
-            {viewOption.label}
-          </MenuItem>
-        ))}
-      </MenuList>
-    </CustomPopover>
-  );
-
-  return (
-    <>
-      <Box
-        sx={{
-          p: 2.5,
-          pr: 2,
-          display: 'flex',
-          position: 'relative',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Button
-          size="small"
-          color="inherit"
-          onClick={menuActions.onOpen}
-          startIcon={<Iconify icon={selectedItem.icon} />}
-          endIcon={<Iconify icon="eva:arrow-ios-downward-fill" sx={{ ml: -0.5 }} />}
-          sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+            slotProps={{ arrow: { placement: 'top-left' } }}
         >
-          {selectedItem.label}
-        </Button>
+            <MenuList>
+                {VIEW_OPTIONS.map((viewOption) => (
+                    <MenuItem
+                        key={viewOption.value}
+                        selected={viewOption.value === view}
+                        onClick={() => {
+                            menuActions.onClose();
+                            onChangeView(viewOption.value);
+                        }}
+                    >
+                        <Iconify icon={viewOption.icon} />
+                        {viewOption.label}
+                    </MenuItem>
+                ))}
+            </MenuList>
+        </CustomPopover>
+    );
 
-        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={onPrevDate}>
-            <Iconify icon="eva:arrow-ios-back-fill" />
-          </IconButton>
+    return (
+        <>
+            <Box
+                sx={{
+                    p: 2.5,
+                    pr: 2,
+                    display: 'flex',
+                    position: 'relative',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <Button
+                    size="small"
+                    color="inherit"
+                    onClick={menuActions.onOpen}
+                    startIcon={<Iconify icon={selectedItem.icon} />}
+                    endIcon={<Iconify icon="eva:arrow-ios-downward-fill" sx={{ ml: -0.5 }} />}
+                    sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+                >
+                    {selectedItem.label}
+                </Button>
 
-          <Typography variant="h6">{date}</Typography>
+                <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
+                    <IconButton onClick={onPrevDate}>
+                        <Iconify icon="eva:arrow-ios-back-fill" />
+                    </IconButton>
 
-          <IconButton onClick={onNextDate}>
-            <Iconify icon="eva:arrow-ios-forward-fill" />
-          </IconButton>
-        </Box>
+                    <Typography variant="h6">{date}</Typography>
 
-        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
-          <Button size="small" color="error" variant="contained" onClick={onToday}>
-            Today
-          </Button>
+                    <IconButton onClick={onNextDate}>
+                        <Iconify icon="eva:arrow-ios-forward-fill" />
+                    </IconButton>
+                </Box>
 
-          <IconButton onClick={onOpenFilters}>
-            <Badge color="error" variant="dot" invisible={!canReset}>
-              <Iconify icon="ic:round-filter-list" />
-            </Badge>
-          </IconButton>
-        </Box>
+                <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
+                    <Button size="small" color="error" variant="contained" onClick={onToday}>
+                        Today
+                    </Button>
 
-        {loading && (
-          <LinearProgress
-            color="inherit"
-            sx={{
-              left: 0,
-              width: 1,
-              height: 2,
-              bottom: 0,
-              borderRadius: 0,
-              position: 'absolute',
-            }}
-          />
-        )}
-      </Box>
+                    <IconButton onClick={onOpenFilters}>
+                        <Badge color="error" variant="dot" invisible={!canReset}>
+                            <Iconify icon="ic:round-filter-list" />
+                        </Badge>
+                    </IconButton>
+                </Box>
 
-      {renderMenuActions()}
-    </>
-  );
+                {loading && (
+                    <LinearProgress
+                        color="inherit"
+                        sx={{
+                            left: 0,
+                            width: 1,
+                            height: 2,
+                            bottom: 0,
+                            borderRadius: 0,
+                            position: 'absolute',
+                        }}
+                    />
+                )}
+            </Box>
+
+            {renderMenuActions()}
+        </>
+    );
 }

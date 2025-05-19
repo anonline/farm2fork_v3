@@ -9,5 +9,5 @@ import { AnimateView } from 'src/sections/_examples/extra/animate-view';
 export const metadata: Metadata = { title: `Animate | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <AnimateView />;
+    return <AnimateView />;
 }

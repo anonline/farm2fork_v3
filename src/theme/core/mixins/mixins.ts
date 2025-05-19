@@ -13,15 +13,15 @@ export type * from './background';
 export type * from './global-styles-components';
 
 export type MixinsExtend = {
-  hideScrollX: CSSObject;
-  hideScrollY: CSSObject;
-  bgBlur: typeof bgBlur;
-  maxLine: typeof maxLine;
-  bgGradient: typeof bgGradient;
-  paperStyles: typeof paperStyles;
-  textGradient: typeof textGradient;
-  borderGradient: typeof borderGradient;
-  menuItemStyles: typeof menuItemStyles;
+    hideScrollX: CSSObject;
+    hideScrollY: CSSObject;
+    bgBlur: typeof bgBlur;
+    maxLine: typeof maxLine;
+    bgGradient: typeof bgGradient;
+    paperStyles: typeof paperStyles;
+    textGradient: typeof textGradient;
+    borderGradient: typeof borderGradient;
+    menuItemStyles: typeof menuItemStyles;
 };
 
 /**
@@ -30,23 +30,23 @@ export type MixinsExtend = {
  */
 
 export const mixins: MixinsOptions = {
-  hideScrollX: {
-    msOverflowStyle: 'none',
-    scrollbarWidth: 'none',
-    overflowX: 'auto',
-    '&::-webkit-scrollbar': { display: 'none' },
-  },
-  hideScrollY: {
-    msOverflowStyle: 'none',
-    scrollbarWidth: 'none',
-    overflowY: 'auto',
-    '&::-webkit-scrollbar': { display: 'none' },
-  },
-  borderGradient,
-  bgGradient,
-  bgBlur,
-  textGradient,
-  paperStyles,
-  menuItemStyles,
-  maxLine,
+    hideScrollX: {
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+        overflowX: 'auto',
+        '&::-webkit-scrollbar': { display: 'none' },
+    },
+    hideScrollY: {
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+        overflowY: 'auto',
+        '&::-webkit-scrollbar': { display: 'none' },
+    },
+    borderGradient,
+    bgGradient,
+    bgBlur,
+    textGradient,
+    paperStyles,
+    menuItemStyles,
+    maxLine,
 };

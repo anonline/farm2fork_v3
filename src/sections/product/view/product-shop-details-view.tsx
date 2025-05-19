@@ -28,118 +28,118 @@ import { ProductDetailsDescription } from '../product-details-description';
 // ----------------------------------------------------------------------
 
 const SUMMARY = [
-  {
-    title: '100% original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-    icon: 'solar:verified-check-bold',
-  },
-  {
-    title: '10 days replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-    icon: 'solar:clock-circle-bold',
-  },
-  {
-    title: 'Year warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'solar:shield-check-bold',
-  },
+    {
+        title: '100% original',
+        description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
+        icon: 'solar:verified-check-bold',
+    },
+    {
+        title: '10 days replacement',
+        description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
+        icon: 'solar:clock-circle-bold',
+    },
+    {
+        title: 'Year warranty',
+        description: 'Cotton candy gingerbread cake I love sugar sweet.',
+        icon: 'solar:shield-check-bold',
+    },
 ] as const;
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  product?: IProductItem;
+    product?: IProductItem;
 };
 
 export function ProductShopDetailsView({ product }: Props) {
-  const { state: checkoutState, onAddToCart } = useCheckoutContext();
+    const { state: checkoutState, onAddToCart } = useCheckoutContext();
 
-  const tabs = useTabs('description');
+    const tabs = useTabs('description');
 
-  return (
-    <Container sx={{ mt: 5, mb: 10 }}>
-      <CartIcon totalItems={checkoutState.totalItems} />
+    return (
+        <Container sx={{ mt: 5, mb: 10 }}>
+            <CartIcon totalItems={checkoutState.totalItems} />
 
-      <CustomBreadcrumbs
-        links={[
-          { name: 'Home', href: '/' },
-          { name: 'Shop', href: paths.product.root },
-          { name: product?.name },
-        ]}
-        sx={{ mb: 5 }}
-      />
-
-      <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid size={{ xs: 12, md: 6, lg: 7 }}>
-          <ProductDetailsCarousel images={product?.images} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 5 }}>
-          {product && (
-            <ProductDetailsSummary
-              product={product}
-              items={checkoutState.items}
-              onAddToCart={onAddToCart}
-              disableActions={!product?.available}
+            <CustomBreadcrumbs
+                links={[
+                    { name: 'Home', href: '/' },
+                    { name: 'Shop', href: paths.product.root },
+                    { name: product?.name },
+                ]}
+                sx={{ mb: 5 }}
             />
-          )}
-        </Grid>
-      </Grid>
-      <Box
-        sx={{
-          gap: 5,
-          my: 10,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
-        }}
-      >
-        {SUMMARY.map((item) => (
-          <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
-            <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main' }} />
 
-            <Typography variant="subtitle1" sx={{ mb: 1, mt: 2 }}>
-              {item.title}
-            </Typography>
+            <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
+                <Grid size={{ xs: 12, md: 6, lg: 7 }}>
+                    <ProductDetailsCarousel images={product?.images} />
+                </Grid>
 
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.description}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
+                <Grid size={{ xs: 12, md: 6, lg: 5 }}>
+                    {product && (
+                        <ProductDetailsSummary
+                            product={product}
+                            items={checkoutState.items}
+                            onAddToCart={onAddToCart}
+                            disableActions={!product?.available}
+                        />
+                    )}
+                </Grid>
+            </Grid>
+            <Box
+                sx={{
+                    gap: 5,
+                    my: 10,
+                    display: 'grid',
+                    gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
+                }}
+            >
+                {SUMMARY.map((item) => (
+                    <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
+                        <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main' }} />
 
-      <Card>
-        <Tabs
-          value={tabs.value}
-          onChange={tabs.onChange}
-          sx={[
-            (theme) => ({
-              px: 3,
-              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }),
-          ]}
-        >
-          {[
-            { value: 'description', label: 'Description' },
-            { value: 'reviews', label: `Reviews (${product?.reviews.length})` },
-          ].map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} />
-          ))}
-        </Tabs>
+                        <Typography variant="subtitle1" sx={{ mb: 1, mt: 2 }}>
+                            {item.title}
+                        </Typography>
 
-        {tabs.value === 'description' && (
-          <ProductDetailsDescription description={product?.description} />
-        )}
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {item.description}
+                        </Typography>
+                    </Box>
+                ))}
+            </Box>
 
-        {tabs.value === 'reviews' && (
-          <ProductDetailsReview
-            ratings={product?.ratings}
-            reviews={product?.reviews}
-            totalRatings={product?.totalRatings}
-            totalReviews={product?.totalReviews}
-          />
-        )}
-      </Card>
-    </Container>
-  );
+            <Card>
+                <Tabs
+                    value={tabs.value}
+                    onChange={tabs.onChange}
+                    sx={[
+                        (theme) => ({
+                            px: 3,
+                            boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+                        }),
+                    ]}
+                >
+                    {[
+                        { value: 'description', label: 'Description' },
+                        { value: 'reviews', label: `Reviews (${product?.reviews.length})` },
+                    ].map((tab) => (
+                        <Tab key={tab.value} value={tab.value} label={tab.label} />
+                    ))}
+                </Tabs>
+
+                {tabs.value === 'description' && (
+                    <ProductDetailsDescription description={product?.description} />
+                )}
+
+                {tabs.value === 'reviews' && (
+                    <ProductDetailsReview
+                        ratings={product?.ratings}
+                        reviews={product?.reviews}
+                        totalRatings={product?.totalRatings}
+                        totalReviews={product?.totalReviews}
+                    />
+                )}
+            </Card>
+        </Container>
+    );
 }

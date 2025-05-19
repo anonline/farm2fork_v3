@@ -8,25 +8,25 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  onRefresh: () => void;
+    onRefresh: () => void;
 };
 
 export function Toolbar({ onRefresh, sx, ...other }: Props) {
-  return (
-    <Box
-      sx={[
-        () => ({
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-        }),
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-      {...other}
-    >
-      <IconButton onClick={onRefresh}>
-        <Iconify icon="solar:restart-bold" />
-      </IconButton>
-    </Box>
-  );
+    return (
+        <Box
+            sx={[
+                () => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                }),
+                ...(Array.isArray(sx) ? sx : [sx]),
+            ]}
+            {...other}
+        >
+            <IconButton onClick={onRefresh}>
+                <Iconify icon="solar:restart-bold" />
+            </IconButton>
+        </Box>
+    );
 }

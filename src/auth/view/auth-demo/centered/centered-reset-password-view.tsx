@@ -21,74 +21,74 @@ import { FormReturnLink } from '../../../components/form-return-link';
 export type ResetPasswordSchemaType = zod.infer<typeof ResetPasswordSchema>;
 
 export const ResetPasswordSchema = zod.object({
-  email: zod
-    .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    email: zod
+        .string()
+        .min(1, { message: 'Email is required!' })
+        .email({ message: 'Email must be a valid email address!' }),
 });
 
 // ----------------------------------------------------------------------
 
 export function CenteredResetPasswordView() {
-  const defaultValues: ResetPasswordSchemaType = {
-    email: '',
-  };
+    const defaultValues: ResetPasswordSchemaType = {
+        email: '',
+    };
 
-  const methods = useForm<ResetPasswordSchemaType>({
-    resolver: zodResolver(ResetPasswordSchema),
-    defaultValues,
-  });
+    const methods = useForm<ResetPasswordSchemaType>({
+        resolver: zodResolver(ResetPasswordSchema),
+        defaultValues,
+    });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            console.info('DATA', data);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
-  const renderForm = () => (
-    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text
-        name="email"
-        label="Email address"
-        placeholder="example@gmail.com"
-        autoFocus
-        slotProps={{ inputLabel: { shrink: true } }}
-      />
+    const renderForm = () => (
+        <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+            <Field.Text
+                name="email"
+                label="Email address"
+                placeholder="example@gmail.com"
+                autoFocus
+                slotProps={{ inputLabel: { shrink: true } }}
+            />
 
-      <Button
-        fullWidth
-        size="large"
-        type="submit"
-        variant="contained"
-        loading={isSubmitting}
-        loadingIndicator="Send request..."
-      >
-        Send request
-      </Button>
-    </Box>
-  );
+            <Button
+                fullWidth
+                size="large"
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                loadingIndicator="Send request..."
+            >
+                Send request
+            </Button>
+        </Box>
+    );
 
-  return (
-    <>
-      <FormHead
-        icon={<PasswordIcon />}
-        title="Forgot your password?"
-        description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
-      />
+    return (
+        <>
+            <FormHead
+                icon={<PasswordIcon />}
+                title="Forgot your password?"
+                description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
+            />
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm()}
-      </Form>
+            <Form methods={methods} onSubmit={onSubmit}>
+                {renderForm()}
+            </Form>
 
-      <FormReturnLink href={paths.authDemo.centered.signIn} />
-    </>
-  );
+            <FormReturnLink href={paths.authDemo.centered.signIn} />
+        </>
+    );
 }

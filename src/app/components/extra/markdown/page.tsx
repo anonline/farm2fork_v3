@@ -9,5 +9,5 @@ import { MarkdownView } from 'src/sections/_examples/extra/markdown-view';
 export const metadata: Metadata = { title: `Markdown | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <MarkdownView />;
+    return <MarkdownView />;
 }

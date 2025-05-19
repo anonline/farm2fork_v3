@@ -22,56 +22,58 @@ import { JobDetailsCandidates } from '../job-details-candidates';
 // ----------------------------------------------------------------------
 
 type Props = {
-  job?: IJobItem;
+    job?: IJobItem;
 };
 
 export function JobDetailsView({ job }: Props) {
-  const tabs = useTabs('content');
+    const tabs = useTabs('content');
 
-  const [publish, setPublish] = useState(job?.publish);
+    const [publish, setPublish] = useState(job?.publish);
 
-  const handleChangePublish = useCallback((newValue: string) => {
-    setPublish(newValue);
-  }, []);
+    const handleChangePublish = useCallback((newValue: string) => {
+        setPublish(newValue);
+    }, []);
 
-  const renderToolbar = () => (
-    <JobDetailsToolbar
-      backHref={paths.dashboard.job.root}
-      editHref={paths.dashboard.job.edit(`${job?.id}`)}
-      liveHref="#"
-      publish={publish || ''}
-      onChangePublish={handleChangePublish}
-      publishOptions={JOB_PUBLISH_OPTIONS}
-    />
-  );
-
-  const renderTabs = () => (
-    <Tabs value={tabs.value} onChange={tabs.onChange} sx={{ mb: { xs: 3, md: 5 } }}>
-      {JOB_DETAILS_TABS.map((tab) => (
-        <Tab
-          key={tab.value}
-          iconPosition="end"
-          value={tab.value}
-          label={tab.label}
-          icon={
-            tab.value === 'candidates' ? (
-              <Label variant="filled">{job?.candidates.length}</Label>
-            ) : (
-              ''
-            )
-          }
+    const renderToolbar = () => (
+        <JobDetailsToolbar
+            backHref={paths.dashboard.job.root}
+            editHref={paths.dashboard.job.edit(`${job?.id}`)}
+            liveHref="#"
+            publish={publish || ''}
+            onChangePublish={handleChangePublish}
+            publishOptions={JOB_PUBLISH_OPTIONS}
         />
-      ))}
-    </Tabs>
-  );
+    );
 
-  return (
-    <DashboardContent>
-      {renderToolbar()}
+    const renderTabs = () => (
+        <Tabs value={tabs.value} onChange={tabs.onChange} sx={{ mb: { xs: 3, md: 5 } }}>
+            {JOB_DETAILS_TABS.map((tab) => (
+                <Tab
+                    key={tab.value}
+                    iconPosition="end"
+                    value={tab.value}
+                    label={tab.label}
+                    icon={
+                        tab.value === 'candidates' ? (
+                            <Label variant="filled">{job?.candidates.length}</Label>
+                        ) : (
+                            ''
+                        )
+                    }
+                />
+            ))}
+        </Tabs>
+    );
 
-      {renderTabs()}
-      {tabs.value === 'content' && <JobDetailsContent job={job} />}
-      {tabs.value === 'candidates' && <JobDetailsCandidates candidates={job?.candidates ?? []} />}
-    </DashboardContent>
-  );
+    return (
+        <DashboardContent>
+            {renderToolbar()}
+
+            {renderTabs()}
+            {tabs.value === 'content' && <JobDetailsContent job={job} />}
+            {tabs.value === 'candidates' && (
+                <JobDetailsCandidates candidates={job?.candidates ?? []} />
+            )}
+        </DashboardContent>
+    );
 }

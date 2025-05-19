@@ -9,5 +9,5 @@ import { KanbanView } from 'src/sections/kanban/view';
 export const metadata: Metadata = { title: `Kanban | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <KanbanView />;
+    return <KanbanView />;
 }

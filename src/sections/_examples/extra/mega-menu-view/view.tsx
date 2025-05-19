@@ -8,16 +8,16 @@ import { DemoMegaMenuHorizontal } from './horizontal';
 // ----------------------------------------------------------------------
 
 export function MegaMenuView() {
-  return (
-    <ComponentLayout
-      heroProps={{
-        heading: 'Mega menu',
-        bottomNode: <DemoMegaMenuHorizontal />,
-      }}
-      containerProps={{ maxWidth: 'lg' }}
-    >
-      <DemoMegaMenuMobile />
-      <DemoMegaMenuVertical />
-    </ComponentLayout>
-  );
+    return (
+        <ComponentLayout
+            heroProps={{
+                heading: 'Mega menu',
+                bottomNode: <DemoMegaMenuHorizontal />,
+            }}
+            containerProps={{ maxWidth: 'lg' }}
+        >
+            <DemoMegaMenuMobile />
+            <DemoMegaMenuVertical />
+        </ComponentLayout>
+    );
 }

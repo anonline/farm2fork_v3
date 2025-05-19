@@ -9,5 +9,5 @@ import { CarouselView } from 'src/sections/_examples/extra/carousel-view';
 export const metadata: Metadata = { title: `Carousel | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <CarouselView />;
+    return <CarouselView />;
 }

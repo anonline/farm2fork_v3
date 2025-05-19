@@ -20,86 +20,86 @@ import { TableHeadCustom } from 'src/components/table';
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  title?: string;
-  subheader?: string;
-  headCells: TableHeadCellProps[];
-  tableData: {
-    id: string;
-    name: string;
-    rank: string;
-    email: string;
-    category: string;
-    avatarUrl: string;
-    countryCode: string;
-    totalAmount: number;
-  }[];
+    title?: string;
+    subheader?: string;
+    headCells: TableHeadCellProps[];
+    tableData: {
+        id: string;
+        name: string;
+        rank: string;
+        email: string;
+        category: string;
+        avatarUrl: string;
+        countryCode: string;
+        totalAmount: number;
+    }[];
 };
 
 export function EcommerceBestSalesman({
-  title,
-  subheader,
-  tableData,
-  headCells,
-  sx,
-  ...other
+    title,
+    subheader,
+    tableData,
+    headCells,
+    sx,
+    ...other
 }: Props) {
-  return (
-    <Card sx={sx} {...other}>
-      <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
+    return (
+        <Card sx={sx} {...other}>
+            <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
-      <Scrollbar sx={{ minHeight: 422 }}>
-        <Table sx={{ minWidth: 640 }}>
-          <TableHeadCustom headCells={headCells} />
+            <Scrollbar sx={{ minHeight: 422 }}>
+                <Table sx={{ minWidth: 640 }}>
+                    <TableHeadCustom headCells={headCells} />
 
-          <TableBody>
-            {tableData.map((row) => (
-              <RowItem key={row.id} row={row} />
-            ))}
-          </TableBody>
-        </Table>
-      </Scrollbar>
-    </Card>
-  );
+                    <TableBody>
+                        {tableData.map((row) => (
+                            <RowItem key={row.id} row={row} />
+                        ))}
+                    </TableBody>
+                </Table>
+            </Scrollbar>
+        </Card>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type RowItemProps = {
-  row: Props['tableData'][number];
+    row: Props['tableData'][number];
 };
 
 function RowItem({ row }: RowItemProps) {
-  return (
-    <TableRow>
-      <TableCell>
-        <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={row.name} src={row.avatarUrl} />
-          {row.name}
-        </Box>
-      </TableCell>
+    return (
+        <TableRow>
+            <TableCell>
+                <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+                    <Avatar alt={row.name} src={row.avatarUrl} />
+                    {row.name}
+                </Box>
+            </TableCell>
 
-      <TableCell>{row.category}</TableCell>
+            <TableCell>{row.category}</TableCell>
 
-      <TableCell align="center">
-        <FlagIcon code={row.countryCode} />
-      </TableCell>
+            <TableCell align="center">
+                <FlagIcon code={row.countryCode} />
+            </TableCell>
 
-      <TableCell align="right">{fCurrency(row.totalAmount)}</TableCell>
+            <TableCell align="right">{fCurrency(row.totalAmount)}</TableCell>
 
-      <TableCell align="right">
-        <Label
-          variant="soft"
-          color={
-            (row.rank === 'Top 1' && 'primary') ||
-            (row.rank === 'Top 2' && 'secondary') ||
-            (row.rank === 'Top 3' && 'info') ||
-            (row.rank === 'Top 4' && 'warning') ||
-            'error'
-          }
-        >
-          {row.rank}
-        </Label>
-      </TableCell>
-    </TableRow>
-  );
+            <TableCell align="right">
+                <Label
+                    variant="soft"
+                    color={
+                        (row.rank === 'Top 1' && 'primary') ||
+                        (row.rank === 'Top 2' && 'secondary') ||
+                        (row.rank === 'Top 3' && 'info') ||
+                        (row.rank === 'Top 4' && 'warning') ||
+                        'error'
+                    }
+                >
+                    {row.rank}
+                </Label>
+            </TableCell>
+        </TableRow>
+    );
 }

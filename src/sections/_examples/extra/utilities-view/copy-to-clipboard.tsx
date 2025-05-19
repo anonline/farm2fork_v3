@@ -17,57 +17,57 @@ import { ComponentBox } from '../../layout';
 // ----------------------------------------------------------------------
 
 export function CopyToClipboard() {
-  const { copy } = useCopyToClipboard();
+    const { copy } = useCopyToClipboard();
 
-  const [value, setValue] = useState('https://www.npmjs.com/package/');
+    const [value, setValue] = useState('https://www.npmjs.com/package/');
 
-  const textOnClick = `Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
+    const textOnClick = `Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
   Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat
   dolor lectus quis orci. Cras non dolor.
   `;
 
-  const onCopy = useCallback(
-    (text: string) => {
-      if (text) {
-        toast.success('Copied!');
-        copy(text);
-      }
-    },
-    [copy]
-  );
+    const onCopy = useCallback(
+        (text: string) => {
+            if (text) {
+                toast.success('Copied!');
+                copy(text);
+            }
+        },
+        [copy]
+    );
 
-  const handleClick = useDoubleClick({ doubleClick: () => onCopy(textOnClick) });
+    const handleClick = useDoubleClick({ doubleClick: () => onCopy(textOnClick) });
 
-  const handleChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(event.target.value);
-  }, []);
+    const handleChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setValue(event.target.value);
+    }, []);
 
-  return (
-    <>
-      <ComponentBox title="onChange">
-        <TextField
-          fullWidth
-          value={value}
-          onChange={handleChange}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip title="Copy">
-                    <IconButton onClick={() => onCopy(value)}>
-                      <Iconify icon="solar:copy-bold" width={24} />
-                    </IconButton>
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-      </ComponentBox>
+    return (
+        <>
+            <ComponentBox title="onChange">
+                <TextField
+                    fullWidth
+                    value={value}
+                    onChange={handleChange}
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <Tooltip title="Copy">
+                                        <IconButton onClick={() => onCopy(value)}>
+                                            <Iconify icon="solar:copy-bold" width={24} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
+            </ComponentBox>
 
-      <ComponentBox title="onDoubleClick">
-        <Typography onClick={handleClick}>{textOnClick}</Typography>
-      </ComponentBox>
-    </>
-  );
+            <ComponentBox title="onDoubleClick">
+                <Typography onClick={handleClick}>{textOnClick}</Typography>
+            </ComponentBox>
+        </>
+    );
 }

@@ -20,119 +20,121 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 const InvoicePDFDownload = dynamic(
-  () => import('./invoice-pdf').then((mod) => mod.InvoicePDFDownload),
-  { ssr: false }
+    () => import('./invoice-pdf').then((mod) => mod.InvoicePDFDownload),
+    { ssr: false }
 );
 
 const InvoicePDFViewer = dynamic(
-  () => import('./invoice-pdf').then((mod) => mod.InvoicePDFViewer),
-  { ssr: false }
+    () => import('./invoice-pdf').then((mod) => mod.InvoicePDFViewer),
+    { ssr: false }
 );
 
 type Props = {
-  invoice?: IInvoice;
-  currentStatus: string;
-  statusOptions: { value: string; label: string }[];
-  onChangeStatus: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    invoice?: IInvoice;
+    currentStatus: string;
+    statusOptions: { value: string; label: string }[];
+    onChangeStatus: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }: Props) {
-  const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
+    const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const renderDownloadButton = () =>
-    invoice ? <InvoicePDFDownload invoice={invoice} currentStatus={currentStatus} /> : null;
+    const renderDownloadButton = () =>
+        invoice ? <InvoicePDFDownload invoice={invoice} currentStatus={currentStatus} /> : null;
 
-  const renderDetailsDialog = () => (
-    <Dialog fullScreen open={open}>
-      <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-        <DialogActions sx={{ p: 1.5 }}>
-          <Button color="inherit" variant="contained" onClick={onClose}>
-            Close
-          </Button>
-        </DialogActions>
-        <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-          {invoice && <InvoicePDFViewer invoice={invoice} currentStatus={currentStatus} />}
-        </Box>
-      </Box>
-    </Dialog>
-  );
+    const renderDetailsDialog = () => (
+        <Dialog fullScreen open={open}>
+            <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+                <DialogActions sx={{ p: 1.5 }}>
+                    <Button color="inherit" variant="contained" onClick={onClose}>
+                        Close
+                    </Button>
+                </DialogActions>
+                <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+                    {invoice && (
+                        <InvoicePDFViewer invoice={invoice} currentStatus={currentStatus} />
+                    )}
+                </Box>
+            </Box>
+        </Dialog>
+    );
 
-  return (
-    <>
-      <Box
-        sx={{
-          gap: 3,
-          display: 'flex',
-          mb: { xs: 3, md: 5 },
-          flexDirection: { xs: 'column', sm: 'row' },
-          alignItems: { xs: 'flex-end', sm: 'center' },
-        }}
-      >
-        <Box
-          sx={{
-            gap: 1,
-            width: 1,
-            flexGrow: 1,
-            display: 'flex',
-          }}
-        >
-          <Tooltip title="Edit">
-            <IconButton
-              component={RouterLink}
-              href={paths.dashboard.invoice.edit(`${invoice?.id}`)}
+    return (
+        <>
+            <Box
+                sx={{
+                    gap: 3,
+                    display: 'flex',
+                    mb: { xs: 3, md: 5 },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'flex-end', sm: 'center' },
+                }}
             >
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
+                <Box
+                    sx={{
+                        gap: 1,
+                        width: 1,
+                        flexGrow: 1,
+                        display: 'flex',
+                    }}
+                >
+                    <Tooltip title="Edit">
+                        <IconButton
+                            component={RouterLink}
+                            href={paths.dashboard.invoice.edit(`${invoice?.id}`)}
+                        >
+                            <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                    </Tooltip>
 
-          <Tooltip title="View">
-            <IconButton onClick={onOpen}>
-              <Iconify icon="solar:eye-bold" />
-            </IconButton>
-          </Tooltip>
+                    <Tooltip title="View">
+                        <IconButton onClick={onOpen}>
+                            <Iconify icon="solar:eye-bold" />
+                        </IconButton>
+                    </Tooltip>
 
-          {renderDownloadButton()}
+                    {renderDownloadButton()}
 
-          <Tooltip title="Print">
-            <IconButton>
-              <Iconify icon="solar:printer-minimalistic-bold" />
-            </IconButton>
-          </Tooltip>
+                    <Tooltip title="Print">
+                        <IconButton>
+                            <Iconify icon="solar:printer-minimalistic-bold" />
+                        </IconButton>
+                    </Tooltip>
 
-          <Tooltip title="Send">
-            <IconButton>
-              <Iconify icon="custom:send-fill" />
-            </IconButton>
-          </Tooltip>
+                    <Tooltip title="Send">
+                        <IconButton>
+                            <Iconify icon="custom:send-fill" />
+                        </IconButton>
+                    </Tooltip>
 
-          <Tooltip title="Share">
-            <IconButton>
-              <Iconify icon="solar:share-bold" />
-            </IconButton>
-          </Tooltip>
-        </Box>
+                    <Tooltip title="Share">
+                        <IconButton>
+                            <Iconify icon="solar:share-bold" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
 
-        <TextField
-          fullWidth
-          select
-          label="Status"
-          value={currentStatus}
-          onChange={onChangeStatus}
-          sx={{ maxWidth: 160 }}
-          slotProps={{
-            htmlInput: { id: 'status-select' },
-            inputLabel: { htmlFor: 'status-select' },
-          }}
-        >
-          {statusOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
+                <TextField
+                    fullWidth
+                    select
+                    label="Status"
+                    value={currentStatus}
+                    onChange={onChangeStatus}
+                    sx={{ maxWidth: 160 }}
+                    slotProps={{
+                        htmlInput: { id: 'status-select' },
+                        inputLabel: { htmlFor: 'status-select' },
+                    }}
+                >
+                    {statusOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                </TextField>
+            </Box>
 
-      {renderDetailsDialog()}
-    </>
-  );
+            {renderDetailsDialog()}
+        </>
+    );
 }

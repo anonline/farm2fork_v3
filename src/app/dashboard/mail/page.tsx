@@ -9,5 +9,5 @@ import { MailView } from 'src/sections/mail/view';
 export const metadata: Metadata = { title: `Mail | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <MailView />;
+    return <MailView />;
 }

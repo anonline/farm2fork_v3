@@ -25,139 +25,139 @@ import type { EditorProps } from './types';
 // ----------------------------------------------------------------------
 
 export function Editor({
-  sx,
-  ref,
-  error,
-  onChange,
-  slotProps,
-  helperText,
-  resetValue,
-  className,
-  editable = true,
-  fullItem = false,
-  value: content = '',
-  placeholder = 'Write something awesome...',
-  ...other
+    sx,
+    ref,
+    error,
+    onChange,
+    slotProps,
+    helperText,
+    resetValue,
+    className,
+    editable = true,
+    fullItem = false,
+    value: content = '',
+    placeholder = 'Write something awesome...',
+    ...other
 }: EditorProps) {
-  const [fullScreen, setFullScreen] = useState(false);
+    const [fullScreen, setFullScreen] = useState(false);
 
-  const handleToggleFullScreen = useCallback(() => {
-    setFullScreen((prev) => !prev);
-  }, []);
+    const handleToggleFullScreen = useCallback(() => {
+        setFullScreen((prev) => !prev);
+    }, []);
 
-  const lowlight = createLowlight(common);
+    const lowlight = createLowlight(common);
 
-  const editor = useEditor({
-    content,
-    editable,
-    immediatelyRender: false,
-    shouldRerenderOnTransaction: false,
-    extensions: [
-      Underline,
-      StarterKitExtension.configure({
-        codeBlock: false,
-        code: { HTMLAttributes: { class: editorClasses.content.codeInline } },
-        heading: { HTMLAttributes: { class: editorClasses.content.heading } },
-        horizontalRule: { HTMLAttributes: { class: editorClasses.content.hr } },
-        listItem: { HTMLAttributes: { class: editorClasses.content.listItem } },
-        blockquote: { HTMLAttributes: { class: editorClasses.content.blockquote } },
-        bulletList: { HTMLAttributes: { class: editorClasses.content.bulletList } },
-        orderedList: { HTMLAttributes: { class: editorClasses.content.orderedList } },
-      }),
-      PlaceholderExtension.configure({
-        placeholder,
-        emptyEditorClass: editorClasses.content.placeholder,
-      }),
-      ImageExtension.configure({ HTMLAttributes: { class: editorClasses.content.image } }),
-      TextAlignExtension.configure({ types: ['heading', 'paragraph'] }),
-      LinkExtension.configure({
-        autolink: true,
-        openOnClick: false,
-        HTMLAttributes: { class: editorClasses.content.link },
-      }),
-      CodeBlockLowlightExtension.extend({
-        addNodeView() {
-          return ReactNodeViewRenderer(CodeHighlightBlock);
+    const editor = useEditor({
+        content,
+        editable,
+        immediatelyRender: false,
+        shouldRerenderOnTransaction: false,
+        extensions: [
+            Underline,
+            StarterKitExtension.configure({
+                codeBlock: false,
+                code: { HTMLAttributes: { class: editorClasses.content.codeInline } },
+                heading: { HTMLAttributes: { class: editorClasses.content.heading } },
+                horizontalRule: { HTMLAttributes: { class: editorClasses.content.hr } },
+                listItem: { HTMLAttributes: { class: editorClasses.content.listItem } },
+                blockquote: { HTMLAttributes: { class: editorClasses.content.blockquote } },
+                bulletList: { HTMLAttributes: { class: editorClasses.content.bulletList } },
+                orderedList: { HTMLAttributes: { class: editorClasses.content.orderedList } },
+            }),
+            PlaceholderExtension.configure({
+                placeholder,
+                emptyEditorClass: editorClasses.content.placeholder,
+            }),
+            ImageExtension.configure({ HTMLAttributes: { class: editorClasses.content.image } }),
+            TextAlignExtension.configure({ types: ['heading', 'paragraph'] }),
+            LinkExtension.configure({
+                autolink: true,
+                openOnClick: false,
+                HTMLAttributes: { class: editorClasses.content.link },
+            }),
+            CodeBlockLowlightExtension.extend({
+                addNodeView() {
+                    return ReactNodeViewRenderer(CodeHighlightBlock);
+                },
+            }).configure({ lowlight, HTMLAttributes: { class: editorClasses.content.codeBlock } }),
+        ],
+        onUpdate({ editor: _editor }) {
+            const html = _editor.getHTML();
+            onChange?.(html);
         },
-      }).configure({ lowlight, HTMLAttributes: { class: editorClasses.content.codeBlock } }),
-    ],
-    onUpdate({ editor: _editor }) {
-      const html = _editor.getHTML();
-      onChange?.(html);
-    },
-    ...other,
-  });
+        ...other,
+    });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (editor?.isEmpty && content !== '<p></p>') {
-        editor.commands.setContent(content);
-      }
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [content, editor]);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (editor?.isEmpty && content !== '<p></p>') {
+                editor.commands.setContent(content);
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [content, editor]);
 
-  useEffect(() => {
-    if (resetValue && !content) {
-      editor?.commands.clearContent();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+    useEffect(() => {
+        if (resetValue && !content) {
+            editor?.commands.clearContent();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [content]);
 
-  useEffect(() => {
-    if (fullScreen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-  }, [fullScreen]);
+    useEffect(() => {
+        if (fullScreen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }, [fullScreen]);
 
-  return (
-    <Portal disablePortal={!fullScreen}>
-      {fullScreen && <Backdrop open sx={[(theme) => ({ zIndex: theme.zIndex.modal - 1 })]} />}
+    return (
+        <Portal disablePortal={!fullScreen}>
+            {fullScreen && <Backdrop open sx={[(theme) => ({ zIndex: theme.zIndex.modal - 1 })]} />}
 
-      <Box
-        {...slotProps?.wrapper}
-        sx={[
-          () => ({
-            display: 'flex',
-            flexDirection: 'column',
-            ...(!editable && { cursor: 'not-allowed' }),
-          }),
-          ...(Array.isArray(slotProps?.wrapper?.sx)
-            ? (slotProps?.wrapper?.sx ?? [])
-            : [slotProps?.wrapper?.sx]),
-        ]}
-      >
-        <EditorRoot
-          error={!!error}
-          disabled={!editable}
-          fullScreen={fullScreen}
-          className={mergeClasses([editorClasses.root, className])}
-          sx={sx}
-        >
-          <Toolbar
-            editor={editor}
-            fullItem={fullItem}
-            fullScreen={fullScreen}
-            onToggleFullScreen={handleToggleFullScreen}
-          />
-          <EditorContent
-            ref={ref}
-            spellCheck="false"
-            autoComplete="off"
-            autoCapitalize="off"
-            editor={editor}
-            className={editorClasses.content.root}
-          />
-        </EditorRoot>
+            <Box
+                {...slotProps?.wrapper}
+                sx={[
+                    () => ({
+                        display: 'flex',
+                        flexDirection: 'column',
+                        ...(!editable && { cursor: 'not-allowed' }),
+                    }),
+                    ...(Array.isArray(slotProps?.wrapper?.sx)
+                        ? (slotProps?.wrapper?.sx ?? [])
+                        : [slotProps?.wrapper?.sx]),
+                ]}
+            >
+                <EditorRoot
+                    error={!!error}
+                    disabled={!editable}
+                    fullScreen={fullScreen}
+                    className={mergeClasses([editorClasses.root, className])}
+                    sx={sx}
+                >
+                    <Toolbar
+                        editor={editor}
+                        fullItem={fullItem}
+                        fullScreen={fullScreen}
+                        onToggleFullScreen={handleToggleFullScreen}
+                    />
+                    <EditorContent
+                        ref={ref}
+                        spellCheck="false"
+                        autoComplete="off"
+                        autoCapitalize="off"
+                        editor={editor}
+                        className={editorClasses.content.root}
+                    />
+                </EditorRoot>
 
-        {helperText && (
-          <FormHelperText error={!!error} sx={{ px: 2 }}>
-            {helperText}
-          </FormHelperText>
-        )}
-      </Box>
-    </Portal>
-  );
+                {helperText && (
+                    <FormHelperText error={!!error} sx={{ px: 2 }}>
+                        {helperText}
+                    </FormHelperText>
+                )}
+            </Box>
+        </Portal>
+    );
 }

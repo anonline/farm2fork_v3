@@ -26,123 +26,123 @@ import { useMockedUser } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 export function ChatNavAccount() {
-  const { user } = useMockedUser();
+    const { user } = useMockedUser();
 
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const [status, setStatus] = useState<BadgeProps['variant']>('online');
+    const [status, setStatus] = useState<BadgeProps['variant']>('online');
 
-  const handleChangeStatus = useCallback((event: SelectChangeEvent) => {
-    setStatus(event.target.value as BadgeProps['variant']);
-  }, []);
+    const handleChangeStatus = useCallback((event: SelectChangeEvent) => {
+        setStatus(event.target.value as BadgeProps['variant']);
+    }, []);
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{
-        paper: { sx: { p: 0, ml: 0, mt: 0.5 } },
-        arrow: { placement: 'top-left' },
-      }}
-    >
-      <Box
-        sx={{
-          py: 2,
-          pr: 1,
-          pl: 2,
-          gap: 2,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <ListItemText primary={user?.displayName} secondary={user?.email} />
-
-        <Tooltip title="Log out">
-          <IconButton color="error">
-            <Iconify icon="ic:round-power-settings-new" />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Divider sx={{ borderStyle: 'dashed' }} />
-
-      <MenuList sx={{ my: 0.5, px: 0.5 }}>
-        <MenuItem>
-          <Badge
-            variant={status}
-            badgeContent=""
-            sx={{
-              width: 24,
-              height: 24,
-              alignItems: 'center',
-              justifyContent: 'center',
-              [`& .${badgeClasses.badge}`]: {
-                width: 12,
-                height: 12,
-                transform: 'unset',
-                position: 'static',
-              },
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+            slotProps={{
+                paper: { sx: { p: 0, ml: 0, mt: 0.5 } },
+                arrow: { placement: 'top-left' },
             }}
-          />
-
-          <FormControl fullWidth>
-            <Select
-              native
-              fullWidth
-              value={status}
-              onChange={handleChangeStatus}
-              input={<InputBase />}
-              inputProps={{ id: 'chat-status-select' }}
-              sx={{
-                [`& .${svgIconClasses.root}`]: { right: 0 },
-                [`& .${inputBaseClasses.input}`]: {
-                  typography: 'body2',
-                  textTransform: 'capitalize',
-                },
-              }}
-            >
-              {['online', 'always', 'busy', 'offline'].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-        </MenuItem>
-
-        <MenuItem>
-          <Iconify width={24} icon="solar:user-id-bold" />
-          Profile
-        </MenuItem>
-
-        <MenuItem>
-          <Iconify width={24} icon="solar:settings-bold" />
-          Settings
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
-  return (
-    <>
-      <Badge
-        variant={status}
-        badgeContent=""
-        overlap="circular"
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Avatar
-          src={user?.photoURL}
-          alt={user?.displayName}
-          onClick={menuActions.onOpen}
-          sx={{ cursor: 'pointer', width: 48, height: 48 }}
         >
-          {user?.displayName?.charAt(0).toUpperCase()}
-        </Avatar>
-      </Badge>
+            <Box
+                sx={{
+                    py: 2,
+                    pr: 1,
+                    pl: 2,
+                    gap: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
+            >
+                <ListItemText primary={user?.displayName} secondary={user?.email} />
 
-      {renderMenuActions()}
-    </>
-  );
+                <Tooltip title="Log out">
+                    <IconButton color="error">
+                        <Iconify icon="ic:round-power-settings-new" />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
+            <Divider sx={{ borderStyle: 'dashed' }} />
+
+            <MenuList sx={{ my: 0.5, px: 0.5 }}>
+                <MenuItem>
+                    <Badge
+                        variant={status}
+                        badgeContent=""
+                        sx={{
+                            width: 24,
+                            height: 24,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            [`& .${badgeClasses.badge}`]: {
+                                width: 12,
+                                height: 12,
+                                transform: 'unset',
+                                position: 'static',
+                            },
+                        }}
+                    />
+
+                    <FormControl fullWidth>
+                        <Select
+                            native
+                            fullWidth
+                            value={status}
+                            onChange={handleChangeStatus}
+                            input={<InputBase />}
+                            inputProps={{ id: 'chat-status-select' }}
+                            sx={{
+                                [`& .${svgIconClasses.root}`]: { right: 0 },
+                                [`& .${inputBaseClasses.input}`]: {
+                                    typography: 'body2',
+                                    textTransform: 'capitalize',
+                                },
+                            }}
+                        >
+                            {['online', 'always', 'busy', 'offline'].map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </MenuItem>
+
+                <MenuItem>
+                    <Iconify width={24} icon="solar:user-id-bold" />
+                    Profile
+                </MenuItem>
+
+                <MenuItem>
+                    <Iconify width={24} icon="solar:settings-bold" />
+                    Settings
+                </MenuItem>
+            </MenuList>
+        </CustomPopover>
+    );
+
+    return (
+        <>
+            <Badge
+                variant={status}
+                badgeContent=""
+                overlap="circular"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Avatar
+                    src={user?.photoURL}
+                    alt={user?.displayName}
+                    onClick={menuActions.onOpen}
+                    sx={{ cursor: 'pointer', width: 48, height: 48 }}
+                >
+                    {user?.displayName?.charAt(0).toUpperCase()}
+                </Avatar>
+            </Badge>
+
+            {renderMenuActions()}
+        </>
+    );
 }

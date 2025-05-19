@@ -29,120 +29,120 @@ import { ProductDetailsDescription } from '../product-details-description';
 // ----------------------------------------------------------------------
 
 const SUMMARY = [
-  {
-    title: '100% original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-    icon: 'solar:verified-check-bold',
-  },
-  {
-    title: '10 days replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-    icon: 'solar:clock-circle-bold',
-  },
-  {
-    title: 'Year warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'solar:shield-check-bold',
-  },
+    {
+        title: '100% original',
+        description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
+        icon: 'solar:verified-check-bold',
+    },
+    {
+        title: '10 days replacement',
+        description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
+        icon: 'solar:clock-circle-bold',
+    },
+    {
+        title: 'Year warranty',
+        description: 'Cotton candy gingerbread cake I love sugar sweet.',
+        icon: 'solar:shield-check-bold',
+    },
 ] as const;
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  product?: IProductItem;
+    product?: IProductItem;
 };
 
 export function ProductDetailsView({ product }: Props) {
-  const tabs = useTabs('description');
+    const tabs = useTabs('description');
 
-  const [publish, setPublish] = useState('');
+    const [publish, setPublish] = useState('');
 
-  useEffect(() => {
-    if (product) {
-      setPublish(product?.publish);
-    }
-  }, [product]);
+    useEffect(() => {
+        if (product) {
+            setPublish(product?.publish);
+        }
+    }, [product]);
 
-  const handleChangePublish = useCallback((newValue: string) => {
-    setPublish(newValue);
-  }, []);
+    const handleChangePublish = useCallback((newValue: string) => {
+        setPublish(newValue);
+    }, []);
 
-  return (
-    <DashboardContent>
-      <ProductDetailsToolbar
-        backHref={paths.dashboard.product.root}
-        liveHref={paths.product.details(`${product?.id}`)}
-        editHref={paths.dashboard.product.edit(`${product?.id}`)}
-        publish={publish}
-        onChangePublish={handleChangePublish}
-        publishOptions={PRODUCT_PUBLISH_OPTIONS}
-      />
+    return (
+        <DashboardContent>
+            <ProductDetailsToolbar
+                backHref={paths.dashboard.product.root}
+                liveHref={paths.product.details(`${product?.id}`)}
+                editHref={paths.dashboard.product.edit(`${product?.id}`)}
+                publish={publish}
+                onChangePublish={handleChangePublish}
+                publishOptions={PRODUCT_PUBLISH_OPTIONS}
+            />
 
-      <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid size={{ xs: 12, md: 6, lg: 7 }}>
-          <ProductDetailsCarousel images={product?.images ?? []} />
-        </Grid>
+            <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
+                <Grid size={{ xs: 12, md: 6, lg: 7 }}>
+                    <ProductDetailsCarousel images={product?.images ?? []} />
+                </Grid>
 
-        <Grid size={{ xs: 12, md: 6, lg: 5 }}>
-        {product && <ProductDetailsSummary disableActions product={product} />}
-        </Grid>
-      </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 5 }}>
+                    {product && <ProductDetailsSummary disableActions product={product} />}
+                </Grid>
+            </Grid>
 
-      <Box
-        sx={{
-          gap: 5,
-          my: 10,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
-        }}
-      >
-        {SUMMARY.map((item) => (
-          <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
-            <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main' }} />
+            <Box
+                sx={{
+                    gap: 5,
+                    my: 10,
+                    display: 'grid',
+                    gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
+                }}
+            >
+                {SUMMARY.map((item) => (
+                    <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
+                        <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main' }} />
 
-            <Typography variant="subtitle1" sx={{ mb: 1, mt: 2 }}>
-              {item.title}
-            </Typography>
+                        <Typography variant="subtitle1" sx={{ mb: 1, mt: 2 }}>
+                            {item.title}
+                        </Typography>
 
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.description}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {item.description}
+                        </Typography>
+                    </Box>
+                ))}
+            </Box>
 
-      <Card>
-        <Tabs
-          value={tabs.value}
-          onChange={tabs.onChange}
-          sx={[
-            (theme) => ({
-              px: 3,
-              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }),
-          ]}
-        >
-          {[
-            { value: 'description', label: 'Description' },
-            //{ value: 'reviews', label: `Reviews (${product?.reviews?.length})` },
-          ].map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} />
-          ))}
-        </Tabs>
+            <Card>
+                <Tabs
+                    value={tabs.value}
+                    onChange={tabs.onChange}
+                    sx={[
+                        (theme) => ({
+                            px: 3,
+                            boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+                        }),
+                    ]}
+                >
+                    {[
+                        { value: 'description', label: 'Description' },
+                        //{ value: 'reviews', label: `Reviews (${product?.reviews?.length})` },
+                    ].map((tab) => (
+                        <Tab key={tab.value} value={tab.value} label={tab.label} />
+                    ))}
+                </Tabs>
 
-        {tabs.value === 'description' && (
-          <ProductDetailsDescription description={product?.description ?? ''} />
-        )}
+                {tabs.value === 'description' && (
+                    <ProductDetailsDescription description={product?.description ?? ''} />
+                )}
 
-        {tabs.value === 'reviews' && (
-          <ProductDetailsReview
-            ratings={product?.ratings ?? []}
-            reviews={product?.reviews ?? []}
-            totalRatings={product?.totalRatings ?? 0}
-            totalReviews={product?.totalReviews ?? 0}
-          />
-        )}
-      </Card>
-    </DashboardContent>
-  );
+                {tabs.value === 'reviews' && (
+                    <ProductDetailsReview
+                        ratings={product?.ratings ?? []}
+                        reviews={product?.reviews ?? []}
+                        totalRatings={product?.totalRatings ?? 0}
+                        totalReviews={product?.totalReviews ?? 0}
+                    />
+                )}
+            </Card>
+        </DashboardContent>
+    );
 }

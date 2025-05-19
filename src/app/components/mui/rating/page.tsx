@@ -9,5 +9,5 @@ import { RatingView } from 'src/sections/_examples/mui/rating-view';
 export const metadata: Metadata = { title: `Rating | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <RatingView />;
+    return <RatingView />;
 }

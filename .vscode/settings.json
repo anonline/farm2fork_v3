@@ -2,5 +2,6 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "anonline",
         "projectKey": "anonline_farm2fork_v3"
-    }
+    },
+    "prettier.tabWidth": 4
 }

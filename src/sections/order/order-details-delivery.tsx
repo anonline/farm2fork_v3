@@ -11,47 +11,56 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = {
-  delivery?: IOrderDelivery;
+    delivery?: IOrderDelivery;
 };
 
 export function OrderDetailsDelivery({ delivery }: Props) {
-  return (
-    <>
-      <CardHeader
-        title="Szállítási mód"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
-      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Szállítás módja
-          </Box>
+    return (
+        <>
+            <CardHeader
+                title="Szállítási mód"
+                action={
+                    <IconButton>
+                        <Iconify icon="solar:pen-bold" />
+                    </IconButton>
+                }
+            />
+            <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Szállítás módja
+                    </Box>
 
-          {delivery?.shipBy}
-        </Box>
+                    {delivery?.shipBy}
+                </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Speedy
-          </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Speedy
+                    </Box>
 
-          {delivery?.speedy}
-        </Box>
+                    {delivery?.speedy}
+                </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Tracking No.
-          </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Tracking No.
+                    </Box>
 
-          <Link underline="always" color="inherit">
-            {delivery?.trackingNumber}
-          </Link>
-        </Box>
-      </Stack>
-    </>
-  );
+                    <Link underline="always" color="inherit">
+                        {delivery?.trackingNumber}
+                    </Link>
+                </Box>
+            </Stack>
+        </>
+    );
 }

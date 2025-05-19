@@ -9,26 +9,26 @@ import type { ConfirmDialogProps } from './types';
 // ----------------------------------------------------------------------
 
 export function ConfirmDialog({
-  open,
-  title,
-  action,
-  content,
-  onClose,
-  ...other
+    open,
+    title,
+    action,
+    content,
+    onClose,
+    ...other
 }: ConfirmDialogProps) {
-  return (
-    <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose} {...other}>
-      <DialogTitle sx={{ pb: 2 }}>{title}</DialogTitle>
+    return (
+        <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose} {...other}>
+            <DialogTitle sx={{ pb: 2 }}>{title}</DialogTitle>
 
-      {content && <DialogContent sx={{ typography: 'body2' }}> {content} </DialogContent>}
+            {content && <DialogContent sx={{ typography: 'body2' }}> {content} </DialogContent>}
 
-      <DialogActions>
-        {action}
+            <DialogActions>
+                {action}
 
-        <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+                <Button variant="outlined" color="inherit" onClick={onClose}>
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 }

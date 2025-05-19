@@ -29,95 +29,95 @@ import type { LayoutSectionProps } from '../core/layout-section';
 type LayoutBaseProps = Pick<LayoutSectionProps, 'sx' | 'children' | 'cssVars'>;
 
 export type SimpleLayoutProps = LayoutBaseProps & {
-  layoutQuery?: Breakpoint;
-  slotProps?: {
-    header?: HeaderSectionProps;
-    main?: MainSectionProps;
-    content?: SimpleCompactContentProps & { compact?: boolean };
-  };
+    layoutQuery?: Breakpoint;
+    slotProps?: {
+        header?: HeaderSectionProps;
+        main?: MainSectionProps;
+        content?: SimpleCompactContentProps & { compact?: boolean };
+    };
 };
 
 export function SimpleLayout({
-  sx,
-  cssVars,
-  children,
-  slotProps,
-  layoutQuery = 'md',
+    sx,
+    cssVars,
+    children,
+    slotProps,
+    layoutQuery = 'md',
 }: SimpleLayoutProps) {
-  const renderHeader = () => {
-    const headerSlotProps: HeaderSectionProps['slotProps'] = { container: { maxWidth: false } };
+    const renderHeader = () => {
+        const headerSlotProps: HeaderSectionProps['slotProps'] = { container: { maxWidth: false } };
 
-    const headerSlots: HeaderSectionProps['slots'] = {
-      topArea: (
-        <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-          This is an info Alert.
-        </Alert>
-      ),
-      leftArea: <Logo />,
-      rightArea: (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-          {/** @slot Help link */}
-          <Link
-            href={paths.faqs}
-            component={RouterLink}
-            color="inherit"
-            sx={{ typography: 'subtitle2' }}
-          >
-            Need help?
-          </Link>
+        const headerSlots: HeaderSectionProps['slots'] = {
+            topArea: (
+                <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
+                    This is an info Alert.
+                </Alert>
+            ),
+            leftArea: <Logo />,
+            rightArea: (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+                    {/** @slot Help link */}
+                    <Link
+                        href={paths.faqs}
+                        component={RouterLink}
+                        color="inherit"
+                        sx={{ typography: 'subtitle2' }}
+                    >
+                        Need help?
+                    </Link>
 
-          {/** @slot Settings button */}
-          <SettingsButton />
-        </Box>
-      ),
+                    {/** @slot Settings button */}
+                    <SettingsButton />
+                </Box>
+            ),
+        };
+
+        return (
+            <HeaderSection
+                layoutQuery={layoutQuery}
+                {...slotProps?.header}
+                slots={{ ...headerSlots, ...slotProps?.header?.slots }}
+                slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
+                sx={slotProps?.header?.sx}
+            />
+        );
+    };
+
+    const renderFooter = () => null;
+
+    const renderMain = () => {
+        const { compact, ...restContentProps } = slotProps?.content ?? {};
+
+        return (
+            <MainSection {...slotProps?.main}>
+                {compact ? (
+                    <SimpleCompactContent layoutQuery={layoutQuery} {...restContentProps}>
+                        {children}
+                    </SimpleCompactContent>
+                ) : (
+                    children
+                )}
+            </MainSection>
+        );
     };
 
     return (
-      <HeaderSection
-        layoutQuery={layoutQuery}
-        {...slotProps?.header}
-        slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
-        sx={slotProps?.header?.sx}
-      />
+        <LayoutSection
+            /** **************************************
+             * @Header
+             *************************************** */
+            headerSection={renderHeader()}
+            /** **************************************
+             * @Footer
+             *************************************** */
+            footerSection={renderFooter()}
+            /** **************************************
+             * @Styles
+             *************************************** */
+            cssVars={{ '--layout-simple-content-compact-width': '448px', ...cssVars }}
+            sx={sx}
+        >
+            {renderMain()}
+        </LayoutSection>
     );
-  };
-
-  const renderFooter = () => null;
-
-  const renderMain = () => {
-    const { compact, ...restContentProps } = slotProps?.content ?? {};
-
-    return (
-      <MainSection {...slotProps?.main}>
-        {compact ? (
-          <SimpleCompactContent layoutQuery={layoutQuery} {...restContentProps}>
-            {children}
-          </SimpleCompactContent>
-        ) : (
-          children
-        )}
-      </MainSection>
-    );
-  };
-
-  return (
-    <LayoutSection
-      /** **************************************
-       * @Header
-       *************************************** */
-      headerSection={renderHeader()}
-      /** **************************************
-       * @Footer
-       *************************************** */
-      footerSection={renderFooter()}
-      /** **************************************
-       * @Styles
-       *************************************** */
-      cssVars={{ '--layout-simple-content-compact-width': '448px', ...cssVars }}
-      sx={sx}
-    >
-      {renderMain()}
-    </LayoutSection>
-  );
 }

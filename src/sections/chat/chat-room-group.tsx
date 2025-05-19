@@ -15,61 +15,65 @@ import { ChatRoomParticipantDialog } from './chat-room-participant-dialog';
 // ----------------------------------------------------------------------
 
 type Props = {
-  participants: IChatParticipant[];
+    participants: IChatParticipant[];
 };
 
 export function ChatRoomGroup({ participants }: Props) {
-  const collapse = useBoolean(true);
+    const collapse = useBoolean(true);
 
-  const [selected, setSelected] = useState<IChatParticipant | null>(null);
+    const [selected, setSelected] = useState<IChatParticipant | null>(null);
 
-  const handleOpen = useCallback((participant: IChatParticipant) => {
-    setSelected(participant);
-  }, []);
+    const handleOpen = useCallback((participant: IChatParticipant) => {
+        setSelected(participant);
+    }, []);
 
-  const handleClose = useCallback(() => {
-    setSelected(null);
-  }, []);
+    const handleClose = useCallback(() => {
+        setSelected(null);
+    }, []);
 
-  const totalParticipants = participants.length;
+    const totalParticipants = participants.length;
 
-  const renderList = () => (
-    <>
-      {participants.map((participant) => (
-        <ListItemButton key={participant.id} onClick={() => handleOpen(participant)}>
-          <Badge variant={participant.status} badgeContent="">
-            <Avatar alt={participant.name} src={participant.avatarUrl} />
-          </Badge>
+    const renderList = () => (
+        <>
+            {participants.map((participant) => (
+                <ListItemButton key={participant.id} onClick={() => handleOpen(participant)}>
+                    <Badge variant={participant.status} badgeContent="">
+                        <Avatar alt={participant.name} src={participant.avatarUrl} />
+                    </Badge>
 
-          <ListItemText
-            primary={participant.name}
-            secondary={participant.role}
-            slotProps={{
-              primary: { noWrap: true },
-              secondary: { noWrap: true, sx: { typography: 'caption' } },
-            }}
-            sx={{ ml: 2 }}
-          />
-        </ListItemButton>
-      ))}
-    </>
-  );
+                    <ListItemText
+                        primary={participant.name}
+                        secondary={participant.role}
+                        slotProps={{
+                            primary: { noWrap: true },
+                            secondary: { noWrap: true, sx: { typography: 'caption' } },
+                        }}
+                        sx={{ ml: 2 }}
+                    />
+                </ListItemButton>
+            ))}
+        </>
+    );
 
-  return (
-    <>
-      <CollapseButton
-        selected={collapse.value}
-        disabled={!totalParticipants}
-        onClick={collapse.onToggle}
-      >
-        {`In room (${totalParticipants})`}
-      </CollapseButton>
+    return (
+        <>
+            <CollapseButton
+                selected={collapse.value}
+                disabled={!totalParticipants}
+                onClick={collapse.onToggle}
+            >
+                {`In room (${totalParticipants})`}
+            </CollapseButton>
 
-      <Collapse in={collapse.value}>{renderList()}</Collapse>
+            <Collapse in={collapse.value}>{renderList()}</Collapse>
 
-      {selected && (
-        <ChatRoomParticipantDialog participant={selected} open={!!selected} onClose={handleClose} />
-      )}
-    </>
-  );
+            {selected && (
+                <ChatRoomParticipantDialog
+                    participant={selected}
+                    open={!!selected}
+                    onClose={handleClose}
+                />
+            )}
+        </>
+    );
 }

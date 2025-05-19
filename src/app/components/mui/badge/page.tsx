@@ -9,5 +9,5 @@ import { BadgeView } from 'src/sections/_examples/mui/badge-view';
 export const metadata: Metadata = { title: `Badge | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <BadgeView />;
+    return <BadgeView />;
 }

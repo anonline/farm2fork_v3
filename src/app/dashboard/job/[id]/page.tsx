@@ -10,15 +10,15 @@ import { JobDetailsView } from 'src/sections/job/view';
 export const metadata: Metadata = { title: `Job details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+    const { id } = await params;
 
-  const currentJob = _jobs.find((job) => job.id === id);
+    const currentJob = _jobs.find((job) => job.id === id);
 
-  return <JobDetailsView job={currentJob} />;
+    return <JobDetailsView job={currentJob} />;
 }
 
 // ----------------------------------------------------------------------

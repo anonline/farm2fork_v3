@@ -10,22 +10,22 @@ import { NavHorizontal } from './nav-horizontal';
 // ----------------------------------------------------------------------
 
 const DEMO_COMPONENTS = [
-  { name: 'Basic', component: <NavBasic /> },
-  { name: 'Vertical', component: <NavVertical /> },
-  { name: 'Mini', component: <NavMini /> },
-  { name: 'Horizontal', component: <NavHorizontal /> },
-  { name: 'Data from API', component: <NavAPI /> },
+    { name: 'Basic', component: <NavBasic /> },
+    { name: 'Vertical', component: <NavVertical /> },
+    { name: 'Mini', component: <NavMini /> },
+    { name: 'Horizontal', component: <NavHorizontal /> },
+    { name: 'Data from API', component: <NavAPI /> },
 ];
 
 // ----------------------------------------------------------------------
 
 export function NavigationBarView() {
-  return (
-    <ComponentLayout
-      sectionData={DEMO_COMPONENTS}
-      heroProps={{
-        heading: 'Navigation bar',
-      }}
-    />
-  );
+    return (
+        <ComponentLayout
+            sectionData={DEMO_COMPONENTS}
+            heroProps={{
+                heading: 'Navigation bar',
+            }}
+        />
+    );
 }

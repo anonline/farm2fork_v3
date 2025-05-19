@@ -20,61 +20,61 @@ import { PaymentNewCardForm } from '../payment/payment-new-card-form';
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  cards: IPaymentCard[];
+    cards: IPaymentCard[];
 };
 
 export function AccountBillingPayment({ cards, sx, ...other }: Props) {
-  const openForm = useBoolean();
+    const openForm = useBoolean();
 
-  return (
-    <>
-      <Card sx={[{ my: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
-        <CardHeader
-          title="Payment method"
-          action={
-            <Button
-              size="small"
-              color="primary"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={openForm.onTrue}
-            >
-              New card
-            </Button>
-          }
-        />
+    return (
+        <>
+            <Card sx={[{ my: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
+                <CardHeader
+                    title="Payment method"
+                    action={
+                        <Button
+                            size="small"
+                            color="primary"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            onClick={openForm.onTrue}
+                        >
+                            New card
+                        </Button>
+                    }
+                />
 
-        <Box
-          sx={{
-            p: 3,
-            rowGap: 2.5,
-            columnGap: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-          }}
-        >
-          {cards.map((card) => (
-            <PaymentCardItem key={card.id} card={card} />
-          ))}
-        </Box>
-      </Card>
+                <Box
+                    sx={{
+                        p: 3,
+                        rowGap: 2.5,
+                        columnGap: 2,
+                        display: 'grid',
+                        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+                    }}
+                >
+                    {cards.map((card) => (
+                        <PaymentCardItem key={card.id} card={card} />
+                    ))}
+                </Box>
+            </Card>
 
-      <Dialog fullWidth maxWidth="xs" open={openForm.value} onClose={openForm.onFalse}>
-        <DialogTitle> Add new card </DialogTitle>
+            <Dialog fullWidth maxWidth="xs" open={openForm.value} onClose={openForm.onFalse}>
+                <DialogTitle> Add new card </DialogTitle>
 
-        <DialogContent sx={{ overflow: 'unset' }}>
-          <PaymentNewCardForm />
-        </DialogContent>
+                <DialogContent sx={{ overflow: 'unset' }}>
+                    <PaymentNewCardForm />
+                </DialogContent>
 
-        <DialogActions>
-          <Button color="inherit" variant="outlined" onClick={openForm.onFalse}>
-            Cancel
-          </Button>
+                <DialogActions>
+                    <Button color="inherit" variant="outlined" onClick={openForm.onFalse}>
+                        Cancel
+                    </Button>
 
-          <Button color="inherit" variant="contained" onClick={openForm.onFalse}>
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
+                    <Button color="inherit" variant="contained" onClick={openForm.onFalse}>
+                        Add
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
 }

@@ -5,9 +5,9 @@ import { PostDetailsSkeleton } from 'src/sections/blog/post-skeleton';
 // ----------------------------------------------------------------------
 
 export default function Loading() {
-  return (
-    <DashboardContent maxWidth={false} disablePadding>
-      <PostDetailsSkeleton />
-    </DashboardContent>
-  );
+    return (
+        <DashboardContent maxWidth={false} disablePadding>
+            <PostDetailsSkeleton />
+        </DashboardContent>
+    );
 }

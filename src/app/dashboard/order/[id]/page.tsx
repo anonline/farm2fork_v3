@@ -10,15 +10,15 @@ import { OrderDetailsView } from 'src/sections/order/view';
 export const metadata: Metadata = { title: `Order details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
+    const { id } = await params;
 
-  const currentOrder = _orders.find((order) => order.id === id);
+    const currentOrder = _orders.find((order) => order.id === id);
 
-  return <OrderDetailsView order={currentOrder} />;
+    return <OrderDetailsView order={currentOrder} />;
 }
 
 // ----------------------------------------------------------------------

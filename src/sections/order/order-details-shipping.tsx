@@ -10,44 +10,52 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = {
-  shippingAddress?: IOrderShippingAddress;
+    shippingAddress?: IOrderShippingAddress;
 };
 
 export function OrderDetailsShipping({ shippingAddress }: Props) {
-  return (
-    <>
-      <CardHeader
-        title="Szállítási adatok"
-        action={
-          <IconButton>
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        }
-      />
-      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        <Box sx={{ display: 'flex' }}>
-          <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Cím
-          </Box>
+    return (
+        <>
+            <CardHeader
+                title="Szállítási adatok"
+                action={
+                    <IconButton>
+                        <Iconify icon="solar:pen-bold" />
+                    </IconButton>
+                }
+            />
+            <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
+                <Box sx={{ display: 'flex' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Cím
+                    </Box>
 
-          {shippingAddress?.fullAddress}
-        </Box>
+                    {shippingAddress?.fullAddress}
+                </Box>
 
-        <Box sx={{ display: 'flex' }}>
-          <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Telefonszám
-          </Box>
+                <Box sx={{ display: 'flex' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Telefonszám
+                    </Box>
 
-          {shippingAddress?.phoneNumber}
-        </Box>
-        <Box sx={{ display: 'flex' }}>
-          <Box component="span" sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}>
-            Megjegyzés
-          </Box>
-
-          -
-        </Box>
-      </Stack>
-    </>
-  );
+                    {shippingAddress?.phoneNumber}
+                </Box>
+                <Box sx={{ display: 'flex' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Megjegyzés
+                    </Box>
+                    -
+                </Box>
+            </Stack>
+        </>
+    );
 }

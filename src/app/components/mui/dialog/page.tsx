@@ -9,5 +9,5 @@ import { DialogView } from 'src/sections/_examples/mui/dialog-view';
 export const metadata: Metadata = { title: `Dialog | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <DialogView />;
+    return <DialogView />;
 }

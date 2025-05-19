@@ -13,72 +13,76 @@ import { Map, MapPopup, MapControls } from 'src/components/map';
 // ----------------------------------------------------------------------
 
 const countiesLayer = (theme: Theme): Omit<FillLayerSpecification, 'source'> => ({
-  id: 'counties',
-  type: 'fill',
-  'source-layer': 'original',
-  paint: {
-    'fill-outline-color': theme.palette.grey[900],
-    'fill-color': theme.palette.grey[900],
-    'fill-opacity': 0.12,
-  },
+    id: 'counties',
+    type: 'fill',
+    'source-layer': 'original',
+    paint: {
+        'fill-outline-color': theme.palette.grey[900],
+        'fill-color': theme.palette.grey[900],
+        'fill-opacity': 0.12,
+    },
 });
 
 const highlightLayer = (theme: Theme): FillLayerSpecification => ({
-  id: 'counties-highlighted',
-  type: 'fill',
-  source: 'counties',
-  'source-layer': 'original',
-  paint: {
-    'fill-outline-color': theme.palette.error.main,
-    'fill-color': theme.palette.error.main,
-    'fill-opacity': 0.48,
-  },
+    id: 'counties-highlighted',
+    type: 'fill',
+    source: 'counties',
+    'source-layer': 'original',
+    paint: {
+        'fill-outline-color': theme.palette.error.main,
+        'fill-color': theme.palette.error.main,
+        'fill-opacity': 0.48,
+    },
 });
 
 export function MapHighlightByFilter({ sx, ...other }: MapProps) {
-  const theme = useTheme();
+    const theme = useTheme();
 
-  const [hoverInfo, setHoverInfo] = useState<{
-    countyName: string;
-    longitude: number;
-    latitude: number;
-  } | null>(null);
+    const [hoverInfo, setHoverInfo] = useState<{
+        countyName: string;
+        longitude: number;
+        latitude: number;
+    } | null>(null);
 
-  const onHover = useCallback((event: MapMouseEvent) => {
-    const county = event.features && event.features[0];
+    const onHover = useCallback((event: MapMouseEvent) => {
+        const county = event.features && event.features[0];
 
-    setHoverInfo({
-      longitude: event.lngLat.lng,
-      latitude: event.lngLat.lat,
-      countyName: county && county.properties?.COUNTY,
-    });
-  }, []);
+        setHoverInfo({
+            longitude: event.lngLat.lng,
+            latitude: event.lngLat.lat,
+            countyName: county && county.properties?.COUNTY,
+        });
+    }, []);
 
-  const selectedCounty = (hoverInfo && hoverInfo.countyName) || '';
+    const selectedCounty = (hoverInfo && hoverInfo.countyName) || '';
 
-  const filter: any = useMemo(() => ['in', 'COUNTY', selectedCounty], [selectedCounty]);
+    const filter: any = useMemo(() => ['in', 'COUNTY', selectedCounty], [selectedCounty]);
 
-  return (
-    <Map
-      initialViewState={{ latitude: 38.88, longitude: -98, zoom: 3 }}
-      minZoom={2}
-      onMouseMove={onHover}
-      interactiveLayerIds={['counties']}
-      sx={sx}
-      {...other}
-    >
-      <MapControls />
+    return (
+        <Map
+            initialViewState={{ latitude: 38.88, longitude: -98, zoom: 3 }}
+            minZoom={2}
+            onMouseMove={onHover}
+            interactiveLayerIds={['counties']}
+            sx={sx}
+            {...other}
+        >
+            <MapControls />
 
-      <Source type="vector" url="mapbox://mapbox.82pkq93d">
-        <Layer beforeId="waterway-label" {...countiesLayer(theme)} />
-        <Layer beforeId="waterway-label" {...highlightLayer(theme)} filter={filter} />
-      </Source>
+            <Source type="vector" url="mapbox://mapbox.82pkq93d">
+                <Layer beforeId="waterway-label" {...countiesLayer(theme)} />
+                <Layer beforeId="waterway-label" {...highlightLayer(theme)} filter={filter} />
+            </Source>
 
-      {selectedCounty && hoverInfo && (
-        <MapPopup longitude={hoverInfo.longitude} latitude={hoverInfo.latitude} closeButton={false}>
-          <Typography variant="body2">{selectedCounty}</Typography>
-        </MapPopup>
-      )}
-    </Map>
-  );
+            {selectedCounty && hoverInfo && (
+                <MapPopup
+                    longitude={hoverInfo.longitude}
+                    latitude={hoverInfo.latitude}
+                    closeButton={false}
+                >
+                    <Typography variant="body2">{selectedCounty}</Typography>
+                </MapPopup>
+            )}
+        </Map>
+    );
 }

@@ -13,24 +13,24 @@ import { InvoiceNewEditForm } from '../invoice-new-edit-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-  invoice?: IInvoice;
+    invoice?: IInvoice;
 };
 
 export function InvoiceEditView({ invoice }: Props) {
-  return (
-    <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Edit"
-        backHref={paths.dashboard.invoice.root}
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Invoice', href: paths.dashboard.invoice.root },
-          { name: invoice?.invoiceNumber },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
+    return (
+        <DashboardContent>
+            <CustomBreadcrumbs
+                heading="Edit"
+                backHref={paths.dashboard.invoice.root}
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Invoice', href: paths.dashboard.invoice.root },
+                    { name: invoice?.invoiceNumber },
+                ]}
+                sx={{ mb: { xs: 3, md: 5 } }}
+            />
 
-      <InvoiceNewEditForm currentInvoice={invoice} />
-    </DashboardContent>
-  );
+            <InvoiceNewEditForm currentInvoice={invoice} />
+        </DashboardContent>
+    );
 }

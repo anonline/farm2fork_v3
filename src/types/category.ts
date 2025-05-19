@@ -1,6 +1,4 @@
-export type ICategoryTableFilter = {
-
-};
+export type ICategoryTableFilter = {};
 
 export type ICategoryItem = {
     id: number;
@@ -13,4 +11,4 @@ export type ICategoryItem = {
     enabled: boolean;
     Parent: ICategoryItem | null;
     children: ICategoryItem[];
-}
+};

@@ -20,107 +20,107 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: UseSetStateReturn<IProducerTableFilters>;
-  options: {
-    bios: { value: string; label: string }[];
-  };
+    filters: UseSetStateReturn<IProducerTableFilters>;
+    options: {
+        bios: { value: string; label: string }[];
+    };
 };
 
 export function ProducerTableToolbar({ filters, options }: Props) {
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const { state: currentFilters, setState: updateFilters } = filters;
+    const { state: currentFilters, setState: updateFilters } = filters;
 
-  const [bio, setBio] = useState(currentFilters.bio);
+    const [bio, setBio] = useState(currentFilters.bio);
 
-  const handleChangeBio = useCallback((event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value },
-    } = event;
+    const handleChangeBio = useCallback((event: SelectChangeEvent<string[]>) => {
+        const {
+            target: { value },
+        } = event;
 
-    setBio(typeof value === 'string' ? value.split(',') : value);
-  }, []);
+        setBio(typeof value === 'string' ? value.split(',') : value);
+    }, []);
 
-  const handleFilterBio = useCallback(() => {
-    updateFilters({ bio });
-  }, [bio, updateFilters]);
+    const handleFilterBio = useCallback(() => {
+        updateFilters({ bio });
+    }, [bio, updateFilters]);
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
-    >
-      <MenuList>
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Nyomtatás
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:export-bold" />
-          Export
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
-  return (
-    <>
-      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-        <InputLabel htmlFor="filter-bio-select">Bio</InputLabel>
-        <Select
-          multiple
-          value={bio}
-          onChange={handleChangeBio}
-          onClose={handleFilterBio}
-          input={<OutlinedInput label="Bio" />}
-          renderValue={(selected) => selected.map((value) => value).join(', ')}
-          inputProps={{ id: 'filter-bio-select' }}
-          sx={{ textTransform: 'capitalize' }}
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+            slotProps={{ arrow: { placement: 'right-top' } }}
         >
-          {options.bios.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Checkbox
-                disableRipple
-                size="small"
-                checked={bio.includes(option.value)}
-                slotProps={{
-                  input: {
-                    id: `${option.value}-checkbox`,
-                    'aria-label': `${option.label} checkbox`,
-                  },
-                }}
-              />
-              {option.label}
-            </MenuItem>
-          ))}
+            <MenuList>
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:printer-minimalistic-bold" />
+                    Nyomtatás
+                </MenuItem>
 
-          <MenuItem
-            disableGutters
-            disableTouchRipple
-            onClick={handleFilterBio}
-            sx={[
-              (theme) => ({
-                justifyContent: 'center',
-                fontWeight: theme.typography.button,
-                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
-              }),
-            ]}
-          >
-            Alkalmaz
-          </MenuItem>
-        </Select>
-      </FormControl>
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:import-bold" />
+                    Import
+                </MenuItem>
 
-      {renderMenuActions()}
-    </>
-  );
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:export-bold" />
+                    Export
+                </MenuItem>
+            </MenuList>
+        </CustomPopover>
+    );
+
+    return (
+        <>
+            <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+                <InputLabel htmlFor="filter-bio-select">Bio</InputLabel>
+                <Select
+                    multiple
+                    value={bio}
+                    onChange={handleChangeBio}
+                    onClose={handleFilterBio}
+                    input={<OutlinedInput label="Bio" />}
+                    renderValue={(selected) => selected.map((value) => value).join(', ')}
+                    inputProps={{ id: 'filter-bio-select' }}
+                    sx={{ textTransform: 'capitalize' }}
+                >
+                    {options.bios.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            <Checkbox
+                                disableRipple
+                                size="small"
+                                checked={bio.includes(option.value)}
+                                slotProps={{
+                                    input: {
+                                        id: `${option.value}-checkbox`,
+                                        'aria-label': `${option.label} checkbox`,
+                                    },
+                                }}
+                            />
+                            {option.label}
+                        </MenuItem>
+                    ))}
+
+                    <MenuItem
+                        disableGutters
+                        disableTouchRipple
+                        onClick={handleFilterBio}
+                        sx={[
+                            (theme) => ({
+                                justifyContent: 'center',
+                                fontWeight: theme.typography.button,
+                                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+                            }),
+                        ]}
+                    >
+                        Alkalmaz
+                    </MenuItem>
+                </Select>
+            </FormControl>
+
+            {renderMenuActions()}
+        </>
+    );
 }

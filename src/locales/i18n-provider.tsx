@@ -23,33 +23,33 @@ let lng;
  * const lng = getStorage('i18nextLng')
  */
 if (CONFIG.isStaticExport) {
-  lng = getStorage('i18nextLng', fallbackLng) as string;
+    lng = getStorage('i18nextLng', fallbackLng) as string;
 }
 
 const init = CONFIG.isStaticExport
-  ? { ...i18nOptions(lng), detection: { caches: ['localStorage'] } }
-  : { ...i18nOptions(), detection: { caches: ['cookie'] } };
+    ? { ...i18nOptions(lng), detection: { caches: ['localStorage'] } }
+    : { ...i18nOptions(), detection: { caches: ['cookie'] } };
 
 i18next
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .use(resourcesToBackend((lang: string, ns: string) => import(`./langs/${lang}/${ns}.json`)))
-  .init(init);
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .use(resourcesToBackend((lang: string, ns: string) => import(`./langs/${lang}/${ns}.json`)))
+    .init(init);
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  lang?: LanguageValue | undefined;
-  children: React.ReactNode;
+    lang?: LanguageValue | undefined;
+    children: React.ReactNode;
 };
 
 export function I18nProvider({ lang, children }: Props) {
-  useMemo(() => {
-    if (lang) {
-      i18next.changeLanguage(lang);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    useMemo(() => {
+        if (lang) {
+            i18next.changeLanguage(lang);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  return <Provider i18n={i18next}>{children}</Provider>;
+    return <Provider i18n={i18next}>{children}</Provider>;
 }

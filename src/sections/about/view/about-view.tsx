@@ -9,17 +9,17 @@ import { AboutTestimonials } from '../about-testimonials';
 // ----------------------------------------------------------------------
 
 export function AboutView() {
-  return (
-    <>
-      <AboutHero />
+    return (
+        <>
+            <AboutHero />
 
-      <AboutWhat />
+            <AboutWhat />
 
-      <AboutVision />
+            <AboutVision />
 
-      <AboutTeam />
+            <AboutTeam />
 
-      <AboutTestimonials />
-    </>
-  );
+            <AboutTestimonials />
+        </>
+    );
 }

@@ -28,142 +28,149 @@ import { ColorPicker } from 'src/components/color-utils';
 export type EventSchemaType = zod.infer<typeof EventSchema>;
 
 export const EventSchema = zod.object({
-  title: zod
-    .string()
-    .min(1, { message: 'Title is required!' })
-    .max(100, { message: 'Title must be less than 100 characters' }),
-  description: zod
-    .string()
-    .min(1, { message: 'Description is required!' })
-    .min(50, { message: 'Description must be at least 50 characters' }),
-  // Not required
-  color: zod.string(),
-  allDay: zod.boolean(),
-  start: zod.union([zod.string(), zod.number()]),
-  end: zod.union([zod.string(), zod.number()]),
+    title: zod
+        .string()
+        .min(1, { message: 'Title is required!' })
+        .max(100, { message: 'Title must be less than 100 characters' }),
+    description: zod
+        .string()
+        .min(1, { message: 'Description is required!' })
+        .min(50, { message: 'Description must be at least 50 characters' }),
+    // Not required
+    color: zod.string(),
+    allDay: zod.boolean(),
+    start: zod.union([zod.string(), zod.number()]),
+    end: zod.union([zod.string(), zod.number()]),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  colorOptions: string[];
-  onClose: () => void;
-  currentEvent?: ICalendarEvent;
+    colorOptions: string[];
+    onClose: () => void;
+    currentEvent?: ICalendarEvent;
 };
 
 export function CalendarForm({ currentEvent, colorOptions, onClose }: Props) {
-  const methods = useForm<EventSchemaType>({
-    mode: 'all',
-    resolver: zodResolver(EventSchema),
-    defaultValues: currentEvent,
-  });
+    const methods = useForm<EventSchemaType>({
+        mode: 'all',
+        resolver: zodResolver(EventSchema),
+        defaultValues: currentEvent,
+    });
 
-  const {
-    reset,
-    watch,
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    const {
+        reset,
+        watch,
+        control,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
 
-  const values = watch();
+    const values = watch();
 
-  const dateError = fIsAfter(values.start, values.end);
+    const dateError = fIsAfter(values.start, values.end);
 
-  const onSubmit = handleSubmit(async (data) => {
-    const eventData = {
-      id: currentEvent?.id ? currentEvent?.id : uuidv4(),
-      color: data?.color,
-      title: data?.title,
-      allDay: data?.allDay,
-      description: data?.description,
-      end: data?.end,
-      start: data?.start,
-    };
+    const onSubmit = handleSubmit(async (data) => {
+        const eventData = {
+            id: currentEvent?.id ? currentEvent?.id : uuidv4(),
+            color: data?.color,
+            title: data?.title,
+            allDay: data?.allDay,
+            description: data?.description,
+            end: data?.end,
+            start: data?.start,
+        };
 
-    try {
-      if (!dateError) {
-        if (currentEvent?.id) {
-          await updateEvent(eventData);
-          toast.success('Update success!');
-        } else {
-          await createEvent(eventData);
-          toast.success('Create success!');
+        try {
+            if (!dateError) {
+                if (currentEvent?.id) {
+                    await updateEvent(eventData);
+                    toast.success('Update success!');
+                } else {
+                    await createEvent(eventData);
+                    toast.success('Create success!');
+                }
+                onClose();
+                reset();
+            }
+        } catch (error) {
+            console.error(error);
         }
-        onClose();
-        reset();
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  });
+    });
 
-  const onDelete = useCallback(async () => {
-    try {
-      await deleteEvent(`${currentEvent?.id}`);
-      toast.success('Delete success!');
-      onClose();
-    } catch (error) {
-      console.error(error);
-    }
-  }, [currentEvent?.id, onClose]);
+    const onDelete = useCallback(async () => {
+        try {
+            await deleteEvent(`${currentEvent?.id}`);
+            toast.success('Delete success!');
+            onClose();
+        } catch (error) {
+            console.error(error);
+        }
+    }, [currentEvent?.id, onClose]);
 
-  return (
-    <Form methods={methods} onSubmit={onSubmit}>
-      <Scrollbar sx={{ p: 3, bgcolor: 'background.neutral' }}>
-        <Stack spacing={3}>
-          <Field.Text name="title" label="Title" />
+    return (
+        <Form methods={methods} onSubmit={onSubmit}>
+            <Scrollbar sx={{ p: 3, bgcolor: 'background.neutral' }}>
+                <Stack spacing={3}>
+                    <Field.Text name="title" label="Title" />
 
-          <Field.Text name="description" label="Description" multiline rows={3} />
+                    <Field.Text name="description" label="Description" multiline rows={3} />
 
-          <Field.Switch name="allDay" label="All day" />
+                    <Field.Switch name="allDay" label="All day" />
 
-          <Field.MobileDateTimePicker name="start" label="Start date" />
+                    <Field.MobileDateTimePicker name="start" label="Start date" />
 
-          <Field.MobileDateTimePicker
-            name="end"
-            label="End date"
-            slotProps={{
-              textField: {
-                error: dateError,
-                helperText: dateError ? 'End date must be later than start date' : null,
-              },
-            }}
-          />
+                    <Field.MobileDateTimePicker
+                        name="end"
+                        label="End date"
+                        slotProps={{
+                            textField: {
+                                error: dateError,
+                                helperText: dateError
+                                    ? 'End date must be later than start date'
+                                    : null,
+                            },
+                        }}
+                    />
 
-          <Controller
-            name="color"
-            control={control}
-            render={({ field }) => (
-              <ColorPicker
-                value={field.value as string}
-                onChange={(color) => field.onChange(color as string)}
-                options={colorOptions}
-              />
-            )}
-          />
-        </Stack>
-      </Scrollbar>
+                    <Controller
+                        name="color"
+                        control={control}
+                        render={({ field }) => (
+                            <ColorPicker
+                                value={field.value as string}
+                                onChange={(color) => field.onChange(color as string)}
+                                options={colorOptions}
+                            />
+                        )}
+                    />
+                </Stack>
+            </Scrollbar>
 
-      <DialogActions sx={{ flexShrink: 0 }}>
-        {!!currentEvent?.id && (
-          <Tooltip title="Delete event">
-            <IconButton color="error" onClick={onDelete}>
-              <Iconify icon="solar:trash-bin-trash-bold" />
-            </IconButton>
-          </Tooltip>
-        )}
+            <DialogActions sx={{ flexShrink: 0 }}>
+                {!!currentEvent?.id && (
+                    <Tooltip title="Delete event">
+                        <IconButton color="error" onClick={onDelete}>
+                            <Iconify icon="solar:trash-bin-trash-bold" />
+                        </IconButton>
+                    </Tooltip>
+                )}
 
-        <Box sx={{ flexGrow: 1 }} />
+                <Box sx={{ flexGrow: 1 }} />
 
-        <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancel
-        </Button>
+                <Button variant="outlined" color="inherit" onClick={onClose}>
+                    Cancel
+                </Button>
 
-        <Button type="submit" variant="contained" loading={isSubmitting} disabled={dateError}>
-          Save changes
-        </Button>
-      </DialogActions>
-    </Form>
-  );
+                <Button
+                    type="submit"
+                    variant="contained"
+                    loading={isSubmitting}
+                    disabled={dateError}
+                >
+                    Save changes
+                </Button>
+            </DialogActions>
+        </Form>
+    );
 }

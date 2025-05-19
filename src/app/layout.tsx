@@ -29,92 +29,96 @@ import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase'
 // ----------------------------------------------------------------------
 
 const AuthProvider =
-  (CONFIG.auth.method === 'amplify' && AmplifyAuthProvider) ||
-  (CONFIG.auth.method === 'firebase' && FirebaseAuthProvider) ||
-  (CONFIG.auth.method === 'supabase' && SupabaseAuthProvider) ||
-  (CONFIG.auth.method === 'auth0' && Auth0AuthProvider) ||
-  JwtAuthProvider;
+    (CONFIG.auth.method === 'amplify' && AmplifyAuthProvider) ||
+    (CONFIG.auth.method === 'firebase' && FirebaseAuthProvider) ||
+    (CONFIG.auth.method === 'supabase' && SupabaseAuthProvider) ||
+    (CONFIG.auth.method === 'auth0' && Auth0AuthProvider) ||
+    JwtAuthProvider;
 
 export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  themeColor: primary.main,
+    width: 'device-width',
+    initialScale: 1,
+    themeColor: primary.main,
 };
 
 export const metadata: Metadata = {
-  icons: [
-    {
-      rel: 'icon',
-      url: `${CONFIG.assetsDir}/favicon.ico`,
-    },
-  ],
+    icons: [
+        {
+            rel: 'icon',
+            url: `${CONFIG.assetsDir}/favicon.ico`,
+        },
+    ],
 };
 
 // ----------------------------------------------------------------------
 
 type RootLayoutProps = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 async function getAppConfig() {
-  if (CONFIG.isStaticExport) {
-    return {
-      lang: 'en',
-      i18nLang: undefined,
-      cookieSettings: undefined,
-      dir: defaultSettings.direction,
-    };
-  } else {
-    const [lang, settings] = await Promise.all([detectLanguage(), detectSettings()]);
+    if (CONFIG.isStaticExport) {
+        return {
+            lang: 'en',
+            i18nLang: undefined,
+            cookieSettings: undefined,
+            dir: defaultSettings.direction,
+        };
+    } else {
+        const [lang, settings] = await Promise.all([detectLanguage(), detectSettings()]);
 
-    return {
-      lang: lang ?? 'en',
-      i18nLang: lang ?? 'en',
-      cookieSettings: settings,
-      dir: settings.direction,
-    };
-  }
+        return {
+            lang: lang ?? 'en',
+            i18nLang: lang ?? 'en',
+            cookieSettings: settings,
+            dir: settings.direction,
+        };
+    }
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const appConfig = await getAppConfig();
+    const appConfig = await getAppConfig();
 
-  return (
-    <html lang={appConfig.lang} dir={appConfig.dir} suppressHydrationWarning>
-      <body>
-        <InitColorSchemeScript
-          modeStorageKey={themeConfig.modeStorageKey}
-          attribute={themeConfig.cssVariables.colorSchemeSelector}
-          defaultMode={themeConfig.enableSystemMode ? 'system' : themeConfig.defaultMode}
-        />
-
-        <I18nProvider lang={appConfig.i18nLang}>
-          <AuthProvider>
-            <SettingsProvider
-              defaultSettings={defaultSettings}
-              cookieSettings={appConfig.cookieSettings}
-            >
-              <LocalizationProvider>
-                <AppRouterCacheProvider options={{ key: 'css' }}>
-                  <ThemeProvider
+    return (
+        <html lang={appConfig.lang} dir={appConfig.dir} suppressHydrationWarning>
+            <body>
+                <InitColorSchemeScript
                     modeStorageKey={themeConfig.modeStorageKey}
+                    attribute={themeConfig.cssVariables.colorSchemeSelector}
                     defaultMode={themeConfig.enableSystemMode ? 'system' : themeConfig.defaultMode}
-                  >
-                    <MotionLazy>
-                      <CheckoutProvider>
-                        <Snackbar />
-                        <ProgressBar />
-                        <SettingsDrawer defaultSettings={defaultSettings} />
-                        {children}
-                      </CheckoutProvider>
-                    </MotionLazy>
-                  </ThemeProvider>
-                </AppRouterCacheProvider>
-              </LocalizationProvider>
-            </SettingsProvider>
-          </AuthProvider>
-        </I18nProvider>
-      </body>
-    </html>
-  );
+                />
+
+                <I18nProvider lang={appConfig.i18nLang}>
+                    <AuthProvider>
+                        <SettingsProvider
+                            defaultSettings={defaultSettings}
+                            cookieSettings={appConfig.cookieSettings}
+                        >
+                            <LocalizationProvider>
+                                <AppRouterCacheProvider options={{ key: 'css' }}>
+                                    <ThemeProvider
+                                        modeStorageKey={themeConfig.modeStorageKey}
+                                        defaultMode={
+                                            themeConfig.enableSystemMode
+                                                ? 'system'
+                                                : themeConfig.defaultMode
+                                        }
+                                    >
+                                        <MotionLazy>
+                                            <CheckoutProvider>
+                                                <Snackbar />
+                                                <ProgressBar />
+                                                <SettingsDrawer defaultSettings={defaultSettings} />
+                                                {children}
+                                            </CheckoutProvider>
+                                        </MotionLazy>
+                                    </ThemeProvider>
+                                </AppRouterCacheProvider>
+                            </LocalizationProvider>
+                        </SettingsProvider>
+                    </AuthProvider>
+                </I18nProvider>
+            </body>
+        </html>
+    );
 }

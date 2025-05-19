@@ -9,5 +9,5 @@ import { FormValidationView } from 'src/sections/_examples/extra/form-validation
 export const metadata: Metadata = { title: `Form validation | Components - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <FormValidationView />;
+    return <FormValidationView />;
 }

@@ -12,38 +12,38 @@ import type { ControlPanelProps } from '../control-panel';
 // ----------------------------------------------------------------------
 
 export function AnimateDialog({ options }: Pick<ControlPanelProps, 'options'>) {
-  const openDialog = useBoolean();
+    const openDialog = useBoolean();
 
-  const [selectedVariant, setSelectedVariant] = useState('slideInUp');
+    const [selectedVariant, setSelectedVariant] = useState('slideInUp');
 
-  const handleChangeVariant = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedVariant(event.target.value);
-  }, []);
+    const handleChangeVariant = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedVariant(event.target.value);
+    }, []);
 
-  return (
-    <Card sx={{ height: 640, display: 'flex' }}>
-      <Box
-        sx={{
-          p: 2.5,
-          gap: 2.5,
-          display: 'flex',
-          flex: '1 1 auto',
-          flexDirection: 'column',
-        }}
-      >
-        <ContainerView
-          open={openDialog.value}
-          onOpen={openDialog.onTrue}
-          onClose={openDialog.onFalse}
-          selectedVariant={selectedVariant}
-        />
-      </Box>
+    return (
+        <Card sx={{ height: 640, display: 'flex' }}>
+            <Box
+                sx={{
+                    p: 2.5,
+                    gap: 2.5,
+                    display: 'flex',
+                    flex: '1 1 auto',
+                    flexDirection: 'column',
+                }}
+            >
+                <ContainerView
+                    open={openDialog.value}
+                    onOpen={openDialog.onTrue}
+                    onClose={openDialog.onFalse}
+                    selectedVariant={selectedVariant}
+                />
+            </Box>
 
-      <ControlPanel
-        options={options}
-        selectedVariant={selectedVariant}
-        onChangeVariant={handleChangeVariant}
-      />
-    </Card>
-  );
+            <ControlPanel
+                options={options}
+                selectedVariant={selectedVariant}
+                onChangeVariant={handleChangeVariant}
+            />
+        </Card>
+    );
 }

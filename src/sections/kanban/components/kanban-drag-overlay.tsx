@@ -14,72 +14,77 @@ import { KanbanColumnToolBar } from '../column/kanban-column-toolbar';
 // ----------------------------------------------------------------------
 
 type KanbanDragOverlayProps = Pick<IKanban, 'tasks' | 'columns'> & {
-  sx?: SxProps<Theme>;
-  activeId: UniqueIdentifier | null;
+    sx?: SxProps<Theme>;
+    activeId: UniqueIdentifier | null;
 };
 
 const dropAnimation: DropAnimation = {
-  sideEffects: defaultDropAnimationSideEffects({
-    styles: {
-      active: {
-        opacity: '0.5',
-      },
-    },
-  }),
+    sideEffects: defaultDropAnimationSideEffects({
+        styles: {
+            active: {
+                opacity: '0.5',
+            },
+        },
+    }),
 };
 
 export function KanbanDragOverlay({ columns, tasks, activeId, sx }: KanbanDragOverlayProps) {
-  const key = useId();
+    const key = useId();
 
-  const columnIds = columns.map((column) => column.id);
-  const activeColumn = columns.find((column) => column.id === activeId) as IKanbanColumn;
+    const columnIds = columns.map((column) => column.id);
+    const activeColumn = columns.find((column) => column.id === activeId) as IKanbanColumn;
 
-  const allTasks = Object.values(tasks).flat();
-  const activeTask = allTasks.find((task) => task.id === activeId) as IKanbanTask;
+    const allTasks = Object.values(tasks).flat();
+    const activeTask = allTasks.find((task) => task.id === activeId) as IKanbanTask;
 
-  return (
-    <Portal>
-      <DndDragOverlay adjustScale={false} dropAnimation={dropAnimation}>
-        {activeId != null ? (
-          columnIds.includes(activeId) ? (
-            <ColumnOverlay key={key} column={activeColumn} tasks={tasks[activeId]} sx={sx} />
-          ) : (
-            <TaskItemOverlay key={key} task={activeTask} sx={sx} />
-          )
-        ) : null}
-      </DndDragOverlay>
-    </Portal>
-  );
+    return (
+        <Portal>
+            <DndDragOverlay adjustScale={false} dropAnimation={dropAnimation}>
+                {activeId != null ? (
+                    columnIds.includes(activeId) ? (
+                        <ColumnOverlay
+                            key={key}
+                            column={activeColumn}
+                            tasks={tasks[activeId]}
+                            sx={sx}
+                        />
+                    ) : (
+                        <TaskItemOverlay key={key} task={activeTask} sx={sx} />
+                    )
+                ) : null}
+            </DndDragOverlay>
+        </Portal>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type ColumnOverlayProps = {
-  column: IKanbanColumn;
-  tasks: IKanbanTask[];
-  sx?: SxProps<Theme>;
+    column: IKanbanColumn;
+    tasks: IKanbanTask[];
+    sx?: SxProps<Theme>;
 };
 
 function ColumnOverlay({ column, tasks, sx }: ColumnOverlayProps) {
-  return (
-    <ColumnBase
-      slots={{
-        header: <KanbanColumnToolBar columnName={column.name} totalTasks={tasks.length} />,
-        main: tasks.map((task) => <ItemBase key={task.id} task={task} />),
-      }}
-      stateProps={{ dragOverlay: true }}
-      sx={sx}
-    />
-  );
+    return (
+        <ColumnBase
+            slots={{
+                header: <KanbanColumnToolBar columnName={column.name} totalTasks={tasks.length} />,
+                main: tasks.map((task) => <ItemBase key={task.id} task={task} />),
+            }}
+            stateProps={{ dragOverlay: true }}
+            sx={sx}
+        />
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type TaskItemOverlayProps = {
-  task: IKanbanTask;
-  sx?: SxProps<Theme>;
+    task: IKanbanTask;
+    sx?: SxProps<Theme>;
 };
 
 function TaskItemOverlay({ task, sx }: TaskItemOverlayProps) {
-  return <ItemBase task={task} sx={sx} stateProps={{ dragOverlay: true }} />;
+    return <ItemBase task={task} sx={sx} stateProps={{ dragOverlay: true }} />;
 }

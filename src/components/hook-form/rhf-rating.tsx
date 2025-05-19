@@ -12,45 +12,45 @@ import { HelperText } from './help-text';
 // ----------------------------------------------------------------------
 
 export type RHFRatingProps = RatingProps & {
-  name: string;
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    helperText?: FormHelperTextProps;
-  };
+    name: string;
+    helperText?: React.ReactNode;
+    slotProps?: {
+        wrapper?: BoxProps;
+        helperText?: FormHelperTextProps;
+    };
 };
 
 export function RHFRating({ name, helperText, slotProps, ...other }: RHFRatingProps) {
-  const { control } = useFormContext();
+    const { control } = useFormContext();
 
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <Box
-          {...slotProps?.wrapper}
-          sx={[
-            { display: 'flex', flexDirection: 'column' },
-            ...(Array.isArray(slotProps?.wrapper?.sx)
-              ? (slotProps?.wrapper?.sx ?? [])
-              : [slotProps?.wrapper?.sx]),
-          ]}
-        >
-          <Rating
-            {...field}
-            onChange={(event, newValue) => field.onChange(Number(newValue))}
-            {...other}
-          />
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <Box
+                    {...slotProps?.wrapper}
+                    sx={[
+                        { display: 'flex', flexDirection: 'column' },
+                        ...(Array.isArray(slotProps?.wrapper?.sx)
+                            ? (slotProps?.wrapper?.sx ?? [])
+                            : [slotProps?.wrapper?.sx]),
+                    ]}
+                >
+                    <Rating
+                        {...field}
+                        onChange={(event, newValue) => field.onChange(Number(newValue))}
+                        {...other}
+                    />
 
-          <HelperText
-            {...slotProps?.helperText}
-            disableGutters
-            errorMessage={error?.message}
-            helperText={helperText}
-          />
-        </Box>
-      )}
-    />
-  );
+                    <HelperText
+                        {...slotProps?.helperText}
+                        disableGutters
+                        errorMessage={error?.message}
+                        helperText={helperText}
+                    />
+                </Box>
+            )}
+        />
+    );
 }

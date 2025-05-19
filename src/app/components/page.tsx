@@ -9,5 +9,5 @@ import { ComponentsView } from 'src/sections/_examples/view';
 export const metadata: Metadata = { title: `All components | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <ComponentsView />;
+    return <ComponentsView />;
 }

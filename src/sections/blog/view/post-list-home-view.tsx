@@ -22,69 +22,69 @@ import { PostSearch } from '../post-search';
 // ----------------------------------------------------------------------
 
 type Props = {
-  posts: IPostItem[];
+    posts: IPostItem[];
 };
 
 export function PostListHomeView({ posts }: Props) {
-  const [sortBy, setSortBy] = useState('latest');
+    const [sortBy, setSortBy] = useState('latest');
 
-  const dataFiltered = applyFilter({ inputData: posts, sortBy });
+    const dataFiltered = applyFilter({ inputData: posts, sortBy });
 
-  const renderNoData = () => <EmptyContent filled sx={{ py: 10 }} />;
+    const renderNoData = () => <EmptyContent filled sx={{ py: 10 }} />;
 
-  const isEmpty = !posts.length;
+    const isEmpty = !posts.length;
 
-  return (
-    <Container sx={{ mb: 10 }}>
-      <Typography variant="h4" sx={[{ my: { xs: 3, md: 5 } }]}>
-        Blog
-      </Typography>
+    return (
+        <Container sx={{ mb: 10 }}>
+            <Typography variant="h4" sx={[{ my: { xs: 3, md: 5 } }]}>
+                Blog
+            </Typography>
 
-      <Box
-        sx={[
-          {
-            gap: 3,
-            display: 'flex',
-            mb: { xs: 3, md: 5 },
-            justifyContent: 'space-between',
-            flexDirection: { xs: 'column', sm: 'row' },
-            alignItems: { xs: 'flex-end', sm: 'center' },
-          },
-        ]}
-      >
-        <PostSearch redirectPath={(title: string) => paths.post.details(title)} />
+            <Box
+                sx={[
+                    {
+                        gap: 3,
+                        display: 'flex',
+                        mb: { xs: 3, md: 5 },
+                        justifyContent: 'space-between',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-end', sm: 'center' },
+                    },
+                ]}
+            >
+                <PostSearch redirectPath={(title: string) => paths.post.details(title)} />
 
-        <PostSort
-          sort={sortBy}
-          onSort={(newValue: string) => setSortBy(newValue)}
-          sortOptions={POST_SORT_OPTIONS}
-        />
-      </Box>
+                <PostSort
+                    sort={sortBy}
+                    onSort={(newValue: string) => setSortBy(newValue)}
+                    sortOptions={POST_SORT_OPTIONS}
+                />
+            </Box>
 
-      {isEmpty ? renderNoData() : <PostList posts={dataFiltered} />}
-    </Container>
-  );
+            {isEmpty ? renderNoData() : <PostList posts={dataFiltered} />}
+        </Container>
+    );
 }
 
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: IPostItem[];
-  sortBy: string;
+    inputData: IPostItem[];
+    sortBy: string;
 };
 
 function applyFilter({ inputData, sortBy }: ApplyFilterProps) {
-  if (sortBy === 'latest') {
-    return orderBy(inputData, ['createdAt'], ['desc']);
-  }
+    if (sortBy === 'latest') {
+        return orderBy(inputData, ['createdAt'], ['desc']);
+    }
 
-  if (sortBy === 'oldest') {
-    return orderBy(inputData, ['createdAt'], ['asc']);
-  }
+    if (sortBy === 'oldest') {
+        return orderBy(inputData, ['createdAt'], ['asc']);
+    }
 
-  if (sortBy === 'popular') {
-    return orderBy(inputData, ['totalViews'], ['desc']);
-  }
+    if (sortBy === 'popular') {
+        return orderBy(inputData, ['totalViews'], ['desc']);
+    }
 
-  return inputData;
+    return inputData;
 }

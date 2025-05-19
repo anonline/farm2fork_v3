@@ -10,49 +10,49 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  onOpenNav: () => void;
-  onOpenMail?: () => void;
+    onOpenNav: () => void;
+    onOpenMail?: () => void;
 };
 
 export function MailHeader({ onOpenNav, onOpenMail, sx, ...other }: Props) {
-  return (
-    <Box
-      sx={[
-        {
-          py: 1,
-          mb: 1,
-          display: 'flex',
-          alignItems: 'center',
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-      {...other}
-    >
-      <IconButton onClick={onOpenNav}>
-        <Iconify icon="solar:letter-bold" />
-      </IconButton>
+    return (
+        <Box
+            sx={[
+                {
+                    py: 1,
+                    mb: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                },
+                ...(Array.isArray(sx) ? sx : [sx]),
+            ]}
+            {...other}
+        >
+            <IconButton onClick={onOpenNav}>
+                <Iconify icon="solar:letter-bold" />
+            </IconButton>
 
-      {onOpenMail && (
-        <IconButton onClick={onOpenMail}>
-          <Iconify icon="solar:chat-round-dots-bold" />
-        </IconButton>
-      )}
+            {onOpenMail && (
+                <IconButton onClick={onOpenMail}>
+                    <Iconify icon="solar:chat-round-dots-bold" />
+                </IconButton>
+            )}
 
-      <TextField
-        fullWidth
-        size="small"
-        placeholder="Search..."
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{ ml: 2 }}
-      />
-    </Box>
-  );
+            <TextField
+                fullWidth
+                size="small"
+                placeholder="Search..."
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                            </InputAdornment>
+                        ),
+                    },
+                }}
+                sx={{ ml: 2 }}
+            />
+        </Box>
+    );
 }

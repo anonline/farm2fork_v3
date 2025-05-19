@@ -9,5 +9,5 @@ import { OverviewAppView } from 'src/sections/overview/app/view';
 export const metadata: Metadata = { title: `Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <OverviewAppView />;
+    return <OverviewAppView />;
 }

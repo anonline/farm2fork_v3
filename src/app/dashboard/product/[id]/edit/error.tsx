@@ -13,29 +13,29 @@ import { EmptyContent } from 'src/components/empty-content';
 // ----------------------------------------------------------------------
 
 export default function Error({
-  error,
-  reset,
+    error,
+    reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+    error: Error & { digest?: string };
+    reset: () => void;
 }) {
-  return (
-    <DashboardContent sx={{ pt: 5 }}>
-      <EmptyContent
-        filled
-        title="Product could not be opened to edit!"
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.product.root}
-            startIcon={<Iconify width={16} icon="eva:arrow-ios-back-fill" />}
-            sx={{ mt: 3 }}
-          >
-            Back to list
-          </Button>
-        }
-        sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
-      />
-    </DashboardContent>
-  );
+    return (
+        <DashboardContent sx={{ pt: 5 }}>
+            <EmptyContent
+                filled
+                title="Product could not be opened to edit!"
+                action={
+                    <Button
+                        component={RouterLink}
+                        href={paths.dashboard.product.root}
+                        startIcon={<Iconify width={16} icon="eva:arrow-ios-back-fill" />}
+                        sx={{ mt: 3 }}
+                    >
+                        Back to list
+                    </Button>
+                }
+                sx={{ py: 10, height: 'auto', flexGrow: 'unset' }}
+            />
+        </DashboardContent>
+    );
 }

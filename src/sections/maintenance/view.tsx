@@ -11,21 +11,21 @@ import { MaintenanceIllustration } from 'src/assets/illustrations';
 // ----------------------------------------------------------------------
 
 export function MaintenanceView() {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-      <Typography variant="h3" sx={{ mb: 2 }}>
-        Website currently under maintenance
-      </Typography>
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="h3" sx={{ mb: 2 }}>
+                Website currently under maintenance
+            </Typography>
 
-      <Typography sx={{ color: 'text.secondary' }}>
-        We are currently working hard on this page!
-      </Typography>
+            <Typography sx={{ color: 'text.secondary' }}>
+                We are currently working hard on this page!
+            </Typography>
 
-      <MaintenanceIllustration sx={{ my: { xs: 5, sm: 10 } }} />
+            <MaintenanceIllustration sx={{ my: { xs: 5, sm: 10 } }} />
 
-      <Button component={RouterLink} href="/" size="large" variant="contained">
-        Go to home
-      </Button>
-    </Box>
-  );
+            <Button component={RouterLink} href="/" size="large" variant="contained">
+                Go to home
+            </Button>
+        </Box>
+    );
 }

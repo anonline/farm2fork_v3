@@ -7,9 +7,9 @@ import { AccountBillingView } from 'src/sections/account/view';
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: `Account billing settings | Dashboard - ${CONFIG.appName}`,
+    title: `Account billing settings | Dashboard - ${CONFIG.appName}`,
 };
 
 export default function Page() {
-  return <AccountBillingView />;
+    return <AccountBillingView />;
 }

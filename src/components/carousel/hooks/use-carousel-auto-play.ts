@@ -8,40 +8,40 @@ import type { UseCarouselAutoPlayReturn } from '../types';
 // ----------------------------------------------------------------------
 
 export function useCarouselAutoPlay(mainApi?: EmblaCarouselType): UseCarouselAutoPlayReturn {
-  const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
-  const onClickAutoplay = useCallback(
-    (callback: () => void) => {
-      const autoplay = mainApi?.plugins()?.autoplay;
-      if (!autoplay) return;
+    const onClickAutoplay = useCallback(
+        (callback: () => void) => {
+            const autoplay = mainApi?.plugins()?.autoplay;
+            if (!autoplay) return;
 
-      const resetOrStop =
-        autoplay.options.stopOnInteraction === false ? autoplay.reset : autoplay.stop;
+            const resetOrStop =
+                autoplay.options.stopOnInteraction === false ? autoplay.reset : autoplay.stop;
 
-      resetOrStop();
-      callback();
-    },
-    [mainApi]
-  );
+            resetOrStop();
+            callback();
+        },
+        [mainApi]
+    );
 
-  const onTogglePlay = useCallback(() => {
-    const autoplay = mainApi?.plugins()?.autoplay;
-    if (!autoplay) return;
+    const onTogglePlay = useCallback(() => {
+        const autoplay = mainApi?.plugins()?.autoplay;
+        if (!autoplay) return;
 
-    const playOrStop = autoplay.isPlaying() ? autoplay.stop : autoplay.play;
-    playOrStop();
-  }, [mainApi]);
+        const playOrStop = autoplay.isPlaying() ? autoplay.stop : autoplay.play;
+        playOrStop();
+    }, [mainApi]);
 
-  useEffect(() => {
-    const autoplay = mainApi?.plugins()?.autoplay;
-    if (!autoplay) return;
+    useEffect(() => {
+        const autoplay = mainApi?.plugins()?.autoplay;
+        if (!autoplay) return;
 
-    setIsPlaying(autoplay.isPlaying());
-    mainApi
-      .on('autoplay:play', () => setIsPlaying(true))
-      .on('autoplay:stop', () => setIsPlaying(false))
-      .on('reInit', () => setIsPlaying(false));
-  }, [mainApi]);
+        setIsPlaying(autoplay.isPlaying());
+        mainApi
+            .on('autoplay:play', () => setIsPlaying(true))
+            .on('autoplay:stop', () => setIsPlaying(false))
+            .on('reInit', () => setIsPlaying(false));
+    }, [mainApi]);
 
-  return { isPlaying, onTogglePlay, onClickAutoplay };
+    return { isPlaying, onTogglePlay, onClickAutoplay };
 }

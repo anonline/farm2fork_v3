@@ -12,74 +12,74 @@ import { ComponentBox, ComponentLayout } from '../../layout';
 // ----------------------------------------------------------------------
 
 const DEMO_COMPONENTS = [
-  {
-    name: 'Simple',
-    component: (
-      <ComponentBox sx={{ flexDirection: 'column' }}>
-        <SimpleDialog />
-      </ComponentBox>
-    ),
-  },
-  {
-    name: 'Alerts',
-    component: (
-      <ComponentBox>
-        <AlertDialog />
-      </ComponentBox>
-    ),
-  },
-  {
-    name: 'Transitions',
-    component: (
-      <ComponentBox>
-        <TransitionsDialog />
-      </ComponentBox>
-    ),
-  },
-  {
-    name: 'Form',
-    component: (
-      <ComponentBox>
-        <FormDialog />
-      </ComponentBox>
-    ),
-  },
-  {
-    name: 'Full-screen',
-    component: (
-      <ComponentBox>
-        <FullScreenDialog />
-      </ComponentBox>
-    ),
-  },
-  {
-    name: 'Max width',
-    component: (
-      <ComponentBox>
-        <MaxWidthDialog />
-      </ComponentBox>
-    ),
-  },
-  {
-    name: 'Scrolling content',
-    component: (
-      <ComponentBox>
-        <ScrollDialog />
-      </ComponentBox>
-    ),
-  },
+    {
+        name: 'Simple',
+        component: (
+            <ComponentBox sx={{ flexDirection: 'column' }}>
+                <SimpleDialog />
+            </ComponentBox>
+        ),
+    },
+    {
+        name: 'Alerts',
+        component: (
+            <ComponentBox>
+                <AlertDialog />
+            </ComponentBox>
+        ),
+    },
+    {
+        name: 'Transitions',
+        component: (
+            <ComponentBox>
+                <TransitionsDialog />
+            </ComponentBox>
+        ),
+    },
+    {
+        name: 'Form',
+        component: (
+            <ComponentBox>
+                <FormDialog />
+            </ComponentBox>
+        ),
+    },
+    {
+        name: 'Full-screen',
+        component: (
+            <ComponentBox>
+                <FullScreenDialog />
+            </ComponentBox>
+        ),
+    },
+    {
+        name: 'Max width',
+        component: (
+            <ComponentBox>
+                <MaxWidthDialog />
+            </ComponentBox>
+        ),
+    },
+    {
+        name: 'Scrolling content',
+        component: (
+            <ComponentBox>
+                <ScrollDialog />
+            </ComponentBox>
+        ),
+    },
 ];
 
 // ----------------------------------------------------------------------
 
 export function DialogView() {
-  return (
-    <ComponentLayout
-      sectionData={DEMO_COMPONENTS}
-      heroProps={{
-        heading: 'Dialog',
-        moreLinks: ['https://mui.com/material-ui/react-dialog/'],
-      }}
-    />
-  );
+    return (
+        <ComponentLayout
+            sectionData={DEMO_COMPONENTS}
+            heroProps={{
+                heading: 'Dialog',
+                moreLinks: ['https://mui.com/material-ui/react-dialog/'],
+            }}
+        />
+    );
 }

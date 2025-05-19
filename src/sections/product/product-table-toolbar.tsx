@@ -20,213 +20,213 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: UseSetStateReturn<IProductTableFilters>;
-  options: {
-    stocks: { value: string; label: string }[];
-    publishs: { value: string; label: string }[];
-    bios: { value: string; label: string }[];
-  };
+    filters: UseSetStateReturn<IProductTableFilters>;
+    options: {
+        stocks: { value: string; label: string }[];
+        publishs: { value: string; label: string }[];
+        bios: { value: string; label: string }[];
+    };
 };
 
 export function ProductTableToolbar({ filters, options }: Props) {
-  const menuActions = usePopover();
+    const menuActions = usePopover();
 
-  const { state: currentFilters, setState: updateFilters } = filters;
+    const { state: currentFilters, setState: updateFilters } = filters;
 
-  const [stock, setStock] = useState(currentFilters.stock);
-  const [publish, setPublish] = useState(currentFilters.publish);
+    const [stock, setStock] = useState(currentFilters.stock);
+    const [publish, setPublish] = useState(currentFilters.publish);
 
-  const handleChangeStock = useCallback((event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value },
-    } = event;
+    const handleChangeStock = useCallback((event: SelectChangeEvent<string[]>) => {
+        const {
+            target: { value },
+        } = event;
 
-    setStock(typeof value === 'string' ? value.split(',') : value);
-  }, []);
+        setStock(typeof value === 'string' ? value.split(',') : value);
+    }, []);
 
-  const handleChangePublish = useCallback((event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value },
-    } = event;
+    const handleChangePublish = useCallback((event: SelectChangeEvent<string[]>) => {
+        const {
+            target: { value },
+        } = event;
 
-    setPublish(typeof value === 'string' ? value.split(',') : value);
-  }, []);
+        setPublish(typeof value === 'string' ? value.split(',') : value);
+    }, []);
 
-  const handleFilterStock = useCallback(() => {
-    updateFilters({ stock });
-  }, [updateFilters, stock]);
+    const handleFilterStock = useCallback(() => {
+        updateFilters({ stock });
+    }, [updateFilters, stock]);
 
-  const handleFilterPublish = useCallback(() => {
-    updateFilters({ publish });
-  }, [publish, updateFilters]);
+    const handleFilterPublish = useCallback(() => {
+        updateFilters({ publish });
+    }, [publish, updateFilters]);
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
-    >
-      <MenuList>
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:export-bold" />
-          Export
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
-  return (
-    <>
-      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-        <InputLabel htmlFor="filter-stock-select">Stock</InputLabel>
-        <Select
-          multiple
-          value={stock}
-          onChange={handleChangeStock}
-          onClose={handleFilterStock}
-          input={<OutlinedInput label="Stock" />}
-          renderValue={(selected) => selected.map((value) => value).join(', ')}
-          inputProps={{ id: 'filter-stock-select' }}
-          sx={{ textTransform: 'capitalize' }}
+    const renderMenuActions = () => (
+        <CustomPopover
+            open={menuActions.open}
+            anchorEl={menuActions.anchorEl}
+            onClose={menuActions.onClose}
+            slotProps={{ arrow: { placement: 'right-top' } }}
         >
-          {options.stocks.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Checkbox
-                disableRipple
-                size="small"
-                checked={stock.includes(option.value)}
-                slotProps={{
-                  input: {
-                    id: `${option.value}-checkbox`,
-                    'aria-label': `${option.label} checkbox`,
-                  },
-                }}
-              />
-              {option.label}
-            </MenuItem>
-          ))}
-          <MenuItem
-            onClick={handleFilterStock}
-            sx={[
-              (theme) => ({
-                justifyContent: 'center',
-                fontWeight: theme.typography.button,
-                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
-              }),
-            ]}
-          >
-            Apply
-          </MenuItem>
-        </Select>
-      </FormControl>
+            <MenuList>
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:printer-minimalistic-bold" />
+                    Print
+                </MenuItem>
 
-      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-        <InputLabel htmlFor="filter-publish-select">Publish</InputLabel>
-        <Select
-          multiple
-          value={publish}
-          onChange={handleChangePublish}
-          onClose={handleFilterPublish}
-          input={<OutlinedInput label="Publish" />}
-          renderValue={(selected) => selected.map((value) => value).join(', ')}
-          inputProps={{ id: 'filter-publish-select' }}
-          sx={{ textTransform: 'capitalize' }}
-        >
-          {options.publishs.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Checkbox
-                disableRipple
-                size="small"
-                checked={publish.includes(option.value)}
-                slotProps={{
-                  input: {
-                    id: `${option.value}-checkbox`,
-                    'aria-label': `${option.label} checkbox`,
-                  },
-                }}
-              />
-              {option.label}
-            </MenuItem>
-          ))}
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:import-bold" />
+                    Import
+                </MenuItem>
 
-          <MenuItem
-            disableGutters
-            disableTouchRipple
-            onClick={handleFilterPublish}
-            sx={[
-              (theme) => ({
-                justifyContent: 'center',
-                fontWeight: theme.typography.button,
-                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
-              }),
-            ]}
-          >
-            Apply
-          </MenuItem>
-        </Select>
-      </FormControl>
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:export-bold" />
+                    Export
+                </MenuItem>
+            </MenuList>
+        </CustomPopover>
+    );
 
-      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-        <InputLabel htmlFor="filter-publish-select">Bio</InputLabel>
-        <Select
-          multiple
-          value={publish}
-          onChange={handleChangePublish}
-          onClose={handleFilterPublish}
-          input={<OutlinedInput label="Publish" />}
-          renderValue={(selected) => selected.map((value) => value).join(', ')}
-          inputProps={{ id: 'filter-publish-select' }}
-          sx={{ textTransform: 'capitalize' }}
-        >
-          {options.bios.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Checkbox
-                disableRipple
-                size="small"
-                checked={publish.includes(option.value)}
-                slotProps={{
-                  input: {
-                    id: `${option.value}-checkbox`,
-                    'aria-label': `${option.label} checkbox`,
-                  },
-                }}
-              />
-              {option.label}
-            </MenuItem>
-          ))}
+    return (
+        <>
+            <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+                <InputLabel htmlFor="filter-stock-select">Stock</InputLabel>
+                <Select
+                    multiple
+                    value={stock}
+                    onChange={handleChangeStock}
+                    onClose={handleFilterStock}
+                    input={<OutlinedInput label="Stock" />}
+                    renderValue={(selected) => selected.map((value) => value).join(', ')}
+                    inputProps={{ id: 'filter-stock-select' }}
+                    sx={{ textTransform: 'capitalize' }}
+                >
+                    {options.stocks.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            <Checkbox
+                                disableRipple
+                                size="small"
+                                checked={stock.includes(option.value)}
+                                slotProps={{
+                                    input: {
+                                        id: `${option.value}-checkbox`,
+                                        'aria-label': `${option.label} checkbox`,
+                                    },
+                                }}
+                            />
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                    <MenuItem
+                        onClick={handleFilterStock}
+                        sx={[
+                            (theme) => ({
+                                justifyContent: 'center',
+                                fontWeight: theme.typography.button,
+                                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+                            }),
+                        ]}
+                    >
+                        Apply
+                    </MenuItem>
+                </Select>
+            </FormControl>
 
-          <MenuItem
-            disableGutters
-            disableTouchRipple
-            onClick={handleFilterPublish}
-            sx={[
-              (theme) => ({
-                justifyContent: 'center',
-                fontWeight: theme.typography.button,
-                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
-              }),
-            ]}
-          >
-            Apply
-          </MenuItem>
-        </Select>
-      </FormControl>
+            <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+                <InputLabel htmlFor="filter-publish-select">Publish</InputLabel>
+                <Select
+                    multiple
+                    value={publish}
+                    onChange={handleChangePublish}
+                    onClose={handleFilterPublish}
+                    input={<OutlinedInput label="Publish" />}
+                    renderValue={(selected) => selected.map((value) => value).join(', ')}
+                    inputProps={{ id: 'filter-publish-select' }}
+                    sx={{ textTransform: 'capitalize' }}
+                >
+                    {options.publishs.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            <Checkbox
+                                disableRipple
+                                size="small"
+                                checked={publish.includes(option.value)}
+                                slotProps={{
+                                    input: {
+                                        id: `${option.value}-checkbox`,
+                                        'aria-label': `${option.label} checkbox`,
+                                    },
+                                }}
+                            />
+                            {option.label}
+                        </MenuItem>
+                    ))}
 
-      {renderMenuActions()}
-    </>
-  );
+                    <MenuItem
+                        disableGutters
+                        disableTouchRipple
+                        onClick={handleFilterPublish}
+                        sx={[
+                            (theme) => ({
+                                justifyContent: 'center',
+                                fontWeight: theme.typography.button,
+                                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+                            }),
+                        ]}
+                    >
+                        Apply
+                    </MenuItem>
+                </Select>
+            </FormControl>
+
+            <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+                <InputLabel htmlFor="filter-publish-select">Bio</InputLabel>
+                <Select
+                    multiple
+                    value={publish}
+                    onChange={handleChangePublish}
+                    onClose={handleFilterPublish}
+                    input={<OutlinedInput label="Publish" />}
+                    renderValue={(selected) => selected.map((value) => value).join(', ')}
+                    inputProps={{ id: 'filter-publish-select' }}
+                    sx={{ textTransform: 'capitalize' }}
+                >
+                    {options.bios.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            <Checkbox
+                                disableRipple
+                                size="small"
+                                checked={publish.includes(option.value)}
+                                slotProps={{
+                                    input: {
+                                        id: `${option.value}-checkbox`,
+                                        'aria-label': `${option.label} checkbox`,
+                                    },
+                                }}
+                            />
+                            {option.label}
+                        </MenuItem>
+                    ))}
+
+                    <MenuItem
+                        disableGutters
+                        disableTouchRipple
+                        onClick={handleFilterPublish}
+                        sx={[
+                            (theme) => ({
+                                justifyContent: 'center',
+                                fontWeight: theme.typography.button,
+                                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+                            }),
+                        ]}
+                    >
+                        Apply
+                    </MenuItem>
+                </Select>
+            </FormControl>
+
+            {renderMenuActions()}
+        </>
+    );
 }

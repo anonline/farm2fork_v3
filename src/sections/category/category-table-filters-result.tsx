@@ -7,14 +7,11 @@ import { FiltersResult } from 'src/components/filters-result';
 // ----------------------------------------------------------------------
 
 type Props = FiltersResultProps & {
-  filters: UseSetStateReturn<ICategoryTableFilter>;
+    filters: UseSetStateReturn<ICategoryTableFilter>;
 };
 
 export function CategoryTableFiltersResult({ filters, totalResults, sx }: Props) {
-  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+    const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
 
-  
-  return (
-    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx} />
-  );
+    return <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx} />;
 }

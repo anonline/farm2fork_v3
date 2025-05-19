@@ -9,5 +9,5 @@ import { DrawerView } from 'src/sections/_examples/mui/drawer-view';
 export const metadata: Metadata = { title: `Drawer | MUI - ${CONFIG.appName}` };
 
 export default function Page() {
-  return <DrawerView />;
+    return <DrawerView />;
 }

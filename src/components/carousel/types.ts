@@ -10,146 +10,146 @@ import type { EmblaOptionsType, EmblaCarouselType } from 'embla-carousel';
  * Dot Buttons
  */
 export type UseCarouselDotsReturn = {
-  dotCount: number;
-  selectedIndex: number;
-  scrollSnaps: number[];
-  onClickDot: (index: number) => void;
+    dotCount: number;
+    selectedIndex: number;
+    scrollSnaps: number[];
+    onClickDot: (index: number) => void;
 };
 
 export type CarouselDotButtonsProps = BoxProps<'ul'> &
-  Omit<UseCarouselDotsReturn, 'dotCount'> & {
-    gap?: number;
-    variant?: 'circular' | 'rounded' | 'number';
-    slotProps?: {
-      dot?: {
-        size?: number;
-        sx?: SxProps<Theme>;
-      };
+    Omit<UseCarouselDotsReturn, 'dotCount'> & {
+        gap?: number;
+        variant?: 'circular' | 'rounded' | 'number';
+        slotProps?: {
+            dot?: {
+                size?: number;
+                sx?: SxProps<Theme>;
+            };
+        };
     };
-  };
 
 /**
  * Prev & Next Buttons
  */
 export type UseCarouselArrowsReturn = {
-  disablePrev: boolean;
-  disableNext: boolean;
-  onClickPrev: () => void;
-  onClickNext: () => void;
+    disablePrev: boolean;
+    disableNext: boolean;
+    onClickPrev: () => void;
+    onClickNext: () => void;
 };
 
 export type CarouselArrowButtonProps = ButtonBaseProps & {
-  svgSize?: number;
-  variant: 'prev' | 'next';
-  svgIcon?: React.ReactNode;
-  options?: CarouselArrowButtonsProps['options'];
+    svgSize?: number;
+    variant: 'prev' | 'next';
+    svgIcon?: React.ReactNode;
+    options?: CarouselArrowButtonsProps['options'];
 };
 
 export type CarouselArrowButtonsProps = React.ComponentProps<'div'> &
-  UseCarouselArrowsReturn & {
-    sx?: SxProps<Theme>;
-    totalSlides?: number;
-    selectedIndex?: number;
-    options?: Partial<CarouselOptions>;
-    slotProps?: {
-      prevBtn?: Pick<CarouselArrowButtonProps, 'svgIcon' | 'svgSize'> & {
+    UseCarouselArrowsReturn & {
         sx?: SxProps<Theme>;
-      };
-      nextBtn?: Pick<CarouselArrowButtonProps, 'svgIcon' | 'svgSize'> & {
-        sx?: SxProps<Theme>;
-      };
+        totalSlides?: number;
+        selectedIndex?: number;
+        options?: Partial<CarouselOptions>;
+        slotProps?: {
+            prevBtn?: Pick<CarouselArrowButtonProps, 'svgIcon' | 'svgSize'> & {
+                sx?: SxProps<Theme>;
+            };
+            nextBtn?: Pick<CarouselArrowButtonProps, 'svgIcon' | 'svgSize'> & {
+                sx?: SxProps<Theme>;
+            };
+        };
     };
-  };
 
 /**
  * Thumbs
  */
 export type UseCarouselThumbsReturn = {
-  selectedIndex: number;
-  thumbsApi?: EmblaCarouselType;
-  thumbsRef: UseEmblaCarouselType[0];
-  onClickThumb: (index: number) => void;
+    selectedIndex: number;
+    thumbsApi?: EmblaCarouselType;
+    thumbsRef: UseEmblaCarouselType[0];
+    onClickThumb: (index: number) => void;
 };
 
 export type CarouselThumbProps = ButtonBaseProps & {
-  src: string;
-  index: number;
-  selected: boolean;
+    src: string;
+    index: number;
+    selected: boolean;
 };
 
 export type CarouselThumbsProps = React.ComponentProps<'div'> & {
-  options?: Partial<CarouselOptions>;
-  sx?: SxProps<Theme>;
-  slotProps?: {
-    slide?: SxProps<Theme>;
-    container?: SxProps<Theme>;
-    disableMask?: boolean;
-  };
+    options?: Partial<CarouselOptions>;
+    sx?: SxProps<Theme>;
+    slotProps?: {
+        slide?: SxProps<Theme>;
+        container?: SxProps<Theme>;
+        disableMask?: boolean;
+    };
 };
 
 /**
  * Progress
  */
 export type UseCarouselProgressReturn = {
-  value: number;
+    value: number;
 };
 
 export type CarouselProgressBarProps = React.ComponentProps<'div'> &
-  UseCarouselProgressReturn & {
-    sx?: SxProps<Theme>;
-  };
+    UseCarouselProgressReturn & {
+        sx?: SxProps<Theme>;
+    };
 
 /**
  * Autoplay
  */
 export type UseCarouselAutoPlayReturn = {
-  isPlaying: boolean;
-  onTogglePlay: () => void;
-  onClickAutoplay: (callback: () => void) => void;
+    isPlaying: boolean;
+    onTogglePlay: () => void;
+    onClickAutoplay: (callback: () => void) => void;
 };
 
 /**
  * Slide
  */
 export type CarouselSlideProps = React.ComponentProps<'li'> & {
-  options?: Partial<CarouselOptions>;
-  sx?: SxProps<Theme>;
+    options?: Partial<CarouselOptions>;
+    sx?: SxProps<Theme>;
 };
 
 /**
  * Carousel
  */
 export type CarouselBaseOptions = EmblaOptionsType & {
-  slideSpacing?: string;
-  parallax?: boolean | number;
-  slidesToShow?: string | number | Partial<Record<Breakpoint, string | number>>;
+    slideSpacing?: string;
+    parallax?: boolean | number;
+    slidesToShow?: string | number | Partial<Record<Breakpoint, string | number>>;
 };
 
 export type CarouselOptions = CarouselBaseOptions & {
-  thumbs?: CarouselBaseOptions;
-  breakpoints?: {
-    [key: string]: Omit<CarouselBaseOptions, 'slidesToShow'>;
-  };
+    thumbs?: CarouselBaseOptions;
+    breakpoints?: {
+        [key: string]: Omit<CarouselBaseOptions, 'slidesToShow'>;
+    };
 };
 
 export type UseCarouselReturn = {
-  pluginNames?: string[];
-  options?: CarouselOptions;
-  mainRef: UseEmblaCarouselType[0];
-  mainApi?: EmblaCarouselType;
-  thumbs: UseCarouselThumbsReturn;
-  dots: UseCarouselDotsReturn;
-  autoplay: UseCarouselAutoPlayReturn;
-  progress: UseCarouselProgressReturn;
-  autoScroll: UseCarouselAutoPlayReturn;
-  arrows: UseCarouselArrowsReturn;
+    pluginNames?: string[];
+    options?: CarouselOptions;
+    mainRef: UseEmblaCarouselType[0];
+    mainApi?: EmblaCarouselType;
+    thumbs: UseCarouselThumbsReturn;
+    dots: UseCarouselDotsReturn;
+    autoplay: UseCarouselAutoPlayReturn;
+    progress: UseCarouselProgressReturn;
+    autoScroll: UseCarouselAutoPlayReturn;
+    arrows: UseCarouselArrowsReturn;
 };
 
 export type CarouselProps = React.ComponentProps<'div'> & {
-  sx?: SxProps<Theme>;
-  carousel: UseCarouselReturn;
-  slotProps?: {
-    container?: SxProps<Theme>;
-    slide?: SxProps<Theme>;
-  };
+    sx?: SxProps<Theme>;
+    carousel: UseCarouselReturn;
+    slotProps?: {
+        container?: SxProps<Theme>;
+        slide?: SxProps<Theme>;
+    };
 };

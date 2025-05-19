@@ -16,64 +16,68 @@ import { getVariant } from '../get-variant';
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  open: boolean;
-  onOpen: () => void;
-  onClose: () => void;
-  selectedVariant: string;
+    open: boolean;
+    onOpen: () => void;
+    onClose: () => void;
+    selectedVariant: string;
 };
 
 export function ContainerView({ open, onOpen, onClose, selectedVariant, sx, ...other }: Props) {
-  return (
-    <>
-      <Box
-        sx={[
-          {
-            borderRadius: 2,
-            display: 'flex',
-            flex: '1 1 auto',
-            overflow: 'hidden',
-            alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: 'background.neutral',
-          },
-          ...(Array.isArray(sx) ? sx : [sx]),
-        ]}
-        {...other}
-      >
-        <Button size="large" variant="contained" onClick={onOpen}>
-          Click me!
-        </Button>
-      </Box>
+    return (
+        <>
+            <Box
+                sx={[
+                    {
+                        borderRadius: 2,
+                        display: 'flex',
+                        flex: '1 1 auto',
+                        overflow: 'hidden',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'background.neutral',
+                    },
+                    ...(Array.isArray(sx) ? sx : [sx]),
+                ]}
+                {...other}
+            >
+                <Button size="large" variant="contained" onClick={onOpen}>
+                    Click me!
+                </Button>
+            </Box>
 
-      <AnimatePresence>
-        {open && (
-          <Dialog
-            fullWidth
-            maxWidth="xs"
-            open={open}
-            onClose={onClose}
-            PaperComponent={(props: PaperProps) => (
-              <Paper component={m.div} {...getVariant(selectedVariant, 320)} {...props}>
-                {props.children}
-              </Paper>
-            )}
-          >
-            <DialogTitle id="alert-dialog-title">{`Use Google's location service?`}</DialogTitle>
+            <AnimatePresence>
+                {open && (
+                    <Dialog
+                        fullWidth
+                        maxWidth="xs"
+                        open={open}
+                        onClose={onClose}
+                        PaperComponent={(props: PaperProps) => (
+                            <Paper
+                                component={m.div}
+                                {...getVariant(selectedVariant, 320)}
+                                {...props}
+                            >
+                                {props.children}
+                            </Paper>
+                        )}
+                    >
+                        <DialogTitle id="alert-dialog-title">{`Use Google's location service?`}</DialogTitle>
 
-            <DialogContent>
-              Let Google help apps determine location. This means sending anonymous location data to
-              Google, even when no apps are running.
-            </DialogContent>
+                        <DialogContent>
+                            Let Google help apps determine location. This means sending anonymous
+                            location data to Google, even when no apps are running.
+                        </DialogContent>
 
-            <DialogActions>
-              <Button onClick={onClose}>Disagree</Button>
-              <Button variant="contained" onClick={onClose} autoFocus>
-                Agree
-              </Button>
-            </DialogActions>
-          </Dialog>
-        )}
-      </AnimatePresence>
-    </>
-  );
+                        <DialogActions>
+                            <Button onClick={onClose}>Disagree</Button>
+                            <Button variant="contained" onClick={onClose} autoFocus>
+                                Agree
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                )}
+            </AnimatePresence>
+        </>
+    );
 }
