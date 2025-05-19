@@ -4,6 +4,7 @@ export type IFaqItem = {
     answer: string;
     faqCategoryId: number;
     order: number;
+    faqCategory?: IFaqCategoryItem | null;
 };
 
 export type IFaqCategoryItem = {
@@ -16,5 +17,5 @@ export type IFaqCategoryItem = {
 
 export type IFaqTableFilters = {
     question: string;
-    category: string;
+    categoryId?: number | null;
 };

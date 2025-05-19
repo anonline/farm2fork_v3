@@ -57,7 +57,7 @@ export function TableSelectedAction({
                 slotProps={{
                     input: {
                         id: 'deselect-all-checkbox',
-                        'aria-label': 'Deselect all checkbox',
+                        'aria-label': 'Kijelölés törlése',
                     },
                 }}
             />
@@ -71,7 +71,7 @@ export function TableSelectedAction({
                     ...(dense && { ml: 3 }),
                 }}
             >
-                {numSelected} selected
+                {numSelected} kiválasztva
             </Typography>
 
             {action && action}

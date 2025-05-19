@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useTabs, useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -11,12 +11,12 @@ import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { CONFIG } from 'src/global-config';
-import { useGetFaqCategories } from 'src/actions/faq';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomTabs } from 'src/components/custom-tabs';
 
 import { F2FFaqsList } from './faqs-list';
+import { IFaqCategoryItem, IFaqItem } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
 
@@ -46,12 +46,21 @@ const CATEGORIES = [
 ];
 
 // ----------------------------------------------------------------------
+type FaqsCategoryViewProps = {
+    faqs: IFaqItem[];
+    faqCategories: IFaqCategoryItem[];
+}
 
-export function FaqsCategory() {
+export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewProps>) {
     const navOpen = useBoolean();
     const customTabs = useTabs('-1');
 
-    const { faqsCategories, faqsCategoriesLoading } = useGetFaqCategories();
+    const [filteredFaqs, setFilteredFaqs] = useState(faqs ?? []);
+
+    useEffect(() => {
+        const filteredFaqs = faqs.filter((faq) => faq.faqCategoryId.toString() == customTabs.value || customTabs.value == '-1');
+        setFilteredFaqs(filteredFaqs);
+    }, [customTabs.value]);
 
     const renderMobile = () => (
         <>
@@ -104,7 +113,7 @@ export function FaqsCategory() {
                 }}
             >
                 <CustomTabs
-                    value={customTabs.value}
+                    value={parseInt(customTabs.value)}
                     onChange={customTabs.onChange}
                     variant="fullWidth"
                     sx={{ width: 1, borderRadius: 1, mb: 5, mt: 0 }}
@@ -114,38 +123,20 @@ export function FaqsCategory() {
                         },
                     }}
                 >
-                    <Tab key='-1' value='-1' label='Összes' /> 
-
-                    {faqsCategories?.map((category) => (
+                    {faqCategories?.map((category) => (
                         <Tab key={category.id} value={category.id} label={category.name} />
                     ))}
                 </CustomTabs>
             </Box>
-            <Paper
-                variant="outlined"
-                elevation={0}
-                sx={{ p: 0, width: 1, border: 0, borderRadius: 1.5, typography: 'body2',  }}
-            >
-                {faqsCategories?.map((category) => {
-                    const isAll = customTabs.value == '-1';
-                    const isSelected = category.id.toString() == customTabs.value || isAll;
-                
-                    if (!isSelected) return null;
-                
-                    if (category.faqs?.length) {
-                        return <F2FFaqsList key={category.id} data={category.faqs} sx={{boxShadow:'none'}}/>;
-                    }
-                    
-                    if(!isAll) {
-                        return (
-                            <Alert key={category.id} severity="warning" sx={{}}>
-                                Sajnos nincs elérhető kérdés a kategóriában. Kérjük vegye fel a kapcsolatot velünk elérhetőségeink bármelyikén.
-                            </Alert>
-                        );
-                    }
-                    return null;
-                })}
-            </Paper>
+
+            {filteredFaqs.length > 0 ? 
+                <F2FFaqsList data={filteredFaqs} />
+            :
+                <Alert severity="info" sx={{}}>
+                    Sajnos nincs elérhető kérdés a kategóriában. Kérjük vegye fel a kapcsolatot velünk elérhetőségeink bármelyikén.
+                </Alert>
+            }
+
         </Box>
     );
 

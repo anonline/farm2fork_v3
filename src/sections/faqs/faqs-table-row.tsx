@@ -21,6 +21,8 @@ import { RouterLink } from 'src/routes/components';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
+import { Label } from 'src/components/label';
+import { Editor } from 'src/components/editor';
 
 // ----------------------------------------------------------------------
 
@@ -52,15 +54,21 @@ export function FaqTableRow({ row, selected, onSelectRow, onDeleteRow, detailsHr
                 />
             </TableCell>
 
-            <TableCell>
+            {/*<TableCell>
                 <Link component={RouterLink} href={detailsHref} color="inherit" underline="always">
                     {row.id}
                 </Link>
-            </TableCell>
-
+            </TableCell>*/}
             <TableCell>
                 <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-                    
+
+                    <Label variant="soft">
+                            {row.faqCategory ? row.faqCategory.name : 'Ismeretlen'}
+                    </Label>
+                </Box>
+                </TableCell>
+            <TableCell>
+                <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
                     <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
                         <Box component="span">{row.question}</Box>
                     </Stack>
@@ -96,29 +104,14 @@ export function FaqTableRow({ row, selected, onSelectRow, onDeleteRow, detailsHr
                     sx={{ bgcolor: 'background.neutral' }}
                 >
                     <Paper sx={{ m: 1.5 }}>
-                            <Box
-                                key={row.id}
-                                sx={(theme) => ({
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    p: theme.spacing(1.5, 2, 1.5, 1.5),
-                                    '&:not(:last-of-type)': {
-                                        borderBottom: `solid 2px ${theme.vars.palette.background.neutral}`,
-                                    },
-                                })}
-                            >
-                                <ListItemText
-                                    primary={row.answer}
-                                    slotProps={{
-                                        primary: {
-                                            sx: { typography: 'body2' },
-                                        },
-                                        secondary: {
-                                            sx: { mt: 0.5, color: 'text.disabled' },
-                                        },
-                                    }}
-                                />
-                            </Box>
+                        
+                        <Editor
+                            fullItem={false}
+                            value={row.answer}
+                            onChange={(value) => null}
+                            sx={{ maxHeight: 750 }}
+                            
+                        />
                     </Paper>
                 </Collapse>
             </TableCell>

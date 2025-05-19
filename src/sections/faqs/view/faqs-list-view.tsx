@@ -41,16 +41,18 @@ import {
 } from 'src/components/table';
 
 import { FaqTableRow } from '../faqs-table-row';
-import { OrderTableToolbar } from '../order-table-toolbar';
-import { OrderTableFiltersResult } from '../order-table-filters-result';
+import { FaqTableToolbar } from '../faqs-table-toolbar';
+import { RouterLink } from 'src/routes/components';
+//import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Összes' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
-    { id: 'id', label: 'ID', width: 88 },
-    { id: 'question', label: 'Kérdés', width: 110 },
+    //{ id: 'id', label: 'ID', width: 10 },
+    { id: 'category', label: 'Kategória', width: 30 },
+    { id: 'question', label: 'Kérdés', width: 450 },
     { id: '', width: 88 },
 ];
 
@@ -58,31 +60,31 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 type FaqListViewProps = {
     faqList: IFaqItem[];
-    faqCategories: IFaqCategoryItem[];
+    faqCategories: IFaqCategoryItem[] | undefined;
 };
 
 export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>) {
     const table = useTable({ defaultOrderBy: 'id' });
 
     const confirmDialog = useBoolean();
-
+    
     const [tableData, setTableData] = useState<IFaqItem[]>(faqList);
 
     const filters = useSetState<IFaqTableFilters>({
         question: '',
-        category: 'all',
+        categoryId: null,
     });
     const { state: currentFilters, setState: updateFilters } = filters;
 
-    const dataFiltered = applyFilter({
+   const dataFiltered = applyFilter({
         inputData: tableData,
         comparator: getComparator(table.order, table.orderBy),
         filters: currentFilters
     });
-
+    
     const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-    const canReset = !!currentFilters.question || currentFilters.category !== 'all';
+    const canReset = !!currentFilters.question;
 
     const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -110,9 +112,9 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
     }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
     const handleFilterStatus = useCallback(
-        (event: React.SyntheticEvent, newValue: string) => {
+        (event: React.SyntheticEvent, newValue: number) => {
             table.onResetPage();
-            updateFilters({ category: newValue });
+            updateFilters({ categoryId: newValue });
         },
         [updateFilters, table]
     );
@@ -150,14 +152,35 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                     links={[
                         { name: 'Dashboard', href: paths.dashboard.root },
                         { name: 'Gyakran feltett kérdések', href: paths.dashboard.order.root },
-                        { name: 'Lista' },
+                        { name: 'Összes' },
                     ]}
+                    action={<>
+                        <Button
+                            component={RouterLink}
+                            href={paths.dashboard.faqs.new}
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                        >
+                            Új kérdés
+                        </Button>
+                        <Button
+                            component={RouterLink}
+                            href={paths.faqs}
+                            target='_blank'
+                            variant="contained"
+                            color='primary'
+                            startIcon={<Iconify icon="eva:external-link-fill" />}
+                        >
+                            Oldal megtekintése
+                        </Button>
+                        </>
+                    }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
 
                 <Card>
                     <Tabs
-                        value={currentFilters.category}
+                        value={currentFilters.categoryId?.valueOf()}
                         onChange={handleFilterStatus}
                         sx={[
                             (theme) => ({
@@ -166,7 +189,7 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                             }),
                         ]}
                     >
-                        {faqCategories.map((tab) => (
+                        {faqCategories?.map((tab) => (
                             <Tab
                                 key={tab.id}
                                 iconPosition="end"
@@ -175,8 +198,7 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                                 icon={
                                     <Label
                                         variant={
-                                            ((tab.id.toString() === 'all' ||
-                                                tab.id.toString() === currentFilters.category) &&
+                                            ((tab.id === currentFilters.categoryId) &&
                                                 'filled') ||
                                             'soft'
                                         }
@@ -185,7 +207,7 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                                         {
                                         faqCategories.map((category)=> category.id.toString())
                                             .includes(tab.id.toString())
-                                                ? tableData.filter((faq) => faq.faqCategoryId === tab.id).length
+                                                ? tableData.filter((faq) => faq.faqCategoryId === tab.id || tab.id === -1).length
                                                 : tableData.length
                                         }
                                     </Label>
@@ -194,20 +216,19 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                         ))}
                     </Tabs>
 
-                    <OrderTableToolbar
+                    {<FaqTableToolbar
                         filters={filters}
                         onResetPage={table.onResetPage}
-                        dateError={dateError}
-                    />
+                    />}
 
-                    {canReset && (
+                    {/*canReset && (
                         <OrderTableFiltersResult
                             filters={filters}
                             totalResults={dataFiltered.length}
                             onResetPage={table.onResetPage}
                             sx={{ p: 2.5, pt: 0 }}
                         />
-                    )}
+                    )*/}
 
                     <Box sx={{ position: 'relative' }}>
                         <TableSelectedAction
@@ -304,24 +325,15 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-    const { question, category } = filters;
+    const { question, categoryId: category } = filters;
 
-    const stabilizedThis = inputData.map((el, index) => [el, index] as const);
-
-    stabilizedThis.sort((a, b) => {
-        const faq = comparator(a[0], b[0]);
-        if (faq !== 0) return faq;
-        return a[1] - b[1];
-    });
-
-    inputData = stabilizedThis.map((el) => el[0]);
-    if (category !== 'all') {
-        inputData = inputData.filter((faq) => faq.faqCategoryId.toString() === category);
+    if (category && category !== -1) {
+        inputData = inputData.filter((faq) => faq.faqCategoryId  === category);
     }
 
     if (question) {
-        inputData = inputData.filter(({ question }) =>
-            [question].some((field) =>
+        inputData = inputData.filter((row) =>
+            [row.question, row.answer].some((field) =>
                 field?.toLowerCase().includes(question.toLowerCase())
             )
         );

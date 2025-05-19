@@ -4,10 +4,15 @@ import Container from '@mui/material/Container';
 
 import { FaqsHero } from '../faqs-hero';
 import { FaqsCategory } from '../faqs-category';
+import { IFaqCategoryItem, IFaqItem } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
+type FaqsViewProps = {
+    faqs: IFaqItem[];
+    faqCategories: IFaqCategoryItem[];
+}
 
-export function FaqsView() {
+export function FaqsView({faqs, faqCategories}:Readonly<FaqsViewProps>) {
     return (
         <>
             <FaqsHero />
@@ -15,7 +20,7 @@ export function FaqsView() {
                 component="section"
                 sx={{ pb: 10, position: 'relative', pt: { xs: 10, md: 5 } }}
             >
-                <FaqsCategory />
+                <FaqsCategory faqCategories={faqCategories} faqs={faqs}/>
             </Container>
         </>
     );

@@ -1,4 +1,4 @@
-import type { IFaqItem } from 'src/types/faq';
+import type { IFaqCategoryItem, IFaqItem } from 'src/types/faq';
 import type { BoxProps } from '@mui/material/Box';
 
 import Box from '@mui/material/Box';
@@ -9,7 +9,9 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 
 import { _faqs } from 'src/_mock';
 
-import { Iconify } from 'src/components/iconify';
+import { Iconify, IconifyName } from 'src/components/iconify';
+import { IconifyIcon } from '@iconify/react/dist/iconify.js';
+import React from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -36,15 +38,25 @@ type F2FFaqsListProps = {
 
 }
 export function F2FFaqsList({ data, sx, ...other } : F2FFaqsListProps & BoxProps) {
+    const iconSx = {
+                width: 40,
+                height: 40,
+                color: 'text',
+                mr: 2,
+                backgroundColor: '#eae3d7',
+                p: "8px",
+                borderRadius: 1,
+            };
     return (
         <Box sx={sx} {...other}>
             {(data?.length ?? 0) ? data?.map((accordion) => (
-                <Accordion key={accordion.id}>
+                <Accordion key={accordion.id} sx={{mb: 1, bgColor:'red', borderRadius:4, border:0}}>
                     <AccordionSummary 
-                        sx={{ mt: 2, display: 'flex', alignItems: 'center' }} 
+                        sx={{ mt: 2, display: 'flex', alignItems: 'center', borderRadius:8 }} 
                         expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
                     >
-                        <F2FFaqIcon />
+                        <Iconify icon={(accordion.faqCategory?.icon ?? "solar:dollar-minimalistic-linear") as IconifyName} sx={iconSx} />
+
                         <Typography variant="subtitle1" sx={{ display: 'flex', alignItems: 'center' }}>
                             {accordion.question}
                         </Typography>
@@ -57,22 +69,5 @@ export function F2FFaqsList({ data, sx, ...other } : F2FFaqsListProps & BoxProps
             )) : null
         }
         </Box>
-    );
-}
-
-function F2FFaqIcon(){
-    return (
-        <Iconify
-            icon="eva:star-outline"
-            sx={{
-                width: 40,
-                height: 40,
-                color: 'text',
-                mr: 2,
-                backgroundColor: '#eae3d7',
-                p: "8px",
-                borderRadius: 1,
-            }}
-        />
     );
 }

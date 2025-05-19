@@ -17,12 +17,11 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = {
-    dateError: boolean;
     onResetPage: () => void;
     filters: UseSetStateReturn<IFaqTableFilters>;
 };
 
-export function FaqTableToolbar({ filters, onResetPage, dateError }: Props) {
+export function FaqTableToolbar({ filters, onResetPage }: Readonly<Props>) {
     const menuActions = usePopover();
 
     const { state: currentFilters, setState: updateFilters } = filters;
