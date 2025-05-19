@@ -1,7 +1,8 @@
 import type { IFaqItem, IFaqCategoryItem } from 'src/types/faq';
 
-import { supabaseSSR } from 'src/lib/supabase-ssr';
 import { cookies } from 'next/headers';
+
+import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 // ----------------------------------------------------------------------
 

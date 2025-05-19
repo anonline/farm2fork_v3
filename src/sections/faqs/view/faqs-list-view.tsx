@@ -18,6 +18,7 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -42,7 +43,6 @@ import {
 
 import { FaqTableRow } from '../faqs-table-row';
 import { FaqTableToolbar } from '../faqs-table-toolbar';
-import { RouterLink } from 'src/routes/components';
 //import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
@@ -216,10 +216,10 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                         ))}
                     </Tabs>
 
-                    {<FaqTableToolbar
+                    <FaqTableToolbar
                         filters={filters}
                         onResetPage={table.onResetPage}
-                    />}
+                    />
 
                     {/*canReset && (
                         <OrderTableFiltersResult

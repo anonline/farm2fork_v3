@@ -1,4 +1,6 @@
-import { Fragment, useEffect, useState } from 'react';
+import type { IFaqItem, IFaqCategoryItem } from 'src/types/faq';
+
+import { Fragment, useState, useEffect } from 'react';
 import { useTabs, useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -16,7 +18,6 @@ import { Iconify } from 'src/components/iconify';
 import { CustomTabs } from 'src/components/custom-tabs';
 
 import { F2FFaqsList } from './faqs-list';
-import { IFaqCategoryItem, IFaqItem } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
 
@@ -58,8 +59,8 @@ export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewP
     const [filteredFaqs, setFilteredFaqs] = useState(faqs ?? []);
 
     useEffect(() => {
-        const filteredFaqs = faqs.filter((faq) => faq.faqCategoryId.toString() == customTabs.value || customTabs.value == '-1');
-        setFilteredFaqs(filteredFaqs);
+        const filteredFaqsByCategoryId = faqs.filter((faq) => faq.faqCategoryId.toString() == customTabs.value || customTabs.value == '-1');
+        setFilteredFaqs(filteredFaqsByCategoryId);
     }, [customTabs.value]);
 
     const renderMobile = () => (

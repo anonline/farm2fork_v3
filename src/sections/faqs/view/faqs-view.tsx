@@ -1,10 +1,11 @@
 'use client';
 
+import type { IFaqItem, IFaqCategoryItem } from 'src/types/faq';
+
 import Container from '@mui/material/Container';
 
 import { FaqsHero } from '../faqs-hero';
 import { FaqsCategory } from '../faqs-category';
-import { IFaqCategoryItem, IFaqItem } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
 type FaqsViewProps = {

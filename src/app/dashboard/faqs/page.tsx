@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { fetchFaqs,fetchFaqCategories } from 'src/actions/faq-ssr';
+import type { IFaqCategoryItem } from 'src/types/faq';
 
 import { CONFIG } from 'src/global-config';
+import { fetchFaqs,fetchFaqCategories } from 'src/actions/faq-ssr';
 
 import { FaqListView } from 'src/sections/faqs/view/faqs-list-view';
-import { IFaqCategoryItem } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
 

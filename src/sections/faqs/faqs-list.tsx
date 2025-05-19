@@ -1,5 +1,8 @@
-import type { IFaqCategoryItem, IFaqItem } from 'src/types/faq';
+import type { IFaqItem } from 'src/types/faq';
 import type { BoxProps } from '@mui/material/Box';
+import type { IconifyName } from 'src/components/iconify';
+
+import React from 'react';
 
 import Box from '@mui/material/Box';
 import Accordion from '@mui/material/Accordion';
@@ -9,9 +12,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 
 import { _faqs } from 'src/_mock';
 
-import { Iconify, IconifyName } from 'src/components/iconify';
-import { IconifyIcon } from '@iconify/react/dist/iconify.js';
-import React from 'react';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
