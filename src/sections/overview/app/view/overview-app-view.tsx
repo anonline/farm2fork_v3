@@ -72,18 +72,18 @@ export function OverviewAppView() {
                     />
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <AppWidgetSummary
-                        title="Total downloads"
-                        percent={-0.1}
-                        total={678}
-                        chart={{
-                            colors: [theme.palette.error.main],
-                            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                            series: [18, 19, 31, 8, 16, 37, 12, 33],
-                        }}
-                    />
-                </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <AppWidgetSummary
+            title="Összes felhaszáló"
+            percent={2.44}
+            total={678}
+            chart={{
+              colors: [theme.palette.error.main],
+              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+              series: [18, 19, 31, 8, 16, 37, 12, 33],
+            }}
+          />
+        </Grid>
 
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                     <AppCurrentDownload

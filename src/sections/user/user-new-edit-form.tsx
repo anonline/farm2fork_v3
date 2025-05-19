@@ -28,26 +28,26 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 export type NewUserSchemaType = zod.infer<typeof NewUserSchema>;
 
 export const NewUserSchema = zod.object({
-    avatarUrl: schemaHelper.file({ message: 'Avatar is required!' }),
-    name: zod.string().min(1, { message: 'Name is required!' }),
-    email: zod
-        .string()
-        .min(1, { message: 'Email is required!' })
-        .email({ message: 'Email must be a valid email address!' }),
-    phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-    country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-        // message for null value
-        message: 'Country is required!',
-    }),
-    address: zod.string().min(1, { message: 'Address is required!' }),
-    company: zod.string().min(1, { message: 'Company is required!' }),
-    state: zod.string().min(1, { message: 'State is required!' }),
-    city: zod.string().min(1, { message: 'City is required!' }),
-    role: zod.string().min(1, { message: 'Role is required!' }),
-    zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-    // Not required
-    status: zod.string(),
-    isVerified: zod.boolean(),
+  avatarUrl: schemaHelper.file({ message: 'Avatar is required!' }),
+  name: zod.string().min(1, { message: 'Name is required!' }),
+  email: zod
+    .string()
+    .min(1, { message: 'Email is required!' })
+    .email({ message: 'Email must be a valid email address!' }),
+  phone: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+    // message for null value
+    message: 'Country is required!',
+  }),
+  address: zod.string().min(1, { message: 'Address is required!' }),
+  company: zod.string().min(1, { message: 'Company is required!' }),
+  state: zod.string().min(1, { message: 'State is required!' }),
+  city: zod.string().min(1, { message: 'City is required!' }),
+  role: zod.string().min(1, { message: 'Role is required!' }),
+  zip: zod.string().min(1, { message: 'Zip code is required!' }),
+  // Not required
+  status: zod.string(),
+  isVerified: zod.boolean(),
 });
 
 // ----------------------------------------------------------------------
@@ -56,24 +56,24 @@ type Props = {
     currentUser?: IUserItem;
 };
 
-export function UserNewEditForm({ currentUser }: Props) {
-    const router = useRouter();
+export function UserNewEditForm({ currentUser }: Readonly<Props>) {
+  const router = useRouter();
 
-    const defaultValues: NewUserSchemaType = {
-        status: '',
-        avatarUrl: null,
-        isVerified: true,
-        name: '',
-        email: '',
-        phoneNumber: '',
-        country: '',
-        state: '',
-        city: '',
-        address: '',
-        zipCode: '',
-        company: '',
-        role: '',
-    };
+  const defaultValues: NewUserSchemaType = {
+    status: '',
+    avatarUrl: null,
+    isVerified: true,
+    name: '',
+    email: '',
+    phone: '',
+    country: '',
+    state: '',
+    city: '',
+    address: '',
+    zip: '',
+    company: '',
+    role: '',
+  };
 
     const methods = useForm<NewUserSchemaType>({
         mode: 'onSubmit',

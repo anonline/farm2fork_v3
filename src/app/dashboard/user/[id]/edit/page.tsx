@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
-import { _userList } from 'src/_mock/_user';
+import { getUserById } from 'src/actions/user-ssr';
 
 import { UserEditView } from 'src/sections/user/view';
 
@@ -13,10 +13,9 @@ type Props = {
     params: Promise<{ id: string }>;
 };
 
-export default async function Page({ params }: Props) {
-    const { id } = await params;
-
-    const currentUser = _userList.find((user) => user.id === id);
+export default async function Page({ params }: Readonly<Props>) {
+  const { id } = await params;
+  const currentUser = await getUserById(id);
 
     return <UserEditView user={currentUser} />;
 }

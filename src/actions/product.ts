@@ -22,28 +22,24 @@ type ProductsData = {
 };
 
 export function useGetProducts() {
-    const url = endpoints.product.list;
-
-    //const { data, isLoading, error, isValidating } = useSWR<ProductsData>(url, fetcher, swrOptions);
-
-    const { data, isLoading, error, isValidating } = useSWR<ProductsData>('products', async () => {
-        const response = await supabase.from('Products').select('*');
-        const { data: products, error: responseError } = response;
-
-        if (responseError) throw responseError.message;
-        return { products };
-    });
-
-    const memoizedValue = useMemo(
-        () => ({
-            products: data?.products || [],
-            productsLoading: isLoading,
-            productsError: error,
-            productsValidating: isValidating,
-            productsEmpty: !isLoading && !isValidating && !data?.products.length,
-        }),
-        [data?.products, error, isLoading, isValidating]
-    );
+  const { data, isLoading, error, isValidating } = useSWR<ProductsData>("products", async () =>  {
+    const response = await supabase.from("Products").select("*");
+    const { data: products, error: responseError } = response;
+    
+    if (responseError) throw responseError.message;
+    return { products };
+  });
+  
+  const memoizedValue = useMemo(
+    () => ({
+      products: data?.products || [],
+      productsLoading: isLoading,
+      productsError: error,
+      productsValidating: isValidating,
+      productsEmpty: !isLoading && !isValidating && !data?.products.length,
+    }),
+    [data?.products, error, isLoading, isValidating]
+  );
 
     return memoizedValue;
 }

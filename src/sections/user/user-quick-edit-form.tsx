@@ -24,24 +24,24 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 export type UserQuickEditSchemaType = zod.infer<typeof UserQuickEditSchema>;
 
 export const UserQuickEditSchema = zod.object({
-    name: zod.string().min(1, { message: 'Name is required!' }),
-    email: zod
-        .string()
-        .min(1, { message: 'Email is required!' })
-        .email({ message: 'Email must be a valid email address!' }),
-    phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-    country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-        // message for null value
-        message: 'Country is required!',
-    }),
-    state: zod.string().min(1, { message: 'State is required!' }),
-    city: zod.string().min(1, { message: 'City is required!' }),
-    address: zod.string().min(1, { message: 'Address is required!' }),
-    zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-    company: zod.string().min(1, { message: 'Company is required!' }),
-    role: zod.string().min(1, { message: 'Role is required!' }),
-    // Not required
-    status: zod.string(),
+  name: zod.string().min(1, { message: 'Name is required!' }),
+  email: zod
+    .string()
+    .min(1, { message: 'Email is required!' })
+    .email({ message: 'Email must be a valid email address!' }),
+  phone: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+    // message for null value
+    message: 'Country is required!',
+  }),
+  state: zod.string().min(1, { message: 'State is required!' }),
+  city: zod.string().min(1, { message: 'City is required!' }),
+  address: zod.string().min(1, { message: 'Address is required!' }),
+  zip: zod.string().min(1, { message: 'Zip code is required!' }),
+  company: zod.string().min(1, { message: 'Company is required!' }),
+  role: zod.string().min(1, { message: 'Role is required!' }),
+  // Not required
+  status: zod.string(),
 });
 
 // ----------------------------------------------------------------------
@@ -53,19 +53,19 @@ type Props = {
 };
 
 export function UserQuickEditForm({ currentUser, open, onClose }: Props) {
-    const defaultValues: UserQuickEditSchemaType = {
-        name: '',
-        email: '',
-        phoneNumber: '',
-        address: '',
-        country: '',
-        state: '',
-        city: '',
-        zipCode: '',
-        status: '',
-        company: '',
-        role: '',
-    };
+  const defaultValues: UserQuickEditSchemaType = {
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zip: '',
+    status: '',
+    company: '',
+    role: '',
+  };
 
     const methods = useForm<UserQuickEditSchemaType>({
         mode: 'all',
