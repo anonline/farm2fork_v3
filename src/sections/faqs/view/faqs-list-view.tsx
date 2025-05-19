@@ -1,7 +1,7 @@
 'use client';
 
 import type { TableHeadCellProps } from 'src/components/table';
-import type { IOrderItem, IOrderTableFilters } from 'src/types/order';
+import type { IFaqItem, IFaqCategoryItem, IFaqTableFilters } from 'src/types/faq';
 
 import { useState, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
@@ -19,10 +19,8 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter, fIsBetween } from 'src/utils/format-time';
-
+import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -45,7 +43,6 @@ import {
 import { FaqTableRow } from '../faqs-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
-import { IFaqCategoryItem, IFaqItem, IFaqTableFilters } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
 
@@ -183,7 +180,7 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                                                 'filled') ||
                                             'soft'
                                         }
-                                        color={'default'}
+                                        color="default"
                                     >
                                         {
                                         faqCategories.map((category)=> category.id.toString())

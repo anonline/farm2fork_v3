@@ -11,6 +11,14 @@
             "command": "npm run dev",
             "cwd": "${workspaceFolder}",
             "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+        },
+        {
+            "type": "node-terminal",
+            "name": "Lint fix",
+            "request": "launch",
+            "command": "npm run lint:fix",
+            "cwd": "${workspaceFolder}",
+            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
         }
     ],
     "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]

@@ -1,3 +1,4 @@
+import type { IFaqTableFilters } from 'src/types/faq';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
 import { useCallback } from 'react';
@@ -12,7 +13,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-import { IFaqTableFilters } from 'src/types/faq';
 
 // ----------------------------------------------------------------------
 
