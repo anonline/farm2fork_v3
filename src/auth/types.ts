@@ -5,10 +5,16 @@ export type AuthState = {
     loading: boolean;
 };
 
+export type UserRoles = {
+    isAdmin: boolean;
+    isVip: boolean;
+    isCorp: boolean;
+}
+
 export type AuthContextValue = {
     user: UserType;
     loading: boolean;
     authenticated: boolean;
     unauthenticated: boolean;
-    checkUserSession?: () => Promise<void>;
+    checkUserSession?: () => Promise<void>;  
 };

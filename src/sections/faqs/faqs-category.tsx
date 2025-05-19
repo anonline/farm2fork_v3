@@ -61,7 +61,7 @@ export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewP
     useEffect(() => {
         const filteredFaqsByCategoryId = faqs.filter((faq) => faq.faqCategoryId.toString() == customTabs.value || customTabs.value == '-1');
         setFilteredFaqs(filteredFaqsByCategoryId);
-    }, [customTabs.value]);
+    }, [faqs, customTabs.value]);
 
     const renderMobile = () => (
         <>

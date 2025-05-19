@@ -16,13 +16,13 @@ type GuestGuardProps = {
     children: React.ReactNode;
 };
 
-export function GuestGuard({ children }: GuestGuardProps) {
+export function GuestGuard({ children }: Readonly<GuestGuardProps>) {
     const router = useRouter();
 
     const { loading, authenticated } = useAuthContext();
 
     const searchParams = useSearchParams();
-    const returnTo = searchParams.get('returnTo') || CONFIG.auth.redirectPath;
+    const returnTo = searchParams.get('returnTo') ?? CONFIG.auth.redirectPath;
 
     const [isChecking, setIsChecking] = useState(true);
 
@@ -31,7 +31,7 @@ export function GuestGuard({ children }: GuestGuardProps) {
             return;
         }
 
-        if (authenticated) {
+        if (authenticated){
             router.replace(returnTo);
             return;
         }

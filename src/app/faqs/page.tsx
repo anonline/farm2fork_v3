@@ -29,6 +29,5 @@ export default async function Page() {
     } as IFaqCategoryItem
 
     faqsCategories = [all].concat(faqsCategories ?? []);
-    console.log(faqsCategories);
     return <FaqsView faqs={faqs} faqCategories={faqsCategories}/>;
 }

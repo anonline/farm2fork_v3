@@ -29,7 +29,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const { authenticated, loading } = useAuthContext();
+    const { authenticated, loading, user} = useAuthContext();
 
     const [isChecking, setIsChecking] = useState(true);
 
@@ -53,7 +53,14 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
             return;
         }
+        else {
+            if(!user?.user_metadata.is_admin){
+                const redirectPath = createRedirectPath(paths.page403);
 
+                router.replace(redirectPath);
+                return;
+            }
+        }
         setIsChecking(false);
     };
 

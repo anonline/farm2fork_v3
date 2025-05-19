@@ -132,7 +132,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
                     </Box>
                 </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phone}</TableCell>
+                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phone}</TableCell>
 
                 <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.company}</TableCell>
 

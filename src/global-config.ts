@@ -13,6 +13,7 @@ export type ConfigValue = {
   auth: {
     method: 'jwt' | 'amplify' | 'firebase' | 'supabase' | 'auth0';
     skip: boolean;
+    redirectPathAdmin: string;
     redirectPath: string;
   };
   mapboxApiKey: string;
@@ -45,6 +46,7 @@ export const CONFIG: ConfigValue = {
   auth: {
     method: 'supabase',
     skip: false,
+    redirectPathAdmin: paths.dashboard.root,
     redirectPath: paths.dashboard.root,
   },
   /**

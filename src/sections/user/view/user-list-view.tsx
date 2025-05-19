@@ -66,7 +66,7 @@ type Props = {
 export function UserListView( usersData: Readonly<Props>) {
   const table = useTable();
   const _userList = usersData._userList;
-  console.log(_userList);
+  
   const confirmDialog = useBoolean();
 
     const [tableData, setTableData] = useState<IUserItem[]>(_userList);
