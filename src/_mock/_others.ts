@@ -110,24 +110,14 @@ export const _mapContact = [
 
 export const _socials = [
     {
-        value: 'facebook',
-        label: 'Facebook',
-        path: 'https://www.facebook.com/caitlyn.kerluke',
+        value: 'email',
+        label: 'info@farm2fork.hu',
+        path: 'mailto:info@farm2fork.hu',
     },
     {
-        value: 'instagram',
-        label: 'Instagram',
-        path: 'https://www.instagram.com/caitlyn.kerluke',
-    },
-    {
-        value: 'linkedin',
-        label: 'Linkedin',
-        path: 'https://www.linkedin.com/caitlyn.kerluke',
-    },
-    {
-        value: 'twitter',
-        label: 'Twitter',
-        path: 'https://www.twitter.com/caitlyn.kerluke',
+        value: 'phone',
+        label: '+36 20 554 2280',
+        path: 'tel:+36205542280',
     },
 ];
 

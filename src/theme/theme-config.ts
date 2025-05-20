@@ -48,7 +48,7 @@ export const themeConfig: ThemeConfig = {
         primary: {
             lighter: '#C8FAD6',
             light: '#5BE49B',
-            main: '#00A76F',
+            main: '#4A6E50',
             dark: '#007867',
             darker: '#004B50',
             contrastText: '#FFFFFF',

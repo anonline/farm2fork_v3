@@ -11,16 +11,15 @@ import { usePathname } from 'src/routes/hooks';
 
 import { Logo } from 'src/components/logo';
 
+import { Footer } from './footer';
 import { NavMobile } from './nav/mobile';
 import { NavDesktop } from './nav/desktop';
-import { Footer, HomeFooter } from './footer';
 import { MainSection } from '../core/main-section';
 import { MenuButton } from '../components/menu-button';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { navData as mainNavData } from '../nav-config-main';
 import { SignInButton } from '../components/sign-in-button';
-import { SignOutButton } from '../components/sign-out-button';
 
 import type { FooterProps } from './footer';
 import type { NavMainProps } from './nav/types';
@@ -100,7 +99,7 @@ export function MainLayout({
 
                         {/** @slot Sign in button */}
                         <SignInButton />
-                        <SignOutButton />
+                        
 
                         {/** @slot Purchase button */}
                         {/*<Button
@@ -132,11 +131,11 @@ export function MainLayout({
     };
 
     const renderFooter = () =>
-        isHomePage ? (
+        /*isHomePage ? (
             <HomeFooter sx={slotProps?.footer?.sx} />
-        ) : (
+        ) : (*/
             <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
-        );
+        //);
 
     const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
 
