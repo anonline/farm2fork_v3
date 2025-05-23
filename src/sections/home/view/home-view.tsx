@@ -2,11 +2,15 @@
 
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
+import { HomeHero } from '../home-hero';
 
 
 // ----------------------------------------------------------------------
-
-export function HomeView() {
+type HomeViewProps = {
+    heroImg : string;
+    heroHeight:string;
+}
+export function HomeView({heroImg, heroHeight}:Readonly<HomeViewProps>) {
     const pageProgress = useScrollProgress();
 
     return (
@@ -21,9 +25,9 @@ export function HomeView() {
 
             <BackToTopButton />
 
-            {/*<HomeHero />
+            <HomeHero heroImg={heroImg} heroHeight={heroHeight} />
 
-      <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
+      {/*<Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
         <HomeMinimal />
 
         <HomeHugePackElements />

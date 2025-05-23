@@ -36,24 +36,14 @@ const motionProps: MotionProps = {
     variants: varFade('inUp', { distance: 24 }),
 };
 
-export function HomeHero({ sx, ...other }: BoxProps) {
-    const scrollProgress = useScrollPercent();
+type HomeHeroProps = {
+    heroImg:string;
+    heroHeight:string;
+}
+
+export function HomeHero({ heroImg,heroHeight, sx, ...other }: HomeHeroProps & BoxProps) {
 
     const mdUp = useMediaQuery((theme) => theme.breakpoints.up(mdKey));
-
-    const distance = mdUp ? scrollProgress.percent : 0;
-
-    const y1 = useTransformY(scrollProgress.scrollY, distance * -7);
-    const y2 = useTransformY(scrollProgress.scrollY, distance * -6);
-    const y3 = useTransformY(scrollProgress.scrollY, distance * -5);
-    const y4 = useTransformY(scrollProgress.scrollY, distance * -4);
-    const y5 = useTransformY(scrollProgress.scrollY, distance * -3);
-
-    const opacity: MotionValue<number> = useTransform(
-        scrollProgress.scrollY,
-        [0, 1],
-        [1, mdUp ? Number((1 - scrollProgress.percent / 100).toFixed(1)) : 1]
-    );
 
     const renderHeading = () => (
         <m.div {...motionProps}>
@@ -218,145 +208,35 @@ export function HomeHero({ sx, ...other }: BoxProps) {
         </Box>
     );
 
-    const renderIcons = () => (
-        <Stack spacing={3} sx={{ textAlign: 'center' }}>
-            <m.div {...motionProps}>
-                <Typography variant="overline" sx={{ opacity: 0.4 }}>
-                    Available For
-                </Typography>
-            </m.div>
-
-            <Box sx={{ gap: 2.5, display: 'flex' }}>
-                {['js', 'ts', 'nextjs', 'vite', 'figma'].map((platform) => (
-                    <m.div {...motionProps} key={platform}>
-                        <Box
-                            component="img"
-                            alt={platform}
-                            src={`${CONFIG.assetsDir}/assets/icons/platforms/ic-${platform}.svg`}
-                            sx={[
-                                (theme) => ({
-                                    width: 24,
-                                    height: 24,
-                                    ...theme.applyStyles('dark', {
-                                        ...(platform === 'nextjs' && { filter: 'invert(1)' }),
-                                    }),
-                                }),
-                            ]}
-                        />
-                    </m.div>
-                ))}
-            </Box>
-        </Stack>
-    );
-
     return (
-        <Box
-            ref={scrollProgress.elementRef}
-            component="section"
-            sx={[
-                (theme) => ({
-                    overflow: 'hidden',
-                    position: 'relative',
-                    [theme.breakpoints.up(mdKey)]: {
-                        minHeight: 760,
-                        height: '100vh',
-                        maxHeight: 1440,
-                        display: 'block',
-                        willChange: 'opacity',
-                        mt: 'calc(var(--layout-header-desktop-height) * -1)',
-                    },
-                }),
-                ...(Array.isArray(sx) ? sx : [sx]),
-            ]}
-            {...other}
-        >
-            <Box
-                component={m.div}
-                style={{ opacity }}
-                sx={[
-                    (theme) => ({
-                        width: 1,
-                        display: 'flex',
-                        position: 'relative',
-                        flexDirection: 'column',
-                        transition: theme.transitions.create(['opacity']),
-                        [theme.breakpoints.up(mdKey)]: {
-                            height: 1,
-                            position: 'fixed',
-                            maxHeight: 'inherit',
-                        },
-                    }),
-                ]}
-            >
-                <Container
-                    component={MotionContainer}
-                    sx={[
-                        (theme) => ({
-                            py: 3,
-                            gap: 5,
-                            zIndex: 9,
-                            display: 'flex',
-                            alignItems: 'center',
-                            flexDirection: 'column',
-                            [theme.breakpoints.up(mdKey)]: {
-                                flex: '1 1 auto',
-                                justifyContent: 'center',
-                                py: 'var(--layout-header-desktop-height)',
-                            },
-                        }),
-                    ]}
-                >
-                    <Stack spacing={3} sx={{ textAlign: 'center' }}>
-                        <m.div style={{ y: y1 }}>{renderHeading()}</m.div>
-                        <m.div style={{ y: y2 }}>{renderText()}</m.div>
-                    </Stack>
-
-                    <m.div style={{ y: y3 }}>{renderRatings()}</m.div>
-                    <m.div style={{ y: y4 }}>{renderButtons()}</m.div>
-                    <m.div style={{ y: y5 }}>{renderIcons()}</m.div>
-                </Container>
-
-                <HeroBackground />
-            </Box>
+        <Box sx={{
+            width: '100%',
+            backgroundImage: "url("+heroImg+")",
+            backgroundRepeat: "no-repeat",
+      backgroundSize: "cover",
+            height:heroHeight,
+            display:'flex',
+        }}>
+            <Container sx={{
+                border:'1px solid blue',
+                alignItems: 'flex-end',
+                display: 'flex',
+                padding:'none',
+                }}>
+                <Box sx={{
+                    width:'50%',
+                    display: 'flex',
+                    border: '1px solid red',
+                    alignSelf: 'end',
+                    m:0
+                }}>
+                    <Typography variant='h1' sx={(theme)=>({
+                        color:theme.palette.common.white
+                    })}>
+                        Szezonális termékek hazai termelőktől
+                    </Typography>
+                </Box>
+            </Container>
         </Box>
     );
-}
-
-// ----------------------------------------------------------------------
-
-function useTransformY(value: MotionValue<number>, distance: number) {
-    const physics: SpringOptions = {
-        mass: 0.1,
-        damping: 20,
-        stiffness: 300,
-        restDelta: 0.001,
-    };
-
-    return useSpring(useTransform(value, [0, 1], [0, distance]), physics);
-}
-
-function useScrollPercent() {
-    const elementRef = useRef<HTMLDivElement>(null);
-
-    const { scrollY } = useScroll();
-
-    const [percent, setPercent] = useState(0);
-
-    useMotionValueEvent(scrollY, 'change', (scrollHeight) => {
-        let heroHeight = 0;
-
-        if (elementRef.current) {
-            heroHeight = elementRef.current.offsetHeight;
-        }
-
-        const scrollPercent = Math.floor((scrollHeight / heroHeight) * 100);
-
-        if (scrollPercent >= 100) {
-            setPercent(100);
-        } else {
-            setPercent(Math.floor(scrollPercent));
-        }
-    });
-
-    return { elementRef, percent, scrollY };
 }
