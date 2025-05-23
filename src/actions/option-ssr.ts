@@ -1,4 +1,4 @@
-import { Option, OptionsEnum } from 'src/types/option';
+import type { Option, OptionsEnum } from 'src/types/option';
 
 import { cookies } from 'next/headers';
 

@@ -2,6 +2,7 @@
 
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
+
 import { HomeHero } from '../home-hero';
 
 

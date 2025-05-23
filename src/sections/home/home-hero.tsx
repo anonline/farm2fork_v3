@@ -1,9 +1,8 @@
+import type { MotionProps } from 'framer-motion';
 import type { BoxProps } from '@mui/material/Box';
 import type { Breakpoint } from '@mui/material/styles';
-import type { MotionProps, MotionValue, SpringOptions } from 'framer-motion';
 
-import { useRef, useState } from 'react';
-import { m, useScroll, useSpring, useTransform, useMotionValueEvent } from 'framer-motion';
+import { m } from 'framer-motion';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -22,10 +21,8 @@ import { _mock } from 'src/_mock';
 import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
-import { varFade, MotionContainer } from 'src/components/animate';
+import { varFade } from 'src/components/animate';
 
-import { HeroBackground } from './components/hero-background';
-import { primary } from 'src/theme';
 
 // ----------------------------------------------------------------------
 
