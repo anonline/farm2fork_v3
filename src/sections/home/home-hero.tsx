@@ -1,9 +1,8 @@
+import type { MotionProps } from 'framer-motion';
 import type { BoxProps } from '@mui/material/Box';
 import type { Breakpoint } from '@mui/material/styles';
-import type { MotionProps, MotionValue, SpringOptions } from 'framer-motion';
 
-import { useRef, useState } from 'react';
-import { m, useScroll, useSpring, useTransform, useMotionValueEvent } from 'framer-motion';
+import { m } from 'framer-motion';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -22,9 +21,8 @@ import { _mock } from 'src/_mock';
 import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
-import { varFade, MotionContainer } from 'src/components/animate';
+import { varFade } from 'src/components/animate';
 
-import { HeroBackground } from './components/hero-background';
 
 // ----------------------------------------------------------------------
 
@@ -36,24 +34,18 @@ const motionProps: MotionProps = {
     variants: varFade('inUp', { distance: 24 }),
 };
 
-export function HomeHero({ sx, ...other }: BoxProps) {
-    const scrollProgress = useScrollPercent();
+type HomeHeroProps = {
+    heroImg:string;
+    heroHeight:string;
+    heroTitle: string;
+    heroPrimaryBtnText: string;
+    heroSecondaryBtnText: string;
+    heroImgOverlay:string;
+}
+
+export function HomeHero({ heroImg, heroHeight, heroTitle, heroPrimaryBtnText, heroSecondaryBtnText, heroImgOverlay, sx, ...other }: HomeHeroProps & BoxProps) {
 
     const mdUp = useMediaQuery((theme) => theme.breakpoints.up(mdKey));
-
-    const distance = mdUp ? scrollProgress.percent : 0;
-
-    const y1 = useTransformY(scrollProgress.scrollY, distance * -7);
-    const y2 = useTransformY(scrollProgress.scrollY, distance * -6);
-    const y3 = useTransformY(scrollProgress.scrollY, distance * -5);
-    const y4 = useTransformY(scrollProgress.scrollY, distance * -4);
-    const y5 = useTransformY(scrollProgress.scrollY, distance * -3);
-
-    const opacity: MotionValue<number> = useTransform(
-        scrollProgress.scrollY,
-        [0, 1],
-        [1, mdUp ? Number((1 - scrollProgress.percent / 100).toFixed(1)) : 1]
-    );
 
     const renderHeading = () => (
         <m.div {...motionProps}>
@@ -218,145 +210,86 @@ export function HomeHero({ sx, ...other }: BoxProps) {
         </Box>
     );
 
-    const renderIcons = () => (
-        <Stack spacing={3} sx={{ textAlign: 'center' }}>
-            <m.div {...motionProps}>
-                <Typography variant="overline" sx={{ opacity: 0.4 }}>
-                    Available For
-                </Typography>
-            </m.div>
-
-            <Box sx={{ gap: 2.5, display: 'flex' }}>
-                {['js', 'ts', 'nextjs', 'vite', 'figma'].map((platform) => (
-                    <m.div {...motionProps} key={platform}>
-                        <Box
-                            component="img"
-                            alt={platform}
-                            src={`${CONFIG.assetsDir}/assets/icons/platforms/ic-${platform}.svg`}
-                            sx={[
-                                (theme) => ({
-                                    width: 24,
-                                    height: 24,
-                                    ...theme.applyStyles('dark', {
-                                        ...(platform === 'nextjs' && { filter: 'invert(1)' }),
-                                    }),
-                                }),
-                            ]}
-                        />
-                    </m.div>
-                ))}
-            </Box>
-        </Stack>
-    );
-
     return (
-        <Box
-            ref={scrollProgress.elementRef}
-            component="section"
-            sx={[
-                (theme) => ({
-                    overflow: 'hidden',
-                    position: 'relative',
-                    [theme.breakpoints.up(mdKey)]: {
-                        minHeight: 760,
-                        height: '100vh',
-                        maxHeight: 1440,
-                        display: 'block',
-                        willChange: 'opacity',
-                        mt: 'calc(var(--layout-header-desktop-height) * -1)',
-                    },
-                }),
-                ...(Array.isArray(sx) ? sx : [sx]),
-            ]}
-            {...other}
-        >
+        <Box sx={{
+            width: '100%',
+            backgroundImage: "url("+heroImg+")",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: 'center',
+            height:heroHeight,
+            display:'flex',
+            position:'relative'
+        }}>
             <Box
-                component={m.div}
-                style={{ opacity }}
-                sx={[
-                    (theme) => ({
-                        width: 1,
-                        display: 'flex',
-                        position: 'relative',
-                        flexDirection: 'column',
-                        transition: theme.transitions.create(['opacity']),
-                        [theme.breakpoints.up(mdKey)]: {
-                            height: 1,
-                            position: 'fixed',
-                            maxHeight: 'inherit',
-                        },
-                    }),
-                ]}
-            >
-                <Container
-                    component={MotionContainer}
-                    sx={[
-                        (theme) => ({
-                            py: 3,
-                            gap: 5,
-                            zIndex: 9,
-                            display: 'flex',
-                            alignItems: 'center',
-                            flexDirection: 'column',
-                            [theme.breakpoints.up(mdKey)]: {
-                                flex: '1 1 auto',
-                                justifyContent: 'center',
-                                py: 'var(--layout-header-desktop-height)',
-                            },
-                        }),
-                    ]}
-                >
-                    <Stack spacing={3} sx={{ textAlign: 'center' }}>
-                        <m.div style={{ y: y1 }}>{renderHeading()}</m.div>
-                        <m.div style={{ y: y2 }}>{renderText()}</m.div>
+                sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: heroImgOverlay, // fekete overlay 50% áttetszőséggel
+                zIndex: 1,
+                }}
+            />
+            <Container sx={{
+                alignItems: 'flex-end',
+                display: 'flex',
+                padding:'none',
+                px:'0px !important',
+                py:'80px',
+                zIndex:2
+                }}>
+                <Box sx={{
+                    width:'60%',
+                    textTransform: 'uppercase',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignSelf: 'end',
+                    m:0,
+                    gap:5
+                }}>
+                    <Typography variant='h1' sx={(theme)=>({
+                        color:theme.palette.common.white,
+                        fontSize: '64px',
+                        fontWeight:600,
+                        lineHeight: '70px',
+                        letterSpacing: '-1px',
+                    })}>
+                        {heroTitle}
+                    </Typography>
+                    <Stack
+                        direction= 'row'
+                        spacing={3}
+                        sx={{
+                            alignItems: 'flex-start',
+                            justifyContent: 'flex-start',
+                        }}
+                    >
+                        <Button variant='contained' color='primary' sx={(theme)=>({
+                            fontSize: '18px',
+                            padding: '16px 24px',
+                            borderRadius:"8px",
+                            lineHeight:'22px',
+                            borderWidth: '2px',
+                            borderStyle: 'solid',
+                            borderColor: theme.vars.palette.primary.main
+                        })}>
+                            {heroPrimaryBtnText}
+                        </Button>
+                        <Button variant='outlined' color='info' sx={(theme) => ({
+                            fontSize: '18px',
+                            padding: '16px 24px',
+                            borderRadius:"8px",
+                            lineHeight:'22px',
+                            color: theme.palette.common.white,
+                            borderColor: theme.palette.common.white,
+                        })}>
+                            {heroSecondaryBtnText}
+                        </Button>
                     </Stack>
-
-                    <m.div style={{ y: y3 }}>{renderRatings()}</m.div>
-                    <m.div style={{ y: y4 }}>{renderButtons()}</m.div>
-                    <m.div style={{ y: y5 }}>{renderIcons()}</m.div>
-                </Container>
-
-                <HeroBackground />
-            </Box>
+                </Box>
+            </Container>
         </Box>
     );
-}
-
-// ----------------------------------------------------------------------
-
-function useTransformY(value: MotionValue<number>, distance: number) {
-    const physics: SpringOptions = {
-        mass: 0.1,
-        damping: 20,
-        stiffness: 300,
-        restDelta: 0.001,
-    };
-
-    return useSpring(useTransform(value, [0, 1], [0, distance]), physics);
-}
-
-function useScrollPercent() {
-    const elementRef = useRef<HTMLDivElement>(null);
-
-    const { scrollY } = useScroll();
-
-    const [percent, setPercent] = useState(0);
-
-    useMotionValueEvent(scrollY, 'change', (scrollHeight) => {
-        let heroHeight = 0;
-
-        if (elementRef.current) {
-            heroHeight = elementRef.current.offsetHeight;
-        }
-
-        const scrollPercent = Math.floor((scrollHeight / heroHeight) * 100);
-
-        if (scrollPercent >= 100) {
-            setPercent(100);
-        } else {
-            setPercent(Math.floor(scrollPercent));
-        }
-    });
-
-    return { elementRef, percent, scrollY };
 }

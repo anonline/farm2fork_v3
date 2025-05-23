@@ -201,7 +201,7 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.menuItem,
                 caption: 'Gyakran Ismételt Kérdések'
             },
-            {
+            /*{
                 /**
                  * Permissions can be set for each item by using the `allowedRoles` property.
                  * - If `allowedRoles` is not set (default), all roles can see the item.
@@ -215,18 +215,19 @@ export const navData: NavSectionProps['data'] = [
                  *
                  * Combine with the `checkPermissions` prop to build conditional expressions.
                  * Example usage can be found in: src/sections/_examples/extra/navigation-bar-view/nav-vertical.{jsx | tsx}
-                 */
+                 
                 title: 'Jogosultságok',
                 path: paths.dashboard.permission,
                 icon: ICONS.lock,
                 allowedRoles: ['admin', 'manager'],
                 caption: 'Only admin can see this item.',
-            },
+            },*/
             {
-                title: 'Level',
+                title: 'Beállítások',
                 path: '#/dashboard/menu_level',
-                icon: ICONS.menuItem,
+                icon: ICONS.parameter,
                 children: [
+                    { title: 'Kezdőképernyő beállításai', path: '#/dashboard/settings/home' },
                     {
                         title: 'Level 1a',
                         path: '#/dashboard/menu_level/menu_level_1a',
@@ -251,16 +252,15 @@ export const navData: NavSectionProps['data'] = [
                             },
                         ],
                     },
-                    { title: 'Level 1b', path: '#/dashboard/menu_level/menu_level_1b' },
                 ],
             },
-            {
+            /*{
                 title: 'Disabled',
                 path: '#disabled',
                 icon: ICONS.disabled,
                 disabled: true,
-            },
-            {
+            },*/
+            /*{
                 title: 'Label',
                 path: '#label',
                 icon: ICONS.label,
@@ -273,9 +273,9 @@ export const navData: NavSectionProps['data'] = [
                         NEW
                     </Label>
                 ),
-            },
+            },*/
             
-            {
+            /*{
                 title: 'Params',
                 path: '/dashboard/params?id=e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1',
                 icon: ICONS.parameter,
@@ -286,7 +286,7 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.external,
                 info: <Iconify width={18} icon="eva:external-link-fill" />,
             },
-            { title: 'Blank', path: paths.dashboard.blank, icon: ICONS.blank },
+            { title: 'Blank', path: paths.dashboard.blank, icon: ICONS.blank },*/
         ],
     },
 ];
