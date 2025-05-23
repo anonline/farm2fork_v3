@@ -90,6 +90,11 @@ export type IUserItem = {
   phone: string;
   isVerified: boolean;
   createdAt: IDateValue;
+  newsletterConsent: boolean;
+  is_admin:boolean;
+  is_vip:boolean;
+  is_company:boolean;
+  is_personal:boolean;
 };
 
 export type IUserAccountBillingHistory = {

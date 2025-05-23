@@ -12,6 +12,7 @@ export const metadata: Metadata = { title: `User list | Dashboard - ${CONFIG.app
 export default async function Page() {
     const userList = await getUsers();
     //console.log(userList);
+
     return (
       <UserListView _userList={userList} />
     );
