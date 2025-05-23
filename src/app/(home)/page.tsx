@@ -13,8 +13,27 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-    const heroImg = await getOption(OptionsEnum.HomeHeroBgImage);
-    const heroHeight = await getOption(OptionsEnum.HomeHeroMinHeight);
+    const optionKeys = [
+        OptionsEnum.HomeHeroBgImage,
+        OptionsEnum.HomeHeroMinHeight,
+        OptionsEnum.HomeHeroTitle,
+        OptionsEnum.HomeHeroPrimaryBtnText,
+        OptionsEnum.HomeHeroSecondaryBtnText,
+        OptionsEnum.HomeHeroOverlay
+    ];
 
-    return <HomeView heroImg={heroImg?.value} heroHeight={heroHeight?.value} />;
+    const [heroImg, heroHeight, heroTitle, heroPrimaryBtnText, heroSecondaryBtnText, heroImgOverlay] = await Promise.all(
+        optionKeys.map(getOption)
+    );
+
+    const HomeViewProps = {
+        heroImg: heroImg?.value,
+        heroHeight: heroHeight?.value,
+        heroTitle: heroTitle?.value,
+        heroPrimaryBtnText: heroPrimaryBtnText?.value,
+        heroSecondaryBtnText: heroSecondaryBtnText?.value,
+        heroImgOverlay: heroImgOverlay?.value
+    };
+
+    return <HomeView {...HomeViewProps} />;
 }

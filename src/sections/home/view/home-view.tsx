@@ -7,10 +7,14 @@ import { HomeHero } from '../home-hero';
 
 // ----------------------------------------------------------------------
 type HomeViewProps = {
-    heroImg : string;
-    heroHeight:string;
+    heroImg: string;
+    heroHeight: string;
+    heroTitle: string;
+    heroPrimaryBtnText: string;
+    heroSecondaryBtnText: string;
+    heroImgOverlay: string;
 }
-export function HomeView({heroImg, heroHeight}:Readonly<HomeViewProps>) {
+export function HomeView(props: Readonly<HomeViewProps>) {
     const pageProgress = useScrollProgress();
 
     return (
@@ -25,9 +29,16 @@ export function HomeView({heroImg, heroHeight}:Readonly<HomeViewProps>) {
 
             <BackToTopButton />
 
-            <HomeHero heroImg={heroImg} heroHeight={heroHeight} />
+            <HomeHero
+                heroImg={props.heroImg}
+                heroHeight={props.heroHeight}
+                heroTitle={props.heroTitle}
+                heroPrimaryBtnText={props.heroPrimaryBtnText}
+                heroSecondaryBtnText={props.heroSecondaryBtnText}
+                heroImgOverlay={props.heroImgOverlay}
+            />
 
-      {/*<Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
+            {/*<Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
         <HomeMinimal />
 
         <HomeHugePackElements />
