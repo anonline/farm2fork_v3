@@ -48,7 +48,7 @@ export function updateCoreWithSettings(
                 background: {
                     ...lightPalette?.background,
                     ...(!isDefaultContrast && {
-                        default: lightPalette.grey[200],
+                        default: '#ffffff',
                         defaultChannel: hexToRgbChannel(lightPalette.grey[200]),
                     }),
                 },

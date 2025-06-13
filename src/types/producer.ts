@@ -4,10 +4,12 @@ export type IProducerItem = {
     bio: boolean;
     shortDescription: string;
     producingTags: string;
-    featuredImage: number;
+    featuredImage: string;
     coverImage: number;
     galleryIds: number[];
     companyName: string;
+    slug:string;
+    location: string;
 };
 
 export type IProducerTableFilters = {

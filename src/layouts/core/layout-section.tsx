@@ -19,6 +19,7 @@ export type LayoutSectionProps = React.ComponentProps<'div'> & {
     footerSection?: React.ReactNode;
     headerSection?: React.ReactNode;
     sidebarSection?: React.ReactNode;
+    announcementSection?: React.ReactNode;
 };
 
 export function LayoutSection({
@@ -29,6 +30,7 @@ export function LayoutSection({
     headerSection,
     sidebarSection,
     className,
+    announcementSection,
     ...other
 }: LayoutSectionProps) {
     const inputGlobalStyles = (
@@ -49,6 +51,7 @@ export function LayoutSection({
                     <>
                         {sidebarSection}
                         <LayoutSidebarContainer className={layoutClasses.sidebarContainer}>
+                            {announcementSection}
                             {headerSection}
                             {children}
                             {footerSection}
@@ -56,6 +59,7 @@ export function LayoutSection({
                     </>
                 ) : (
                     <>
+                        {announcementSection}
                         {headerSection}
                         {children}
                         {footerSection}

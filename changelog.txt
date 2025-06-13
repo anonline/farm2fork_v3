@@ -1,0 +1,53 @@
+* 6cd3113 (HEAD -> main, origin/main, origin/HEAD) Refactor Home Hero component and improve code structure (#6)
+| * 64be683 (origin/HomeHero, HomeHero) refactor: Update imports to use type imports and clean up unused imports
+| * 6dccaae refactor: Comment out unused navigation items and clean up navData structure
+| * 2f1fadd Refactor code structure for improved readability and maintainability
+| * 4326452 Home Hero init
+|/  
+* 12d3250 F2FV3-39 | feat: Update footer layout and content, add newsletter subscription (#5)
+| * fd31214 (origin/F2FV3-39, F2FV3-39) F2FV3-39 | feat: Update footer layout and content, add newsletter subscription
+|/  
+* 8e64c28 F2FV3-40, F2FV3-41, F2FV3-42, F2F-V3-45 | refactor: Improve user management and authentication handling, update user roles, and clean up code
+* b30d3cb F2FV3-37 | Gyik kezelés (#4)
+| * 28057da (origin/F2FV3-37, F2FV3-37) F2FV3-37 | refactor: Reorganize imports and improve FAQ components structure for better readability and maintainability
+| * d00cfbf F2FV3-37 | feat: Implement FAQ management features with Supabase integration, including fetching FAQs and categories, and updating UI components
+| *   5ccbc4f Merge remote-tracking branch 'origin/main' into F2FV3-37
+| |\  
+| |/  
+|/|   
+* | 9fd37b7 fix: Correct contrast setting and update widget summary titles in settings and overview components
+* | b52ad67 F2FV3-27 | Refactor user management with Supabase integration and upd… (#3)
+| * f0f29be F2FV3-27 | feat: Add lint fix command to launch configuration and clean up imports in FAQ components
+| * 8dc8724 F2FV3-37 | Implement FAQ management features including list view, toolbar, and table row components
+| * 8883e72 F2FV3-37 | fix: Update package names and versions in lock files for consistency
+| * 59a465d F2FV3-37 | TabWidth change + FAQ frontend
+|/  
+| * 61131c5 (origin/F2FV3-27) F2FV3-27 | refactor: Rename phoneNumber and zipCode fields to phone and zip for consistency in user forms
+| * e827131 F2FV3-27 | refactor: Simplify product fetching in useGetProducts and implement getUserById for user details retrieval
+| * a85f9fa F2FV3-27 | refactor: Update useGetProducers and useSearchProducers to use nullish coalescing and improve type safety in user-table-row
+| * 852f877 F2FV3-27 | refactor: Reorder imports for consistency and clarity in user-related files
+| * 9315eb9 F2FV3-27 | Refactor user management with Supabase integration and update user data structure
+|/  
+*   dac0cd6 Merge pull request #2 from anonline/F2FV3-26
+|\  
+| * 2685ce1 (origin/F2FV3-26, F2FV3-26) F2FV3-26 | Cleaning + sonarlint
+| * dc09641 F2FV3-26 | feat: Update category-related imports and clean up unused code in category components
+| * 806c2b4 F2FV3-26 |  feat: Add category management features including category list view, filters, and actions
+|/  
+| * 143e8fc (origin/VercelSpeedInsights, VercelSpeedInsights) feat: Add @vercel/speed-insights package and integrate into layout
+|/  
+* 6e2a653 feat: Implement error handling component for post not found scenario
+* c26cccb refactor: Clean up unused imports and improve code organization across multiple files
+* 9e35304 linting
+* 9f45d5e fix: Update import statements and improve code consistency across producer and product modules
+* 3daf79b duplicate import fix
+* 9d634ad deploy
+* 45f8616 remove env.local
+* af97920 linting
+* a5a5ced feat: Update order list view with Hungarian translations and new status options
+* f142bf9 gitignore
+* eef1f0b sonarlint
+* ef73711 supabase login and product list
+* f573da9 pro populate
+* fee84c9 minimal-next init
+* 873acbf Initial commit

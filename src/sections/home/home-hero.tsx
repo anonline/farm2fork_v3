@@ -266,15 +266,21 @@ export function HomeHero({ heroImg, heroHeight, heroTitle, heroPrimaryBtnText, h
                             justifyContent: 'flex-start',
                         }}
                     >
-                        <Button variant='contained' color='primary' sx={(theme)=>({
-                            fontSize: '18px',
-                            padding: '16px 24px',
-                            borderRadius:"8px",
-                            lineHeight:'22px',
-                            borderWidth: '2px',
-                            borderStyle: 'solid',
-                            borderColor: theme.vars.palette.primary.main
-                        })}>
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            sx={(theme) => ({
+                                fontSize: '18px',
+                                padding: '16px 24px',
+                                borderRadius: "8px",
+                                lineHeight: '22px',
+                                borderWidth: '2px',
+                                borderStyle: 'solid',
+                                borderColor: theme.vars.palette.primary.main
+                            })}
+                            component={RouterLink}
+                            href={paths.product.root}
+                        >
                             {heroPrimaryBtnText}
                         </Button>
                         <Button variant='outlined' color='info' sx={(theme) => ({

@@ -5,6 +5,8 @@ import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 
+import { themeConfig } from 'src/theme';
+
 import { Iconify } from 'src/components/iconify';
 import { createNavItem, navItemStyles, navSectionClasses } from 'src/components/nav-section';
 
@@ -41,7 +43,7 @@ export function NavItem({
             })}
             {...other}
         >
-            <ItemTitle {...ownerState}> {title}</ItemTitle>
+            <ItemTitle {...ownerState} sx={{textTransform:'uppercase', fontFamily:themeConfig.fontFamily.primary, fontWeight:600, fontSize:'14px', lineHeight:'20px'}}> {title}</ItemTitle>
 
             {hasChild && <ItemArrow {...ownerState} icon="eva:arrow-ios-downward-fill" />}
         </ItemRoot>

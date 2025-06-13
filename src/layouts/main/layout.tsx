@@ -2,14 +2,20 @@
 
 import type { Breakpoint } from '@mui/material/styles';
 
+import { useState, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
+import { Button, Container } from '@mui/material';
 
 import { usePathname } from 'src/routes/hooks';
 
+import { themeConfig } from 'src/theme';
+import { supabase } from 'src/lib/supabase';
+
 import { Logo } from 'src/components/logo';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 import { Footer } from './footer';
 import { NavMobile } from './nav/mobile';
@@ -57,6 +63,46 @@ export function MainLayout({
     const isHomePage = pathname === '/';
 
     const navData = slotProps?.nav?.data ?? mainNavData;
+    const [announcement, setAnnouncement] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchAnnouncement = async () => {
+            const now = new Date().toISOString();
+            const { data, error } = await supabase
+                .from('Announcement')
+                .select('text, validFrom, validUntil')
+                .order('validFrom', { ascending: false })
+                .limit(1)
+                .or(`validFrom.is.null,validFrom.lte.${now}`)
+                .or(`validUntil.is.null,validUntil.gte.${now}`);
+
+            if (!error && data && data.length > 0) {
+                setAnnouncement(data[0].text);
+            }
+        };
+        fetchAnnouncement();
+    }, []);
+
+    const renderAnnouncement = () => {
+        if (!announcement) return null;
+
+        return (
+            <Box
+                sx={{
+                    width: '100%',
+                    bgcolor: '#B4D7FF',
+                    color: '#1A5290',
+                    py: 1,
+                    textAlign: 'center',
+                    fontWeight: 500,
+                    fontSize: { xs: 14, sm: 16 },
+                    letterSpacing: 0.2,
+                }}
+            >
+                {announcement}
+            </Box>
+        );
+    }
 
     const renderHeader = () => {
         const headerSlots: HeaderSectionProps['slots'] = {
@@ -78,42 +124,65 @@ export function MainLayout({
                     />
                     <NavMobile data={navData} open={open} onClose={onClose} />
 
-                    {/** @slot Logo */}
-                    <Logo />
+                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
+                        <Logo sx={{ marginRight: "50px", marginTop: '-8px' }} />
+                        <NavDesktop
+                            data={navData}
+                            sx={(theme) => ({
+                                display: 'none',
+                                [theme.breakpoints.up(layoutQuery)]: { mr: 2.5, display: 'flex' },
+                            })}
+                        />
+                    </Container>
                 </>
             ),
             rightArea: (
                 <>
                     {/** @slot Nav desktop */}
-                    <NavDesktop
-                        data={navData}
-                        sx={(theme) => ({
-                            display: 'none',
-                            [theme.breakpoints.up(layoutQuery)]: { mr: 2.5, display: 'flex' },
-                        })}
-                    />
+
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-                        {/** @slot Settings button */}
-                        {/*<SettingsButton />*/}
+
+                        <Button
+                            startIcon={
+                                <F2FIcons
+                                    name="Bag"
+                                    width={24}
+                                    height={24}
+                                    style={{ color: 'inherit' }}
+                                />
+                            }
+                            variant="text"
+
+                            sx={{ textTransform: 'none', fontWeight: 500 }}
+                        >
+                            Kosár
+                        </Button>
 
                         {/** @slot Sign in button */}
-                        <SignInButton />
-                        
+                        <SignInButton sx={
+                            {
+                                backgroundColor: themeConfig.palette.common.black,
+                                borderRadius: '8px',
+                                fontFamily: themeConfig.fontFamily.primary,
+                                padding: '8px 20px',
+
+                                textTransform: 'uppercase',
+                                fontWeight: 600,
+                                color: themeConfig.palette.common.white,
+                                fontSize: '14px',
+                                lineHeight: '30px',
+                                letterSpacing: '0.01em',
+                                '&:hover': {
+                                    backgroundColor: themeConfig.palette.primary.main,
+                                    color: themeConfig.palette.common.white,
+                                },
+                            }
+                        } />
+
 
                         {/** @slot Purchase button */}
-                        {/*<Button
-              variant="contained"
-              rel="noopener"
-              target="_blank"
-              href={paths.minimalStore}
-              sx={(theme) => ({
-                display: 'none',
-                [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
-              })}
-            >
-              Purchase
-            </Button>*/}
+
                     </Box>
                 </>
             ),
@@ -134,13 +203,14 @@ export function MainLayout({
         /*isHomePage ? (
             <HomeFooter sx={slotProps?.footer?.sx} />
         ) : (*/
-            <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
-        //);
+        <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
+    //);
 
     const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
 
     return (
         <LayoutSection
+            announcementSection={renderAnnouncement()}
             /** **************************************
              * @Header
              *************************************** */

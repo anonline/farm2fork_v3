@@ -13,6 +13,9 @@ type ThemeConfig = {
     defaultMode: ThemeColorScheme;
     cssVariables: ThemeCssVariables;
     fontFamily: Record<'primary' | 'secondary', string>;
+    textColor: Record<
+        'default' | 'muted' | 'grey',
+        string>,
     palette: Record<
         'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error',
         PaletteColorNoChannels
@@ -41,15 +44,20 @@ export const themeConfig: ThemeConfig = {
         primary: 'Inter Variable',
         secondary: 'Inter Variable',
     },
+    textColor: {
+        default: '#262626',
+        muted: '#26262666',
+        grey: '#4d4d4d'
+    },
     /** **************************************
      * Palette
      *************************************** */
     palette: {
         primary: {
             lighter: '#C8FAD6',
-            light: '#5BE49B',
+            light: '#E4EBC2',
             main: '#4A6E50',
-            dark: '#007867',
+            dark: '#3c5638',
             darker: '#004B50',
             contrastText: '#FFFFFF',
         },
@@ -99,7 +107,7 @@ export const themeConfig: ThemeConfig = {
             '200': '#F4F6F8',
             '300': '#DFE3E8',
             '400': '#C4CDD5',
-            '500': '#919EAB',
+            '500': '#4D4D4D',
             '600': '#637381',
             '700': '#454F5B',
             '800': '#1C252E',

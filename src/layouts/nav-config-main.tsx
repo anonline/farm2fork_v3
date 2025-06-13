@@ -1,19 +1,16 @@
 import { paths } from 'src/routes/paths';
 
-import { Iconify } from 'src/components/iconify';
-
 import type { NavMainProps } from './main/nav/types';
 
 // ----------------------------------------------------------------------
 
 export const navData: NavMainProps['data'] = [
-    { title: 'Home', path: '/', icon: <Iconify width={22} icon="solar:home-angle-bold-duotone" /> },
     {
         title: 'Termékek',
         path: '/termekek',
         children: [
             {
-                subheader: '',
+                subheader: '1',
                 items: [
                     { title: 'Összes termék', path: paths.about },
                     { title: 'Gyümölcsök', path: paths.contact },
@@ -21,7 +18,7 @@ export const navData: NavMainProps['data'] = [
                 ],
             },
             {
-                subheader: '',
+                subheader: '2',
                 items: [
                     { title: 'Szezon box', path: paths.pricing },
                     { title: 'Gombák', path: paths.payment },

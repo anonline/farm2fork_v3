@@ -36,7 +36,7 @@ export const paths = {
     figmaUrl:
         'https://www.figma.com/design/oAxS3CUFO0ou7rH2lTS8oI/%5BPreview%5D-Minimal-Web.v7.0.0',
     product: {
-        root: `/product`,
+        root: `/termekek`,
         checkout: `/product/checkout`,
         details: (id: string) => `/product/${id}`,
         demo: { details: `/product/${MOCK_ID}` },

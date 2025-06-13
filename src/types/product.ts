@@ -28,11 +28,38 @@ export type IProductReview = {
     attachments?: string[];
 };
 
+export const Months = {
+    January: 'Január',
+    February: "Február",
+    March: "Március",
+    April: "April",
+    May: "May",
+    June: "Június",
+    July: "Július",
+    August: "Augusztus",
+    September: "Szeptember",
+    October: "October",
+    November: "November",
+    December: "December",
+} as const;
+type MonthKeys = keyof typeof Months;
+
 export type IProductItem = {
     id: string;
     sku: string;
     name: string;
+    shortDescription: string;
+    featuredImage: string;
+    stepQuantity: number;
+    mininumQuantity: number;
+    maximumQuantity: number;
+    url: string;
+    unit:string;
     bio: boolean;
+    netPrice: number;
+    netPriceVIP: number;
+    netPriceCompany: number;
+    seasonality: MonthKeys[],
     code: string;
     price: number;
     taxes: number;

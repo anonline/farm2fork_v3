@@ -1,9 +1,14 @@
 'use client';
 
+import { Stack } from '@mui/material';
+
+import { CategoryProvider } from 'src/contexts/category-context';
+
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
 
 import { HomeHero } from '../home-hero';
+import { HomeCategoryList } from '../home-category-list';
 
 
 // ----------------------------------------------------------------------
@@ -39,8 +44,18 @@ export function HomeView(props: Readonly<HomeViewProps>) {
                 heroImgOverlay={props.heroImgOverlay}
             />
 
+            <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
+
+                <CategoryProvider>
+                    <HomeCategoryList />
+                </CategoryProvider>
+            </Stack>
+
+            
+
             {/*<Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
-        <HomeMinimal />
+        
+<HomeMinimal />
 
         <HomeHugePackElements />
 
