@@ -1,0 +1,87 @@
+'use client'
+
+import { Box, Grid, SxProps, Typography } from "@mui/material";
+import { useState } from "react";
+import { Image } from "src/components/image";
+
+type ArticleGridItem = {
+    link: string,
+    title: string,
+    year: string,
+    medium: string,
+    image: string
+}
+
+type ArticleGridItemProps = {
+    article: ArticleGridItem
+}
+
+export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridItemProps>) {
+
+    const handleArticleClick = (link: string) => {
+        if (link) {
+            window.open(link, "_blank", "noopener,noreferrer");
+        }
+    };
+
+    const [isHovered, setIsHovered] = useState(false);
+
+    const mainGridStyle = { xs: 12, sm: 12, md: 6, lg: 4, xl: 4 };
+    const wrapperStyle = {
+        borderBottom: "1px solid gray",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "start",
+        cursor: article.link ? "pointer" : "default"
+    };
+
+    const imgStyle: SxProps = {
+        width: '100%',
+        height: 'auto',
+        borderRadius: "5px",
+        aspectRatio: '350/250',
+        objectFit: 'cover',
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: '#00000000',
+        ...(isHovered && { borderColor: "black" })
+    };
+
+    const textContainerStyle = { justifyContent: "space-between", display: "flex", my: 3, width: '100%' };
+
+    const mediumTextStyle = { fontSize: { xs: "1rem", md: "1.25rem" }, color: "gray", alignSelf: "start" };
+    const yearTextStyle = { fontSize: { xs: "1rem", md: "1.25rem" }, color: "gray", alignSelf: "end" };
+    const titleTextStyle = {
+        fontSize: { xs: "1.25rem", md: "1.5rem" },
+        marginBottom: "16px",
+        AlignSelf: "start",
+        ...(isHovered && { color: "green" })
+    };
+
+    return (
+        <Grid
+            size={mainGridStyle}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <Box
+                sx={wrapperStyle}
+                onClick={() => handleArticleClick(article.link)}
+            >
+                <Image src={article.image} alt={article.title} sx={imgStyle} />
+
+                <Box sx={textContainerStyle}>
+                    <Typography sx={mediumTextStyle} gutterBottom>
+                        {article.medium}
+                    </Typography>
+                    <Typography sx={yearTextStyle} gutterBottom>
+                        {article.year}
+                    </Typography>
+                </Box>
+                <Typography component="h3" sx={titleTextStyle} gutterBottom>
+                    {article.title}
+                </Typography>
+            </Box>
+        </Grid>
+    );
+}
