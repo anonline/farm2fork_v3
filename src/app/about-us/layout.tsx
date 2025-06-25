@@ -1,9 +1,7 @@
 import { MainLayout } from 'src/layouts/main';
 
-// ----------------------------------------------------------------------
-
 type Props = {
-    children: React.ReactNode;
+    readonly children: React.ReactNode;
 };
 
 export default function Layout({ children }: Props) {
