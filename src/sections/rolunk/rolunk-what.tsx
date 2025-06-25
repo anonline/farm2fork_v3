@@ -42,11 +42,11 @@ export default function RolunkWhat() {
     <Container maxWidth="lg" sx={{ py: 8, fontSize: "16px", fontWeight: "400", lineHeight: "32px", textAlign: "start", wordWrap: "break-word" }}>
       <Grid container spacing={1}>
         {categoriesTexts.map(categoryText => (
-          <Grid size={{ xs: 12, sm: 4, md: 4, lg: 4 }} key={categoryText.title}>
+          <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4, xl:4 }} key={categoryText.title}>
             <Box maxWidth={420} mx="auto">
               <img src={categoryText.image} alt={categoryText.title} style={{ borderRadius: "5px" }} />
-              <Typography component="h3"  sx={{ fontWeight: "bold", fontSize: "28px",  }} gutterBottom>{categoryText.title}</Typography>
-              <Typography gutterBottom>
+              <Typography component="h3"  sx={{ fontWeight: "bold", fontSize: "28px", fontFamily:"Bricolage Grotesque, sans-serif"  }} gutterBottom>{categoryText.title}</Typography>
+              <Typography gutterBottom sx={{fontFamily:"Inter, sans-serif"}}>
                 {categoryText.description}
               </Typography>
             </Box>
