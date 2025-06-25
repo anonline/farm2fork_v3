@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Grid, Container, Typography } from "@mui/material";
 
 export default function RolunkTeam() {
   return (
