@@ -28,7 +28,7 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
 
     const mainGridStyle = { xs: 12, sm: 12, md: 6, lg: 4, xl: 4 };
     const wrapperStyle = {
-        borderBottom: "1px solid gray",
+        borderBottom: { xs: "1px solid gray", lg: "none" },
         display: "flex",
         flexDirection: "column",
         alignItems: "start",
@@ -38,8 +38,7 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
     const imgStyle: SxProps = {
         width: '100%',
         height: 'auto',
-        borderRadius: "5px",
-        aspectRatio: '350/250',
+        borderRadius: "8px",
         objectFit: 'cover',
         borderStyle: 'solid',
         borderWidth: '1px',
@@ -52,10 +51,15 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
     const mediumTextStyle = { fontSize: { xs: "1rem", md: "1.25rem" }, color: "gray", alignSelf: "start" };
     const yearTextStyle = { fontSize: { xs: "1rem", md: "1.25rem" }, color: "gray", alignSelf: "end" };
     const titleTextStyle = {
-        fontSize: { xs: "1.25rem", md: "1.5rem" },
+        textSizeAdjust: "100%",
+        textTransform: "uppercase",
+        textDecorationStyle: "auto",
+        lineHeight: "23px",
+        textDecorationThickness: "auto",
+        fontSize: "20px",
         marginBottom: "16px",
-        AlignSelf: "start",
-        ...(isHovered && { color: "green" })
+        alignSelf: "start",
+        ...(isHovered && { color: "green" }),
     };
 
     return (
