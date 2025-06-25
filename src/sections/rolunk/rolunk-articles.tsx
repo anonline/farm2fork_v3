@@ -4,33 +4,24 @@ import { useState } from "react";
 
 import { Box, Grid, Stack, Button, Container, Typography, CircularProgress } from "@mui/material";
 import RolunkArticleGridItem from "./rolunk-article-griditem";
+import { useArticles } from "src/contexts/articles-context";
 
 export default function RolunkArticles() {
+    const articlesStorage = useArticles();
+
     const [loading, setLoading] = useState(false);
 
-    const ArticlesTexts = [
+    const categories = [...Array.from(new Set(articlesStorage.articles.map(p => p.category)))];
 
-        { id: "1", title: "Cikk 1", medium: "a", image: "https://placehold.co/350x250", category: "Videók", link: "#", year: "123" },
-        { id: "2", title: "Cikk 2", medium: "b", image: "https://placehold.co/350x250", category: "Interjúk", link: "#", year: "1324" },
-        { id: "3", title: "Cikk 3", medium: "re", image: "https://placehold.co/350x250", category: "Esettanulmányok", link: "#", year: "321" },
-        { id: "4", title: "Cikk 4", medium: "awdf", image: "https://placehold.co/350x250", category: "Videók", link: "#", year: "514" },
-        { id: "5", title: "Cikk 5", medium: "htrm", image: "https://placehold.co/350x250", category: "Interjúk", link: "#", year: "324" },
-        { id: "6", title: "Cikk 6", medium: "brg", image: "https://placehold.co/350x250", category: "Esettanulmányok", link: "", year: "532" },
-        { id: "7", title: "Cikk 7", medium: "awfg", image: "https://placehold.co/350x250", category: "Videók", link: "#", year: "324" },
-        { id: "8", title: "Cikk 8", medium: "ht", image: "https://placehold.co/350x250", category: "Interjúk", link: "#", year: "532" },
-        { id: "9", title: "Cikk 9", medium: "ht", image: "https://placehold.co/350x250", category: "Videók", link: "#", year: "624" },
-    ];
-
-    const allCategory = "Összes cikk";
-    const categories = [allCategory, ...Array.from(new Set(ArticlesTexts.map(p => p.category)))];
-
-    const [activeCategory, setActiveCategory] = useState(allCategory);
+    const [activeCategory, setActiveCategory] = useState(categories[0]);
+    
     const INITIAL_VISIBLE_COUNT = 3;
+
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
 
-    const filteredArticles = activeCategory === allCategory
-        ? ArticlesTexts
-        : ArticlesTexts.filter(article => article.category === activeCategory);
+    const filteredArticles = activeCategory === categories[0]
+        ? articlesStorage.articles
+        : articlesStorage.articles.filter(article => article.category === activeCategory);
 
     const handleCategoryChange = (category: string) => {
         setActiveCategory(category);
@@ -44,8 +35,6 @@ export default function RolunkArticles() {
             setLoading(false);
         }, 1000);
     };
-
-
 
     return (
 
