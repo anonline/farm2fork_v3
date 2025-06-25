@@ -1,4 +1,4 @@
-import { Stack, Container } from '@mui/material';
+import { Stack, Container, Box } from '@mui/material';
 
 import RolunkHero from '../rolunk-hero';
 import RolunkTeam from '../rolunk-team';
@@ -8,13 +8,13 @@ import RolunkArticles from '../rolunk-articles';
 
 export default function RolunkView() {
     return (
-        <Container sx={{alignItems:"center", Width:"100%"}}>
+        <Box sx={{alignItems:"center", rowGap:"10px", columnGap:"10px",}}>
             <Stack spacing={5} >
                 <Stack sx={{alignItems:"start"}}>
                     <RolunkHero />
                 </Stack>
 
-                <Stack sx={{ bgcolor: "rgb(245, 245, 245)", }}>
+                <Stack sx={{ bgcolor: "rgb(245, 245, 245)", width: "100%" }}>
                     <RolunkTeam />
                 </Stack>
 
@@ -22,10 +22,10 @@ export default function RolunkView() {
                     <RolunkWhat />
                 </Stack>
 
-                <Stack sx={{ bgcolor: "rgb(245, 245, 245)", }}>
+                <Stack sx={{ bgcolor: "rgb(245, 245, 245)", width: "100%" }}>
                     <RolunkArticles />
                 </Stack>
             </Stack>
-        </Container>
+        </Box>
     );
 }
