@@ -9,7 +9,7 @@ type ArticleGridItem = {
     title: string,
     year: string,
     medium: string,
-    image: string
+    image: string,
 }
 
 type ArticleGridItemProps = {
@@ -26,13 +26,13 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
 
     const [isHovered, setIsHovered] = useState(false);
 
-    const mainGridStyle = { xs: 12, sm: 12, md: 6, lg: 4, xl: 4 };
+    const mainGridStyle = { sm: 12, md: 4, };
     const wrapperStyle = {
-        borderBottom: { xs: "1px solid gray", lg: "none" },
+        borderBottom: { xs: "1px solid gray", md: "none" },
         display: "flex",
         flexDirection: "column",
         alignItems: "start",
-        cursor: article.link ? "pointer" : "default"
+        cursor: article.link ? "pointer" : "default",
     };
 
     const imgStyle: SxProps = {
@@ -48,9 +48,15 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
 
     const textContainerStyle = { justifyContent: "space-between", display: "flex", my: 3, width: '100%' };
 
-    const mediumTextStyle = { fontSize: { xs: "1rem", md: "1.25rem" }, color: "gray", alignSelf: "start" };
-    const yearTextStyle = { fontSize: { xs: "1rem", md: "1.25rem" }, color: "gray", alignSelf: "end" };
+    const mediumTextStyle = { fontSize: { xs: "16px", md: "20px" }, color: "gray", alignSelf: "start" };
+    const yearTextStyle = { fontSize: { xs: "16px", md: "20px" }, color: "gray", alignSelf: "end" };
     const titleTextStyle = {
+        display: '-webkit-box',
+        overflow: 'hidden',
+        WebkitBoxOrient: 'vertical',
+        WebkitLineClamp: 3,
+        minheight:"23px",
+        maxheight:"calc(3 * 23px)",
         textSizeAdjust: "100%",
         textTransform: "uppercase",
         textDecorationStyle: "auto",

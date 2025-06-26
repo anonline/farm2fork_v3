@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from "react";
-
 import { Box, Grid, Stack, Button, Container, Typography, CircularProgress } from "@mui/material";
 import RolunkArticleGridItem from "./rolunk-article-griditem";
 import { useArticles } from "src/contexts/articles-context";
@@ -38,9 +37,22 @@ export default function RolunkArticles() {
 
     return (
 
-        <Container sx={{ fontSize: "16px", fontWeight: "400", lineHeight: "24px", textAlignLast: "center", textAlign: "start", py: { xs: 3, md: 5, } }}>
+        <Container sx={{ fontSize: "16px",
+                         fontWeight: "400", 
+                         lineHeight: "24px", 
+                         textAlignLast: "center",
+                         textAlign: "start", 
+                         py: { xs: 3, md: 5, } }}
+                         >
 
-            <Typography sx={{ justifySelf: "left", fontSize: "40px", lineHeight:"48px", fontWeight:600}} component="h2" gutterBottom>Cikkek</Typography>
+            <Typography sx={{   justifySelf: "left",
+                                fontSize: "40px", 
+                                lineHeight:"48px", 
+                                fontWeight:600}} 
+                                component="h2" 
+                                gutterBottom
+                                >Cikkek
+                                </Typography>
 
             <Stack direction="row" spacing={2} mb={4} sx={{ flexWrap: 'wrap', gap: 1 }}>
                 {categories.map(category => (
