@@ -1,38 +1,35 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import { Box, Grid, Stack, Button, Container, Typography, CircularProgress } from "@mui/material";
-import RolunkArticleGridItem from "./rolunk-article-griditem";
+
 import { useArticles } from "src/contexts/articles-context";
+
+import RolunkArticleGridItem from "./rolunk-article-griditem";
 
 export default function RolunkArticles() {
     const articlesStorage = useArticles();
 
-    const [loading, setLoading] = useState(false);
-    const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
-
     const categories = [...Array.from(new Set(articlesStorage.articles.map(p => p.category)))];
-
     const [activeCategory, setActiveCategory] = useState(categories[0]);
-    
     const INITIAL_VISIBLE_COUNT = 3;
-
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+    const [loading, setLoading] = useState(false);
 
     const filteredArticles = activeCategory === categories[0]
         ? articlesStorage.articles
         : articlesStorage.articles.filter(article => article.category === activeCategory);
 
-    // Sort by publish_date
     const sortedArticles = [...filteredArticles].sort((a, b) => {
         const dateA = new Date(a.publish_date).getTime();
         const dateB = new Date(b.publish_date).getTime();
-        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+        return dateB - dateA;
     });
 
     const handleCategoryChange = (category: string) => {
-        setActiveCategory(category);
-        setVisibleCount(INITIAL_VISIBLE_COUNT);
+            setActiveCategory(category);
+            setVisibleCount(INITIAL_VISIBLE_COUNT);
     };
 
     const handleLoadMore = () => {
@@ -43,43 +40,69 @@ export default function RolunkArticles() {
         }, 1000);
     };
 
+    useEffect(() => {
+        if (categories.length && activeCategory !== categories[0]) {
+            setActiveCategory(categories[0]);
+            setVisibleCount(INITIAL_VISIBLE_COUNT);
+        }
+    }, [categories.join(",")]);
+
     return (
 
-        <Container sx={{ fontSize: "16px",
-                         fontWeight: "400", 
-                         lineHeight: "24px", 
-                         textAlignLast: "center",
-                         textAlign: "start", 
-                         py: { xs: 3, md: 5, } }}
-                         >
+        <Container sx={{
+            fontSize: "16px",
+            fontWeight: "400",
+            lineHeight: "24px",
+            textAlign: "start",
+            py: { xs: 3, md: 5, }
+        }}
+        >
 
-            <Typography sx={{   justifySelf: "left",
-                                fontSize: "40px", 
-                                lineHeight:"48px", 
-                                fontWeight:600}} 
-                                component="h2" 
-                                gutterBottom
-                                >Cikkek
-                                </Typography>
+            <Typography sx={{
+                justifySelf: "left",
+                fontSize: "40px",
+                lineHeight: "48px",
+                fontWeight: 600
+            }}
+                component="h2"
+                gutterBottom
+            >Cikkek
+            </Typography>
 
-            <Stack direction="row" spacing={2} mb={4} sx={{ flexWrap: 'wrap', gap: 1  }}>
-                {categories.map(category => (
-                    <Button key={category} onClick={() => handleCategoryChange(category)}>
-                        {category}
-                    </Button>
-                ))}
-                <Button
-                    sx={{ ml: 2, marginLeft: "auto" }}
-                    onClick={() => setSortOrder('desc')}
+            <Box
+                sx={{
+                    width: "100%",
+                    overflowX: { xs: "auto", md: "visible" },
+                    mb: 4,
+                }}
+            >
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        minWidth: 0,
+                        flexWrap: { xs: "nowrap", md: "wrap" },
+                        gap: 1,
+                    }}
                 >
-                    Legújabb cikkek
-                </Button>
-                <Button
-                    onClick={() => setSortOrder('asc')}
-                >
-                    Legrégebbi cikkek
-                </Button>
-            </Stack>
+                    { categories.map(category => (
+                        <Button
+                            key={category}
+                            onClick={() => handleCategoryChange(category)}
+                            sx={{
+                                borderBottom: activeCategory === category ? "1px solid black" : "1px solid transparent",
+                                borderRadius: 0,
+                                fontWeight: activeCategory === category ? 700 : 400,
+                                transition: "border-color 0.2s",
+                                minWidth: { xs: "120px", md: "auto" },
+                                flex: { xs: "1 0 auto", md: "unset" },
+                            }}
+                        >
+                            {category}
+                        </Button>
+                    ))}
+                </Stack>
+            </Box>
 
             <Grid container spacing={{ xs: 2, md: 4 }}>
                 {sortedArticles.slice(0, visibleCount).map(article => (

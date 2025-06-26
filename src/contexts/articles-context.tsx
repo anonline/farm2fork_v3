@@ -1,10 +1,10 @@
 "use client";
 
 import type { ReactNode} from "react";
+import type { IArticleItem } from "src/types/article";
 
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect, useContext, createContext } from "react";
-import { IArticleItem } from "src/types/article";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

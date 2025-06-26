@@ -87,7 +87,14 @@ export default function RolunkHero() {
 
             </Box>
 
-            <Box sx={{ width: { xs: '100%', md: '65%' } }}>
+            <Box
+                sx={{
+                    width: '100%',
+                    '@media (min-width:1024px)': {
+                        width: '65%',
+                    },
+                }}
+            >
                 <Typography sx={{ fontFamily: "Inter, sans-serif" }}>
                     A Farm2Fork mindennapi működtetése során nagy hangsúlyt fektetünk a környezetbarát megoldásokra és a bio alapanyagok beszerzésére. A farm-to-table elvnek megfelelően célunk, hogy a szállított zöldségek és gyümölcsök minél kevesebbet utazzanak a termelés helyétől a felhasználást jelentő konyháig. Emellett kulcsfontosságú a szoros személyes kapcsolat is, hiszen összekötő szerepet töltünk be a séfek és a termelők között, ezáltal segítve mindkét fél munkáját és a közös fejlődést.
                 </Typography>

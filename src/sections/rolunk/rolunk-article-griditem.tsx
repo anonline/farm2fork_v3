@@ -1,7 +1,11 @@
 'use client'
 
-import { Box, Grid, SxProps, Typography } from "@mui/material";
+import type { SxProps} from "@mui/material";
+
 import { useState } from "react";
+
+import { Box, Grid, Typography } from "@mui/material";
+
 import { Image } from "src/components/image";
 
 type ArticleGridItem = {
@@ -66,6 +70,7 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
         fontSize: "20px",
         marginBottom: "16px",
         alignSelf: "start",
+        fontWeight: 600,
         ...(isHovered && { color: "green" }),
     };
 
