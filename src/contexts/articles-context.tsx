@@ -43,7 +43,7 @@ export function ArticlesProvider({ children }: Readonly<{ children: ReactNode }>
                     ...article,
                     category: article.ArticlesCategoriesRelations.ArticleCategories?.title
                     }));
-                setArticles(articlesWithCategories || []);
+                setArticles(articlesWithCategories ?? []);
                 setError(null);
             }
             setLoading(false);
