@@ -22,7 +22,7 @@ export const ArticlesContext = createContext<ArticlesContextType>({
     error: null,
 });
 
-export function ArticlesProvider({ children }: { children: ReactNode }) {
+export function ArticlesProvider({ children }: Readonly<{ children: ReactNode }>) {
 
     const [articles, setArticles] = useState<IArticleItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
-            //TODO: beletenni order oszlopot a táblába és az alapján kell itt rendezni
+
             const { data, error: supabaseError } = await supabase
                 .from("Articles")
                 .select("*, ArticlesCategoriesRelations ( ArticleCategories ( title ) )");

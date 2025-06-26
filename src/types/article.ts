@@ -5,5 +5,6 @@ export type IArticleItem = {
     image:string,
     year:string,
     link:string,
-    category:string
+    category:string,
+    publish_date: Date,
 }

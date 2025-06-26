@@ -10,6 +10,7 @@ type ArticleGridItem = {
     year: string,
     medium: string,
     image: string,
+    publish_date: Date,
 }
 
 type ArticleGridItemProps = {

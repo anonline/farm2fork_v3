@@ -9,6 +9,7 @@ export default function RolunkArticles() {
     const articlesStorage = useArticles();
 
     const [loading, setLoading] = useState(false);
+    const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
     const categories = [...Array.from(new Set(articlesStorage.articles.map(p => p.category)))];
 
@@ -22,6 +23,13 @@ export default function RolunkArticles() {
         ? articlesStorage.articles
         : articlesStorage.articles.filter(article => article.category === activeCategory);
 
+    // Sort by publish_date
+    const sortedArticles = [...filteredArticles].sort((a, b) => {
+        const dateA = new Date(a.publish_date).getTime();
+        const dateB = new Date(b.publish_date).getTime();
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+
     const handleCategoryChange = (category: string) => {
         setActiveCategory(category);
         setVisibleCount(INITIAL_VISIBLE_COUNT);
@@ -30,7 +38,7 @@ export default function RolunkArticles() {
     const handleLoadMore = () => {
         setLoading(true);
         setTimeout(() => {
-            setVisibleCount(filteredArticles.length);
+            setVisibleCount(sortedArticles.length);
             setLoading(false);
         }, 1000);
     };
@@ -54,21 +62,32 @@ export default function RolunkArticles() {
                                 >Cikkek
                                 </Typography>
 
-            <Stack direction="row" spacing={2} mb={4} sx={{ flexWrap: 'wrap', gap: 1 }}>
+            <Stack direction="row" spacing={2} mb={4} sx={{ flexWrap: 'wrap', gap: 1  }}>
                 {categories.map(category => (
                     <Button key={category} onClick={() => handleCategoryChange(category)}>
                         {category}
                     </Button>
                 ))}
+                <Button
+                    sx={{ ml: 2, marginLeft: "auto" }}
+                    onClick={() => setSortOrder('desc')}
+                >
+                    Legújabb cikkek
+                </Button>
+                <Button
+                    onClick={() => setSortOrder('asc')}
+                >
+                    Legrégebbi cikkek
+                </Button>
             </Stack>
 
             <Grid container spacing={{ xs: 2, md: 4 }}>
-                {filteredArticles.slice(0, visibleCount).map(article => (
+                {sortedArticles.slice(0, visibleCount).map(article => (
                     <RolunkArticleGridItem key={article.id} article={article} />
                 ))}
             </Grid>
 
-            {visibleCount < filteredArticles.length && (
+            {visibleCount < sortedArticles.length && (
                 <Box sx={{ display: 'flex', justifyContent: "center", width: "100%", mt: { xs: 3, md: 5 } }}>
                     <Button
                         variant="contained"
