@@ -12,11 +12,13 @@ export default function RendelesMeneteView() {
         
             <Container sx={{
                 marginX: "auto",
-                display:"block",
+                display:"flex",
+                flexDirection:"column",
                 width: "80%",
                 alignItems: "achor-center",
                 transition: "widht 0.3s ease-in-out",
-                }}>
+                gap:"20px"
+                }}> 
                 <RendelesMeneteHero />
                 <RendelesMeneteRegisztracio />
                 <RendelesMeneteTermekkivalasztas />
