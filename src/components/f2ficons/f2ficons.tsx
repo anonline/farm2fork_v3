@@ -8,9 +8,10 @@ import MinusIcon from 'public/assets/icons/f2f/Minus.svg';
 import CheckIcon from 'public/assets/icons/f2f/Check.svg';
 import SliderIcon from 'public/assets/icons/f2f/Slider.svg';
 import Search2Icon from 'public/assets/icons/f2f/Search2.svg';
+import FileIcon from 'public/assets/icons/f2f/FileIcon.svg';
 
 interface F2FIconsSvgProps {
-    name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider'; // vagy dinamikusan generált union type
+    name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon'; // vagy dinamikusan generált union type
     width?: number;
     height?: number;
     style?: React.CSSProperties;
@@ -25,10 +26,11 @@ const iconMap = {
     BioBadge,
     Map: MapIcon,
     Search2: Search2Icon,
-    Slider: SliderIcon
+    Slider: SliderIcon,
+    FileIcon: FileIcon
 } as const;
 
-export default function F2FIcons({ name, width = 16, height = 16, style }: F2FIconsSvgProps) {
+export default function F2FIcons({ name, width = 16, height = 16, style }: Readonly<F2FIconsSvgProps>) {
     const Icon = iconMap[name];
 
     if (!Icon) return null;
