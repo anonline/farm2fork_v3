@@ -1,4 +1,5 @@
 import { Box, List, ListItem, Typography, } from "@mui/material";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
 
 export default function RendelesMeneteTermekkivalasztas() {

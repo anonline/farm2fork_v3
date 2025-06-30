@@ -1,7 +1,12 @@
-import { Paper, Box, TextField, InputAdornment, Alert } from '@mui/material';
-import { ChangeEvent, useState } from 'react';
-import F2FIcons from "src/components/f2ficons/f2ficons";
+import type { ChangeEvent} from 'react';
+
+import { useState } from 'react';
+
+import { Box, Paper, Alert, TextField, InputAdornment } from '@mui/material';
+
 import { useEnabledPostcodes } from 'src/contexts/postcode-context';
+
+import F2FIcons from "src/components/f2ficons/f2ficons";
 
 export default function DeliveryAreaMap() {
     const searchsuccessstyle ={

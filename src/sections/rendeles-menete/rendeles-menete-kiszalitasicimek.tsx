@@ -1,15 +1,16 @@
 'use client'
 
 import { Box, Typography } from "@mui/material";
-import KiszalitasiCimekKapcsolo from "./kiszalitasicimek-kapcsolo";
-import KiszalitasiCimekTerkep from "./kiszalitasicimek-terkep";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
+
+import KiszalitasiCimekTerkep from "./kiszalitasicimek-terkep";
+import KiszalitasiCimekKapcsolo from "./kiszalitasicimek-kapcsolo";
 
 
 export default function RendelesMenetekiszalitasiCimek() {
 
     return (
-        //todo:befejezni a térképet 
         <Box sx={{
             display: "flex",
             gap: "20px",

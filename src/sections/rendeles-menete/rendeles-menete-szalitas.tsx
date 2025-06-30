@@ -1,5 +1,7 @@
 import { Box, List, Typography } from "@mui/material";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
+
 import SzalitasLista from "./szalitasilista";
 
 export default function RendelesMeneteSzalitas() {

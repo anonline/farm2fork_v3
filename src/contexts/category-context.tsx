@@ -26,19 +26,19 @@ export const CategoryContext = createContext<CategoriesContextType>({
 export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [categories, setCategories] = useState<ICategoryItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [loaderror, setError] = useState<string | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
             const { data, error } = await supabase.from("ProductCategories").select("*").eq("enabled", true).order("order", { ascending: true });
             if (error) {
-                setError(error.message);
+                setLoadError(error.message);
                 setCategories([]);
             } else {
                 console.log("Fetched categories:", data);
-                setCategories(data || []);
-                setError(null);
+                setCategories(data ?? []);
+                setLoadError(null);
             }
             setLoading(false);
         }
@@ -46,7 +46,7 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
     }, []);
 
     return (
-        <CategoryContext.Provider value={{ categories, loading, error: loaderror }}>
+        <CategoryContext.Provider value={{ categories, loading, error: loadError }}>
             {children}
         </CategoryContext.Provider>
     );

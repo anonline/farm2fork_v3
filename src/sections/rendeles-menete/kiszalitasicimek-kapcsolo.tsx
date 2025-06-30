@@ -1,7 +1,10 @@
 'use client'
 
+import type { Theme, SxProps} from '@mui/material';
+
 import { useState } from 'react';
-import { ToggleButton, ToggleButtonGroup, Box, SxProps, Theme, List, ListItem, Typography, } from '@mui/material';
+
+import { Box, List, ListItem, Typography, ToggleButton, ToggleButtonGroup, } from '@mui/material';
 
 interface AtveteliPontInfoProps {
     readonly adat: readonly { title: string; text: string }[];

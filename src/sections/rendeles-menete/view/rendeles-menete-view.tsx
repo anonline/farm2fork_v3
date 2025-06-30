@@ -1,12 +1,14 @@
+import { Box, Container } from '@mui/material';
+
+import { PostcodeProvider } from 'src/contexts/postcode-context';
+
 import RendelesMeneteHero from '../rendeles-menete-hero';
-import RendelesMeneteRendelesiIdopontok from '../rendeles-menete-rendelesiidopontok';
-import RendelesMeneteTermekkivalasztas from '../rendeles-menete-termekkivalasztas';
+import RendelesMeneteFizetes from '../rendeles-menete-fizetes';
+import RendelesMeneteSzalitas from '../rendeles-menete-szalitas';
 import RendelesMeneteRegisztracio from '../rendeles-menete-regisztracio';
 import RendelesMenetekiszalitasiCimek from '../rendeles-menete-kiszalitasicimek';
-import RendelesMeneteSzalitas from '../rendeles-menete-szalitas';
-import RendelesMeneteFizetes from '../rendeles-menete-fizetes';
-import { Box, Container } from '@mui/material';
-import { PostcodeProvider } from 'src/contexts/postcode-context';
+import RendelesMeneteTermekkivalasztas from '../rendeles-menete-termekkivalasztas';
+import RendelesMeneteRendelesiIdopontok from '../rendeles-menete-rendelesiidopontok';
 
 export default function RendelesMeneteView() {
     return (

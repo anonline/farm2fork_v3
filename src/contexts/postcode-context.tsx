@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { IPostcodeItem } from "src/types/postcode";
+
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect, useContext, createContext } from "react";
-import { IPostcodeItem } from "src/types/postcode";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -29,12 +30,12 @@ export function PostcodeProvider({ children }: Readonly<{ children: ReactNode }>
     useEffect(() => {
         async function fetchPostcodes() {
             setLoading(true);
-            const { data, error } = await supabase.from("ShippingZones").select("*");
-            if (error) {
-                setError(error.message);
+            const { data, error:supabaseError } = await supabase.from("ShippingZones").select("*");
+            if (supabaseError) {
+                setError(supabaseError.message);
                 setPostcodes([]);
             } else {
-                setPostcodes(data || []);
+                setPostcodes(data ?? []);
                 setError(null);
             }
             setLoading(false);
