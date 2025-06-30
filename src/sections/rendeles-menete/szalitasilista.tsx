@@ -1,10 +1,10 @@
 import { ListItem, Typography } from "@mui/material";
 
 interface SzalitasListaProps {
-    readonly adat: readonly { text: string }[];
+    data: string[];
 };
 
-export default function SzalitasLista({ adat }: SzalitasListaProps) {
+export default function SzalitasiLista({ data }: Readonly<SzalitasListaProps>) {
     const listItemStyle = {
         display: 'list-item', 
         listStyleType: 'disc',
@@ -14,9 +14,9 @@ export default function SzalitasLista({ adat }: SzalitasListaProps) {
     };
     return (
         <>
-            {adat.map((pont) => (
-                <ListItem key={pont.text} sx={listItemStyle}>
-                    <Typography >{pont.text}</Typography>
+            {data.map((paragraph) => (
+                <ListItem key={paragraph} sx={listItemStyle}>
+                    <Typography >{paragraph}</Typography>
                 </ListItem>
             ))}
         </>
