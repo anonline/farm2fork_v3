@@ -6,31 +6,34 @@ import RendelesMenetekiszalitasiCimek from '../rendeles-menete-kiszalitasicimek'
 import RendelesMeneteSzalitas from '../rendeles-menete-szalitas';
 import RendelesMeneteFizetes from '../rendeles-menete-fizetes';
 import { Box, Container } from '@mui/material';
+import { PostcodeProvider } from 'src/contexts/postcode-context';
 
 export default function RendelesMeneteView() {
     return (
-        <Container>
+        <PostcodeProvider>
             <Container>
                 <Container>
-                    <Box sx={{
-                        marginX: "auto",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "achor-center",
-                        transition: "widht 0.3s ease-in-out",
-                        gap: "10px",
-                        paddingTop: "50px",
-                    }}>
-                        <RendelesMeneteHero />
-                        <RendelesMeneteRegisztracio />
-                        <RendelesMeneteTermekkivalasztas />
-                        <RendelesMenetekiszalitasiCimek />
-                        <RendelesMeneteRendelesiIdopontok />
-                        <RendelesMeneteFizetes />
-                        <RendelesMeneteSzalitas />
-                    </Box>
+                    <Container>
+                        <Box sx={{
+                            marginX: "auto",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "achor-center",
+                            transition: "widht 0.3s ease-in-out",
+                            gap: "10px",
+                            paddingTop: "50px",
+                        }}>
+                            <RendelesMeneteHero />
+                            <RendelesMeneteRegisztracio />
+                            <RendelesMeneteTermekkivalasztas />
+                            <RendelesMenetekiszalitasiCimek />
+                            <RendelesMeneteRendelesiIdopontok />
+                            <RendelesMeneteFizetes />
+                            <RendelesMeneteSzalitas />
+                        </Box>
+                    </Container>
                 </Container>
             </Container>
-        </Container>
+        </PostcodeProvider>
     );
 }

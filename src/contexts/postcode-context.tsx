@@ -3,16 +3,11 @@
 import type { ReactNode } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect, useContext, createContext } from "react";
+import { IPostcodeItem } from "src/types/postcode";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export type IPostcodeItem = {
-    id: number;
-    postcode: string;
-    enabled: boolean;
-};
 
 type PostcodeContextType = {
     postcodes: IPostcodeItem[];
@@ -34,7 +29,7 @@ export function PostcodeProvider({ children }: Readonly<{ children: ReactNode }>
     useEffect(() => {
         async function fetchPostcodes() {
             setLoading(true);
-            const { data, error } = await supabase.from("Postcodes").select("*");
+            const { data, error } = await supabase.from("ShippingZones").select("*");
             if (error) {
                 setError(error.message);
                 setPostcodes([]);
@@ -54,8 +49,16 @@ export function PostcodeProvider({ children }: Readonly<{ children: ReactNode }>
     );
 }
 
-export const usePostcodes = () => {
+export const useAllPostcodes = () => {
     const context = useContext(PostcodeContext);
     if (!context) throw new Error("usePostcodes csak a PostcodeProvider-en belül használható");
     return context;
 };
+
+export const useEnabledPostcodes = () => {
+    const context = useContext(PostcodeContext);
+    if (!context) throw new Error("usePostcodes csak a PostcodeProvider-en belül használható");
+
+    context.postcodes = context.postcodes.filter(postcode=>postcode.enabled);
+    return context;
+}
