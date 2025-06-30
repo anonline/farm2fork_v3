@@ -7,7 +7,6 @@ import F2FIcons from "src/components/f2ficons/f2ficons";
 import KiszalitasiCimekTerkep from "./kiszalitasicimek-terkep";
 import KiszalitasiCimekKapcsolo from "./kiszalitasicimek-kapcsolo";
 
-
 export default function RendelesMeneteKiszalitasiCimek() {
 
     return (
