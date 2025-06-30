@@ -23,7 +23,7 @@ export const CategoryContext = createContext<CategoriesContextType>({
     error: null,
 });
 
-export function CategoryProvider({ children }: { children: ReactNode }) {
+export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [categories, setCategories] = useState<ICategoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loaderror, setError] = useState<string | null>(null);

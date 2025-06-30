@@ -6,7 +6,7 @@ export default function DeliveryAreaMap() {
   const mapEmbedUrl = "https://www.google.com/maps/d/u/0/viewer?mid=1Wpj3OxUVcJZ5Ohw-6iZ894PP-rrcyHB-&femb=1&ll=47.5632748294086%2C18.72380555000002&z=10"
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box>
       <Paper elevation={4} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
         <Box sx={{ p: 2 }}>
           <TextField
@@ -21,7 +21,7 @@ export default function DeliveryAreaMap() {
                     <F2FIcons name='Search2' height={22} width={22} />
                   </InputAdornment>
                 ),
-              },
+              }
             }}
           />
         </Box>

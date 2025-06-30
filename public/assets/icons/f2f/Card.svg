@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 25 25">
+    <defs>
+        <style>
+            .cls-1{fill:none;}.cls-1,.cls-2{stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}.cls-2{fill:#fff;}</style>
+    </defs>
+    <rect class="cls-1" x="5.65" y="8.11" width="13.69" height="9.23" rx="1.19" ry="1.19"></rect>
+    <line class="cls-1" x1="5.65" y1="10.95" x2="19.15" y2="10.95"></line>
+    <rect class="cls-1" x="7.54" y="13.41" width="3.05" height="2.04" rx=".72" ry=".72"></rect>
+    <line class="cls-1" x1="14.2" y1="15.45" x2="17.33" y2="15.45"></line>
+    <path class="cls-2"
+        d="M17.87,6.19l2.48.74s0,1.4,0,2.9-2.48,2.2-2.48,2.2c0,0-2.48-.7-2.48-2.2v-2.9l2.48-.74Z"></path>
+    <polyline class="cls-1" points="16.94 9.04 17.63 9.76 18.8 8.47"></polyline>
+</svg>

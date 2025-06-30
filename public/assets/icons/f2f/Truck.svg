@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 25 25">
+    <defs>
+        <style>.cls-1{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}</style>
+    </defs>
+    <path class="cls-1" d="M5.65,7.07h7.66c.96,0,1.74.78,1.74,1.74v5.19H5.65v-6.93h0Z"></path>
+    <path class="cls-1" d="M16.12,16.61h-1.08v-7.29h2.63c.54,0,1.05.29,1.33.75l1.35,2.26v4.28h-1.58"></path>
+    <polyline class="cls-1" points="7.8 16.61 5.65 16.61 5.65 14 15.05 14 15.05 16.61 10.45 16.61"></polyline>
+    <polygon class="cls-1" points="16.38 10.72 16.38 12.7 18.99 12.7 17.77 10.72 16.38 10.72"></polygon>
+    <circle class="cls-1" cx="17.45" cy="16.61" r="1.32"></circle>
+    <circle class="cls-1" cx="9.12" cy="16.61" r="1.32"></circle>
+    <line class="cls-1" x1="9.71" y1="8.8" x2="2.04" y2="8.8"></line>
+    <line class="cls-1" x1="8.59" y1="10.47" x2="3.94" y2="10.47"></line>
+    <line class="cls-1" x1="7.78" y1="12.13" x2="2.04" y2="12.13"></line>
+</svg>
