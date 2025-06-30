@@ -4,7 +4,20 @@ import F2FIcons from "src/components/f2ficons/f2ficons";
 import { useEnabledPostcodes } from 'src/contexts/postcode-context';
 
 export default function DeliveryAreaMap() {
+    const searchsuccessstyle ={
+      fontSize:"14px",
+      fontWeight:500,
+      lineHeight:"22px",
+      color:"rgb(60, 86, 56)",
 
+    }
+    const searcherrorstyle ={
+      fontSize:"14px",
+      fontWeight:500,
+      lineHeight:"22px",
+      color:"rgb(136, 44, 51)",
+      
+    }
     const mapEmbedUrl = "https://www.google.com/maps/d/u/0/viewer?mid=1Wpj3OxUVcJZ5Ohw-6iZ894PP-rrcyHB-&femb=1&ll=47.5632748294086%2C18.72380555000002&z=10"
     const [found, setFound] = useState<boolean | null>(null);
 
@@ -27,7 +40,7 @@ export default function DeliveryAreaMap() {
     }
     return (
         <Box>
-            <Paper elevation={4} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
+            <Paper sx={{ overflow: 'hidden' }}>
                 <Box sx={{ p: 2 }}>
                     <TextField
                         fullWidth
@@ -46,19 +59,23 @@ export default function DeliveryAreaMap() {
                         }}
                     />
                 </Box>
+                <Box sx={{paddingBottom:"10px"}}>
                 {found !== null && (
                     found === true ? (
-                        <Alert>Megvan</Alert>
+                        <Alert variant='standard' severity='success' sx={searchsuccessstyle} >Az adott címre szállítunk</Alert>
                     ) : (
-                        <Alert variant='standard' severity='warning'>Nincs meg.</Alert>
+                        <Alert variant='standard' severity='error' sx={searcherrorstyle}>
+                          Az adott irányítószámra jelenleg sajnos nem szállítunk ki. Kérjük, hogy nézz szét az átvételi pontok között!
+                        </Alert>
                     )
                 )}
+                </Box>
                 <Box
                     sx={{
                         position: 'relative',
                         aspectRatio: '16/9',
                         width: '100%',
-                        height: 'auto'
+                        height: 'auto',
                     }}
                 >
                     <Box
@@ -67,11 +84,10 @@ export default function DeliveryAreaMap() {
                         title="Farm2Fork szállítási terület"
                         sx={{
                             position: 'absolute',
-                            top: 0,
-                            left: 0,
                             width: '100%',
                             height: '100%',
-                            border: 0,
+                            borderRadius:"12px",
+                            border:"none"
                         }}
                         allowFullScreen
                         loading="lazy"
