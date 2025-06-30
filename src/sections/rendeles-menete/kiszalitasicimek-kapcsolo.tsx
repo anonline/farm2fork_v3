@@ -119,13 +119,11 @@ export default function KiszalitasiCimekKapcsolo() {
                     gap: '5px',
                 }}
             >
-                {shippingMethods.map((method) => {
-                    return (
+                {shippingMethods.map((method) => (
                         <ToggleButton key={method} value={method} sx={toggleButtonStyle}>
                             {method}
                         </ToggleButton>
-                    );
-                })}
+                    ))}
             </ToggleButtonGroup>
 
             <Box sx={{ mt: 3 }}>
