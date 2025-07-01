@@ -38,7 +38,7 @@ export function PostDetailsPreview({
     onSubmit,
     description,
     isSubmitting,
-}: Props) {
+}: Readonly<Props>) {
     let previewUrl = '';
 
     if (coverUrl) {

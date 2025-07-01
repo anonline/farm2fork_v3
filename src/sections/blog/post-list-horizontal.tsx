@@ -15,7 +15,7 @@ type Props = {
     loading?: boolean;
 };
 
-export function PostListHorizontal({ posts, loading }: Props) {
+export function PostListHorizontal({ posts, loading }: Readonly<Props>) {
     const renderLoading = () => <PostItemSkeleton variant="horizontal" />;
 
     const renderList = () =>
