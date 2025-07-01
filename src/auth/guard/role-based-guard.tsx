@@ -33,7 +33,7 @@ export function RoleBasedGuard({
     hasContent,
     currentRole,
     allowedRoles,
-}: RoleBasedGuardProp) {
+}: Readonly<RoleBasedGuardProp>) {
     if (currentRole && allowedRoles && !allowedRoles.includes(currentRole)) {
         return hasContent ? (
             <Container

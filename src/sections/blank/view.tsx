@@ -16,7 +16,7 @@ type Props = {
     sx?: SxProps<Theme>;
 };
 
-export function BlankView({ title = 'Blank', sx }: Props) {
+export function BlankView({ title = 'Blank', sx }: Readonly<Props>) {
     const renderContent = () => (
         <Box
             sx={[

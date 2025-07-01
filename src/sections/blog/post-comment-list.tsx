@@ -11,7 +11,7 @@ type Props = {
     comments?: IPostComment[];
 };
 
-export function PostCommentList({ comments = [] }: Props) {
+export function PostCommentList({ comments = [] }: Readonly<Props>) {
     return (
         <>
             {comments.map((comment) => {
@@ -34,10 +34,10 @@ export function PostCommentList({ comments = [] }: Props) {
                                 return (
                                     <PostCommentItem
                                         key={reply.id}
-                                        name={userReply?.name || ''}
+                                        name={userReply?.name ?? ''}
                                         message={reply.message}
                                         postedAt={reply.postedAt}
-                                        avatarUrl={userReply?.avatarUrl || ''}
+                                        avatarUrl={userReply?.avatarUrl ?? ''}
                                         tagUser={reply.tagUser}
                                         hasReply
                                     />

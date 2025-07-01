@@ -35,7 +35,7 @@ export function AddressListDialog({
     selected,
     onSelect,
     title = 'Address book',
-}: Props) {
+}: Readonly<Props>) {
     const [searchAddress, setSearchAddress] = useState('');
 
     const dataFiltered = applyFilter({ inputData: list, query: searchAddress });

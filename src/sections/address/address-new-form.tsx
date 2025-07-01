@@ -43,7 +43,7 @@ type Props = {
     onCreate: (address: IAddressItem) => void;
 };
 
-export function AddressNewForm({ open, onClose, onCreate }: Props) {
+export function AddressNewForm({ open, onClose, onCreate }: Readonly<Props>) {
     const defaultValues: NewAddressSchemaType = {
         name: '',
         city: '',

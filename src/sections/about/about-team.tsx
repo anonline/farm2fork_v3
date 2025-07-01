@@ -96,7 +96,7 @@ type MemberCardProps = {
     member: (typeof _carouselsMembers)[number];
 };
 
-function MemberCard({ member }: MemberCardProps) {
+function MemberCard({ member }: Readonly<MemberCardProps>) {
     return (
         <Card>
             <Typography variant="subtitle1" sx={{ mt: 2.5, mb: 0.5 }}>

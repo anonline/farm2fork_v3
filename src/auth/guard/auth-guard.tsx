@@ -25,11 +25,11 @@ const signInPaths = {
     supabase: paths.auth.supabase.signIn,
 };
 
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const { authenticated, loading, user} = useAuthContext();
+    const { authenticated, loading, user } = useAuthContext();
 
     const [isChecking, setIsChecking] = useState(true);
 
@@ -53,13 +53,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
             return;
         }
-        else {
-            if(!user?.user_metadata.is_admin){
-                const redirectPath = createRedirectPath(paths.page403);
+        else if (!user?.user_metadata.is_admin) {
+            const redirectPath = createRedirectPath(paths.page403);
 
-                router.replace(redirectPath);
-                return;
-            }
+            router.replace(redirectPath);
+            return;
         }
         setIsChecking(false);
     };

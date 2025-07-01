@@ -40,7 +40,7 @@ type Props = {
     children: React.ReactNode;
 };
 
-export function AuthProvider({ children }: Props) {
+export function AuthProvider({ children }: Readonly<Props>) {
     const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
 
     const checkUserSession = useCallback(async () => {

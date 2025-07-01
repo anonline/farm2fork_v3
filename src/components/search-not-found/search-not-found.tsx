@@ -53,7 +53,7 @@ export function SearchNotFound({ query, sx, slotProps, ...other }: SearchNotFoun
             </Typography>
 
             <Typography variant="body2" {...slotProps?.description}>
-                No results found for &nbsp;
+                No results found for{' '}
                 <strong>{`"${query}"`}</strong>
                 .
                 <br /> Try checking for typos or using complete words.

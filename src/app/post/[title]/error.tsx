@@ -14,10 +14,10 @@ import { EmptyContent } from 'src/components/empty-content';
 export default function Error({
     error,
     reset,
-}: {
+}: Readonly<{
     error: Error & { digest?: string };
     reset: () => void;
-}) {
+}>) {
     return (
         <Container sx={{ mt: 5, mb: 10 }}>
             <EmptyContent

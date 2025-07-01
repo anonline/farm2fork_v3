@@ -23,7 +23,7 @@ type Props = {
     postedAt: IDateValue;
 };
 
-export function PostCommentItem({ name, avatarUrl, message, tagUser, postedAt, hasReply }: Props) {
+export function PostCommentItem({ name, avatarUrl, message, tagUser, postedAt, hasReply }: Readonly<Props>) {
     const reply = useBoolean();
 
     return (
