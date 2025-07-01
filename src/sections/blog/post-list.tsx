@@ -18,7 +18,7 @@ type Props = {
     loading?: boolean;
 };
 
-export function PostList({ posts, loading }: Props) {
+export function PostList({ posts, loading }: Readonly<Props>) {
     const renderLoading = () => (
         <Box
             sx={{

@@ -99,7 +99,7 @@ type PostItemLatestProps = {
     detailsHref: string;
 };
 
-export function PostItemLatest({ post, index, detailsHref }: PostItemLatestProps) {
+export function PostItemLatest({ post, index, detailsHref }: Readonly<PostItemLatestProps>) {
     const postSmall = index === 1 || index === 2;
 
     return (
