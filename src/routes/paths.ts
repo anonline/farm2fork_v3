@@ -26,6 +26,7 @@ export const paths = {
     faqs: '/faqs',
     rolunk: '/rolunk',
     rendelesMenete: '/rendeles-menete',
+    szezonalitas:'/szezonalitas/Jan',
     page403: '/error/403',
     page404: '/error/404',
     page500: '/error/500',
@@ -37,6 +38,7 @@ export const paths = {
     freeUI: 'https://mui.com/store/items/minimal-dashboard-free/',
     figmaUrl:
         'https://www.figma.com/design/oAxS3CUFO0ou7rH2lTS8oI/%5BPreview%5D-Minimal-Web.v7.0.0',
+    
     product: {
         root: `/termekek`,
         checkout: `/product/checkout`,
