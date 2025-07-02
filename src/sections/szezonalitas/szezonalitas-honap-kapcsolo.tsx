@@ -1,33 +1,34 @@
 "use client";
 
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, useTheme, useMediaQuery } from "@mui/material";
-import { useRouter, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Months } from "src/types/months";
+import type { SelectChangeEvent} from "@mui/material";
+
+import { useRouter } from "next/navigation";
+
+import { Box, Grid, Select, MenuItem, useTheme, InputLabel, FormControl, useMediaQuery } from "@mui/material";
+
 import SzezonalisKapcsolo from "src/sections/szezonalitas/szezonalis-kapcsolo";
 
+import { MonthsEnum, getMonthName } from "src/types/months";
 
-export default function SzezonalisHonapKapcsolo() {
+
+interface SzezonalisHonapKapcsoloProps {
+    selectedMonth: MonthsEnum;
+}
+
+export default function SzezonalisHonapKapcsolo({ selectedMonth }: SzezonalisHonapKapcsoloProps) {
     const router = useRouter();
-    const pathname = usePathname();
-    const months = Object.values(Months);
-    const currentMonth = pathname.split('/').filter(Boolean).pop();
-    const [pendingMonth, setPendingMonth] = useState<string | null>(null);
+    const months = Object.values(MonthsEnum);
+
     const theme = useTheme();
     const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-    useEffect(() => {
-        setPendingMonth(null);
-    }, [currentMonth]);
 
     const handleMonthClick = (month: string) => {
-        setPendingMonth(month);
         router.push(`/szezonalitas/${month}`);
     };
 
     const handleDropdownChange = (event: SelectChangeEvent<string>) => {
         const month = event.target.value;
-        setPendingMonth(month);
         router.push(`/szezonalitas/${month}`);
     };
 
@@ -46,20 +47,20 @@ export default function SzezonalisHonapKapcsolo() {
     return (
         isLargeScreen ? (
             <Grid container spacing={0} wrap="nowrap" sx={{ width: "100%", justifyContent: "center", alignSelf: "center", mb: 3 }}>
-                <Grid sx={FirstLastGridStyle}></Grid>
-                {months.map((month) => {
-                    const isSelected = (pendingMonth ?? currentMonth) === month;
-                    return (
-                        <Grid key={month} sx={MonhtGridStyle}>
-                            <SzezonalisKapcsolo
-                                month={month}
-                                selected={isSelected}
-                                onClick={() => handleMonthClick(month)}
-                            />
-                        </Grid>
-                    )
-                })}
-                <Grid sx={FirstLastGridStyle}></Grid>
+                <Grid sx={FirstLastGridStyle} />
+
+                {months.map((month) => (
+                    <Grid key={month} sx={MonhtGridStyle}>
+                        <SzezonalisKapcsolo
+                            month={month}
+                            selected={selectedMonth == month}
+                            onClick={() => handleMonthClick(month)}
+                        />
+                    </Grid>
+                )
+                )}
+
+                <Grid sx={FirstLastGridStyle} />
             </Grid>
         ) : (
             <Box sx={{ width: '100%', mx: 'auto', mb: 4 }}>
@@ -68,13 +69,13 @@ export default function SzezonalisHonapKapcsolo() {
                     <Select
                         labelId="month-select-label"
                         id="month-select"
-                        value={currentMonth ?? ''}
+                        value={selectedMonth ?? MonthsEnum.January}
                         label="Hónap kiválasztása"
                         onChange={handleDropdownChange}
                     >
                         {months.map((month) => (
                             <MenuItem key={month} value={month}>
-                                {month}
+                                {getMonthName(month)}
                             </MenuItem>
                         ))}
                     </Select>

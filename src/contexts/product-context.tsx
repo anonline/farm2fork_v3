@@ -39,7 +39,7 @@ export function ProductProvider({ children, slug }: ProductProviderProps) {
                 setProduct(null);
             } else {
                 console.log("Fetched products:", data);
-                setProduct(data || null);
+                setProduct(data ?? null);
                 setError(null);
             }
             setLoading(false);
