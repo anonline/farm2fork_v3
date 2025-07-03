@@ -103,12 +103,40 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
 
     return (
         <Paper className="product-card" sx={productCardStyle}>
-            <img
-                src={product.featuredImage || "https://placehold.co/429"}
-                alt={product.name}
-                style={productImageStyle}
+            <Box
+                component="button"
                 onClick={openProductPage}
-            />
+                onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openProductPage();
+                    }
+                }}
+                sx={{
+                    all: 'unset',
+                    cursor: 'pointer',
+                    display: 'block',
+                    p: 0,
+                    border: 'none',
+                    background: 'none',
+                    width: '100%',
+                    overflow: 'hidden',
+                    '& img': {
+                        transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+                    },
+                    '&:hover img': {
+                        transform: 'scale(1.07)',
+                    },
+                }}
+                tabIndex={0}
+                aria-label={product.name}
+            >
+                <img
+                    src={product.featuredImage || "https://placehold.co/429"}
+                    alt={product.name}
+                    style={productImageStyle}
+                />
+            </Box>
 
             {product.bio && (
                 <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />
@@ -127,9 +155,29 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                     } />
                 )}
                 <div style={productCardDetailsUpperLabelContainerStyle}>
-                    <h2 style={productCardNameStyle} onClick={openProductPage}>
+                    <button
+                        type="button"
+                        style={{
+                            ...productCardNameStyle,
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            textAlign: 'left',
+                            width: '100%',
+                            cursor: 'pointer'
+                        }}
+                        onClick={openProductPage}
+                        onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                openProductPage();
+                            }
+                        }}
+                        tabIndex={0}
+                        aria-label={product.name}
+                    >
                         {product.name}
-                    </h2>
+                    </button>
                     <ProducerAvatar
                         avatarUrl="https://placehold.co/48"
                         avatarAlt="Termelő"

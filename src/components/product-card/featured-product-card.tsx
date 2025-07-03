@@ -63,6 +63,13 @@ export default function FeaturedProductCard({product}: Readonly<FeaturedProductC
                     aspectRatio: '1/1',
                     cursor: 'pointer',
                     flexShrink: 0,
+                    overflow: 'hidden',
+                    '& img': {
+                        transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+                    },
+                    '&:hover img': {
+                        transform: 'scale(1.07)',
+                    },
                 }}
             >
                 <img
