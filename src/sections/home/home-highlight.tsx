@@ -1,11 +1,13 @@
 'use client';
 
-import { Grid, Typography, Box, Button, Stack } from "@mui/material";
 import { useRouter } from 'next/navigation';
-import { paths } from "src/routes/paths";
-import fooldal_rolunk from "public/assets/images/home/fooldal_rolunk-1024x1024.webp";
-import hagymaszedes from "public/assets/images/home/hagymaszedes-1025x1536.webp";
 import páfrány from "public/assets/images/home/páfrány-1024x1024.webp"
+import hagymaszedes from "public/assets/images/home/hagymaszedes-1025x1536.webp";
+import fooldal_rolunk from "public/assets/images/home/fooldal_rolunk-1024x1024.webp";
+
+import { Box, Grid, Stack, Button, Typography } from "@mui/material";
+
+import { paths } from "src/routes/paths";
 
 
 export default function HomeHighlight() {

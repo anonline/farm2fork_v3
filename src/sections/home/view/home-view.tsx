@@ -1,15 +1,18 @@
 'use client';
 
-import { Box, Container, Stack } from '@mui/material';
+import { Box, Stack, Container } from '@mui/material';
+
 import { CategoryProvider } from 'src/contexts/category-context';
+import { ProductsProvider } from 'src/contexts/products-context';
+
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
+
 import { HomeHero } from '../home-hero';
-import { HomeCategoryList } from '../home-category-list';
-import { ProductsProvider } from 'src/contexts/products-context';
 import { HomeMinimal } from '../home-minimal';
 import HomeHighlight from '../home-highlight';
 import HomeIntegrations from '../home-integrations';
+import { HomeCategoryList } from '../home-category-list';
 
 
 // ----------------------------------------------------------------------
@@ -31,13 +34,11 @@ export function HomeView(props: Readonly<HomeViewProps>) {
         backgroundColor: "background.default",
         width: "100%",
     };
-    const containerStyle = {
-        width: { xs: "100%", md: "80%", lg: "60%" }
-    };
+
     return (
         <>
             <Box sx={{ backgroundColor: "#e0e7e1" }}>
-                <Container maxWidth={"xl"}>
+                <Container maxWidth="xl">
                     <ScrollProgress
                         variant="linear"
                         progress={pageProgress.scrollYProgress}
@@ -61,7 +62,7 @@ export function HomeView(props: Readonly<HomeViewProps>) {
             </Box>
 
             <Box sx={evenBoxStyle}>
-                <Container maxWidth={"lg"}>
+                <Container maxWidth="lg">
                     <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
                         <CategoryProvider>
                             <HomeCategoryList />
@@ -71,7 +72,7 @@ export function HomeView(props: Readonly<HomeViewProps>) {
             </Box>
 
             <Box sx={oddBoxStyle}>
-                <Container maxWidth={"lg"}>
+                <Container maxWidth="lg">
                     <ProductsProvider>
                         <HomeMinimal />
                     </ProductsProvider>
@@ -79,13 +80,13 @@ export function HomeView(props: Readonly<HomeViewProps>) {
             </Box>
 
             <Box sx={evenBoxStyle}>
-                <Container maxWidth={"lg"}>
+                <Container maxWidth="lg">
                     <HomeHighlight />
                 </Container>
             </Box>
 
             <Box sx={oddBoxStyle}>
-                <Container maxWidth={"lg"}>
+                <Container maxWidth="lg">
                     <HomeIntegrations />
                 </Container>
             </Box>

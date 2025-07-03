@@ -1,8 +1,12 @@
-import { CircularProgress, Typography, Box, Grid,} from "@mui/material";
-import FeaturedProductCard from "src/components/product-card/featured-product-card";
-import ProductCard from "src/components/product-card/product-card";
+import type { IProductItem } from "src/types/product";
+
+import { Box, Grid, Typography, CircularProgress,} from "@mui/material";
+
 import { useProducts } from "src/contexts/products-context";
-import { IProductItem } from "src/types/product";
+
+import ProductCard from "src/components/product-card/product-card";
+import FeaturedProductCard from "src/components/product-card/featured-product-card";
+
 import HomeMinimalProductsRedirectButton from "./home-minimal-products-redirect-button";
 
 export function HomeMinimal() {

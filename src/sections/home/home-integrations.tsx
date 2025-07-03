@@ -1,6 +1,6 @@
 'use client';
 
-import { Typography, Grid, Box } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 
 export default function HomeIntegrations() {
     const h2Style = {

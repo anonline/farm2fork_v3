@@ -1,5 +1,7 @@
-import { Box, Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
+
+import { Box, Button } from '@mui/material';
+
 import { paths } from 'src/routes/paths';
 
 export default function HomeMinimalProductsRedirectButton() {

@@ -145,7 +145,7 @@ export default function ProductCard(props: ProductCardProps) {
     );
 }
 
-function ProducerAvatar({ avatarUrl, avatarAlt, style }: { avatarUrl: string, avatarAlt?: string, style?: React.CSSProperties }) {
+function ProducerAvatar({ avatarUrl, avatarAlt, style }: Readonly<{ avatarUrl: string, avatarAlt?: string, style?: React.CSSProperties }>) {
     const avatarStyle: React.CSSProperties = {
         width: 48,
         height: 48,
@@ -163,7 +163,7 @@ function ProducerAvatar({ avatarUrl, avatarAlt, style }: { avatarUrl: string, av
     );
 }
 
-export function ProductPriceDetails({ price = "2 000", unit = "db" }: { price?: string, unit?: string }) {
+export function ProductPriceDetails({ price = "2 000", unit = "db" }: Readonly<{ price?: string, unit?: string }>) {
     const priceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'row',

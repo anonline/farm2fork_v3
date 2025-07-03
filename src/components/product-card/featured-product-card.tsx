@@ -1,10 +1,14 @@
 'use client';
 
+import type { IProductItem } from 'src/types/product';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box, Paper, Typography, Chip, Stack, Button, IconButton, InputBase } from '@mui/material';
-import { IProductItem } from 'src/types/product';
+
+import { Box, Chip, Paper, Stack, Button, InputBase, Typography, IconButton } from '@mui/material';
+
 import { toast } from 'src/components/snackbar'; 
+
 import F2FIcons from '../f2ficons/f2ficons'; 
 
 
