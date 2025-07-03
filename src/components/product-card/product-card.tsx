@@ -157,7 +157,7 @@ function ProducerAvatar({ avatarUrl, avatarAlt, style }: { avatarUrl: string, av
     return (
         <img
             src={avatarUrl}
-            alt={avatarAlt || 'Termelő'}
+            alt={avatarAlt ?? 'Termelő'}
             style={avatarStyle}
         />
     );

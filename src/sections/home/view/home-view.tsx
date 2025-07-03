@@ -1,25 +1,15 @@
 'use client';
 
 import { Box, Container, Stack } from '@mui/material';
-
 import { CategoryProvider } from 'src/contexts/category-context';
-
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
-
 import { HomeHero } from '../home-hero';
 import { HomeCategoryList } from '../home-category-list';
-import { HomeAdvertisement } from '../home-advertisement';
-import { HomeFAQs } from '../home-faqs';
-import { HomeForDesigner } from '../home-for-designer';
-import { HomeHighlightFeatures } from '../home-highlight-features';
-import { HomeHugePackElements } from '../home-hugepack-elements';
-import { HomeIntegrations } from '../home-integrations';
+import { ProductsProvider } from 'src/contexts/products-context';
 import { HomeMinimal } from '../home-minimal';
-import { HomeTestimonials } from '../home-testimonials';
-import { HomeZoneUI } from '../home-zone-ui';
-import { background } from 'src/theme';
-import { varBgColor } from 'src/components/animate';
+import HomeHighlight from '../home-highlight';
+import HomeIntegrations from '../home-integrations';
 
 
 // ----------------------------------------------------------------------
@@ -34,20 +24,20 @@ type HomeViewProps = {
 export function HomeView(props: Readonly<HomeViewProps>) {
     const pageProgress = useScrollProgress();
     const oddBoxStyle = {
-        backgroundColor: "#e0e7e1",
-        width:"100%"
+        backgroundColor: "#f5f5f5",
+        width: "100%"
     };
     const evenBoxStyle = {
         backgroundColor: "background.default",
-        width:"100%",
+        width: "100%",
     };
     const containerStyle = {
-        width: { md: "100%", lg: "80%" }
+        width: { xs: "100%", md: "80%", lg: "60%" }
     };
     return (
         <>
-            <Box sx={oddBoxStyle}>
-                <Container maxWidth={false} sx={containerStyle}>
+            <Box sx={{ backgroundColor: "#e0e7e1" }}>
+                <Container maxWidth={"xl"}>
                     <ScrollProgress
                         variant="linear"
                         progress={pageProgress.scrollYProgress}
@@ -71,7 +61,7 @@ export function HomeView(props: Readonly<HomeViewProps>) {
             </Box>
 
             <Box sx={evenBoxStyle}>
-                <Container maxWidth={false} sx={containerStyle}>
+                <Container maxWidth={"lg"}>
                     <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
                         <CategoryProvider>
                             <HomeCategoryList />
@@ -81,33 +71,24 @@ export function HomeView(props: Readonly<HomeViewProps>) {
             </Box>
 
             <Box sx={oddBoxStyle}>
-                <Container maxWidth={false} sx={containerStyle}>
-                    <HomeMinimal />
+                <Container maxWidth={"lg"}>
+                    <ProductsProvider>
+                        <HomeMinimal />
+                    </ProductsProvider>
                 </Container>
             </Box>
 
             <Box sx={evenBoxStyle}>
-                <Container maxWidth={false} sx={containerStyle}>
-
+                <Container maxWidth={"lg"}>
+                    <HomeHighlight />
                 </Container>
             </Box>
-            {/*<HomeHugePackElements />
 
-                <HomeForDesigner />
-
-                <HomeHighlightFeatures />
-
-                <HomeIntegrations />
-
-                <HomePricing />
-
-                <HomeTestimonials />
-
-                <HomeFAQs />
-
-                <HomeZoneUI />
-
-                <HomeAdvertisement />*/}
+            <Box sx={oddBoxStyle}>
+                <Container maxWidth={"lg"}>
+                    <HomeIntegrations />
+                </Container>
+            </Box>
 
         </>
 
