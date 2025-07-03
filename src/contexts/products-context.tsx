@@ -36,7 +36,7 @@ export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>
                 setProducts([]);
             } else {
                 console.log("Fetched products:", data);
-                setProducts(data || []);
+                setProducts(data ?? []);
                 setLoadError(null);
             }
             setLoading(false);
@@ -44,8 +44,14 @@ export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>
         fetchProducts();
     }, []);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error: loadError
+    }), [products, loading, loadError]);
+
     return (
-        <ProductsContext.Provider value={{ products, loading, error: loadError }}>
+        <ProductsContext.Provider value={value}>
             {children}
         </ProductsContext.Provider>
     );
@@ -106,8 +112,14 @@ export function ProductsInCategoryProvider({ children, categoryId }: Readonly<Pr
         fetchProductsByCategory();
     }, [categoryId]);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error
+    }), [products, loading, error]);
+
     return (
-        <ProductsInCategoryContext.Provider value={{ products, loading, error }}>
+        <ProductsInCategoryContext.Provider value={value}>
             {children}
         </ProductsInCategoryContext.Provider>
     );
@@ -197,8 +209,14 @@ export function ProductsInMonthInCategoryProvider({ children, categoryId, month 
         fetchFilteredProducts();
     }, [categoryId, month]);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error
+    }), [products, loading, error]);
+
     return (
-        <ProductsInMonthInCategoryContext.Provider value={{ products, loading, error }}>
+        <ProductsInMonthInCategoryContext.Provider value={value}>
             {children}
         </ProductsInMonthInCategoryContext.Provider>
     );
@@ -233,7 +251,7 @@ export function FeaturedProductsProvider({ children, limit = 5 }: Readonly<{ chi
                 setLoadError(supabaseError.message);
                 setProducts([]);
             } else {
-                setProducts(data || []);
+                setProducts(data ?? []);
                 setLoadError(null);
             }
             setLoading(false);
@@ -241,8 +259,14 @@ export function FeaturedProductsProvider({ children, limit = 5 }: Readonly<{ chi
         fetchProducts();
     }, []);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error: loadError
+    }), [products, loading, loadError]);
+
     return (
-        <FeaturedProductsContext.Provider value={{ products, loading, error: loadError }}>
+        <FeaturedProductsContext.Provider value={value}>
             {children}
         </FeaturedProductsContext.Provider>
     );
@@ -275,7 +299,7 @@ export function StarProductsProvider({ children, limit = 1 }: Readonly<{ childre
                 setLoadError(supabaseError.message);
                 setProducts([]);
             } else {
-                setProducts(data || []);
+                setProducts(data ?? []);
                 setLoadError(null);
             }
             setLoading(false);
