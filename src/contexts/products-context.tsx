@@ -22,7 +22,7 @@ export const ProductsContext = createContext<ProductsContextType>({
     error: null,
 });
 
-export function ProductsProvider({ children }: { children: ReactNode }) {
+export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loaderror, setError] = useState<string | null>(null);
