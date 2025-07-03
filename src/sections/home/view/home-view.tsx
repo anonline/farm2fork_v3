@@ -3,7 +3,6 @@
 import { Box, Stack, Container } from '@mui/material';
 
 import { CategoryProvider } from 'src/contexts/category-context';
-import { FeaturedProductsProvider, ProductsProvider, StarProductsContext, StarProductsProvider } from 'src/contexts/products-context';
 
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';

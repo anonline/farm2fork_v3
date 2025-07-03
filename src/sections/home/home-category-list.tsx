@@ -7,7 +7,6 @@ import { varAlpha } from 'minimal-shared/utils';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
 import { Typography, ListItemText } from '@mui/material';
 
 import { themeConfig } from 'src/theme';

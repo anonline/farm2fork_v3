@@ -1,12 +1,13 @@
-import { Box, Grid, Typography, CircularProgress, Skeleton, } from "@mui/material";
+import type { IProductItem } from "src/types/product";
 
-import { useFeaturedProducts, useStarProducts } from "src/contexts/products-context";
+import { Box, Grid, Skeleton, Typography, } from "@mui/material";
+
+import { useStarProducts, useFeaturedProducts } from "src/contexts/products-context";
 
 import ProductCard from "src/components/product-card/product-card";
 import FeaturedProductCard from "src/components/product-card/featured-product-card";
 
 import HomeMinimalProductsRedirectButton from "./home-minimal-products-redirect-button";
-import { IProductItem } from "src/types/product";
 
 export function HomeMinimal() {
     const h2Style = {
@@ -40,7 +41,7 @@ function StarProductsWrapper() {
     return (
         <>
             {loading && (
-                <Skeleton variant="rounded" width={'100%'} height={505} />
+                <Skeleton variant="rounded" width="100%" height={505} />
             )}
             {!loading && products.map(starProduct => (
                 <Grid key={starProduct.id} size={12}>
@@ -59,19 +60,19 @@ function FeaturedProductWrapper() {
             {loading && (
                 <>
                     <Grid size={{ xs: 6, md: 4, lg: 2.4 }}>
-                        <Skeleton variant="rounded" height={513} width={'100%'} />
+                        <Skeleton variant="rounded" height={513} width="100%" />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4, lg: 2.4 }}>
-                        <Skeleton variant="rounded" height={513} width={'100%'} />
+                        <Skeleton variant="rounded" height={513} width="100%" />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4, lg: 2.4 }}>
-                        <Skeleton variant="rounded" height={513} width={'100%'} />
+                        <Skeleton variant="rounded" height={513} width="100%" />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4, lg: 2.4 }}>
-                        <Skeleton variant="rounded" height={513} width={'100%'} />
+                        <Skeleton variant="rounded" height={513} width="100%" />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4, lg: 2.4 }}>
-                        <Skeleton variant="rounded" height={513} width={'100%'} />
+                        <Skeleton variant="rounded" height={513} width="100%" />
                     </Grid>
                 </>
             )}

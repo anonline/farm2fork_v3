@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Grid, Typography } from "@mui/material";
+
 import { Image } from "src/components/image";
 
 export default function HomeIntegrations() {

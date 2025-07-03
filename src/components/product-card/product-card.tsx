@@ -7,13 +7,14 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Paper, Button, InputBase, IconButton } from '@mui/material';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { themeConfig } from 'src/theme';
 
 import { toast } from 'src/components/snackbar';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
-import { fCurrency } from 'src/utils/format-number';
 
 interface ProductCardProps {
     product: IProductItem;

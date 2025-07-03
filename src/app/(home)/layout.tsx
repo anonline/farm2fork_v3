@@ -1,5 +1,5 @@
-import { FeaturedProductsProvider, StarProductsProvider } from 'src/contexts/products-context';
 import { MainLayout } from 'src/layouts/main';
+import { StarProductsProvider, FeaturedProductsProvider } from 'src/contexts/products-context';
 
 // ----------------------------------------------------------------------
 
