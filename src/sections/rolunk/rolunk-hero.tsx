@@ -57,7 +57,8 @@ export default function RolunkHero() {
                             objectFit: 'cover',
                             border: 0,
                             pointerEvents: 'none',
-                            borderRadius: "8px"
+                            borderRadius: "8px",
+                            width:"100%"
                         }}
                     />
 
