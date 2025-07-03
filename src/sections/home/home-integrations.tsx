@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Grid, Typography } from "@mui/material";
+import { Image } from "src/components/image";
 
 export default function HomeIntegrations() {
     const h2Style = {
@@ -13,48 +14,16 @@ export default function HomeIntegrations() {
     };
 
     // Létrehozunk egy tömböt 30 placeholder kép URL-lel
-    const SmallLogos = [
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-        "https://placehold.co/72",
-    ];
+    const placeholderImg = "https://placehold.co/72";
 
     return (
-        <Box sx={{ my: 5, py: 5, backgroundColor: '#fafafa' }}>
+        <Box sx={{ my: 5, py: 5}}>
             <Typography variant="h2" sx={h2Style}>Partnereink</Typography>
             <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center" alignItems="center">
-                {SmallLogos.map((logo, index) => (
-                    <Grid key={`${logo}-${index}`} size={{ xs: 6, sm: 6, md: 2.4, lg: 1.2 }}>
-                        <Box
-                            component="img"
-                            src={logo}
+                {Array.from({length:30}).map((_, index) => (
+                    <Grid key={`partner-logo-${index}`+_} size={{ xs: 6, sm: 6, md: 2.4, lg: 1.2 }}>
+                        <Image
+                            src={placeholderImg}
                             alt={`Partner logo ${index + 1}`}
                             sx={{
                                 width: '72px', 

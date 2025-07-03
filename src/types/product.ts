@@ -60,6 +60,8 @@ export type IProductItem = {
     netPriceVIP: number;
     netPriceCompany: number;
     seasonality: MonthKeys[],
+    featured: boolean,
+    star: boolean,
     code: string;
     price: number;
     taxes: number;

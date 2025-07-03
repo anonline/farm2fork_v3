@@ -232,11 +232,11 @@ export function HomeHero({ heroImg, heroHeight, heroTitle, heroPrimaryBtnText, h
                 zIndex: 1,
                 }}
             />
-            <Container sx={{
+            <Container maxWidth="lg" sx={{
                 alignItems: 'flex-end',
                 display: 'flex',
-                padding:'none',
-                px:'0px !important',
+                
+                
                 py:'80px',
                 zIndex:2
                 }}>

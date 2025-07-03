@@ -25,6 +25,7 @@ import { AuthProvider as Auth0AuthProvider } from 'src/auth/context/auth0';
 import { AuthProvider as AmplifyAuthProvider } from 'src/auth/context/amplify';
 import { AuthProvider as SupabaseAuthProvider } from 'src/auth/context/supabase';
 import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase';
+import { FeaturedProductsProvider, StarProductsProvider } from 'src/contexts/products-context';
 
 // ----------------------------------------------------------------------
 
@@ -104,14 +105,15 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                                                 : themeConfig.defaultMode
                                         }
                                     >
-                                        <MotionLazy>
-                                            <CheckoutProvider>
-                                                <Snackbar />
-                                                <ProgressBar />
-                                                <SettingsDrawer defaultSettings={defaultSettings} />
-                                                {children}
-                                            </CheckoutProvider>
-                                        </MotionLazy>
+
+                                                <MotionLazy>
+                                                    <CheckoutProvider>
+                                                        <Snackbar />
+                                                        <ProgressBar />
+                                                        <SettingsDrawer defaultSettings={defaultSettings} />
+                                                        {children}
+                                                    </CheckoutProvider>
+                                                </MotionLazy>
                                     </ThemeProvider>
                                 </AppRouterCacheProvider>
                             </LocalizationProvider>

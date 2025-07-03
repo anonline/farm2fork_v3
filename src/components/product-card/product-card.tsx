@@ -13,12 +13,13 @@ import { toast } from 'src/components/snackbar';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
+import { fCurrency } from 'src/utils/format-number';
 
 interface ProductCardProps {
     product: IProductItem;
 }
 
-export default function ProductCard(props: ProductCardProps) {
+export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { product } = props;
     const router = useRouter();
 
@@ -95,8 +96,8 @@ export default function ProductCard(props: ProductCardProps) {
     }
 
     const addToCart = () => {
+        toast.success(`${product.name} hozzáadva a kosárhoz!`);
         setInCart(true);
-        toast.success('Hozzáadva a kosárhoz!');
     }
 
     return (
@@ -107,7 +108,6 @@ export default function ProductCard(props: ProductCardProps) {
                 style={productImageStyle}
                 onClick={openProductPage}
             />
-
 
             {product.bio && (
                 <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />
@@ -126,7 +126,9 @@ export default function ProductCard(props: ProductCardProps) {
                     } />
                 )}
                 <div style={productCardDetailsUpperLabelContainerStyle}>
-                    <h2 style={productCardNameStyle} onClick={openProductPage}>{product.name}</h2>
+                    <h2 style={productCardNameStyle} onClick={openProductPage}>
+                        {product.name}
+                    </h2>
                     <ProducerAvatar
                         avatarUrl="https://placehold.co/48"
                         avatarAlt="Termelő"
@@ -136,7 +138,7 @@ export default function ProductCard(props: ProductCardProps) {
             </div>
             <div style={productCardPriceContentStyle}>
                 <div className='productCardPriceDetails' style={productCardPriceDetailsStyle}>
-                    <ProductPriceDetails price={product.netPrice.toFixed(0).toString()} unit={product.unit} />
+                    <ProductPriceDetails price={product.netPrice} unit={product.unit} />
                     <ProductQuantitySelector onAddToCart={addToCart} unit={product.unit} min={product.mininumQuantity} max={product.maximumQuantity} step={product.stepQuantity} />
                 </div>
             </div>
@@ -163,7 +165,7 @@ function ProducerAvatar({ avatarUrl, avatarAlt, style }: Readonly<{ avatarUrl: s
     );
 }
 
-export function ProductPriceDetails({ price = "2 000", unit = "db" }: Readonly<{ price?: string, unit?: string }>) {
+export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ price?: number, unit?: string }>) {
     const priceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'row',
@@ -190,14 +192,23 @@ export function ProductPriceDetails({ price = "2 000", unit = "db" }: Readonly<{
     return (
         <div style={priceDetailsStyle}>
             <span style={priceStyle}>
-                {price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft <span style={unitStyle}>/ {unit}</span>
+                {fCurrency(price)} <span style={unitStyle}>/ {unit}</span>
             </span>
             <F2FIcons name="Info" style={{ color: '#BDB5A2' }} />
         </div>
     );
 }
 
-export function ProductQuantitySelector({ onAddToCart, format = "column",  min = 1, max = 999, step = 0.2, unit = "csomag" }: { onAddToCart: () => void, format?: 'column' | 'row', min?: number, max?: number, step?: number, unit?: string }) {
+type ProductQuantitySelectorProps = { 
+    onAddToCart: () => void,
+    format?: 'column' | 'row',
+    min?: number,
+    max?: number,
+    step?: number,
+    unit?: string
+}
+
+export function ProductQuantitySelector({ onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag" }: Readonly<ProductQuantitySelectorProps>) {
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
         color: themeConfig.textColor.grey,
@@ -315,8 +326,8 @@ export function ProductQuantitySelector({ onAddToCart, format = "column",  min =
     }
 
     return (
-        <Box sx={{display:'flex', flexDirection: format, gap: 2}}>
-            <Paper sx={{ border: '1px solid #A4A3A1', borderRadius: '8px', p: '0px 0px', display: 'flex', alignItems: 'center', width: ((format == 'column')? '100%' : '50%') }}>
+        <Box sx={{ display: 'flex', flexDirection: format, gap: 2 }}>
+            <Paper sx={{ border: '1px solid #A4A3A1', borderRadius: '8px', p: '0px 0px', display: 'flex', alignItems: 'center', width: ((format == 'column') ? '100%' : '50%') }}>
                 <IconButton sx={minusButtonStyle} onClick={handleMinusClick} >
                     <F2FIcons name="Minus" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
@@ -365,13 +376,20 @@ export function ProductQuantitySelector({ onAddToCart, format = "column",  min =
                     <F2FIcons name="Add" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
             </Paper>
-            <ProductCardButton label="Kosár" onClick={onAddToCart} isDisabled={buttonDisabled} sx={{width: ((format == 'column')? '100%' : '50%')}}/>
-            </Box>
+            <ProductCardButton label="Kosár" onClick={onAddToCart} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />
+        </Box>
     );
 
 }
 
-function ProductCardButton({ label, onClick, isDisabled = false, sx}: { label: string, onClick: () => void, isDisabled?: boolean, sx?:SxProps }) {
+type ProductCardButtonProps = { 
+    label: string, 
+    onClick: () => void, 
+    isDisabled?: boolean, 
+    sx?: SxProps
+}
+
+function ProductCardButton({ label, onClick, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
 
     const baseStyle: SxProps = {
         ...sx,

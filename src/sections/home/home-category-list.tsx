@@ -104,7 +104,6 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
         >
             <MotionViewport>
 
-                <Container sx={{ position: 'relative' }}>
                     <Grid
                         container
                         spacing={{ xs: 5, md: 8 }}
@@ -118,7 +117,6 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                         variants={varFade('in')}
                         sx={{ display: { xs: 'none', md: 'block' } }}
                     />
-                </Container>
             </MotionViewport>
         </Box>
     );

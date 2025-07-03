@@ -3,7 +3,7 @@
 import { Box, Stack, Container } from '@mui/material';
 
 import { CategoryProvider } from 'src/contexts/category-context';
-import { ProductsProvider } from 'src/contexts/products-context';
+import { FeaturedProductsProvider, ProductsProvider, StarProductsContext, StarProductsProvider } from 'src/contexts/products-context';
 
 import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
@@ -38,7 +38,6 @@ export function HomeView(props: Readonly<HomeViewProps>) {
     return (
         <>
             <Box sx={{ backgroundColor: "#e0e7e1" }}>
-                <Container maxWidth="xl">
                     <ScrollProgress
                         variant="linear"
                         progress={pageProgress.scrollYProgress}
@@ -58,7 +57,6 @@ export function HomeView(props: Readonly<HomeViewProps>) {
                         heroImgOverlay={props.heroImgOverlay}
                     />
 
-                </Container>
             </Box>
 
             <Box sx={evenBoxStyle}>
@@ -73,9 +71,8 @@ export function HomeView(props: Readonly<HomeViewProps>) {
 
             <Box sx={oddBoxStyle}>
                 <Container maxWidth="lg">
-                    <ProductsProvider>
-                        <HomeMinimal />
-                    </ProductsProvider>
+                    
+                            <HomeMinimal />
                 </Container>
             </Box>
 
