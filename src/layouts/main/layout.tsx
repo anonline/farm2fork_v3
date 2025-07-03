@@ -9,8 +9,6 @@ import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { Button, Container } from '@mui/material';
 
-import { usePathname } from 'src/routes/hooks';
-
 import { themeConfig } from 'src/theme';
 import { supabase } from 'src/lib/supabase';
 
@@ -56,11 +54,9 @@ export function MainLayout({
     slotProps,
     layoutQuery = 'md',
 }: MainLayoutProps) {
-    const pathname = usePathname();
 
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-    const isHomePage = pathname === '/';
 
     const navData = slotProps?.nav?.data ?? mainNavData;
     const [announcement, setAnnouncement] = useState<string | null>(null);

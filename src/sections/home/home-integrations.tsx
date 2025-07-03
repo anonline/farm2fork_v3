@@ -1,104 +1,49 @@
-import type { BoxProps } from '@mui/material/Box';
+'use client';
 
-import { m } from 'framer-motion';
+import { Box, Grid, Typography } from "@mui/material";
 
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
+import { Image } from "src/components/image";
 
-import { CONFIG } from 'src/global-config';
+export default function HomeIntegrations() {
+    const h2Style = {
+        fontSize: { xs: "32px", md: "40px" },
+        lineHeight: { xs: "40px", md: "48px" },
+        textTransform: "uppercase",
+        fontWeight: 600,
+        textAlign: 'center', // Középre igazítjuk a címet is
+        mb: { xs: 4, md: 5 },
+    };
 
-import { varScale, MotionViewport } from 'src/components/animate';
-
-import { SectionTitle } from './components/section-title';
-import { FloatLine, FloatDotIcon } from './components/svg-elements';
-
-// ----------------------------------------------------------------------
-
-const renderLines = () => (
-    <>
-        <Stack
-            spacing={8}
-            alignItems="center"
-            sx={{
-                top: 64,
-                left: 80,
-                zIndex: 2,
-                bottom: 64,
-                position: 'absolute',
-                transform: 'translateX(-50%)',
-                '& span': { position: 'static', opacity: 0.12 },
-            }}
-        >
-            <FloatDotIcon />
-            <FloatDotIcon sx={{ opacity: 0.24, width: 14, height: 14 }} />
-            <Box sx={{ flexGrow: 1 }} />
-            <FloatDotIcon sx={{ opacity: 0.24, width: 14, height: 14 }} />
-            <FloatDotIcon />
-        </Stack>
-
-        <FloatLine vertical sx={{ top: 0, left: 80 }} />
-    </>
-);
-
-export function HomeIntegrations({ sx, ...other }: BoxProps) {
-    const renderDescription = () => (
-        <SectionTitle
-            caption="Integrations"
-            title="Robust integration"
-            txtGradient="framework"
-            description={
-                <>
-                    <Box component="span" sx={{ mb: 1, display: 'block' }}>
-                        A comprehensive suite of integrations offers diverse functionalities.
-                    </Box>
-
-                    <Box
-                        component="span"
-                        sx={{ fontStyle: 'italic', color: 'text.disabled', typography: 'caption' }}
-                    >
-                        * Only includes authentication methods.
-                        <br />* Database not included.
-                    </Box>
-                </>
-            }
-            sx={{ textAlign: { xs: 'center', md: 'left' } }}
-        />
-    );
-
-    const renderImage = () => (
-        <Box
-            component={m.img}
-            variants={{ ...varScale('in'), initial: { scale: 0.8, opacity: 0 } }}
-            alt="Integration"
-            src={`${CONFIG.assetsDir}/assets/illustrations/illustration-integration.webp`}
-            sx={{ width: 720, objectFit: 'cover', aspectRatio: '1/1' }}
-        />
-    );
+    // Létrehozunk egy tömböt 30 placeholder kép URL-lel
+    const placeholderImg = "https://placehold.co/72";
 
     return (
-        <Box
-            component="section"
-            sx={[{ pt: 10, position: 'relative' }, ...(Array.isArray(sx) ? sx : [sx])]}
-            {...other}
-        >
-            <MotionViewport>
-                {renderLines()}
-
-                <Container>
-                    <Grid container spacing={{ xs: 5, md: 8 }}>
-                        <Grid size={{ xs: 12, md: 6, lg: 5 }}>{renderDescription()}</Grid>
-
-                        <Grid
-                            sx={{ textAlign: { xs: 'center', md: 'right' } }}
-                            size={{ xs: 12, md: 6, lg: 7 }}
-                        >
-                            {renderImage()}
-                        </Grid>
+        <Box sx={{ my: 5, py: 5}}>
+            <Typography variant="h2" sx={h2Style}>Partnereink</Typography>
+            <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center" alignItems="center">
+                {Array.from({length:30}).map((_, index) => (
+                    <Grid key={`partner-logo-${index}`+_} size={{ xs: 6, sm: 6, md: 2.4, lg: 1.2 }}>
+                        <Image
+                            src={placeholderImg}
+                            alt={`Partner logo ${index + 1}`}
+                            sx={{
+                                width: '72px', 
+                                height: '72px',
+                                display: 'block',
+                                mx: 'auto',
+                                filter: 'grayscale(100%)',
+                                opacity: 0.7,
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    filter: 'grayscale(0%)',
+                                    opacity: 1,
+                                    transform: 'scale(1.1)'
+                                }
+                            }}
+                        />
                     </Grid>
-                </Container>
-            </MotionViewport>
+                ))}
+            </Grid>
         </Box>
     );
 }

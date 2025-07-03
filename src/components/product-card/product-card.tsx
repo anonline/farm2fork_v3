@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Paper, Button, InputBase, IconButton } from '@mui/material';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { themeConfig } from 'src/theme';
 
 import { toast } from 'src/components/snackbar';
@@ -18,7 +20,7 @@ interface ProductCardProps {
     product: IProductItem;
 }
 
-export default function ProductCard(props: ProductCardProps) {
+export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { product } = props;
     const router = useRouter();
 
@@ -95,19 +97,46 @@ export default function ProductCard(props: ProductCardProps) {
     }
 
     const addToCart = () => {
+        toast.success(`${product.name} hozzáadva a kosárhoz!`);
         setInCart(true);
-        toast.success('Hozzáadva a kosárhoz!');
     }
 
     return (
         <Paper className="product-card" sx={productCardStyle}>
-            <img
-                src={product.featuredImage || "https://placehold.co/429"}
-                alt={product.name}
-                style={productImageStyle}
+            <Box
+                component="button"
                 onClick={openProductPage}
-            />
-
+                onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openProductPage();
+                    }
+                }}
+                sx={{
+                    all: 'unset',
+                    cursor: 'pointer',
+                    display: 'block',
+                    p: 0,
+                    border: 'none',
+                    background: 'none',
+                    width: '100%',
+                    overflow: 'hidden',
+                    '& img': {
+                        transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+                    },
+                    '&:hover img': {
+                        transform: 'scale(1.07)',
+                    },
+                }}
+                tabIndex={0}
+                aria-label={product.name}
+            >
+                <img
+                    src={product.featuredImage || "https://placehold.co/429"}
+                    alt={product.name}
+                    style={productImageStyle}
+                />
+            </Box>
 
             {product.bio && (
                 <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />
@@ -126,7 +155,29 @@ export default function ProductCard(props: ProductCardProps) {
                     } />
                 )}
                 <div style={productCardDetailsUpperLabelContainerStyle}>
-                    <h2 style={productCardNameStyle} onClick={openProductPage}>{product.name}</h2>
+                    <button
+                        type="button"
+                        style={{
+                            ...productCardNameStyle,
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            textAlign: 'left',
+                            width: '100%',
+                            cursor: 'pointer'
+                        }}
+                        onClick={openProductPage}
+                        onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                openProductPage();
+                            }
+                        }}
+                        tabIndex={0}
+                        aria-label={product.name}
+                    >
+                        {product.name}
+                    </button>
                     <ProducerAvatar
                         avatarUrl="https://placehold.co/48"
                         avatarAlt="Termelő"
@@ -136,7 +187,7 @@ export default function ProductCard(props: ProductCardProps) {
             </div>
             <div style={productCardPriceContentStyle}>
                 <div className='productCardPriceDetails' style={productCardPriceDetailsStyle}>
-                    <ProductPriceDetails price={product.netPrice.toFixed(0).toString()} unit={product.unit} />
+                    <ProductPriceDetails price={product.netPrice} unit={product.unit} />
                     <ProductQuantitySelector onAddToCart={addToCart} unit={product.unit} min={product.mininumQuantity} max={product.maximumQuantity} step={product.stepQuantity} />
                 </div>
             </div>
@@ -145,7 +196,7 @@ export default function ProductCard(props: ProductCardProps) {
     );
 }
 
-function ProducerAvatar({ avatarUrl, avatarAlt, style }: { avatarUrl: string, avatarAlt?: string, style?: React.CSSProperties }) {
+function ProducerAvatar({ avatarUrl, avatarAlt, style }: Readonly<{ avatarUrl: string, avatarAlt?: string, style?: React.CSSProperties }>) {
     const avatarStyle: React.CSSProperties = {
         width: 48,
         height: 48,
@@ -157,13 +208,13 @@ function ProducerAvatar({ avatarUrl, avatarAlt, style }: { avatarUrl: string, av
     return (
         <img
             src={avatarUrl}
-            alt={avatarAlt || 'Termelő'}
+            alt={avatarAlt ?? 'Termelő'}
             style={avatarStyle}
         />
     );
 }
 
-export function ProductPriceDetails({ price = "2 000", unit = "db" }: { price?: string, unit?: string }) {
+export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ price?: number, unit?: string }>) {
     const priceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'row',
@@ -190,14 +241,23 @@ export function ProductPriceDetails({ price = "2 000", unit = "db" }: { price?: 
     return (
         <div style={priceDetailsStyle}>
             <span style={priceStyle}>
-                {price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft <span style={unitStyle}>/ {unit}</span>
+                {fCurrency(price)} <span style={unitStyle}>/ {unit}</span>
             </span>
             <F2FIcons name="Info" style={{ color: '#BDB5A2' }} />
         </div>
     );
 }
 
-export function ProductQuantitySelector({ onAddToCart, format = "column",  min = 1, max = 999, step = 0.2, unit = "csomag" }: { onAddToCart: () => void, format?: 'column' | 'row', min?: number, max?: number, step?: number, unit?: string }) {
+type ProductQuantitySelectorProps = { 
+    onAddToCart: () => void,
+    format?: 'column' | 'row',
+    min?: number,
+    max?: number,
+    step?: number,
+    unit?: string
+}
+
+export function ProductQuantitySelector({ onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag" }: Readonly<ProductQuantitySelectorProps>) {
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
         color: themeConfig.textColor.grey,
@@ -315,8 +375,8 @@ export function ProductQuantitySelector({ onAddToCart, format = "column",  min =
     }
 
     return (
-        <Box sx={{display:'flex', flexDirection: format, gap: 2}}>
-            <Paper sx={{ border: '1px solid #A4A3A1', borderRadius: '8px', p: '0px 0px', display: 'flex', alignItems: 'center', width: ((format == 'column')? '100%' : '50%') }}>
+        <Box sx={{ display: 'flex', flexDirection: format, gap: 2 }}>
+            <Paper sx={{ border: '1px solid #A4A3A1', borderRadius: '8px', p: '0px 0px', display: 'flex', alignItems: 'center', width: ((format == 'column') ? '100%' : '50%') }}>
                 <IconButton sx={minusButtonStyle} onClick={handleMinusClick} >
                     <F2FIcons name="Minus" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
@@ -365,13 +425,20 @@ export function ProductQuantitySelector({ onAddToCart, format = "column",  min =
                     <F2FIcons name="Add" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
             </Paper>
-            <ProductCardButton label="Kosár" onClick={onAddToCart} isDisabled={buttonDisabled} sx={{width: ((format == 'column')? '100%' : '50%')}}/>
-            </Box>
+            <ProductCardButton label="Kosár" onClick={onAddToCart} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />
+        </Box>
     );
 
 }
 
-function ProductCardButton({ label, onClick, isDisabled = false, sx}: { label: string, onClick: () => void, isDisabled?: boolean, sx?:SxProps }) {
+type ProductCardButtonProps = { 
+    label: string, 
+    onClick: () => void, 
+    isDisabled?: boolean, 
+    sx?: SxProps
+}
+
+function ProductCardButton({ label, onClick, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
 
     const baseStyle: SxProps = {
         ...sx,

@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 
-export const fallbackLng = 'en';
-export const languages = ['en', 'fr', 'vi', 'cn', 'ar'];
+export const fallbackLng = 'hu';
+export const languages = ['en', 'fr', 'vi', 'cn', 'ar', 'hu'];
 export const defaultNS = 'common';
 export const cookieName = 'i18next';
 
@@ -51,5 +51,10 @@ export const changeLangMessages: Record<
         success: 'تم تغيير اللغة!',
         error: 'خطأ في تغيير اللغة!',
         loading: 'جارٍ التحميل...',
+    },
+    hu: {
+        success: 'Nyelv megváltoztatva!',
+        error: 'Nyelv változtatás sikertelen!',
+        loading: 'Betöltés...',
     },
 };

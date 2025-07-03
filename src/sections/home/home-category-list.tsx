@@ -7,7 +7,6 @@ import { varAlpha } from 'minimal-shared/utils';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
 import { Typography, ListItemText } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
@@ -104,7 +103,6 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
         >
             <MotionViewport>
 
-                <Container sx={{ position: 'relative' }}>
                     <Grid
                         container
                         spacing={{ xs: 5, md: 8 }}
@@ -118,7 +116,6 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                         variants={varFade('in')}
                         sx={{ display: { xs: 'none', md: 'block' } }}
                     />
-                </Container>
             </MotionViewport>
         </Box>
     );

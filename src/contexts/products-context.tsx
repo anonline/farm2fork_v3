@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { IProductItem } from "src/types/product";
 
 import { createClient } from "@supabase/supabase-js";
-import { useState, useEffect, useContext, createContext } from "react";
+import { useMemo, useState, useEffect, useContext, createContext } from "react";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -22,30 +22,36 @@ export const ProductsContext = createContext<ProductsContextType>({
     error: null,
 });
 
-export function ProductsProvider({ children }: { children: ReactNode }) {
+export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [loaderror, setError] = useState<string | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
             const { data, error: supabaseError } = await supabase.from("Products").select("*");
             if (supabaseError) {
-                setError(supabaseError.message);
+                setLoadError(supabaseError.message);
                 setProducts([]);
             } else {
                 console.log("Fetched products:", data);
-                setProducts(data || []);
-                setError(null);
+                setProducts(data ?? []);
+                setLoadError(null);
             }
             setLoading(false);
         }
         fetchProducts();
     }, []);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error: loadError
+    }), [products, loading, loadError]);
+
     return (
-        <ProductsContext.Provider value={{ products, loading, error: loaderror }}>
+        <ProductsContext.Provider value={value}>
             {children}
         </ProductsContext.Provider>
     );
@@ -56,6 +62,8 @@ export const useProducts = () => {
     if (!context) throw new Error("useProducts csak a ProductsProvider-en belül használható");
     return context;
 };
+
+//--------------------------------------------------------------------------------------
 
 interface ProductsInCategoryProviderProps {
     children: ReactNode;
@@ -68,7 +76,7 @@ export const ProductsInCategoryContext = createContext<ProductsContextType>({
     error: null,
 });
 
-export function ProductsInCategoryProvider({ children, categoryId }: ProductsInCategoryProviderProps) {
+export function ProductsInCategoryProvider({ children, categoryId }: Readonly<ProductsInCategoryProviderProps>) {
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -104,8 +112,14 @@ export function ProductsInCategoryProvider({ children, categoryId }: ProductsInC
         fetchProductsByCategory();
     }, [categoryId]);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error
+    }), [products, loading, error]);
+
     return (
-        <ProductsInCategoryContext.Provider value={{ products, loading, error }}>
+        <ProductsInCategoryContext.Provider value={value}>
             {children}
         </ProductsInCategoryContext.Provider>
     );
@@ -119,10 +133,7 @@ export const useProductsInCategory = () => {
     return context;
 };
 
-
-
-
-
+//--------------------------------------------------------------------------------------
 
 export const ProductsInMonthInCategoryContext = createContext<ProductsContextType>({
     products: [],
@@ -136,8 +147,7 @@ interface ProductsInMonthInCategoryProviderProps {
     month: string;
 }
 
-
-export function ProductsInMonthInCategoryProvider({ children, categoryId, month }: ProductsInMonthInCategoryProviderProps) {
+export function ProductsInMonthInCategoryProvider({ children, categoryId, month }: Readonly<ProductsInMonthInCategoryProviderProps>) {
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -199,8 +209,14 @@ export function ProductsInMonthInCategoryProvider({ children, categoryId, month 
         fetchFilteredProducts();
     }, [categoryId, month]);
 
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error
+    }), [products, loading, error]);
+
     return (
-        <ProductsInMonthInCategoryContext.Provider value={{ products, loading, error }}>
+        <ProductsInMonthInCategoryContext.Provider value={value}>
             {children}
         </ProductsInMonthInCategoryContext.Provider>
     );
@@ -211,5 +227,101 @@ export const useProductsInMonthInCategory = () => {
     if (!context) {
         throw new Error("useProductsInMonthInCategory csak a ProductsInMonthInCategoryProvider-en belül használható");
     }
+    return context;
+};
+
+//--------------------------------------------------------------------------------------
+
+export const FeaturedProductsContext = createContext<ProductsContextType>({
+    products: [],
+    loading: false,
+    error: null,
+});
+
+export function FeaturedProductsProvider({ children, limit = 5 }: Readonly<{ children: ReactNode, limit?:number }>) {
+    const [products, setProducts] = useState<IProductItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchProducts() {
+            setLoading(true);
+            const { data, error: supabaseError } = await supabase.from("Products").select("*").eq('featured', true).limit(limit);
+            if (supabaseError) {
+                setLoadError(supabaseError.message);
+                setProducts([]);
+            } else {
+                setProducts(data ?? []);
+                setLoadError(null);
+            }
+            setLoading(false);
+        }
+        fetchProducts();
+    }, []);
+
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error: loadError
+    }), [products, loading, loadError]);
+
+    return (
+        <FeaturedProductsContext.Provider value={value}>
+            {children}
+        </FeaturedProductsContext.Provider>
+    );
+}
+
+export const useFeaturedProducts = () => {
+    const context = useContext(FeaturedProductsContext);
+    if (!context) throw new Error("useFeaturedProducts csak a FeaturedProductsContext-en belül használható");
+    return context;
+};
+
+//--------------------------------------------------------------------------------------
+
+export const StarProductsContext = createContext<ProductsContextType>({
+    products: [],
+    loading: false,
+    error: null,
+});
+
+export function StarProductsProvider({ children, limit = 1 }: Readonly<{ children: ReactNode, limit?:number }>) {
+    const [products, setProducts] = useState<IProductItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchProducts() {
+            setLoading(true);
+            const { data, error: supabaseError } = await supabase.from("Products").select("*").eq('star', true).limit(limit);
+            if (supabaseError) {
+                setLoadError(supabaseError.message);
+                setProducts([]);
+            } else {
+                setProducts(data ?? []);
+                setLoadError(null);
+            }
+            setLoading(false);
+        }
+        fetchProducts();
+    }, []);
+
+    const value = useMemo(() => ({
+        products,
+        loading,
+        error: loadError
+    }), [products, loading, loadError]);
+
+    return (
+        <StarProductsContext.Provider value={value}>
+            {children}
+        </StarProductsContext.Provider>
+    );
+}
+
+export const useStarProducts = () => {
+    const context = useContext(StarProductsContext);
+     if (!context) throw new Error("useStarProducts csak a StarProductsProvider-en belül használható");
     return context;
 };

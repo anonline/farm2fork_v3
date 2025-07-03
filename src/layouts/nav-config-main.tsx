@@ -12,7 +12,7 @@ export const navData: NavMainProps['data'] = [
             {
                 subheader: '1',
                 items: [
-                    { title: 'Összes termék', path: paths.about },
+                    { title: 'Összes termék', path: paths.product.root},
                     { title: 'Gyümölcsök', path: paths.contact },
                     { title: 'Feldolgozott termékek', path: paths.faqs },
                 ],
