@@ -23,7 +23,6 @@ export default function ProducerProducts({ producerId }: Readonly<ProducerProduc
             </Box>
         );
     }
-    console.log('p', products, error, loading);
 
     const producerProducts = products.filter(product => product.producerId === producerId);
 

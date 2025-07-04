@@ -39,7 +39,7 @@ async function getProductBySlug(slug: string) {
     }
     return data;
 }
-export default async function Page({ params }: Props) {
+export default async function Page({ params }: Readonly<Props>) {
     const { slug } = await params;
 
     return (

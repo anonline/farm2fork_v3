@@ -1,29 +1,39 @@
 'use client';
 
 import type { Theme, SxProps } from '@mui/material';
-import type { IProducerItem } from 'src/types/producer';
 
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
 
 import { Box, Paper, Stack, Button, Typography, CircularProgress } from '@mui/material';
 
-// --- Supabase Kliens Beállítása ---
-// Feltételezzük, hogy ezek a környezeti változók léteznek
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { useProducers } from 'src/contexts/producers-context';
 
 
-// --- A "BUTA" MEGJELENÍTŐ KOMPONENS ---
-// Ez a komponens csak a kinézetért felel, és megkapja a már betöltött producer adatokat.
-interface ProducerCardDisplayProps {
-    producer: IProducerItem;
+
+interface ProducerCardProps {
+    producerId: number;
 }
 
-function ProducerCardDisplay({ producer }: Readonly<ProducerCardDisplayProps>) {
+export default function ProducerCard({ producerId }: Readonly<ProducerCardProps>) {
     const router = useRouter();
+    const { producers, loading, error } = useProducers();
+    const producer = producers.find(p => p.id === producerId);
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return <Typography color="error">Hiba: {error}</Typography>;
+    }
+
+    if (!producer) {
+        return null;
+    }
 
     const openProducerPage = () => {
         router.push(`/termelok/${producer.slug}`);
@@ -46,7 +56,7 @@ function ProducerCardDisplay({ producer }: Readonly<ProducerCardDisplayProps>) {
     };
 
     return (
-        <Paper 
+        <Paper
             elevation={2}
             sx={{
                 display: 'flex',
@@ -59,120 +69,25 @@ function ProducerCardDisplay({ producer }: Readonly<ProducerCardDisplayProps>) {
             }}
             onClick={openProducerPage}
         >
-            <Box 
-                sx={{ 
-                    width: { xs: '100%', md: '50%' },
-                    aspectRatio: '4/3',
-                    flexShrink: 0,
-                }}
-            >
+            <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0 }}>
                 <img
-                    src={producer.featuredImage || "https://placehold.co/600x450"}
+                    src={producer.featuredImage ?? "https://placehold.co/600x450"}
                     alt={producer.name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
             </Box>
-
-            <Box 
-                sx={{ 
-                    p: { xs: 3, md: 4 },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    flexGrow: 1,
-                }}
-            >
+            <Box sx={{ p: { xs: 3, md: 4 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1 }}>
                 <Stack spacing={1.5}>
-                    <Typography variant="overline" color="text.secondary">
-                        Termelő
-                    </Typography>
-                    <Typography 
-                        variant="h3" 
-                        sx={{ 
-                            fontWeight: 700, 
-                            textTransform: 'uppercase',
-                            fontSize: { xs: '28px', md: '36px' },
-                            lineHeight: { xs: '34px', md: '42px' },
-                        }}
-                    >
+                    <Typography variant="overline" color="text.secondary">Termelő</Typography>
+                    <Typography variant="h3" sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: { xs: '28px', md: '36px' }, lineHeight: { xs: '34px', md: '42px' } }}>
                         {producer.name}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        {producer.shortDescription || 'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
+                        {producer.shortDescription ?? 'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
                     </Typography>
-                    <Button sx={buttonStyle}>
-                        Tovább a termelőhöz
-                    </Button>
+                    <Button sx={buttonStyle}>Tovább a termelőhöz</Button>
                 </Stack>
             </Box>
         </Paper>
     );
-}
-
-
-// --- AZ "OKOS" FŐ KOMPONENS (ÁTALAKÍTVA) ---
-// Ez a komponens kapja meg az ID-t, és felel az adatlekérésért.
-interface ProducerCardProps {
-    producerId: number;
-}
-
-export default function FeaturedProducerCard(props: Readonly<ProducerCardProps>) {
-    const { producerId } = props;
-
-    // Állapotok az adatok, a betöltés és a hiba kezelésére
-    const [producer, setProducer] = useState<IProducerItem | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    // Adatlekérés a Supabase-ből a producerId változásakor
-    useEffect(() => {
-        if (!producerId) {
-            setLoading(false);
-            return;
-        };
-
-        const fetchProducer = async () => {
-            setLoading(true);
-            setError(null);
-
-            // Feltételezzük, hogy a termelők táblája 'Producers'
-            const { data, error: supabaseError } = await supabase
-                .from('Producers')
-                .select('*')
-                .eq('id', producerId)
-                .single(); // .single() egyetlen sort ad vissza objektumként
-
-            if (supabaseError) {
-                console.error("Hiba a termelő lekérésekor:", supabaseError);
-                setError(supabaseError.message);
-            } else {
-                setProducer(data);
-            }
-            setLoading(false);
-        };
-
-        fetchProducer();
-    }, [producerId]);
-
-    // Betöltési állapot megjelenítése
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
-    // Hiba állapot megjelenítése
-    if (error) {
-        return <Typography color="error">Hiba: {error}</Typography>;
-    }
-
-    // Ha nincs adat, nem jelenítünk meg semmit
-    if (!producer) {
-        return null;
-    }
-
-    // Ha minden rendben, megjelenítjük a kártyát a betöltött adatokkal
-    return <ProducerCardDisplay producer={producer} />;
 }

@@ -17,7 +17,7 @@ interface ProducerCardProps {
     producer: IProducerItem;
 }
 
-export default function ProducerCard(props: ProducerCardProps) {
+export default function ProducerCard(props: Readonly<ProducerCardProps>) {
     const { producer } = props;
     const router = useRouter();
 
@@ -95,7 +95,7 @@ export default function ProducerCard(props: ProducerCardProps) {
     return (
         <Paper className="product-card" sx={producerCardStyle} onClick={openProductPage}>
             <img
-                src={producer.featuredImage || "https://placehold.co/429"}
+                src={producer.featuredImage ?? "https://placehold.co/429"}
                 alt={producer.name}
                 style={producerImageStyle}
             />
