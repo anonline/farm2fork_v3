@@ -22,22 +22,22 @@ export const ProducersContext = createContext<ProducersContextType>({
     error: null,
 });
 
-export function ProducersProvider({ children }: { children: ReactNode }) {
+export function ProducersProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [producers, setProducers] = useState<IProducerItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [loaderror, setError] = useState<string | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchProducers() {
             setLoading(true);
             const { data, error } = await supabase.from("Producers").select("*").order('name', { ascending: true });
             if (error) {
-                setError(error.message);
+                setLoadError(error.message);
                 setProducers([]);
             } else {
                 console.log("Fetched producers:", data);
-                setProducers(data || []);
-                setError(null);
+                setProducers(data ?? []);
+                setLoadError(null);
             }
             setLoading(false);
         }
@@ -45,7 +45,7 @@ export function ProducersProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <ProducersContext.Provider value={{ producers, loading, error: loaderror }}>
+        <ProducersContext.Provider value={{ producers, loading, error: loadError }}>
             {children}
         </ProducersContext.Provider>
     );
