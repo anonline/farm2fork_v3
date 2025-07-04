@@ -6,16 +6,16 @@ import { Box, Container, Typography } from "@mui/material";
 
 import { themeConfig } from "src/theme";
 import { useProduct } from "src/contexts/product-context"
+import { ProductsProvider } from "src/contexts/products-context";
 
 import { Months } from "src/types/product";
 
-import F2FIcons from "../f2ficons/f2ficons";
-import { ProductQuantitySelector } from "../product-card/product-card";
-import ProductDetailsSmallInfo from "./product-details-small-info";
-import FeaturedProducerCard from "../producer-card/featured-producer-card";
-import ProducerProducts from "./producer-products";
-import { ProductsProvider } from "src/contexts/products-context";
 import { Image } from "../image";
+import F2FIcons from "../f2ficons/f2ficons";
+import ProducerProducts from "./producer-products";
+import ProductDetailsSmallInfo from "./product-details-small-info";
+import { ProductQuantitySelector } from "../product-card/product-card";
+import FeaturedProducerCard from "../producer-card/featured-producer-card";
 
 
 

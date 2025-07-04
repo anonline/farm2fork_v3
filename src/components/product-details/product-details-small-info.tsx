@@ -1,8 +1,10 @@
 'use client';
 
-import { Typography, Box, Grid, Button } from "@mui/material";
+import type { IProductItem } from "src/types/product";
+
 import { useRouter } from 'next/navigation';
-import { IProductItem } from "src/types/product";
+
+import { Box, Grid, Button, Typography } from "@mui/material";
 
 interface ProductDetailsSmallInfoProps {
     product: IProductItem | null;

@@ -1,12 +1,13 @@
 'use client';
 
-import type { SxProps, Theme } from '@mui/material';
+import type { Theme, SxProps } from '@mui/material';
 import type { IProducerItem } from 'src/types/producer';
 
-import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Paper, Typography, Box, Stack, Button, CircularProgress } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+
+import { Box, Paper, Stack, Button, Typography, CircularProgress } from '@mui/material';
 
 // --- Supabase Kliens Beállítása ---
 // Feltételezzük, hogy ezek a környezeti változók léteznek
@@ -21,7 +22,7 @@ interface ProducerCardDisplayProps {
     producer: IProducerItem;
 }
 
-function ProducerCardDisplay({ producer }: ProducerCardDisplayProps) {
+function ProducerCardDisplay({ producer }: Readonly<ProducerCardDisplayProps>) {
     const router = useRouter();
 
     const openProducerPage = () => {
@@ -115,7 +116,7 @@ interface ProducerCardProps {
     producerId: number;
 }
 
-export default function FeaturedProducerCard(props: ProducerCardProps) {
+export default function FeaturedProducerCard(props: Readonly<ProducerCardProps>) {
     const { producerId } = props;
 
     // Állapotok az adatok, a betöltés és a hiba kezelésére
