@@ -45,6 +45,8 @@ export const Months = {
 type MonthKeys = keyof typeof Months;
 
 export type IProductItem = {
+    storingInformation: any;
+    usageInformation: any;
     id: string;
     sku: string;
     name: string;
@@ -84,6 +86,7 @@ export type IProductItem = {
     subDescription: string;
     priceSale: number | null;
     reviews: IProductReview[];
+    producerId :number;
     newLabel: {
         content: string;
         enabled: boolean;

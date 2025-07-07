@@ -2,151 +2,175 @@
 
 import { toast } from "sonner";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
+
+import { fCurrency } from "src/utils/format-number";
 
 import { themeConfig } from "src/theme";
 import { useProduct } from "src/contexts/product-context"
+import { ProductsProvider } from "src/contexts/products-context";
+import { ProducersProvider } from "src/contexts/producers-context";
 
 import { Months } from "src/types/product";
 
+import { Image } from "../image";
 import F2FIcons from "../f2ficons/f2ficons";
+import ProducerProducts from "./producer-products";
+import ProductDetailsSmallInfo from "./product-details-small-info";
 import { ProductQuantitySelector } from "../product-card/product-card";
+import FeaturedProducerCard from "../producer-card/featured-producer-card";
 
 
 
 export default function ProductDetails() {
     const { product, loading, error } = useProduct();
-
     const renderTitle = () => (
-            <Typography variant="h1"
-                sx={{ fontSize: '64px', fontWeight: 600, textTransform: 'uppercase', lineHeight: '56px', letterSpacing: '-0.01em', color: themeConfig.textColor.default }}>
-                {product?.name}
-            </Typography>
-        )
-
+        <Typography variant="h1"
+            sx={{ 
+                fontSize: {sx:'30px', md:'64px'},
+                fontWeight: 600, 
+                textTransform: 'uppercase', 
+                lineHeight: {sm:'40px', md:'56px'}, 
+                letterSpacing: '-0.01em', 
+                color: themeConfig.textColor.default, 
+                }}>
+            {product?.name}
+        </Typography>
+    )
     const renderDescription = () => (
-            <Typography
-                sx={{ fontFamily: themeConfig.fontFamily.primary, fontSize: '16px', fontWeight: 400, lineHeight: '24px', letterSpacing: '0.32px', color: themeConfig.textColor.default }}>
-                {product?.shortDescription}
-            </Typography>
-        )
-
+        <Typography
+            sx={{ fontFamily: themeConfig.fontFamily.primary, fontSize: '16px', fontWeight: 400, lineHeight: '24px', letterSpacing: '0.32px', color: themeConfig.textColor.default }}>
+            {product?.shortDescription}
+        </Typography>
+    )
     const renderSeasonality = () => (
-            (product?.seasonality && (
-                <Typography
-                    sx={{
-                        fontFamily: themeConfig.fontFamily.primary,
-                        fontSize: '16px',
-                        fontWeight: 700,
-                        lineHeight: '24px', letterSpacing: '0.16px', color: themeConfig.textColor.default, textTransform: 'capitalize'
-                    }}>
-                    Szezonalitás: {product.seasonality && product.seasonality.map((season, index, months) => (
-                        <span style={{ fontWeight: 500 }} key={season}>{Months[season]}{(index < months.length - 1 ? ', ' : '')}</span>
-                    ))}
-                </Typography>
-            ))
-        )
-
-    const renderPriceDetails = () => {
-        const priceDetailsStyle: React.CSSProperties = {
+        (product?.seasonality && (
+            <Typography
+                sx={{
+                    fontFamily: themeConfig.fontFamily.primary,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    lineHeight: '24px', letterSpacing: '0.16px', color: themeConfig.textColor.default, textTransform: 'capitalize'
+                }}>
+                Szezonalitás: {product.seasonality && product.seasonality.map((season, index, months) => (
+                    <span style={{ fontWeight: 500 }} key={season}>{Months[season]}{(index < months.length - 1 ? ', ' : '')}</span>
+                ))}
+            </Typography>
+        ))
+    )
+    const renderPriceDetails =()=>{
+        const priceDetailsStyle = {
             display: 'flex',
-            flexDirection: 'row',
-            gap: '20px',
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            gap: { xs: 1, sm: '20px' },
+            alignItems: { sm: 'center' },
             justifyContent: 'start',
-        }
-
-        const priceStyle: React.CSSProperties = {
+        };
+        const priceStyle = {
             fontFamily: themeConfig.fontFamily.primary,
             fontSize: '18px',
             lineHeight: '18px',
             fontWeight: 700,
             color: themeConfig.textColor.default,
-        }
-
-        const unitStyle: React.CSSProperties = {
+        };
+        const unitStyle = {
             fontFamily: themeConfig.fontFamily.primary,
             fontSize: '16px',
             lineHeight: '18px',
             fontWeight: 400,
             color: themeConfig.textColor.muted,
-        }
-
-
-
+        };
+        const formattedPrice = fCurrency(product?.netPrice);
         return (
-            <div style={priceDetailsStyle}>
-                <span style={priceStyle}>
-                    {product?.netPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') || 999} Ft <span style={unitStyle}>/ {product?.unit || 'kg'}</span>
-                </span>
-                <span style={unitStyle}>
-                    min. {product?.mininumQuantity || 1} {product?.unit || 'kg'}
-                </span>
-            </div>
+            <Box sx={priceDetailsStyle}>
+                <Typography component="span" sx={priceStyle}>
+                    {formattedPrice}
+                    <Typography component="span" sx={unitStyle}>
+                        &nbsp;/ {product?.unit ?? 'kg'}
+                    </Typography>
+                </Typography>
+
+                <Typography component="span" sx={unitStyle}>
+                    min. {product?.mininumQuantity ?? 1} {product?.unit ?? 'kg'}
+                </Typography>
+            </Box>
         );
     }
-
-
     const renderQuantitySelector = () => (
-            <Box sx={{ width: '80%' }}>
-                <ProductQuantitySelector
-                    onAddToCart={handleAddToCart}
-                    unit={product?.unit}
-                    max={product?.maximumQuantity}
-                    min={product?.mininumQuantity}
-                    step={product?.stepQuantity}
-                    format="row"
-                />
-            </Box>
-        )
-
+        <Box sx={{ width: '80%' }}>
+            <ProductQuantitySelector
+                onAddToCart={handleAddToCart}
+                unit={product?.unit}
+                max={product?.maximumQuantity}
+                min={product?.mininumQuantity}
+                step={product?.stepQuantity}
+                format="row"
+            />
+        </Box>
+    )
     const handleAddToCart = () => {
         toast.success("Sikeresen kosárhoz adva.");
     }
-
     const headRightSectionGap = '20px';
-
     const renderHead = () => (
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 5,
-                    justifyContent: 'space-between'
-                }}>
-                <Box style={{ width: '50%' }}>
-                    <img alt={product?.name || ""} src={product?.featuredImage || "https://placehold.co/615x615"} style={{ borderRadius: '8px' }} />
-                </Box>
-                <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    <Box sx={{display:'flex', flexDirection:'column', gap: headRightSectionGap}}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                            <Box>
-                                {renderTitle()}
-                            </Box>
-                            <Box>
-                                {product?.bio && (<F2FIcons name="BioBadge" width={64} height={32} />)}
-                            </Box>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', md: "row" },
+                gap: 5,
+            }}>
+            <Box>
+                <Image alt={product?.name ?? ""} src={product?.featuredImage ?? "https://placehold.co/608x614"}
+                    sx={{ borderRadius: '8px', width: { xs: "100%", md: "608px" }, height: { xs: "100%", md: "614px" } }} />
+            </Box>
+            <Box sx={{ width: { xs: "100%", md: '50%' }, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%', alignItems: 'center', wordBreak: "break-word" }}>
+                        <Box>
+                            {renderTitle()}
                         </Box>
+                        <Box>
+                            {product?.bio && (<F2FIcons name="BioBadge" width={64} height={32} />)}
+                        </Box>
+                    </Box>
 
-                        {renderDescription()}
-                    </Box>
-                    <Box sx={{display:'flex', flexDirection:'column', gap: headRightSectionGap}}>
-                        {renderSeasonality()}
+                    {renderDescription()}
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                    {renderSeasonality()}
 
-                    </Box>
-                    <Box sx={{display:'flex', flexDirection:'column', gap: headRightSectionGap}}>
-                        {renderPriceDetails()}
-                        {renderQuantitySelector()}
-                    </Box>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                    {renderPriceDetails()}
+                    {renderQuantitySelector()}
                 </Box>
             </Box>
-        )
-
+        </Box>
+    )
     return (
         <>
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
             {renderHead()}
+            <Container>
+                <ProductDetailsSmallInfo product={product} />
+            </Container>
+            {/* galery */}
+            <Box sx={{ 
+                backgroundColor: "#f5f5f5", 
+                borderRadius:'12px'
+            }}>
+                    {product?.producerId !== undefined && (
+                        <ProducersProvider>
+                            <FeaturedProducerCard producerId={product.producerId} />
+                        </ProducersProvider>
+                    )}
+            </Box>
+                {product?.producerId !== undefined && (
+                    <ProductsProvider>
+                        <ProducerProducts producerId={product.producerId} />
+                    </ProductsProvider>
+                )}
         </>
-
     );
-}
+};

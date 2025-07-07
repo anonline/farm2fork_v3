@@ -5,7 +5,7 @@ import type { IProducerItem } from 'src/types/producer';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
 
@@ -17,7 +17,7 @@ interface ProducerCardProps {
     producer: IProducerItem;
 }
 
-export default function ProducerCard(props: ProducerCardProps) {
+export default function ProducerCard(props: Readonly<ProducerCardProps>) {
     const { producer } = props;
     const router = useRouter();
 
@@ -95,7 +95,7 @@ export default function ProducerCard(props: ProducerCardProps) {
     return (
         <Paper className="product-card" sx={producerCardStyle} onClick={openProductPage}>
             <img
-                src={producer.featuredImage || "https://placehold.co/429"}
+                src={producer.featuredImage ?? "https://placehold.co/429"}
                 alt={producer.name}
                 style={producerImageStyle}
             />
@@ -105,9 +105,9 @@ export default function ProducerCard(props: ProducerCardProps) {
             )}
 
             <div style={producerCardDetailsUpperContainterStyle}>
-                <div style={producerCardDetailsUpperLabelContainerStyle}>
-                    <h2 style={producerCardNameStyle} onClick={openProductPage}>{producer.name}</h2>
-                </div>
+                <Box sx={producerCardDetailsUpperLabelContainerStyle} onClick={openProductPage}>
+                    <h2 style={producerCardNameStyle}>{producer.name}</h2>
+                </Box>
             </div>
             <div style={producerCardPriceContentStyle}>
                 <div style={producerCardPriceDetailsStyle}>
