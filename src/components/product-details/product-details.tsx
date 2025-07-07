@@ -1,18 +1,13 @@
 'use client'
 
 import { toast } from "sonner";
-
 import { Box, Container, Typography } from "@mui/material";
-
 import { fCurrency } from "src/utils/format-number";
-
 import { themeConfig } from "src/theme";
 import { useProduct } from "src/contexts/product-context"
 import { ProductsProvider } from "src/contexts/products-context";
 import { ProducersProvider } from "src/contexts/producers-context";
-
 import { Months } from "src/types/product";
-
 import { Image } from "../image";
 import F2FIcons from "../f2ficons/f2ficons";
 import ProducerProducts from "./producer-products";
@@ -24,21 +19,25 @@ import FeaturedProducerCard from "../producer-card/featured-producer-card";
 
 export default function ProductDetails() {
     const { product, loading, error } = useProduct();
-
     const renderTitle = () => (
         <Typography variant="h1"
-            sx={{ fontSize: '64px', fontWeight: 600, textTransform: 'uppercase', lineHeight: '56px', letterSpacing: '-0.01em', color: themeConfig.textColor.default }}>
+            sx={{ 
+                fontSize: {sx:'30px', md:'64px'},
+                fontWeight: 600, 
+                textTransform: 'uppercase', 
+                lineHeight: {sm:'40px', md:'56px'}, 
+                letterSpacing: '-0.01em', 
+                color: themeConfig.textColor.default, 
+                }}>
             {product?.name}
         </Typography>
     )
-
     const renderDescription = () => (
         <Typography
             sx={{ fontFamily: themeConfig.fontFamily.primary, fontSize: '16px', fontWeight: 400, lineHeight: '24px', letterSpacing: '0.32px', color: themeConfig.textColor.default }}>
             {product?.shortDescription}
         </Typography>
     )
-
     const renderSeasonality = () => (
         (product?.seasonality && (
             <Typography
@@ -54,7 +53,6 @@ export default function ProductDetails() {
             </Typography>
         ))
     )
-
     const renderPriceDetails =()=>{
         const priceDetailsStyle = {
             display: 'flex',
@@ -63,7 +61,6 @@ export default function ProductDetails() {
             alignItems: { sm: 'center' },
             justifyContent: 'start',
         };
-
         const priceStyle = {
             fontFamily: themeConfig.fontFamily.primary,
             fontSize: '18px',
@@ -71,7 +68,6 @@ export default function ProductDetails() {
             fontWeight: 700,
             color: themeConfig.textColor.default,
         };
-
         const unitStyle = {
             fontFamily: themeConfig.fontFamily.primary,
             fontSize: '16px',
@@ -79,9 +75,7 @@ export default function ProductDetails() {
             fontWeight: 400,
             color: themeConfig.textColor.muted,
         };
-
         const formattedPrice = fCurrency(product?.netPrice);
-
         return (
             <Box sx={priceDetailsStyle}>
                 <Typography component="span" sx={priceStyle}>
@@ -97,7 +91,6 @@ export default function ProductDetails() {
             </Box>
         );
     }
-
     const renderQuantitySelector = () => (
         <Box sx={{ width: '80%' }}>
             <ProductQuantitySelector
@@ -110,13 +103,10 @@ export default function ProductDetails() {
             />
         </Box>
     )
-
     const handleAddToCart = () => {
         toast.success("Sikeresen kosárhoz adva.");
     }
-
     const headRightSectionGap = '20px';
-
     const renderHead = () => (
         <Box
             sx={{
@@ -152,7 +142,6 @@ export default function ProductDetails() {
             </Box>
         </Box>
     )
-
     return (
         <>
             {loading && <p>Loading...</p>}
@@ -162,23 +151,21 @@ export default function ProductDetails() {
                 <ProductDetailsSmallInfo product={product} />
             </Container>
             {/* galery */}
-            <Box sx={{ backgroundColor: "#f5f5f5", }}>
-                <Container>
+            <Box sx={{ 
+                backgroundColor: "#f5f5f5", 
+                borderRadius:'12px'
+            }}>
                     {product?.producerId !== undefined && (
                         <ProducersProvider>
                             <FeaturedProducerCard producerId={product.producerId} />
                         </ProducersProvider>
                     )}
-                </Container>
             </Box>
-            <Container>
                 {product?.producerId !== undefined && (
                     <ProductsProvider>
                         <ProducerProducts producerId={product.producerId} />
                     </ProductsProvider>
                 )}
-            </Container>
         </>
-
     );
 };

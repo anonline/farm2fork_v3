@@ -37,11 +37,11 @@ export default function ProducerProducts({ producerId }: Readonly<ProducerProduc
     return (
         <Box sx={{ my: 5 }}>
             <Typography 
-                variant="h3" 
                 sx={{ 
                     textTransform: 'uppercase', 
-                    fontWeight: 600, 
-                    mb: 3 
+                    fontWeight: 700, 
+                    mb: 3, 
+                    fontSize:{sm:"16px", md:"24px"}
                 }}
             >
                 További termékek

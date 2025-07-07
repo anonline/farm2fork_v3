@@ -56,8 +56,7 @@ export default function ProducerCard({ producerId }: Readonly<ProducerCardProps>
     };
 
     return (
-        <Paper
-            elevation={2}
+        <Box
             sx={{
                 display: 'flex',
                 flexDirection: { xs: 'column', md: 'row' },
@@ -73,7 +72,7 @@ export default function ProducerCard({ producerId }: Readonly<ProducerCardProps>
                 <img
                     src={producer.featuredImage ?? "https://placehold.co/600x450"}
                     alt={producer.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius:'12px' }}
                 />
             </Box>
             <Box sx={{ p: { xs: 3, md: 4 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1 }}>
@@ -88,6 +87,6 @@ export default function ProducerCard({ producerId }: Readonly<ProducerCardProps>
                     <Button sx={buttonStyle}>Tovább a termelőhöz</Button>
                 </Stack>
             </Box>
-        </Paper>
+        </Box>
     );
 }
