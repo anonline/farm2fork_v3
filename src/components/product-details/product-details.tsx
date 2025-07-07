@@ -1,13 +1,18 @@
 'use client'
 
 import { toast } from "sonner";
+
 import { Box, Container, Typography } from "@mui/material";
+
 import { fCurrency } from "src/utils/format-number";
+
 import { themeConfig } from "src/theme";
 import { useProduct } from "src/contexts/product-context"
 import { ProductsProvider } from "src/contexts/products-context";
 import { ProducersProvider } from "src/contexts/producers-context";
+
 import { Months } from "src/types/product";
+
 import { Image } from "../image";
 import F2FIcons from "../f2ficons/f2ficons";
 import ProducerProducts from "./producer-products";

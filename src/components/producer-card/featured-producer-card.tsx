@@ -4,7 +4,7 @@ import type { Theme, SxProps } from '@mui/material';
 
 import { useRouter } from 'next/navigation';
 
-import { Box, Paper, Stack, Button, Typography, CircularProgress } from '@mui/material';
+import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material';
 
 import { useProducers } from 'src/contexts/producers-context';
 
