@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import páfrány from "public/assets/images/home/páfrány-1024x1024.webp"
+import pafrany from "public/assets/images/home/pafrany-1024x1024.webp"
 import hagymaszedes from "public/assets/images/home/hagymaszedes-1025x1536.webp";
 import fooldal_rolunk from "public/assets/images/home/fooldal_rolunk-1024x1024.webp";
 
@@ -49,7 +49,7 @@ export default function HomeHighlight() {
             path: "/termelok"
         },
         {
-            img: páfrány,
+            img: pafrany,
             title: "Szezonalitás",
             text: "A Farm2Forknál alapvetés, hogy csak helyi és szezonális alapanyagokat kínálunk. Valljuk, hogy a frissen, szezonjában leszedett alapanyagok finomabbak és fenntarthatósági szempontból is előnyösebbek.",
             buttonText: "Tovább",
