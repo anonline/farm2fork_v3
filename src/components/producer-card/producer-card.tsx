@@ -105,8 +105,8 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
             )}
 
             <div style={producerCardDetailsUpperContainterStyle}>
-                <div style={producerCardDetailsUpperLabelContainerStyle}>
-                    <h2 style={producerCardNameStyle} onClick={openProductPage}>{producer.name}</h2>
+                <div style={producerCardDetailsUpperLabelContainerStyle} onClick={openProductPage}>
+                    <h2 style={producerCardNameStyle}>{producer.name}</h2>
                 </div>
             </div>
             <div style={producerCardPriceContentStyle}>
