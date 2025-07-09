@@ -14,9 +14,12 @@ import Search2Icon from 'public/assets/icons/f2f/Search2.svg';
 import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
+import Profil from 'public/assets/icons/f2f/Profil.svg';
+import EditPen from 'public/assets/icons/f2f/Edit-pen.svg';
+
 
 interface F2FIconsSvgProps {
-    name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck'; // vagy dinamikusan generált union type
+    name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck' | 'Profil' | 'EditPen' ; // vagy dinamikusan generált union type
     width?: number;
     height?: number;
     style?: React.CSSProperties;
@@ -38,6 +41,8 @@ const iconMap = {
     RendelesDate,
     Card,
     Truck,
+    Profil,
+    EditPen,
 } as const;
 
 export default function F2FIcons({ name, width = 16, height = 16, style }: Readonly<F2FIconsSvgProps>) {

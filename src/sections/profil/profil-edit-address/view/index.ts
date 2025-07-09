@@ -1,0 +1,1 @@
+export * from './profil-edit-address-view';

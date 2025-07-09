@@ -3,8 +3,8 @@
 import { Box, Typography, Stack, Button, Grid } from "@mui/material";
 import { useState } from "react";
 import ProfilRendelesekKartya from "./profil-rendelesek-kartya";
-import { usePathname, useRouter } from "next/navigation";
-import F2FIcons from "src/components/f2ficons/f2ficons";
+import { ProfilNavigation } from "../Profil-navigation";
+
 interface IOrderProduct {
     id: number;
     imageUrl: string;
@@ -79,29 +79,3 @@ export default function ProfilRendelesek() {
     );
 }
 
-export function ProfilNavigation() {
-    const router = useRouter();
-    const pathname = usePathname();
-    const navItems = [
-        { text: 'Rendelések', path: '/profil/rendelesek', icon: <F2FIcons name="Bag" width={22} height={22} style={{paddingBottom:3}}/> },
-        { text: 'Címek', path: '/profil/cimek', icon: <F2FIcons name="Map" width={22} height={22} style={{paddingBottom:3}}/> },
-        { text: 'Fiókadatok', path: '/profil/fiokadatok', icon: <img src="public/assets/images/profil/Guy.png" alt="Guy" style={{height:"22px", width:"22px", paddingBottom:3}}/> }, //ennek az ikonnak valamiért nincs link-je se leírása 
-    ];
-    return (
-        <Box sx={{ p: 2, borderRadius: '4px' }}>
-            <Stack spacing={1}>
-                {navItems.map((item) => {
-                    const isActive = pathname.startsWith(item.path);
-                    return (
-                        <Button key={item.text} startIcon={item.icon} onClick={() => router.push(item.path)} sx={{ justifyContent: 'flex-start', p: 1.5, fontWeight: isActive ? 800 : 600, backgroundColor: isActive ? 'action.selected' : 'transparent', color: 'text.primary' }}>
-                            {item.text}
-                        </Button>
-                    );
-                })}
-                <Button variant="outlined" sx={{ mt: 4 }}>
-                    Kijelentkezés
-                </Button>
-            </Stack>
-        </Box>
-    );
-}
