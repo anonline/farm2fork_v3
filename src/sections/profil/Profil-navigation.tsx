@@ -1,5 +1,7 @@
+import { useRouter, usePathname } from "next/navigation";
+
 import { Box, Stack, Button } from "@mui/material";
-import { usePathname, useRouter } from "next/navigation";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
 
 export function ProfilNavigation() {

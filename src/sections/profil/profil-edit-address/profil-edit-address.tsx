@@ -1,6 +1,11 @@
-import { Box, Button, Divider, Stack, SxProps, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import type { SxProps} from "@mui/material";
+
 import { useState } from "react";
+
+import { Box, Stack, Button, Divider, Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
+
 import ProfilAddressKartya from "./profil-address-kartya";
 
 interface IAddress {

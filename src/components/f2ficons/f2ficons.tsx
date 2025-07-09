@@ -6,16 +6,16 @@ import BagIcon from 'public/assets/icons/f2f/Bag.svg';
 import MapIcon from 'public/assets/icons/f2f/Map.svg'
 import Truck from 'public/assets/icons/f2f/Truck.svg';
 import InfoIcon from 'public/assets/icons/f2f/Info.svg';
+import Profil from 'public/assets/icons/f2f/Profil.svg';
 import MinusIcon from 'public/assets/icons/f2f/Minus.svg';
 import CheckIcon from 'public/assets/icons/f2f/Check.svg';
+import EditPen from 'public/assets/icons/f2f/Edit-pen.svg';
 import SliderIcon from 'public/assets/icons/f2f/Slider.svg';
 import FileIcon from 'public/assets/icons/f2f/FileIcon.svg';
 import Search2Icon from 'public/assets/icons/f2f/Search2.svg';
 import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
-import Profil from 'public/assets/icons/f2f/Profil.svg';
-import EditPen from 'public/assets/icons/f2f/Edit-pen.svg';
 
 
 interface F2FIconsSvgProps {
