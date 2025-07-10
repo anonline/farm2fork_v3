@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Container } from '@mui/material';
 
 import { MainLayout } from 'src/layouts/main';
 
@@ -11,8 +11,8 @@ type Props = {
 export default function Layout({ children }: Readonly<Props>) {
     return (
     <MainLayout>
-        <Box sx={{width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '20px'}}>
+        <Container sx={{margin: '0 auto', padding: '20px'}}>
             {children}
-        </Box>
+        </Container>
     </MainLayout>);
 }

@@ -49,7 +49,7 @@ export default function ProfilEditAccount(){
 
     return (
         <Box sx={{ maxWidth: '800px', mx: 'auto', p: 3 }}>
-            <Typography variant="h4" sx={{ ...mainTitleStyle, mb: 4 }}>
+            <Typography  sx={{ ...mainTitleStyle, mb: 4 }}>
                 Profiladatok
             </Typography>
             <Stack spacing={3} component="form" noValidate autoComplete="off">

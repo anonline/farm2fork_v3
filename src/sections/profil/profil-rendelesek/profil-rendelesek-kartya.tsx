@@ -1,9 +1,10 @@
 'use client'
 
+import type { OrderStatusEnum } from "src/types/order";
+
 import { useRouter } from "next/navigation";
 
 import { Box, Chip, Grid, Paper, Stack, Avatar, Typography } from "@mui/material";
-
 
 interface IOrderProduct {
     id: number;
@@ -16,7 +17,7 @@ interface IOrder {
     orderNumber: string;
     orderDate: string;
     deliveryDate: string;
-    status: 'Visszamondva' | 'Teljesítve' | 'Feldolgozás alatt';
+    status: OrderStatusEnum;
     totalPrice: number;
     products: IOrderProduct[];
 }
@@ -73,7 +74,7 @@ export default function ProfilRendelesekKartya({ order }: Readonly<{ order: IOrd
                 
                 <Grid size={{xs:12, md:5}}>
                     <Stack spacing={1.5} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-                        <DeliveryChip deliveryDate={order.deliveryDate} />
+                        <DeliveryChip deliveryDateString={order.deliveryDate} />
                         
                         <Grid container spacing={1} sx={{marginLeft:'auto'}}>
                             {displayProducts.map((product, index) => {
@@ -110,10 +111,10 @@ export default function ProfilRendelesekKartya({ order }: Readonly<{ order: IOrd
     );
 }
 
-function DeliveryChip({ deliveryDate }: Readonly<{ deliveryDate: string }>) {
+function DeliveryChip({ deliveryDateString }: Readonly<{ deliveryDateString: string }>) {
     return (
         <Chip 
-            label={`Kiszállítás: ${deliveryDate}`} 
+            label={`Kiszállítás: ${deliveryDateString}`} 
             size="small"
             sx={{
                 backgroundColor: 'rgb(149, 196, 249)',

@@ -4,53 +4,59 @@ import { useState } from "react";
 
 import { Box, Grid, Stack, Button, Typography } from "@mui/material";
 
-import { ProfilNavigation } from "../Profil-navigation";
+import { OrderStatusEnum } from "src/types/order";
+
+import  ProfilNavigation  from "../profil-navigation";
 import ProfilRendelesekKartya from "./profil-rendelesek-kartya";
 
-interface IOrderProduct {
-    id: number;
-    imageUrl: string;
-    name: string;
-}
-
-interface IOrder {
-    id: number;
-    orderNumber: string;
-    orderDate: string;
-    deliveryDate: string;
-    status: 'Visszamondva' | 'Teljesítve' | 'Feldolgozás alatt';
-    totalPrice: number;
-    products: IOrderProduct[];
-}
+const orderData = [
+    {
+        id: 1,
+        orderNumber: "#34972",
+        orderDate: "2025.03.01 10:00",
+        deliveryDate: "2025.03.07",
+        status: OrderStatusEnum.Completed,
+        totalPrice: 10000,
+        products: [
+            { id: 1, imageUrl: "https://placehold.co/100", name: "Termék 1" },
+            { id: 2, imageUrl: "https://placehold.co/100", name: "Termék 2" }
+        ]
+    },
+    {
+        id: 2,
+        orderNumber: "#34973",
+        orderDate: "2025.03.02 11:00", 
+        deliveryDate: "2025.03.08",
+        status: OrderStatusEnum.Processing,
+        totalPrice: 15000,
+        products: [
+            { id: 3, imageUrl: "https://placehold.co/100", name: "Termék 3" },
+            { id: 4, imageUrl: "https://placehold.co/100", name: "Termék 4" }
+        ]
+    },
+    {
+        id: 3,
+        orderNumber: "#34974",
+        orderDate: "2025.03.03 12:00",
+        deliveryDate: "2025.03.09",
+        status: OrderStatusEnum.Cancelled,
+        totalPrice: 20000,
+        products: [
+            { id: 5, imageUrl: "https://placehold.co/100", name: "Termék 5" }
+        ]
+    }
+];
 
 export default function ProfilRendelesek() {
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 10;
     
-    const allOrders: IOrder[] = Array.from(
-        { length: 25 },
-        (_, i) => ({
-            id: i + 1,
-            orderNumber: `#349${72 + i}`,
-            orderDate: `2025.03.${Math.floor(i / 2) + 1} 10:00`,
-            deliveryDate: `2025.03.${Math.floor(i / 2) + 6}`,
-            status: i % 3 === 0 ? 'Teljesítve' : (i % 3 === 1 ? 'Visszamondva' : 'Feldolgozás alatt'),
-            totalPrice: 10000 + i * 350,
-            products: Array.from(
-                { length: Math.floor(Math.random() * 5) + 1 },
-                (_p, p) => ({
-                    id: 100 + i * 10 + p,
-                    imageUrl: `https://picsum.photos/100/100?random=${i * 10 + p}`,
-                    name: `Termék ${p + 1}`
-                })
-            )
-        })
-    );
+    
     
     const startIndex = currentPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentOrders = allOrders.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(allOrders.length / itemsPerPage);
+    const currentOrders = orderData.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(orderData.length / itemsPerPage);
 
     return (
         <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
