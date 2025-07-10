@@ -26,6 +26,7 @@ interface IOrder {
 export default function ProfilRendelesek() {
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 10;
+    
     const allOrders: IOrder[] = Array.from(
         { length: 25 },
         (_, i) => ({
@@ -37,7 +38,7 @@ export default function ProfilRendelesek() {
             totalPrice: 10000 + i * 350,
             products: Array.from(
                 { length: Math.floor(Math.random() * 5) + 1 },
-                (_, p) => ({
+                (_p, p) => ({
                     id: 100 + i * 10 + p,
                     imageUrl: `https://picsum.photos/100/100?random=${i * 10 + p}`,
                     name: `Termék ${p + 1}`
@@ -45,6 +46,7 @@ export default function ProfilRendelesek() {
             )
         })
     );
+    
     const startIndex = currentPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentOrders = allOrders.slice(startIndex, endIndex);
@@ -53,10 +55,10 @@ export default function ProfilRendelesek() {
     return (
         <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
             <Grid container spacing={{ xs: 3, md: 4 }}>
-                <Grid size={{ xs: 12, md: 3 }}>
+                <Grid size={{xs:12, sm:3}}>
                     <ProfilNavigation />
                 </Grid>
-                <Grid size={{ xs: 12, md: 9 }}>
+                <Grid size={{xs:12, sm:9}}>
                     <Box>
                         <Typography variant="h4" gutterBottom>Rendelések</Typography>
                         {currentOrders.length > 0 ? (
@@ -80,4 +82,3 @@ export default function ProfilRendelesek() {
         </Box>
     );
 }
-

@@ -1,5 +1,7 @@
-import { Box, Typography, Stack, TextField, Grid, FormControlLabel, Checkbox, Button } from "@mui/material";
 import { useState } from "react";
+
+import { Box, Grid, Stack, Button, Checkbox, TextField, Typography, FormControlLabel } from "@mui/material";
+
 import EditAccountPassword from "./edit-account-password";
 
 export default function ProfilEditAccount(){

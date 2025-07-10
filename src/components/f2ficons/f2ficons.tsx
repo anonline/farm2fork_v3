@@ -1,6 +1,8 @@
 import React from 'react';
 import BioBadge from 'public/assets/icons/BIO.svg';
 import Card from 'public/assets/icons/f2f/Card.svg';
+import Show from 'public/assets/icons/f2f/Show.svg';
+import Hide from 'public/assets/icons/f2f/Hide.svg';
 import AddIcon from 'public/assets/icons/f2f/Add.svg';
 import BagIcon from 'public/assets/icons/f2f/Bag.svg';
 import MapIcon from 'public/assets/icons/f2f/Map.svg'
@@ -16,8 +18,6 @@ import Search2Icon from 'public/assets/icons/f2f/Search2.svg';
 import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
-import Show from 'public/assets/icons/f2f/Show.svg';
-import Hide from 'public/assets/icons/f2f/Hide.svg';
 
 interface F2FIconsSvgProps {
     name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck' | 'Profil' | 'EditPen' | 'Show' | 'Hide'; // vagy dinamikusan generált union type

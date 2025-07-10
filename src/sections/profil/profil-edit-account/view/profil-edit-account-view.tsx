@@ -1,8 +1,9 @@
 'use client'
 
-import { Container, Box, Grid } from "@mui/material";
-import { ProfilNavigation } from "../../Profil-navigation";
+import { Box, Grid, Container } from "@mui/material";
+
 import ProfilEditAccount from "../profil-edit-account";
+import { ProfilNavigation } from "../../Profil-navigation";
 
 export default function ProfilEditAccountView(){
     return (
