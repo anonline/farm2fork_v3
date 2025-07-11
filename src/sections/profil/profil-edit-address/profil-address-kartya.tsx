@@ -1,8 +1,11 @@
 import { useState } from "react";
+
 import { Chip, Paper, Stack, Button, Typography } from "@mui/material";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
-import ShippingAddressKartyaEdit from "./shipping-address-kartya-edit";
+
 import BillingAddressKartyaEdit from "./billing-address-kartya-edit";
+import ShippingAddressKartyaEdit from "./shipping-address-kartya-edit";
 
 
 interface IAddress {

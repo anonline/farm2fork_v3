@@ -4,9 +4,10 @@ import { useState } from "react";
 
 import { Box, Grid, Stack, Button, Typography } from "@mui/material";
 
+import { OrderStatusEnum } from "src/types/order";
+
 import  ProfilNavigation  from "../profil-navigation";
 import ProfilRendelesekKartya from "./profil-rendelesek-kartya";
-import { OrderStatusEnum } from "src/types/order";
 
 const orderData = [
     {
