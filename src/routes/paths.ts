@@ -25,6 +25,12 @@ export const paths = {
     contact: '/contact-us',
     faqs: '/faqs',
     rolunk: '/rolunk',
+    profile: {
+        root: '/profil',
+        orders: '/profil/rendelesek',
+        editAddress: '/profil/edit-address',
+        editProfile: '/profil/edit-profile',
+    },
     rendelesMenete: '/rendeles-menete',
     szezonalitas:'/szezonalitas/Jan',
     page403: '/error/403',
