@@ -37,7 +37,7 @@ export const navData: NavMainProps['data'] = [
                 subheader: '',
                 items: [
                     { title: 'Szezonalitás', path: paths.szezonalitas },
-                    { title: 'Tárolás', path: paths.contact },
+                    { title: 'Tárolás', path: paths.tarolas },
                     { title: 'Rendelés menete', path: paths.rendelesMenete },
                     { title: 'GYIK', path: paths.faqs },
                 ],
