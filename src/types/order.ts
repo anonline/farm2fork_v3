@@ -68,3 +68,12 @@ export type IOrderItem = {
     items: IOrderProductItem[];
     shippingAddress: IOrderShippingAddress;
 };
+
+export enum OrderStatusEnum {
+    Completed = 'Teljesítve',
+    Processing = 'Feldolgozás alatt',
+    Cancelled = 'Visszamondva',
+    Pending = 'Függőben',
+    Refunded = 'Visszatérítve',
+    Shipped = 'Kiszállítva',
+}

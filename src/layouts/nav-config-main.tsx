@@ -47,7 +47,7 @@ export const navData: NavMainProps['data'] = [
                 subheader: '',
                 items: [
                     { title: 'Szezonalitás', path: paths.szezonalitas, subtitle: 'A természet ritmusában', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-01.png` },
-                    { title: 'Tárolás', path: paths.contact, subtitle: 'Zöldségek és gyümölcsök helyes tárolása', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-08.png` },
+                    { title: 'Tárolás', path: paths.tarolas, subtitle: 'Zöldségek és gyümölcsök helyes tárolása', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-08.png` },
                     { title: 'Rendelés menete', path: paths.rendelesMenete, subtitle: 'Így jutsz hozzá', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-10.svg` },
                     { title: 'GYIK', path: paths.faqs, subtitle: 'Kérdések és válaszok', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-02.png` },
                 ],
