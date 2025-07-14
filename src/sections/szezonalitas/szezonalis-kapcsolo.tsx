@@ -13,7 +13,7 @@ type SzezonalisKapcsoloProps = {
 };
 
 export default function SzezonalisKapcsolo({ month, selected = false, onClick }: Readonly<SzezonalisKapcsoloProps>) {
-    console.log(month,selected);
+    
     return (
         <Button
             onClick={onClick}

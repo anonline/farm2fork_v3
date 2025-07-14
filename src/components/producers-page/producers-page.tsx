@@ -1,17 +1,52 @@
 'use client';
 
-import { Box, Grid, Button, Typography } from "@mui/material";
+import { useState, useEffect } from "react";
+
+import { Box, Grid, Button, Skeleton, Typography } from "@mui/material";
 
 import { themeConfig } from "src/theme";
 import { useProducers } from "src/contexts/producers-context";
 
+import { SortingOrder } from "src/types/search";
+
 import ProducerCard from "../producer-card/producer-card";
 import ProducersPageFilter from "../producers-page-filter/producers-page-filter";
 
-
-
 export default function ProducersPage() {
-    const { producers, loading, error } = useProducers();
+    const { producers, loading } = useProducers();
+
+    const [filteredProducers, setFilteredProducers] = useState(producers);
+
+    useEffect(() => {
+        setFilteredProducers(producers);
+    }, [producers]);
+
+    const handleSearch = (filters: { keyword: string; direction: SortingOrder }) => {
+
+        const { keyword, direction } = filters;
+
+        let filtered = producers;
+        if (keyword.trim().length > 0) {
+            filtered = producers.filter(producer => {
+                const matchesKeyword = producer.name.toLowerCase().includes(keyword.toLowerCase())
+                    || producer.shortDescription?.toLowerCase().includes(keyword.toLowerCase())
+                    || producer.companyName?.toLowerCase().includes(keyword.toLowerCase())
+                    ;
+                return matchesKeyword
+            })
+        }
+
+        // Create a new array from the (potentially filtered) list before sorting.
+        const sortedProducers = [...filtered];
+
+        if (direction === SortingOrder.Descending) {
+            sortedProducers.sort((a, b) => b.name.localeCompare(a.name));
+        } else {
+            sortedProducers.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        setFilteredProducers(sortedProducers);
+    }
 
     return (
         <>
@@ -24,9 +59,9 @@ export default function ProducersPage() {
                     maxHeight: '490px',
                     overflow: 'hidden',
                     zIndex: 0,
-                    borderRadius:'8px',
-                    padding:'30px',
-                    marginBottom:'20px',
+                    borderRadius: '8px',
+                    padding: '30px',
+                    marginBottom: '20px',
 
                 }}
             >
@@ -54,12 +89,12 @@ export default function ProducersPage() {
                         position: 'absolute',
                         zIndex: 1,
                         color: 'white',
-                        bottom:0,
-                        left:0,
+                        bottom: 0,
+                        left: 0,
                         p: 4,
                     }}
                 >
-                    <Typography variant="h1" sx={{fontSize:'64px', fontWeight:'600', letterSpacing:'-1px', textTransform:'uppercase'}}>Termelők</Typography>
+                    <Typography variant="h1" sx={{ fontSize: '64px', fontWeight: '600', letterSpacing: '-1px', textTransform: 'uppercase' }}>Termelők</Typography>
                 </Box>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'row', marginBottom: '50px', gap: '30px', width: '100%', justifyContent: 'space-between' }}>
@@ -86,16 +121,33 @@ export default function ProducersPage() {
                     </Button>
                 </Box>
             </Box>
-            <ProducersPageFilter />
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error}</p>}
-            <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
-                {producers.map(producer => (
-                    <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={producer.id}>
-                        <ProducerCard producer={producer} />
-                    </Grid>
-                ))}
-            </Grid>
+
+            <ProducersPageFilter onChange={handleSearch} />
+
+            {loading ? (
+                <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                        <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={index}>
+                            <Skeleton height={400} />
+                        </Grid>
+                    ))}
+                </Grid>
+            ) : filteredProducers.length === 0 ? (
+                <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
+                    <Typography variant="h6" sx={{ color: themeConfig.palette.grey[600] }}>
+                        Nincs a keresésnek megfelelő termelő.
+                    </Typography>
+                </Box>
+            ) : (
+                <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
+                    {filteredProducers.map(producer => (
+                        <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={producer.id}>
+                            <ProducerCard producer={producer} />
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
+
         </>
 
     );

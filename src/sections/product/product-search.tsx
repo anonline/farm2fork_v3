@@ -26,10 +26,10 @@ import { SearchNotFound } from 'src/components/search-not-found';
 
 type Props = {
     sx?: SxProps<Theme>;
-    redirectPath: (id: string) => string;
+    redirectPath: (slug: string) => string;
 };
 
-export function ProductSearch({ redirectPath, sx }: Props) {
+export function ProductSearch({ redirectPath, sx }: Readonly<Props>) {
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +42,7 @@ export function ProductSearch({ redirectPath, sx }: Props) {
         (item: IProductItem | null) => {
             setSelectedItem(item);
             if (item) {
-                router.push(redirectPath(item.id));
+                router.push(redirectPath(item.slug));
             }
         },
         [redirectPath, router]
@@ -123,7 +123,7 @@ export function ProductSearch({ redirectPath, sx }: Props) {
                     <li {...props} key={product.id}>
                         <Link
                             component={RouterLink}
-                            href={redirectPath(product.id)}
+                            href={redirectPath(product.slug)}
                             color="inherit"
                             underline="none"
                         >
@@ -143,7 +143,7 @@ export function ProductSearch({ redirectPath, sx }: Props) {
                             <div key={inputValue}>
                                 {parts.map((part, index) => (
                                     <Typography
-                                        key={index}
+                                        key={part.text + index}
                                         component="span"
                                         color={part.highlight ? 'primary' : 'textPrimary'}
                                         sx={{

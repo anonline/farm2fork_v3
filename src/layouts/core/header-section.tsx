@@ -4,8 +4,8 @@ import type { AppBarProps } from '@mui/material/AppBar';
 import type { ContainerProps } from '@mui/material/Container';
 import type { Theme, SxProps, CSSObject, Breakpoint } from '@mui/material/styles';
 
+import { mergeClasses } from 'minimal-shared/utils';
 import { useScrollOffsetTop } from 'minimal-shared/hooks';
-import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 
 import AppBar from '@mui/material/AppBar';
 import { styled } from '@mui/material/styles';
@@ -101,9 +101,10 @@ const HeaderRoot = styled(AppBar, {
     };
 
     const bgStyles: CSSObject = {
-        ...theme.mixins.bgBlur({
-            color: varAlpha(theme.vars.palette.background.defaultChannel, 0.8),
-        }),
+        /*...theme.mixins.bgBlur({
+            color: varAlpha(theme.vars.palette.common.white, 1),
+        }),*/
+        backgroundColor: theme.vars.palette.common.white,
         ...pauseStyles,
         top: 0,
         left: 0,

@@ -24,7 +24,7 @@ type Props = {
     onChangeItemQuantity: CheckoutContextValue['onChangeItemQuantity'];
 };
 
-export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity }: Props) {
+export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity }: Readonly<Props>) {
     return (
         <TableRow>
             <TableCell>

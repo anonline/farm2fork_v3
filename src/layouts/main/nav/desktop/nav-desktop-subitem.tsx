@@ -2,11 +2,13 @@ import type { CSSObject } from '@mui/material/styles';
 
 import { mergeClasses } from 'minimal-shared/utils';
 
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 
 import { themeConfig } from 'src/theme';
 
+import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { createNavItem, navItemStyles, navSectionClasses } from 'src/components/nav-section';
 
@@ -14,8 +16,10 @@ import type { NavItemProps } from '../types';
 
 // ----------------------------------------------------------------------
 
-export function NavItem({
+export function NavSubItem({
     title,
+    subtitle,
+    icon,
     path,
     /********/
     open,
@@ -41,16 +45,60 @@ export function NavItem({
                 [navSectionClasses.state.open]: open,
                 [navSectionClasses.state.active]: active,
             })}
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+            }}
             {...other}
         >
-            <ItemTitle {...ownerState} sx={{ textTransform: 'uppercase', fontFamily: themeConfig.fontFamily.primary, fontWeight: 600, fontSize: '14px', lineHeight: '20px' }}> {title}</ItemTitle>
-
-            {hasChild && <ItemArrow {...ownerState} icon="eva:arrow-ios-downward-fill" />}
+            <ItemIcon {...ownerState} sx={{ marginRight: '8px' }}>
+                {typeof icon === 'string' ? (
+                    <Image src={icon} alt={title} />
+                ) : (
+                    icon
+                )}
+            </ItemIcon>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <ItemTitle {...ownerState} sx={{ textTransform: 'uppercase', fontFamily: themeConfig.fontFamily.primary, fontWeight: 600, fontSize: '14px', lineHeight: '20px' }}>
+                    {title}
+                </ItemTitle>
+                {ownerState.variant === 'subItem' && subtitle && (
+                    <ItemSubtitle {...ownerState} sx={{ fontSize: '12px', color: (themeConfig.palette.grey[500], 0.6) }}>
+                        {subtitle}
+                    </ItemSubtitle>
+                )}
+                {hasChild && <ItemArrow {...ownerState} icon="eva:arrow-ios-downward-fill" />}
+            </Box>
         </ItemRoot>
     );
 }
 
 // ----------------------------------------------------------------------
+
+const ItemIcon = styled('span', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'active' })<StyledState>(({ theme }) => ({
+    ...navItemStyles.captionIcon,
+    width: 40,
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    variants: [
+        { props: { variant: 'subItem' }, style: { marginRight: theme.spacing(1) } },
+        { props: { active: true }, style: { color: theme.vars.palette.primary.main } },
+    ],
+}));
+
+const ItemSubtitle = styled('span', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'active' })<StyledState>(({ theme }) => ({
+    ...navItemStyles.captionText(theme),
+    ...theme.typography.body2,
+    fontWeight: theme.typography.fontWeightRegular,
+    variants: [
+        { props: { variant: 'subItem' }, style: { fontSize: theme.typography.pxToRem(12) } },
+        { props: { active: true }, style: { fontWeight: theme.typography.fontWeightMedium } },
+    ],
+}));
+
 
 type StyledState = Pick<NavItemProps, 'open' | 'active'> & {
     variant: 'rootItem' | 'subItem';
@@ -66,16 +114,20 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     open,
     theme,
 }) => {
-    
     const rootItemStyles: CSSObject = {
         //...(open && { '&::before': { ...dotTransitions.out } }),
         ...(active && { color: theme.vars.palette.primary.main }),
+
     };
 
     const subItemStyles: CSSObject = {
         color: theme.vars.palette.text.secondary,
         '&:hover': { color: theme.vars.palette.text.primary },
         ...(active && { color: theme.vars.palette.text.primary }),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start'
     };
 
     return {
@@ -91,7 +143,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
         '&:hover svg': {
             transform: 'rotate(180deg)'
         },
-        padding: '8px',
+        padding: '15px',
         variants: [
             { props: { variant: 'rootItem' }, style: rootItemStyles },
             { props: { variant: 'subItem' }, style: subItemStyles },

@@ -47,7 +47,7 @@ type MonthKeys = keyof typeof Months;
 export type IProductItem = {
     storingInformation: any;
     usageInformation: any;
-    id: string;
+    id: number;
     sku: string;
     name: string;
     shortDescription: string;
@@ -56,6 +56,7 @@ export type IProductItem = {
     mininumQuantity: number;
     maximumQuantity: number;
     url: string;
+    slug: string;
     unit:string;
     bio: boolean;
     netPrice: number;

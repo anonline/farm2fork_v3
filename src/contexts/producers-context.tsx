@@ -35,7 +35,7 @@ export function ProducersProvider({ children }: Readonly<{ children: ReactNode }
                 setLoadError(error.message);
                 setProducers([]);
             } else {
-                console.log("Fetched producers:", data);
+                //console.log("Fetched producers:", data);
                 setProducers(data ?? []);
                 setLoadError(null);
             }

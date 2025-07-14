@@ -210,7 +210,7 @@ export function Logo({
             sx={[
                 {
                     
-                    ...(!isSingle && { width: 102, height: 36 }),
+                    ...(!isSingle && { width: 160, height: 43 }),
                     ...(disabled && { pointerEvents: 'none' }),
                 },
                 ...(Array.isArray(sx) ? sx : [sx]),

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { ButtonBaseProps } from '@mui/material/ButtonBase';
 
@@ -20,10 +21,11 @@ export type NavItemOptionsProps = {
 export type NavItemDataProps = {
     path: string;
     title: string;
+    subtitle?: string
     icon?: string | React.ReactNode;
     children?: {
         subheader: string;
-        items: { title: string; path: string }[];
+        items: { title: string; path: string, subtitle?: string, icon?: string | ReactNode }[];
     }[];
 };
 
