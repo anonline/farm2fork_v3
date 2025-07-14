@@ -36,7 +36,7 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
                 setLoadError(error.message);
                 setCategories([]);
             } else {
-                console.log("Fetched categories:", data);
+                //console.log("Fetched categories:", data);
                 setCategories(data ?? []);
                 setLoadError(null);
             }

@@ -7,7 +7,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Button, Container } from '@mui/material';
+import { Avatar, Button, Chip, Container, Link, Typography } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
 import { supabase } from 'src/lib/supabase';
@@ -30,6 +30,11 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
+import { AuthProvider } from 'src/auth/context/amplify';
+import { useAuthContext } from 'src/auth/hooks';
+import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
+import { paths } from 'src/routes/paths';
+import HeaderSearch from '../components/header-search/header-search';
 
 // ----------------------------------------------------------------------
 
@@ -56,10 +61,9 @@ export function MainLayout({
 }: MainLayoutProps) {
 
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
-
-
     const navData = slotProps?.nav?.data ?? mainNavData;
     const [announcement, setAnnouncement] = useState<string | null>(null);
+    const authContext = useAuthContext();
 
     useEffect(() => {
         const fetchAnnouncement = async () => {
@@ -134,10 +138,8 @@ export function MainLayout({
             ),
             rightArea: (
                 <>
-                    {/** @slot Nav desktop */}
-
-
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+                        <HeaderSearch />
 
                         <Button
                             startIcon={
@@ -155,30 +157,59 @@ export function MainLayout({
                             Kosár
                         </Button>
 
-                        {/** @slot Sign in button */}
-                        <SignInButton sx={
-                            {
-                                backgroundColor: themeConfig.palette.common.black,
-                                borderRadius: '8px',
-                                fontFamily: themeConfig.fontFamily.primary,
-                                padding: '8px 20px',
+                        {
+                            !authContext.loading && authContext.authenticated ? (
+                                <>
+                                    <LoggedInHeaderAvatar name={authContext.displayName} />
+                                    {authContext.user?.user_metadata?.is_admin && (
+                                        <Link href={paths.dashboard.root}>
+                                            <Chip
+                                                variant="soft"
+                                                label="Admin"
+                                                color="primary"
+                                            />
+                                        </Link>
+                                    )}
+                                    {authContext.user?.user_metadata?.is_corp && (
+                                        <Link href={paths.dashboard.root}>
+                                            <Chip
+                                                variant="soft"
+                                                label="Céges"
+                                                color="info"
+                                            />
+                                        </Link>
+                                    )}
+                                    {authContext.user?.user_metadata?.is_vip && (
+                                        <Link href={paths.dashboard.root}>
+                                            <Chip
+                                                variant="soft"
+                                                label="VIP"
+                                                color="warning"
+                                            />
+                                        </Link>
+                                    )}
+                                </>
+                            ) : (
+                                <SignInButton sx={
+                                    {
+                                        backgroundColor: themeConfig.palette.common.black,
+                                        borderRadius: '8px',
+                                        fontFamily: themeConfig.fontFamily.primary,
+                                        padding: '8px 20px',
 
-                                textTransform: 'uppercase',
-                                fontWeight: 600,
-                                color: themeConfig.palette.common.white,
-                                fontSize: '14px',
-                                lineHeight: '30px',
-                                letterSpacing: '0.01em',
-                                '&:hover': {
-                                    backgroundColor: themeConfig.palette.primary.main,
-                                    color: themeConfig.palette.common.white,
-                                },
-                            }
-                        } />
-
-
-                        {/** @slot Purchase button */}
-
+                                        textTransform: 'uppercase',
+                                        fontWeight: 600,
+                                        color: themeConfig.palette.common.white,
+                                        fontSize: '14px',
+                                        lineHeight: '30px',
+                                        letterSpacing: '0.01em',
+                                        '&:hover': {
+                                            backgroundColor: themeConfig.palette.primary.main,
+                                            color: themeConfig.palette.common.white,
+                                        },
+                                    }
+                                } />
+                            )}
                     </Box>
                 </>
             ),

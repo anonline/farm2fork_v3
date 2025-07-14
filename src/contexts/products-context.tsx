@@ -35,7 +35,7 @@ export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>
                 setLoadError(supabaseError.message);
                 setProducts([]);
             } else {
-                console.log("Fetched products:", data);
+                //console.log("Fetched products:", data);
                 setProducts(data ?? []);
                 setLoadError(null);
             }
@@ -192,9 +192,7 @@ export function ProductsInMonthInCategoryProvider({ children, categoryId, month 
             }
 
             const { data, error: supabaseError } = await query;
-            console.log('sb', data);
-            console.log('sb', month);
-            console.log('sb', categoryId);
+            
             if (supabaseError) {
                 setError(supabaseError.message);
                 setProducts([]);

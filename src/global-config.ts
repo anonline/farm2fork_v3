@@ -47,7 +47,7 @@ export const CONFIG: ConfigValue = {
     method: 'supabase',
     skip: false,
     redirectPathAdmin: paths.dashboard.root,
-    redirectPath: paths.dashboard.root,
+    redirectPath: paths.home,
   },
   /**
    * Mapbox
