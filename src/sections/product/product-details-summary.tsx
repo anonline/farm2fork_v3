@@ -40,7 +40,7 @@ export function ProductDetailsSummary({
     onAddToCart,
     disableActions,
     ...other
-}: Props) {
+}: Readonly<Props>) {
     const router = useRouter();
 
     const {

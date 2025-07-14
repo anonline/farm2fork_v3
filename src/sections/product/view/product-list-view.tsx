@@ -102,7 +102,7 @@ export function ProductListView() {
     });
 
     const handleDeleteRow = useCallback(
-        (id: string) => {
+        (id: number) => {
             const deleteRow = tableData.filter((row) => row.id !== id);
 
             toast.success('Delete success!');

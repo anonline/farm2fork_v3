@@ -36,7 +36,7 @@ type CheckoutProviderProps = {
     children: React.ReactNode;
 };
 
-export function CheckoutProvider({ children }: CheckoutProviderProps) {
+export function CheckoutProvider({ children }: Readonly<CheckoutProviderProps>) {
     return (
         <Suspense fallback={<SplashScreen />}>
             <CheckoutContainer>{children}</CheckoutContainer>
@@ -46,7 +46,7 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
 
 // ----------------------------------------------------------------------
 
-function CheckoutContainer({ children }: CheckoutProviderProps) {
+function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -133,7 +133,7 @@ function CheckoutContainer({ children }: CheckoutProviderProps) {
     );
 
     const onDeleteCartItem = useCallback(
-        (itemId: string) => {
+        (itemId: number) => {
             const updatedItems = state.items.filter((item) => item.id !== itemId);
 
             setField('items', updatedItems);
@@ -142,7 +142,7 @@ function CheckoutContainer({ children }: CheckoutProviderProps) {
     );
 
     const onChangeItemQuantity = useCallback(
-        (itemId: string, quantity: number) => {
+        (itemId: number, quantity: number) => {
             const updatedItems = state.items.map((item) => {
                 if (item.id === itemId) {
                     return { ...item, quantity };

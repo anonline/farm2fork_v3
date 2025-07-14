@@ -59,7 +59,7 @@ export const paths = {
     product: {
         root: `/termekek`,
         checkout: `/product/checkout`,
-        details: (id: string) => `/termekek/${id}`,
+        details: (slug: string) => `/termekek/${slug}`,
         demo: { details: `/product/${MOCK_ID}` },
     },
     producers: {

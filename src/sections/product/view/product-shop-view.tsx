@@ -80,7 +80,7 @@ export function ProductShopView({ products }: Props) {
                 alignItems: { xs: 'flex-end', sm: 'center' },
             }}
         >
-            <ProductSearch redirectPath={(id: string) => paths.product.details(id)} />
+            <ProductSearch redirectPath={(slug: string) => paths.product.details(slug)} />
 
             <Box sx={{ gap: 1, flexShrink: 0, display: 'flex' }}>
                 <ProductFiltersDrawer

@@ -3,7 +3,7 @@ import type { IAddressItem } from './common';
 // ----------------------------------------------------------------------
 
 export type ICheckoutItem = {
-    id: string;
+    id: number;
     name: string;
     size: string;
     price: number;
@@ -57,11 +57,11 @@ export type CheckoutContextValue = {
     activeStep: number | null;
     onChangeStep: (type: 'back' | 'next' | 'go', step?: number) => void;
     /********/
-    onChangeItemQuantity: (itemId: string, quantity: number) => void;
+    onChangeItemQuantity: (itemId: number, quantity: number) => void;
     /********/
     onResetCart: () => void;
     onAddToCart: (newItem: ICheckoutItem) => void;
-    onDeleteCartItem: (itemId: string) => void;
+    onDeleteCartItem: (itemId: number) => void;
     onApplyDiscount: (discount: number) => void;
     onApplyShipping: (discount: number) => void;
     onCreateBillingAddress: (address: IAddressItem) => void;

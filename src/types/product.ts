@@ -56,6 +56,7 @@ export type IProductItem = {
     mininumQuantity: number;
     maximumQuantity: number;
     url: string;
+    slug: string;
     unit:string;
     bio: boolean;
     netPrice: number;
