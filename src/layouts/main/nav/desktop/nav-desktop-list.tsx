@@ -9,6 +9,7 @@ import { Nav, NavLi, NavUl, NavDropdown } from '../components';
 import { NavItemDashboard } from './nav-desktop-item-dashboard';
 
 import type { NavListProps, NavSubListProps } from '../types';
+import { NavSubItem } from './nav-desktop-subitem';
 
 // ----------------------------------------------------------------------
 
@@ -95,8 +96,8 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
             ]}
             {...other}
         >
-            <NavUl>
-                <NavLi
+            <NavUl sx={{ gap: 2, }}>
+                {/*<NavLi
                     sx={(theme) => ({
                         mb: 0.75,
                         typography: 'overline',
@@ -104,7 +105,7 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
                     })}
                 >
                     {subheader}
-                </NavLi>
+                </NavLi>*/}
 
                 {data.map((item) =>
                     isDashboard ? (
@@ -112,11 +113,13 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
                             <NavItemDashboard path={item.path} />
                         </NavLi>
                     ) : (
-                        <NavLi key={item.title} sx={{ mt: 0.75 }}>
-                            <NavItem
+                        <NavLi key={item.title} sx={{ mt: 0.25 }}>
+                            <NavSubItem
                                 subItem
                                 title={item.title}
                                 path={item.path}
+                                subtitle={item.subtitle}
+                                icon={item.icon}
                                 active={isEqualPath(item.path, pathname)}
                             />
                         </NavLi>

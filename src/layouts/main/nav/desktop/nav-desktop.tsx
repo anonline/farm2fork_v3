@@ -18,7 +18,7 @@ export function NavDesktop({ data, sx, ...other }: NavMainProps) {
         >
             <NavUl
                 sx={{
-                    gap: 5,
+                    gap: 2,
                     height: 1,
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -26,7 +26,7 @@ export function NavDesktop({ data, sx, ...other }: NavMainProps) {
                 }}
             >
                 {data.map((list) => (
-                    <NavList key={list.title} data={list} />
+                    <NavList key={list.title} data={list} sx={{position:'relative'}} />
                 ))}
             </NavUl>
         </Nav>

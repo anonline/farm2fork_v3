@@ -1,6 +1,7 @@
 import { paths } from 'src/routes/paths';
 
 import type { NavMainProps } from './main/nav/types';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -12,17 +13,25 @@ export const navData: NavMainProps['data'] = [
             {
                 subheader: '1',
                 items: [
-                    { title: 'Összes termék', path: paths.product.root},
-                    { title: 'Gyümölcsök', path: paths.contact },
-                    { title: 'Feldolgozott termékek', path: paths.faqs },
+                    { title: 'Összes termék', path: paths.categories.root, subtitle: 'Zöldségek, gyümölcsök, gombák...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-01.png` },
+                    { title: 'Gyümölcsök', path: paths.categories.gyumolcsok, subtitle: 'Alma, körte, barack, áfonya...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-06.png` },
+                    { title: 'Feldolgozott termékek', path: paths.categories.feldolgozottTermekek, subtitle: 'Liszt, rizs, méz, lekvár...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-07.png` },
                 ],
             },
             {
                 subheader: '2',
                 items: [
-                    { title: 'Szezon box', path: paths.pricing },
-                    { title: 'Gombák', path: paths.payment },
-                    { title: 'Pékáru', path: paths.maintenance },
+                    { title: 'Szezon box', path: paths.categories.szezonBox, subtitle: 'Heti zöldség és gyümölcs box', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-08.png` },
+                    { title: 'Gombák', path: paths.categories.gombak, subtitle: 'Csiperke, laska, shiitake...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-04.png` },
+                    { title: 'Pékáru', path: paths.categories.pekaru, subtitle: 'Kenyér, baguette, kifli, gofri...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-09.png` },
+                ],
+            },
+            {
+                subheader: '3',
+                items: [
+                    { title: 'Zöldségek', path: paths.categories.zoldsegek, subtitle: 'Bazsalikom, rozmaring...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-02.png` },
+                    { title: 'Fűszernövények', path: paths.categories.fuszernovenyek, subtitle: 'Bazsalikom, rozmaring...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-03.png` },
+                    { title: 'Egyéb termékek', path: paths.categories.egyeb, subtitle: 'Kenyér, baguette, kifli, gofri...', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-05.png` },
                 ],
             },
         ],
@@ -36,10 +45,10 @@ export const navData: NavMainProps['data'] = [
             {
                 subheader: '',
                 items: [
-                    { title: 'Szezonalitás', path: paths.szezonalitas },
-                    { title: 'Tárolás', path: paths.contact },
-                    { title: 'Rendelés menete', path: paths.rendelesMenete },
-                    { title: 'GYIK', path: paths.faqs },
+                    { title: 'Szezonalitás', path: paths.szezonalitas, subtitle: 'A természet ritmusában', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-01.png` },
+                    { title: 'Tárolás', path: paths.contact, subtitle: 'Zöldségek és gyümölcsök helyes tárolása', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-08.png` },
+                    { title: 'Rendelés menete', path: paths.rendelesMenete, subtitle: 'Így jutsz hozzá', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-10.svg` },
+                    { title: 'GYIK', path: paths.faqs, subtitle: 'Kérdések és válaszok', icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-02.png` },
                 ],
             },
         ],

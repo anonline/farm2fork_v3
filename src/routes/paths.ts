@@ -38,7 +38,17 @@ export const paths = {
     freeUI: 'https://mui.com/store/items/minimal-dashboard-free/',
     figmaUrl:
         'https://www.figma.com/design/oAxS3CUFO0ou7rH2lTS8oI/%5BPreview%5D-Minimal-Web.v7.0.0',
-    
+    categories: {
+        root: '/categories',
+        zoldsegek: '/categories/zoldsegek',
+        gyumolcsok: '/categories/gyumolcsok',
+        feldolgozottTermekek: '/categories/feldolgozott-termekek',
+        szezonBox: '/categories/szezon-box',
+        gombak: '/categories/gombak',
+        pekaru: '/categories/pekaru',
+        fuszernovenyek: '/categories/fuszernovenyek',
+        egyeb: '/categories/egyeb',
+    },
     product: {
         root: `/termekek`,
         checkout: `/product/checkout`,
