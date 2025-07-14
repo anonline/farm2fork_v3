@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography, Container } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 
 export default function TarolasHero() {
     const heroImageUrl = 'https://images.unsplash.com/photo-1542189824-556a3a4834de?q=80&w=2070';

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+
 import { CONFIG } from 'src/global-config';
+
 import TarolasView from 'src/sections/tarolas/view/tarolas-view';
 
 

@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from "react";
+
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect, useContext, createContext } from "react";
 

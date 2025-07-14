@@ -1,8 +1,10 @@
 'use client'
 
+import { Grid, Typography, CircularProgress } from "@mui/material";
+
 import { useTarolas } from "src/contexts/tarolas-context";
+
 import TarolasKartya from "./tarolas-kartya";
-import { Grid, CircularProgress, Typography } from "@mui/material";
 
 export default function TarolasGrid() {
     const { tarolasMod, loading, error } = useTarolas();
