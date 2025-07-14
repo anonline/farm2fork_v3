@@ -1,11 +1,11 @@
 import type { CSSObject } from '@mui/material/styles';
 
-import { varAlpha, mergeClasses } from 'minimal-shared/utils';
+import { mergeClasses } from 'minimal-shared/utils';
 
 import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 
-import { background, themeConfig } from 'src/theme';
+import { themeConfig } from 'src/theme';
 
 import { Iconify } from 'src/components/iconify';
 import { createNavItem, navItemStyles, navSectionClasses } from 'src/components/nav-section';
@@ -66,26 +66,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     open,
     theme,
 }) => {
-    const dotTransitions: Record<'in' | 'out', CSSObject> = {
-        in: { opacity: 0, scale: 0 },
-        out: { opacity: 1, scale: 1 },
-    };
-
-    const dotStyles: CSSObject = {
-        //...dotTransitions.in,
-        width: 6,
-        height: 6,
-        left: -12,
-        content: '""',
-        borderRadius: '50%',
-        position: 'absolute',
-        backgroundColor: varAlpha(theme.vars.palette.text.disabledChannel, 0.64),
-        transition: theme.transitions.create(['opacity', 'scale'], {
-            duration: theme.transitions.duration.shorter,
-        }),
-        //...(active && { ...dotTransitions.out, backgroundColor: theme.vars.palette.primary.main }),
-    };
-
+    
     const rootItemStyles: CSSObject = {
         //...(open && { '&::before': { ...dotTransitions.out } }),
         ...(active && { color: theme.vars.palette.primary.main }),

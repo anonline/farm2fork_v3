@@ -5,11 +5,11 @@ import { isEqualPath, isActiveLink, isExternalLink } from 'minimal-shared/utils'
 import { usePathname } from 'src/routes/hooks';
 
 import { NavItem } from './nav-desktop-item';
+import { NavSubItem } from './nav-desktop-subitem';
 import { Nav, NavLi, NavUl, NavDropdown } from '../components';
 import { NavItemDashboard } from './nav-desktop-item-dashboard';
 
 import type { NavListProps, NavSubListProps } from '../types';
-import { NavSubItem } from './nav-desktop-subitem';
 
 // ----------------------------------------------------------------------
 

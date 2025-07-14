@@ -5,7 +5,7 @@ import type { NavMainProps } from '../types';
 
 // ----------------------------------------------------------------------
 
-export function NavDesktop({ data, sx, ...other }: NavMainProps) {
+export function NavDesktop({ data, sx, ...other }: Readonly<NavMainProps>) {
     return (
         <Nav
             sx={[

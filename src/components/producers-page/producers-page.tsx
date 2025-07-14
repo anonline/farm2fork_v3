@@ -1,14 +1,16 @@
 'use client';
 
-import { Box, Grid, Button, Typography, Skeleton } from "@mui/material";
+import { useState, useEffect } from "react";
+
+import { Box, Grid, Button, Skeleton, Typography } from "@mui/material";
 
 import { themeConfig } from "src/theme";
 import { useProducers } from "src/contexts/producers-context";
 
+import { SortingOrder } from "src/types/search";
+
 import ProducerCard from "../producer-card/producer-card";
 import ProducersPageFilter from "../producers-page-filter/producers-page-filter";
-import { SortingOrder } from "src/types/search";
-import { useEffect, useState } from "react";
 
 export default function ProducersPage() {
     const { producers, loading } = useProducers();

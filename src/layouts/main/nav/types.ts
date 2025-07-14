@@ -1,7 +1,6 @@
+import type { ReactNode } from 'react';
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { ButtonBaseProps } from '@mui/material/ButtonBase';
-import { StaticImageData } from 'next/image';
-import { ReactNode } from 'react';
 
 // ----------------------------------------------------------------------
 

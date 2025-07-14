@@ -1,8 +1,10 @@
-import { Avatar, Tooltip } from "@mui/material";
-import { Iconify } from "src/components/iconify";
 import Link from "next/link";
 
-export default function LoggedInHeaderAvatar({name}: { name?: string }) {
+import { Avatar, Tooltip } from "@mui/material";
+
+import { Iconify } from "src/components/iconify";
+
+export default function LoggedInHeaderAvatar({name}: Readonly<{ name?: string }>) {
 
     const initialsFallback = <Iconify icon="solar:user-rounded-bold" />;
     const tooltipFallback = "Profil megtekintése";

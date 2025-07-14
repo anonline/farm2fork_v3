@@ -1,7 +1,8 @@
 import { paths } from 'src/routes/paths';
 
-import type { NavMainProps } from './main/nav/types';
 import { CONFIG } from 'src/global-config';
+
+import type { NavMainProps } from './main/nav/types';
 
 // ----------------------------------------------------------------------
 

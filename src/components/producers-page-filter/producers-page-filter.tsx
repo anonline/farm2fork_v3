@@ -1,11 +1,12 @@
 import type { ChangeEvent } from "react";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Box, TextField, InputAdornment } from "@mui/material";
 
+import { SortingOrder } from "src/types/search";
+
 import F2FIcons from "../f2ficons/f2ficons";
-import { ProducerSortingPrams, SortingOrder } from "src/types/search";
 
 type Props = {
     onChange: (filters: { keyword: string; direction: SortingOrder }) => void
@@ -26,7 +27,7 @@ export default function ProducersPageFilter({ onChange }: Props) {
     const [keyword, setKeyword] = useState('');
 
     useEffect(() => {
-        var direction: SortingOrder = SortingOrder.Ascending;
+        let direction: SortingOrder = SortingOrder.Ascending;
         if (currentSorting === 'desc') {
             direction = SortingOrder.Descending;
         }

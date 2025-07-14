@@ -7,13 +7,17 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Avatar, Button, Chip, Container, Link, Typography } from '@mui/material';
+import { Chip, Link, Button, Container } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { themeConfig } from 'src/theme';
 import { supabase } from 'src/lib/supabase';
 
 import { Logo } from 'src/components/logo';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { Footer } from './footer';
 import { NavMobile } from './nav/mobile';
@@ -24,17 +28,14 @@ import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { navData as mainNavData } from '../nav-config-main';
 import { SignInButton } from '../components/sign-in-button';
+import HeaderSearch from '../components/header-search/header-search';
+import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
 
 import type { FooterProps } from './footer';
 import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
-import { AuthProvider } from 'src/auth/context/amplify';
-import { useAuthContext } from 'src/auth/hooks';
-import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
-import { paths } from 'src/routes/paths';
-import HeaderSearch from '../components/header-search/header-search';
 
 // ----------------------------------------------------------------------
 
@@ -137,8 +138,7 @@ export function MainLayout({
                 </>
             ),
             rightArea: (
-                <>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
                         <HeaderSearch />
 
                         <Button
@@ -211,7 +211,6 @@ export function MainLayout({
                                 } />
                             )}
                     </Box>
-                </>
             ),
         };
 

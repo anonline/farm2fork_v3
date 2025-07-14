@@ -3,7 +3,6 @@ export enum SortingOrder {
     Descending = 'desc'
 }
 
-export enum ProducerSortingPrams {
-    Default = 'name',
+export enum ProducerSortingParams {
     Name = 'name',
 }

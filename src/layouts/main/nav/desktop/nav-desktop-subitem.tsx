@@ -2,17 +2,17 @@ import type { CSSObject } from '@mui/material/styles';
 
 import { mergeClasses } from 'minimal-shared/utils';
 
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 
 import { themeConfig } from 'src/theme';
 
+import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { createNavItem, navItemStyles, navSectionClasses } from 'src/components/nav-section';
 
 import type { NavItemProps } from '../types';
-import { Image } from 'src/components/image';
-import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ export function NavSubItem({
         >
             <ItemIcon {...ownerState} sx={{ marginRight: '8px' }}>
                 {typeof icon === 'string' ? (
-                    <Image src={icon} alt={title}></Image>
+                    <Image src={icon} alt={title} />
                 ) : (
                     icon
                 )}

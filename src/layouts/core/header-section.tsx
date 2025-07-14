@@ -4,8 +4,8 @@ import type { AppBarProps } from '@mui/material/AppBar';
 import type { ContainerProps } from '@mui/material/Container';
 import type { Theme, SxProps, CSSObject, Breakpoint } from '@mui/material/styles';
 
+import { mergeClasses } from 'minimal-shared/utils';
 import { useScrollOffsetTop } from 'minimal-shared/hooks';
-import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 
 import AppBar from '@mui/material/AppBar';
 import { styled } from '@mui/material/styles';

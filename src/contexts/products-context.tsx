@@ -35,7 +35,6 @@ export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>
                 setLoadError(supabaseError.message);
                 setProducts([]);
             } else {
-                //console.log("Fetched products:", data);
                 setProducts(data ?? []);
                 setLoadError(null);
             }

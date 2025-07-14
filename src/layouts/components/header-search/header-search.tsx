@@ -1,11 +1,15 @@
-import { Box, InputAdornment, Link, TextField, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import F2FIcons from "src/components/f2ficons/f2ficons";
+import type { IProductItem } from "src/types/product";
+import type { IProducerItem } from "src/types/producer";
+
+import { useRef , useState, useEffect, forwardRef } from "react";
+
+import { Box, Link, TextField, Typography, InputAdornment } from "@mui/material";
+
 import { paths } from "src/routes/paths";
-import { IProducerItem } from "src/types/producer";
-import { IProductItem } from "src/types/product";
+
 import { fCurrency } from "src/utils/format-number";
-import { forwardRef } from "react";
+
+import F2FIcons from "src/components/f2ficons/f2ficons";
 
 type HeaderSearchBaseResultItem = {
     id: number;
@@ -89,10 +93,8 @@ export default function HeaderSearch() {
 
     useEffect(() => {
         setShowResults(debouncedQuery.length >= searchTextLimit && !isLoading);
-    }, [debouncedQuery, products, producers]);
+    }, [debouncedQuery, products, producers, isLoading]);
 
-    // Hide results when clicking outside
-    const containerRef = useRef<HTMLDivElement>(null);
 
     // Kattintásfigyelés a dokumentumon
     useEffect(() => {
@@ -112,9 +114,9 @@ export default function HeaderSearch() {
     }, [])
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const query = event.target.value;
-        if (query.length >= searchTextLimit) {
-            setQuery(query);
+        const queryString = event.target.value;
+        if (queryString.length >= searchTextLimit) {
+            setQuery(queryString);
         }
     };
 
@@ -154,8 +156,7 @@ type HeaderSearchResultAreaProps = {
 }
 
 const HeaderSearchResultArea = forwardRef<HTMLDivElement, HeaderSearchResultAreaProps>(
-    ({ products, producers }, ref) => {
-        return (
+    ({ products, producers }, ref) => (
             <Box
                 ref={ref}
                 sx={{
@@ -182,11 +183,11 @@ const HeaderSearchResultArea = forwardRef<HTMLDivElement, HeaderSearchResultArea
                             Összes találat ({products?.length || 0})
                         </Typography>
                     </Box>
-                    {products !== undefined && products.map((result, index) => (
-                        <Link href={`${paths.product.details(result.slug)}`} key={index} style={{ textDecoration: 'none', width: '100%' }}>
+                    {products !== undefined ? products.map((result) => (
+                        <Link href={`${paths.product.details(result.slug)}`} key={result.id} style={{ textDecoration: 'none', width: '100%' }}>
                             <HeaderSearchProductResultItem {...result} />
                         </Link>
-                    ))}
+                    )) : null}
 
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
 
@@ -197,18 +198,17 @@ const HeaderSearchResultArea = forwardRef<HTMLDivElement, HeaderSearchResultArea
                             Összes találat ({products?.length || 0})
                         </Typography>
                     </Box>
-                    {producers !== undefined && producers.map((result, index) => (
-                        <Link href={`${paths.producers.details(result.slug)}`} key={index} style={{ textDecoration: 'none', width: '100%' }}>
+                    {producers !== undefined ? producers.map((result) => (
+                        <Link href={`${paths.producers.details(result.slug)}`} key={result.id} style={{ textDecoration: 'none', width: '100%' }}>
                             <HeaderSearchProducerResultItem {...result} />
                         </Link>
-                    ))}
+                    )) : null}
                 </Box>
 
             </Box>
-        );
-    })
+        ))
 
-function HeaderSearchProductResultItem({ name, image, price, bio, unit }: HeaderSearchProductResultItem) {
+function HeaderSearchProductResultItem({ name, image, price, bio, unit }: Readonly<HeaderSearchProductResultItem>) {
     return (
         <Box sx={{ display: 'flex', border: "1px solid #dfdcd1", borderRadius: '8px', gap: '8px', alignItems: 'center', padding: "8px", width: '100%', cursor: 'pointer', backgroundColor: '#fff', '&:hover': { transform: 'scale(1.01)' } }}>
             <img src={image ?? "https://placehold.co/64x64"} alt={name} style={{ width: "64px", height: "64px", borderRadius: '4px' }} />
@@ -234,7 +234,7 @@ function HeaderSearchProductResultItem({ name, image, price, bio, unit }: Header
     );
 }
 
-function HeaderSearchProducerResultItem({ name, image, description, bio }: HeaderSearchProducerResultItem) {
+function HeaderSearchProducerResultItem({ name, image, description, bio }: Readonly<HeaderSearchProducerResultItem>) {
     return (
         <Box sx={{ display: 'flex', border: "1px solid #dfdcd1", borderRadius: '8px', gap: '8px', alignItems: 'center', padding: "8px", width: '100%', cursor: 'pointer', backgroundColor: '#fff', '&:hover': { transform: 'scale(1.01)' } }}>
             <img src={image ?? "https://placehold.co/64x64"} alt={name} style={{ width: "64px", height: "64px", borderRadius: '4px' }} />
