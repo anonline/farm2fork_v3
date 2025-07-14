@@ -124,8 +124,8 @@ export function MainLayout({
                     />
                     <NavMobile data={navData} open={open} onClose={onClose} />
 
-                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
-                        <Logo sx={{ marginRight: "50px", marginTop: '-8px' }} />
+                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: {sm: 0, md: 0, lg:0, xl: 0} }}>
+                        <Logo sx={{ marginRight: "30px", marginTop: '-8px' }} />
                         <NavDesktop
                             data={navData}
                             sx={(theme) => ({

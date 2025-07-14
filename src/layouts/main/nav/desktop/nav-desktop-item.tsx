@@ -72,7 +72,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     };
 
     const dotStyles: CSSObject = {
-        ...dotTransitions.in,
+        //...dotTransitions.in,
         width: 6,
         height: 6,
         left: -12,
@@ -83,11 +83,11 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
         transition: theme.transitions.create(['opacity', 'scale'], {
             duration: theme.transitions.duration.shorter,
         }),
-        ...(active && { ...dotTransitions.out, backgroundColor: theme.vars.palette.primary.main }),
+        //...(active && { ...dotTransitions.out, backgroundColor: theme.vars.palette.primary.main }),
     };
 
     const rootItemStyles: CSSObject = {
-        ...(open && { '&::before': { ...dotTransitions.out } }),
+        //...(open && { '&::before': { ...dotTransitions.out } }),
         ...(active && { color: theme.vars.palette.primary.main }),
     };
 
@@ -101,8 +101,8 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
         transition: theme.transitions.create(['color'], {
             duration: theme.transitions.duration.shorter,
         }),
-        '&::before': dotStyles,
-        '&:hover::before': { ...dotTransitions.out },
+        //'&::before': dotStyles,
+        //'&:hover::before': { ...dotTransitions.out },
         variants: [
             { props: { variant: 'rootItem' }, style: rootItemStyles },
             { props: { variant: 'subItem' }, style: subItemStyles },

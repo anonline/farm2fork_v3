@@ -14,10 +14,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 })
   }
 
+  const searchTerm = `%${q}%`;
+
+  const { data: matchingProducts } = await supabase
+    .from('Products')
+    .select('producerId')
+    .eq('publish', true)
+    .ilike('name', searchTerm);
+
+  const matchingProducerIds = matchingProducts?.map(p => p.producerId) ?? [];
+
   const { data, error } = await supabase
     .from('Producers')
     .select('*')
-    .or(`name.ilike.%${q}%,location.ilike.%${q}%,shortDescription.ilike.%${q}%,producingTags.ilike.%${q}%,companyName.ilike.%${q}%`)
+    .or(`name.ilike.${searchTerm},location.ilike.${searchTerm},shortDescription.ilike.${searchTerm},producingTags.ilike.${searchTerm},companyName.ilike.${searchTerm}${matchingProducerIds.length ? `,id.in.(${matchingProducerIds.join(',')})` : ''}`);
+
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

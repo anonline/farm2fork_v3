@@ -22,6 +22,7 @@ export function NavDesktop({ data, sx, ...other }: NavMainProps) {
                     height: 1,
                     flexDirection: 'row',
                     alignItems: 'center',
+                    justifyContent: 'flex-start',
                 }}
             >
                 {data.map((list) => (

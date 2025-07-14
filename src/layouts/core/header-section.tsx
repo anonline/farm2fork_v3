@@ -101,9 +101,10 @@ const HeaderRoot = styled(AppBar, {
     };
 
     const bgStyles: CSSObject = {
-        ...theme.mixins.bgBlur({
-            color: varAlpha(theme.vars.palette.background.defaultChannel, 0.8),
-        }),
+        /*...theme.mixins.bgBlur({
+            color: varAlpha(theme.vars.palette.common.white, 1),
+        }),*/
+        backgroundColor: theme.vars.palette.common.white,
         ...pauseStyles,
         top: 0,
         left: 0,
