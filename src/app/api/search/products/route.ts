@@ -9,7 +9,8 @@ const supabase = createClient(
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q')
-  const limit = searchParams.get('limit') ?? '3';
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
+
 
   if (!q || q.trim() === '') {
     return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 })
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
     .select('*')
     .eq('publish', true)
     .or(`name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`)
-    .limit(parseInt(limit));
+    .limit(limit);
 
 
   if (error) {
