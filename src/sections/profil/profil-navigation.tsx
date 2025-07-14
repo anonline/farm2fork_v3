@@ -21,7 +21,7 @@ export default function ProfilNavigation() {
             icon: <F2FIcons name="Map" width={22} height={22} style={{paddingBottom:3}}/>
         },
         {
-            text: 'Rendelések',
+            text: 'Profil',
             path: paths.profile.editProfile,
             icon: <F2FIcons name="Profil" width={22} height={22} style={{paddingBottom:3}}/>
         }

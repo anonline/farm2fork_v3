@@ -29,7 +29,7 @@ export const paths = {
         root: '/profil',
         orders: '/profil/rendelesek',
         editAddress: '/profil/edit-address',
-        editProfile: '/profil/edit-profile',
+        editProfile: '/profil/edit-account',
     },
     rendelesMenete: '/rendeles-menete',
     szezonalitas:'/szezonalitas/Jan',
