@@ -1,8 +1,11 @@
 'use client';
 
 import Grid from '@mui/material/Grid';
+import { Box, Badge } from '@mui/material';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 import { CheckoutCart } from '../checkout-cart';
 import { useCheckoutContext } from '../context';
@@ -10,8 +13,6 @@ import { CheckoutSteps } from '../checkout-steps';
 import { CheckoutPayment } from '../checkout-payment';
 import { CheckoutOrderComplete } from '../checkout-order-complete';
 import { CheckoutBillingAddress } from '../checkout-billing-address';
-import { Badge, Box } from '@mui/material';
-import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 

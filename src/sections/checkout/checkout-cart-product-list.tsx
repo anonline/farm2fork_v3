@@ -5,12 +5,8 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 
 import { Scrollbar } from 'src/components/scrollbar';
-import { TableHeadCustom } from 'src/components/table';
 
 import { CheckoutCartProduct } from './checkout-cart-product';
-import { Badge, Box, TableCell, TableRow, Typography } from '@mui/material';
-import { upperCase } from 'es-toolkit';
-import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 

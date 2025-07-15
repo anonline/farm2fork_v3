@@ -11,8 +11,8 @@ import Typography from '@mui/material/Typography';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
-import { NumberInput } from 'src/components/number-input';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+import { NumberInput } from 'src/components/number-input';
 
 // ----------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                     </Typography>
                     <Box>
                         <IconButton>
-                            <F2FIcons name={"CommentAdd"} width={20} height={20}/>
+                            <F2FIcons name="CommentAdd" width={20} height={20}/>
                         </IconButton>
                     </Box>
                 </Stack>

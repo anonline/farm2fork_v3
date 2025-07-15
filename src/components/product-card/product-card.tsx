@@ -1,6 +1,7 @@
 import type { SxProps } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 import type { IProductItem } from 'src/types/product';
+import type { CheckoutContextValue } from 'src/types/checkout';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,10 +14,10 @@ import { themeConfig } from 'src/theme';
 
 import { toast } from 'src/components/snackbar';
 
+import { useCheckoutContext } from 'src/sections/checkout/context';
+
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
-import { useCheckoutContext } from 'src/sections/checkout/context';
-import { CheckoutContextValue } from 'src/types/checkout';
 
 interface ProductCardProps {
     product: IProductItem;

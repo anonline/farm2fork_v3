@@ -1,8 +1,12 @@
 import { Badge, Button } from "@mui/material";
-import F2FIcons from "src/components/f2ficons/f2ficons";
+
 import { paths } from "src/routes/paths";
-import { useCheckoutContext } from "src/sections/checkout/context";
+
 import { fCurrency } from "src/utils/format-number";
+
+import F2FIcons from "src/components/f2ficons/f2ficons";
+
+import { useCheckoutContext } from "src/sections/checkout/context";
 
 export default function HeaderCartButton() {
 const { state:checkoutState,  } = useCheckoutContext();

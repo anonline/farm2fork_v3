@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
+import { Alert } from '@mui/material';
 import Button from '@mui/material/Button';
 import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import { paths } from 'src/routes/paths';
@@ -17,7 +17,6 @@ import { EmptyContent } from 'src/components/empty-content';
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
 import { CheckoutCartProductList } from './checkout-cart-product-list';
-import { Alert } from '@mui/material';
 
 // ----------------------------------------------------------------------
 

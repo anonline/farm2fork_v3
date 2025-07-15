@@ -1,6 +1,5 @@
 'use client'
 
-import { toast } from "sonner";
 
 import { Box, Container, Typography } from "@mui/material";
 
@@ -11,6 +10,8 @@ import { useProduct } from "src/contexts/product-context"
 import { ProductsProvider } from "src/contexts/products-context";
 import { ProducersProvider } from "src/contexts/producers-context";
 
+import { useCheckoutContext } from "src/sections/checkout/context";
+
 import { Months } from "src/types/product";
 
 import { Image } from "../image";
@@ -19,7 +20,6 @@ import ProducerProducts from "./producer-products";
 import ProductDetailsSmallInfo from "./product-details-small-info";
 import { ProductQuantitySelector } from "../product-card/product-card";
 import FeaturedProducerCard from "../producer-card/featured-producer-card";
-import { useCheckoutContext } from "src/sections/checkout/context";
 
 
 

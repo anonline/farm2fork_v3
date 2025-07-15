@@ -12,16 +12,16 @@ import Profil from 'public/assets/icons/f2f/Profil.svg';
 import MinusIcon from 'public/assets/icons/f2f/Minus.svg';
 import CheckIcon from 'public/assets/icons/f2f/Check.svg';
 import Loading from 'public/assets/icons/f2f/Loading.svg';
+import Comment from 'public/assets/icons/f2f/Comment.svg';
 import EditPen from 'public/assets/icons/f2f/Edit-pen.svg';
 import SliderIcon from 'public/assets/icons/f2f/Slider.svg';
 import FileIcon from 'public/assets/icons/f2f/FileIcon.svg';
 import Search2Icon from 'public/assets/icons/f2f/Search2.svg';
+import CommentOn from 'public/assets/icons/f2f/Comment-on.svg';
 import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
-import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
 import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
-import CommentOn from 'public/assets/icons/f2f/Comment-on.svg';
-import Comment from 'public/assets/icons/f2f/Comment.svg';
+import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
 
 interface F2FIconsSvgProps {
     name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck' | 'Loading' | 'Profil' | 'EditPen' | 'Show' | 'Hide' | 'CommentAdd' | 'CommentOn' | 'Comment'; // vagy dinamikusan generált union type

@@ -7,7 +7,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Chip, Link, Button, Container, Badge } from '@mui/material';
+import { Chip, Link, Container } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -15,7 +15,6 @@ import { themeConfig } from 'src/theme';
 import { supabase } from 'src/lib/supabase';
 
 import { Logo } from 'src/components/logo';
-import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -30,15 +29,13 @@ import { navData as mainNavData } from '../nav-config-main';
 import { SignInButton } from '../components/sign-in-button';
 import HeaderSearch from '../components/header-search/header-search';
 import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
+import HeaderCartButton from '../components/header-cart-button/header-cart-button';
 
 import type { FooterProps } from './footer';
 import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
-import { useCheckoutContext } from 'src/sections/checkout/context';
-import { IconButton } from 'yet-another-react-lightbox';
-import HeaderCartButton from '../components/header-cart-button/header-cart-button';
 
 // ----------------------------------------------------------------------
 

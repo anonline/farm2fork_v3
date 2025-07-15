@@ -6,11 +6,10 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
-import { toast } from 'src/components/snackbar'; 
+import { useCheckoutContext } from 'src/sections/checkout/context'; 
 
-import F2FIcons from '../f2ficons/f2ficons'; 
+import F2FIcons from '../f2ficons/f2ficons';
 import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
-import { useCheckoutContext } from 'src/sections/checkout/context';
 
 function ProducerInfo({ name, location }: Readonly<{ name: string, location: string }>) {
     return (
