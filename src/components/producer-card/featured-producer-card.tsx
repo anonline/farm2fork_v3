@@ -14,7 +14,7 @@ interface ProducerCardProps {
     producerId: number;
 }
 
-export default function ProducerCard({ producerId }: Readonly<ProducerCardProps>) {
+export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCardProps>) {
     const router = useRouter();
     const { producers, loading, error } = useProducers();
     const producer = producers.find(p => p.id === producerId);
