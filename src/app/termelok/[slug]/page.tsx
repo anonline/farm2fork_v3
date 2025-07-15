@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
-import { ProductsProvider } from 'src/contexts/products-context';
-import { ProducersProvider } from 'src/contexts/producers-context';
+
+import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
-import { paths } from 'src/routes/paths'; 
+import { ProductsProvider } from 'src/contexts/products-context';
+import { ProducersProvider } from 'src/contexts/producers-context'; 
+
 import TermelokView from 'src/sections/termelok/view/termelok-view';
 
 // ----------------------------------------------------------------------

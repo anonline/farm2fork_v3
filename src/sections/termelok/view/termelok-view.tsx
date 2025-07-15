@@ -1,9 +1,11 @@
 'use client'
 
-import TermelokTermekek from "../termelok-termekek";
-import { Container, Box, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
+
 import { useProducers } from "src/contexts/producers-context";
+
 import TermelokHero from "../termelok-hero";
+import TermelokTermekek from "../termelok-termekek";
 
 export default function TermelokView({ viewslug }: any) {
     const { producers, loading, error } = useProducers();

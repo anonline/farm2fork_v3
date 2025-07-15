@@ -7,6 +7,8 @@ import AddIcon from 'public/assets/icons/f2f/Add.svg';
 import BagIcon from 'public/assets/icons/f2f/Bag.svg';
 import MapIcon from 'public/assets/icons/f2f/Map.svg'
 import Truck from 'public/assets/icons/f2f/Truck.svg';
+import House from 'public/assets/icons/f2f/House.svg';
+import Apple from 'public/assets/icons/f2f/Apple.svg'
 import InfoIcon from 'public/assets/icons/f2f/Info.svg';
 import Profil from 'public/assets/icons/f2f/Profil.svg';
 import MinusIcon from 'public/assets/icons/f2f/Minus.svg';
@@ -22,8 +24,6 @@ import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
-import House from 'public/assets/icons/f2f/House.svg';
-import Apple from 'public/assets/icons/f2f/Apple.svg'
 
 interface F2FIconsSvgProps {
     name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck' | 'Loading' | 'Profil' | 'EditPen' | 'Show' | 'Hide' | 'CommentAdd' | 'CommentOn' | 'Comment' | 'House' | 'Apple'; // vagy dinamikusan generált union type
