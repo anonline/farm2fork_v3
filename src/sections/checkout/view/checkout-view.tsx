@@ -10,17 +10,23 @@ import { CheckoutSteps } from '../checkout-steps';
 import { CheckoutPayment } from '../checkout-payment';
 import { CheckoutOrderComplete } from '../checkout-order-complete';
 import { CheckoutBillingAddress } from '../checkout-billing-address';
+import { Badge, Box } from '@mui/material';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 
 export function CheckoutView() {
-    const { steps, activeStep, completed, onResetCart } = useCheckoutContext();
+    const { state:checkoutState, steps, activeStep, completed, onResetCart } = useCheckoutContext();
 
     return (
         <Container sx={{ mb: 10 }}>
-            <Typography variant="h4" sx={{ my: { xs: 3, md: 5 } }}>
-                Checkout
-            </Typography>
+            <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+
+                <Badge badgeContent={checkoutState.totalItems} color="primary">
+                    <F2FIcons name='Bag' width={32} height={32} style={{ marginTop: '-5px' }} />
+                </Badge>
+                <Typography sx={{ fontSize: '32px', fontWeight: '700', lineHeight: '44px', color: '#262626', textTransform: 'upperCase' }}>Termékek</Typography>
+            </Box>
 
             <Grid container justifyContent={completed ? 'center' : 'flex-start'}>
                 <Grid size={{ xs: 12, md: 8 }}>
@@ -39,7 +45,7 @@ export function CheckoutView() {
                     <CheckoutOrderComplete
                         open
                         onResetCart={onResetCart}
-                        onDownloadPDF={() => {}}
+                        onDownloadPDF={() => { }}
                     />
                 )}
             </>

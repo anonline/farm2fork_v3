@@ -116,7 +116,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
                 if (item.id === newItem.id) {
                     return {
                         ...item,
-                        colors: union(item.colors, newItem.colors),
+                        colors: union(item.colors ?? [], newItem.colors ?? []),
                         quantity: item.quantity + newItem.quantity,
                     };
                 }
@@ -145,6 +145,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         (itemId: number, quantity: number) => {
             const updatedItems = state.items.map((item) => {
                 if (item.id === itemId) {
+                    item.subtotal = item.price * quantity;
+
                     return { ...item, quantity };
                 }
                 return item;
@@ -182,6 +184,32 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         }
     }, [completed, resetState]);
 
+    const onAddNote = useCallback((itemId: number, note: string) => {
+        if (note.trim().length > 0) {
+            const updatedItems = state.items.map((item) => {
+                if (item.id === itemId) {
+                    item.note = note.trim();
+                    return { ...item };
+                }
+                return item;
+            });
+
+            setField('items', updatedItems);
+        }
+    },[setField]);
+
+    const onDeleteNote = useCallback((itemId: number) => {
+        const updatedItems = state.items.map((item) => {
+            if (item.id === itemId) {
+                item.note = undefined;
+                return { ...item };
+            }
+            return item;
+        });
+
+        setField('items', updatedItems);
+    },[setField]);
+
     const memoizedValue = useMemo(
         () => ({
             state,
@@ -203,6 +231,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onDeleteCartItem,
             onChangeItemQuantity,
             onCreateBillingAddress,
+            onAddNote,
+            onDeleteNote
         }),
         [
             state,
@@ -220,6 +250,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onDeleteCartItem,
             onChangeItemQuantity,
             onCreateBillingAddress,
+            onAddNote,
+            onDeleteNote
         ]
     );
 

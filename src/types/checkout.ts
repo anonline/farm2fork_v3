@@ -5,13 +5,15 @@ import type { IAddressItem } from './common';
 export type ICheckoutItem = {
     id: number;
     name: string;
-    size: string;
+    size?: string;
     price: number;
+    unit?: string;
     coverUrl: string;
-    colors: string[];
+    colors?: string[];
     quantity: number;
     available: number;
     subtotal?: number;
+    note?: string;
 };
 
 export type ICheckoutDeliveryOption = {
@@ -65,4 +67,6 @@ export type CheckoutContextValue = {
     onApplyDiscount: (discount: number) => void;
     onApplyShipping: (discount: number) => void;
     onCreateBillingAddress: (address: IAddressItem) => void;
+    onAddNote: (itemId:number, note:string) => void;
+    onDeleteNote: (itemId:number) => void;
 };

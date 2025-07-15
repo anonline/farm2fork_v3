@@ -10,6 +10,7 @@ import { toast } from 'src/components/snackbar';
 
 import F2FIcons from '../f2ficons/f2ficons'; 
 import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
+import { useCheckoutContext } from 'src/sections/checkout/context';
 
 function ProducerInfo({ name, location }: Readonly<{ name: string, location: string }>) {
     return (
@@ -35,14 +36,11 @@ interface FeaturedProductCardProps {
 }
 
 export default function FeaturedProductCard({product}: Readonly<FeaturedProductCardProps>) {
+    const { onAddToCart } = useCheckoutContext();
     const router = useRouter();
 
     const openProductPage = () => {
         router.push(`/termekek/${product.url}`);
-    };
-
-    const addToCart = () => {
-        toast.success(`${product.name} hozzáadva a kosárhoz!`);
     };
     
     return (
@@ -146,7 +144,8 @@ export default function FeaturedProductCard({product}: Readonly<FeaturedProductC
                 >
                     <ProductPriceDetails price={product.netPrice} unit={product.unit} />
                     <ProductQuantitySelector 
-                        onAddToCart={addToCart} 
+                        product={product}
+                        onAddToCart={onAddToCart} 
                         unit={product.unit} 
                         min={product.mininumQuantity} 
                         max={product.maximumQuantity} 

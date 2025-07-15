@@ -7,7 +7,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Chip, Link, Button, Container } from '@mui/material';
+import { Chip, Link, Button, Container, Badge } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -36,6 +36,9 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
+import { useCheckoutContext } from 'src/sections/checkout/context';
+import { IconButton } from 'yet-another-react-lightbox';
+import HeaderCartButton from '../components/header-cart-button/header-cart-button';
 
 // ----------------------------------------------------------------------
 
@@ -60,7 +63,6 @@ export function MainLayout({
     slotProps,
     layoutQuery = 'md',
 }: MainLayoutProps) {
-
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
     const navData = slotProps?.nav?.data ?? mainNavData;
     const [announcement, setAnnouncement] = useState<string | null>(null);
@@ -125,7 +127,7 @@ export function MainLayout({
                     />
                     <NavMobile data={navData} open={open} onClose={onClose} />
 
-                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: {sm: 0, md: 0, lg:0, xl: 0} }}>
+                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: { sm: 0, md: 0, lg: 0, xl: 0 } }}>
                         <Logo sx={{ marginRight: "30px", marginTop: '-8px' }} />
                         <NavDesktop
                             data={navData}
@@ -139,78 +141,64 @@ export function MainLayout({
             ),
             rightArea: (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-                        <HeaderSearch />
+                    <HeaderSearch />
 
-                        <Button
-                            startIcon={
-                                <F2FIcons
-                                    name="Bag"
-                                    width={24}
-                                    height={24}
-                                    style={{ color: 'inherit' }}
-                                />
-                            }
-                            variant="text"
+                    <HeaderCartButton />
 
-                            sx={{ textTransform: 'none', fontWeight: 500 }}
-                        >
-                            Kosár
-                        </Button>
+                    {
+                        !authContext.loading && authContext.authenticated ? (
+                            <>
+                                <LoggedInHeaderAvatar name={authContext.displayName} />
+                                {authContext.user?.user_metadata?.is_admin && (
+                                    <Link href={paths.dashboard.root}>
+                                        <Chip
+                                            variant="soft"
+                                            label="Admin"
+                                            color="primary"
+                                        />
+                                    </Link>
+                                )}
+                                {authContext.user?.user_metadata?.is_corp && (
+                                    <Link href={paths.dashboard.root}>
+                                        <Chip
+                                            variant="soft"
+                                            label="Céges"
+                                            color="info"
+                                        />
+                                    </Link>
+                                )}
+                                {authContext.user?.user_metadata?.is_vip && (
+                                    <Link href={paths.dashboard.root}>
+                                        <Chip
+                                            variant="soft"
+                                            label="VIP"
+                                            color="warning"
+                                        />
+                                    </Link>
+                                )}
+                            </>
+                        ) : (
+                            <SignInButton sx={
+                                {
+                                    backgroundColor: themeConfig.palette.common.black,
+                                    borderRadius: '8px',
+                                    fontFamily: themeConfig.fontFamily.primary,
+                                    padding: '8px 20px',
 
-                        {
-                            !authContext.loading && authContext.authenticated ? (
-                                <>
-                                    <LoggedInHeaderAvatar name={authContext.displayName} />
-                                    {authContext.user?.user_metadata?.is_admin && (
-                                        <Link href={paths.dashboard.root}>
-                                            <Chip
-                                                variant="soft"
-                                                label="Admin"
-                                                color="primary"
-                                            />
-                                        </Link>
-                                    )}
-                                    {authContext.user?.user_metadata?.is_corp && (
-                                        <Link href={paths.dashboard.root}>
-                                            <Chip
-                                                variant="soft"
-                                                label="Céges"
-                                                color="info"
-                                            />
-                                        </Link>
-                                    )}
-                                    {authContext.user?.user_metadata?.is_vip && (
-                                        <Link href={paths.dashboard.root}>
-                                            <Chip
-                                                variant="soft"
-                                                label="VIP"
-                                                color="warning"
-                                            />
-                                        </Link>
-                                    )}
-                                </>
-                            ) : (
-                                <SignInButton sx={
-                                    {
-                                        backgroundColor: themeConfig.palette.common.black,
-                                        borderRadius: '8px',
-                                        fontFamily: themeConfig.fontFamily.primary,
-                                        padding: '8px 20px',
-
-                                        textTransform: 'uppercase',
-                                        fontWeight: 600,
+                                    textTransform: 'uppercase',
+                                    fontWeight: 600,
+                                    color: themeConfig.palette.common.white,
+                                    fontSize: '14px',
+                                    lineHeight: '30px',
+                                    letterSpacing: '0.01em',
+                                    '&:hover': {
+                                        backgroundColor: themeConfig.palette.primary.main,
                                         color: themeConfig.palette.common.white,
-                                        fontSize: '14px',
-                                        lineHeight: '30px',
-                                        letterSpacing: '0.01em',
-                                        '&:hover': {
-                                            backgroundColor: themeConfig.palette.primary.main,
-                                            color: themeConfig.palette.common.white,
-                                        },
-                                    }
-                                } />
-                            )}
-                    </Box>
+                                    },
+                                }
+                            } />
+                        )}
+                </Box>
             ),
         };
 

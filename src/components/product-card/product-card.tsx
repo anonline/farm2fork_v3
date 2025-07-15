@@ -15,12 +15,20 @@ import { toast } from 'src/components/snackbar';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
+import { useCheckoutContext } from 'src/sections/checkout/context';
+import { CheckoutContextValue } from 'src/types/checkout';
 
 interface ProductCardProps {
     product: IProductItem;
 }
 
 export default function ProductCard(props: Readonly<ProductCardProps>) {
+    const {
+        onAddToCart,
+        state: checkoutState,
+        onChangeItemQuantity,
+    } = useCheckoutContext();
+
     const { product } = props;
     const router = useRouter();
 
@@ -143,7 +151,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             )}
 
             <div style={productCardDetailsUpperContainterStyle}>
-                {inCart && (
+                {checkoutState.items.filter(x=>x.id == product.id).length > 0 && (
                     <F2FIcons name='Check' width={40} height={40} style={
                         {
                             position: 'absolute', top: -20, right: 16, color: themeConfig.palette.primary.dark,
@@ -188,7 +196,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             <div style={productCardPriceContentStyle}>
                 <div className='productCardPriceDetails' style={productCardPriceDetailsStyle}>
                     <ProductPriceDetails price={product.netPrice} unit={product.unit} />
-                    <ProductQuantitySelector onAddToCart={addToCart} unit={product.unit} min={product.mininumQuantity} max={product.maximumQuantity} step={product.stepQuantity} />
+                    <ProductQuantitySelector product={product} onAddToCart={onAddToCart} unit={product.unit} min={product.mininumQuantity} max={product.maximumQuantity} step={product.stepQuantity} />
                 </div>
             </div>
 
@@ -248,8 +256,9 @@ export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ pr
     );
 }
 
-type ProductQuantitySelectorProps = { 
-    onAddToCart: () => void,
+type ProductQuantitySelectorProps = {
+    product: IProductItem,
+    onAddToCart: CheckoutContextValue['onAddToCart'],
     format?: 'column' | 'row',
     min?: number,
     max?: number,
@@ -257,7 +266,7 @@ type ProductQuantitySelectorProps = {
     unit?: string
 }
 
-export function ProductQuantitySelector({ onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag" }: Readonly<ProductQuantitySelectorProps>) {
+export function ProductQuantitySelector({ product, onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag" }: Readonly<ProductQuantitySelectorProps>) {
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
         color: themeConfig.textColor.grey,
@@ -425,20 +434,21 @@ export function ProductQuantitySelector({ onAddToCart, format = "column", min = 
                     <F2FIcons name="Add" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
             </Paper>
-            <ProductCardButton label="Kosár" onClick={onAddToCart} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />
+            <ProductCardButton product={product} label="Kosár" onAddToCart={onAddToCart} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />
         </Box>
     );
 
 }
 
-type ProductCardButtonProps = { 
-    label: string, 
-    onClick: () => void, 
-    isDisabled?: boolean, 
+type ProductCardButtonProps = {
+    product: IProductItem,
+    label: string,
+    onAddToCart: CheckoutContextValue['onAddToCart'],
+    isDisabled?: boolean,
     sx?: SxProps
 }
 
-function ProductCardButton({ label, onClick, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
+function ProductCardButton({ product, label, onAddToCart, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
 
     const baseStyle: SxProps = {
         ...sx,
@@ -464,9 +474,21 @@ function ProductCardButton({ label, onClick, isDisabled = false, sx }: Readonly<
         cursor: 'not-allowed',
     }
 
-
+    const handleButtonClick = () => {
+         onAddToCart({
+            id: product.id,
+            name: product.name,
+            price: product.netPrice,
+            coverUrl: product.featuredImage,
+            quantity: 1,
+            unit: product.unit,
+            available: product.maximumQuantity,
+            subtotal: product.netPrice,
+        });
+        toast.success("Sikeresen kosárhoz adva.");
+    }
     return (
-        <Button variant={isDisabled ? 'outlined' : 'contained'} disabled={isDisabled} color={isDisabled ? 'inherit' : 'primary'} onClick={onClick} sx={isDisabled ? disabledButtonStyle : buttonStyle}>
+        <Button variant={isDisabled ? 'outlined' : 'contained'} disabled={isDisabled} color={isDisabled ? 'inherit' : 'primary'} onClick={handleButtonClick} sx={isDisabled ? disabledButtonStyle : buttonStyle}>
             {label}
         </Button>
     );

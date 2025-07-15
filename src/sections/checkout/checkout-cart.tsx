@@ -17,6 +17,7 @@ import { EmptyContent } from 'src/components/empty-content';
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
 import { CheckoutCartProductList } from './checkout-cart-product-list';
+import { Alert } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,8 @@ export function CheckoutCart() {
         onDeleteCartItem,
         state: checkoutState,
         onChangeItemQuantity,
+        onAddNote,
+        onDeleteNote
     } = useCheckoutContext();
 
     const isCartEmpty = !checkoutState.items.length;
@@ -60,12 +63,7 @@ export function CheckoutCart() {
                 <Card sx={{ mb: 3 }}>
                     <CardHeader
                         title={
-                            <Typography variant="h6">
-                                {`Cart `}
-                                <Typography component="span" sx={{ color: 'text.secondary' }}>
-                                    ({checkoutState.totalItems} items)
-                                </Typography>
-                            </Typography>
+                            <Alert severity="info" sx={{ mb: 2 }}>Hiba üzik </Alert>
                         }
                         sx={{ mb: 3 }}
                     />
@@ -81,6 +79,8 @@ export function CheckoutCart() {
                                     checkoutState={checkoutState}
                                     onDeleteCartItem={onDeleteCartItem}
                                     onChangeItemQuantity={onChangeItemQuantity}
+                                    onAddNote={onAddNote}
+                                    onDeleteNote={onDeleteNote}
                                 />
                             )}
                         </>
@@ -93,7 +93,7 @@ export function CheckoutCart() {
                     color="inherit"
                     startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
                 >
-                    Continue shopping
+                    Vásárlás folytatása
                 </Button>
             </Grid>
 

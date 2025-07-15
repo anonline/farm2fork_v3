@@ -51,7 +51,7 @@ export function TableHeadCustom({
     rowCount = 0,
     numSelected = 0,
     onSelectAllRows,
-}: TableHeadCustomProps) {
+}: Readonly<TableHeadCustomProps>) {
     return (
         <TableHead sx={sx}>
             <TableRow>

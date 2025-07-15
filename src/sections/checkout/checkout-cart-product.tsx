@@ -3,7 +3,6 @@ import type { ICheckoutItem, CheckoutContextValue } from 'src/types/checkout';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
@@ -11,10 +10,9 @@ import Typography from '@mui/material/Typography';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { ColorPreview } from 'src/components/color-utils';
 import { NumberInput } from 'src/components/number-input';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 
@@ -22,9 +20,11 @@ type Props = {
     row: ICheckoutItem;
     onDeleteCartItem: CheckoutContextValue['onDeleteCartItem'];
     onChangeItemQuantity: CheckoutContextValue['onChangeItemQuantity'];
+    onAddNote: CheckoutContextValue['onAddNote'];
+    onDeleteNote: CheckoutContextValue['onDeleteNote'];
 };
 
-export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity }: Readonly<Props>) {
+export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity, onAddNote, onDeleteNote }: Readonly<Props>) {
     return (
         <TableRow>
             <TableCell>
@@ -33,58 +33,48 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                         variant="rounded"
                         alt={row.name}
                         src={row.coverUrl}
-                        sx={{ width: 64, height: 64 }}
+                        sx={{ width: 100, height: 100 }}
                     />
 
-                    <Stack spacing={0.5}>
-                        <Typography noWrap variant="subtitle2" sx={{ maxWidth: 240 }}>
+                    <Stack spacing={1}>
+                        <Typography noWrap sx={{ maxWidth: 240, fontWeight: 700, fontSize: '18px', lineHeight: '28px', color: '#262626' }}>
                             {row.name}
                         </Typography>
 
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                typography: 'body2',
-                                alignItems: 'center',
-                                color: 'text.secondary',
-                            }}
-                        >
-                            size: <Label sx={{ ml: 0.5 }}> {row.size} </Label>
-                            <Divider orientation="vertical" sx={{ mx: 1, height: 16 }} />
-                            <ColorPreview colors={row.colors} />
+                        <Typography sx={{ fontSize: '16px', fontWeight: '500', lineHeight: '24px', color: '#7e7e7e' }}>
+                            {fCurrency(row.price)}/{row.unit ?? 'db'}
+                        </Typography>
+
+                        <Box sx={{ width: 150, gap: '8px', textAlign: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                            <NumberInput
+                                hideDivider
+                                value={row.quantity}
+                                onChange={(event, quantity: number) =>
+                                    onChangeItemQuantity(row.id, quantity)
+                                }
+                                max={row.available}
+                            />
+
+                            <IconButton onClick={() => onDeleteCartItem(row.id)}>
+                                <Iconify icon="solar:trash-bin-trash-bold" />
+                            </IconButton>
                         </Box>
                     </Stack>
                 </Box>
             </TableCell>
 
-            <TableCell>{fCurrency(row.price)}</TableCell>
-
-            <TableCell>
-                <Box sx={{ width: 100, textAlign: 'right' }}>
-                    <NumberInput
-                        hideDivider
-                        value={row.quantity}
-                        onChange={(event, quantity: number) =>
-                            onChangeItemQuantity(row.id, quantity)
-                        }
-                        max={row.available}
-                    />
-
-                    <Typography
-                        variant="caption"
-                        sx={{ color: 'text.secondary', display: 'block', mt: 1 }}
-                    >
-                        available: {row.available}
-                    </Typography>
-                </Box>
-            </TableCell>
-
-            <TableCell align="right">{fCurrency(row.price * row.quantity)}</TableCell>
-
             <TableCell align="right" sx={{ px: 1 }}>
-                <IconButton onClick={() => onDeleteCartItem(row.id)}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                </IconButton>
+                <Stack spacing={1}>
+                    <Typography>
+                        {fCurrency(row.subtotal)}
+                    </Typography>
+                    <Box>
+                        <IconButton>
+                            <F2FIcons name={"CommentAdd"} width={20} height={20}/>
+                        </IconButton>
+                    </Box>
+                </Stack>
+
             </TableCell>
         </TableRow>
     );

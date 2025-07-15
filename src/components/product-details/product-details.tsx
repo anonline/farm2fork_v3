@@ -19,10 +19,13 @@ import ProducerProducts from "./producer-products";
 import ProductDetailsSmallInfo from "./product-details-small-info";
 import { ProductQuantitySelector } from "../product-card/product-card";
 import FeaturedProducerCard from "../producer-card/featured-producer-card";
+import { useCheckoutContext } from "src/sections/checkout/context";
 
 
 
 export default function ProductDetails() {
+    const { onAddToCart } = useCheckoutContext();
+    
     const { product, loading, error } = useProduct();
     const renderTitle = () => (
         <Typography variant="h1"
@@ -52,9 +55,10 @@ export default function ProductDetails() {
                     fontWeight: 700,
                     lineHeight: '24px', letterSpacing: '0.16px', color: themeConfig.textColor.default, textTransform: 'capitalize'
                 }}>
-                Szezonalitás: {product.seasonality && product.seasonality.map((season, index, months) => (
+                
+                {product.seasonality ? 'Szezonalitás: ' + product.seasonality.map((season, index, months) => (
                     <span style={{ fontWeight: 500 }} key={season}>{Months[season]}{(index < months.length - 1 ? ', ' : '')}</span>
-                ))}
+                )) : null}
             </Typography>
         ))
     )
@@ -98,19 +102,18 @@ export default function ProductDetails() {
     }
     const renderQuantitySelector = () => (
         <Box sx={{ width: '80%' }}>
-            <ProductQuantitySelector
-                onAddToCart={handleAddToCart}
-                unit={product?.unit}
-                max={product?.maximumQuantity}
-                min={product?.mininumQuantity}
-                step={product?.stepQuantity}
+            {product != null && <ProductQuantitySelector
+                product={product}
+                onAddToCart={onAddToCart}
+                unit={product.unit}
+                max={product.maximumQuantity}
+                min={product.mininumQuantity}
+                step={product.stepQuantity}
                 format="row"
-            />
+            />}
         </Box>
     )
-    const handleAddToCart = () => {
-        toast.success("Sikeresen kosárhoz adva.");
-    }
+
     const headRightSectionGap = '20px';
     const renderHead = () => (
         <Box
