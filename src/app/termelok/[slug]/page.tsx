@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function Page({ params }: Readonly<Props>) {
+export default function Page({ params }: Props) {
   const slug = params.slug;
 
   return (
