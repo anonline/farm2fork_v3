@@ -56,6 +56,12 @@ export const paths = {
         fuszernovenyek: '/categories/fuszernovenyek',
         egyeb: '/categories/egyeb',
     },
+    api: {
+        search: {
+            products: '/api/search/products',
+            producers: 'api/search/producers'
+        }
+    },
     product: {
         root: `/termekek`,
         checkout: `/product/checkout`,

@@ -7,6 +7,8 @@ import AddIcon from 'public/assets/icons/f2f/Add.svg';
 import BagIcon from 'public/assets/icons/f2f/Bag.svg';
 import MapIcon from 'public/assets/icons/f2f/Map.svg'
 import Truck from 'public/assets/icons/f2f/Truck.svg';
+import House from 'public/assets/icons/f2f/House.svg';
+import Apple from 'public/assets/icons/f2f/Apple.svg'
 import InfoIcon from 'public/assets/icons/f2f/Info.svg';
 import Profil from 'public/assets/icons/f2f/Profil.svg';
 import MinusIcon from 'public/assets/icons/f2f/Minus.svg';
@@ -24,7 +26,7 @@ import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
 
 interface F2FIconsSvgProps {
-    name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck' | 'Loading' | 'Profil' | 'EditPen' | 'Show' | 'Hide' | 'CommentAdd' | 'CommentOn' | 'Comment'; // vagy dinamikusan generált union type
+    name: 'Info' | 'Add' | 'Minus' | 'Check' | 'Bag' | 'BioBadge' | 'Map' | 'Search2' | 'Slider' | 'FileIcon' | 'ScreenIcon' | 'PointHouse' | 'RendelesDate' | 'Card' | 'Truck' | 'Loading' | 'Profil' | 'EditPen' | 'Show' | 'Hide' | 'CommentAdd' | 'CommentOn' | 'Comment' | 'House' | 'Apple'; // vagy dinamikusan generált union type
     width?: number;
     height?: number;
     style?: React.CSSProperties;
@@ -53,7 +55,9 @@ const iconMap = {
     Loading,
     CommentOn,
     CommentAdd,
-    Comment
+    Comment,
+    House,
+    Apple,
 } as const;
 
 export default function F2FIcons({ name, width = 16, height = 16, style }: Readonly<F2FIconsSvgProps>) {
