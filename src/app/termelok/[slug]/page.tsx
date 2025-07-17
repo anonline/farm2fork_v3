@@ -1,38 +1,40 @@
 import type { Metadata } from 'next';
 
-import { paths } from 'src/routes/paths';
-
 import { CONFIG } from 'src/global-config';
 import { ProductsProvider } from 'src/contexts/products-context';
-import { ProducersProvider } from 'src/contexts/producers-context'; 
+import { ProducersProvider } from 'src/contexts/producers-context';
 
 import TermelokView from 'src/sections/termelok/view/termelok-view';
+import { createClient } from '@supabase/supabase-js';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>; 
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = params.slug;
+  const { slug } = await params;  
 
   try {
-    const producer = await fetch(paths.api.search.producers + '?q=' + slug).then((res) => res.json());
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const { data:producer } = await supabase.from("Producers").select("name").eq('slug', slug).single();
 
     return {
-      title: producer?.title ? `${producer.title} - ${CONFIG.appName}` : `A termelő nem található - ${CONFIG.appName}`,
+      title: producer?.name ? `${producer.name} - ${CONFIG.appName}` : `A termelő nem található - ${CONFIG.appName}`,
     };
-  } catch (error) {
-    console.error("Hiba a metaadatok generálása közben:", error);
+  } catch (ex) {
+    console.error("Hiba a metaadatok generálása közben:", ex);
     return {
       title: `Termelők - ${CONFIG.appName}`,
     };
   }
 }
 
-export default function Page({ params }: Props) {
-  const slug = params.slug;
+export default async function Page({ params }: Readonly<Props>) {
+  const {slug} = await params;
 
   return (
     <ProductsProvider>

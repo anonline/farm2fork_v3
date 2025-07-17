@@ -73,6 +73,28 @@ export function useGetProducer(producerId: string) {
     return memoizedValue;
 }
 
+export function useGetProducerBySlug(slug: string) {
+  const { data, isLoading, error, isValidating } = useSWR<ProducerData>("producer", async () => {
+    const response = await supabase.from("Producers").select("*").eq("slug", slug).single();
+    const { data: producer, error: responseError } = response;
+
+    if (responseError) throw responseError.message;
+    return { producer };
+  }, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => ({
+            product: data?.producer,
+            productLoading: isLoading,
+            productError: error,
+            productValidating: isValidating,
+        }),
+        [data?.producer, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
 // ----------------------------------------------------------------------
 
 type ProducerSearchResultsData = {
