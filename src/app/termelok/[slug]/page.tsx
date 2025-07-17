@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 
+import { createClient } from '@supabase/supabase-js';
+
 import { CONFIG } from 'src/global-config';
 import { ProductsProvider } from 'src/contexts/products-context';
 import { ProducersProvider } from 'src/contexts/producers-context';
 
 import TermelokView from 'src/sections/termelok/view/termelok-view';
-import { createClient } from '@supabase/supabase-js';
 
 // ----------------------------------------------------------------------
 
