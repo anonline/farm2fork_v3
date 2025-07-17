@@ -49,7 +49,7 @@ export default function TermelokTermekek({ producerId }: Readonly<ProducerProduc
             </Typography>
             <Grid container spacing={2}>
                 {producerProducts.map((product) => (
-                    <Grid  key={product.id}  size={{xs:6, sm:6, md:3, lg:2.4}}>
+                    <Grid  key={product.id}  size={{xs:6, sm:4, md:3, lg:2.4}}>
                         <ProductCard product={product}/>
                     </Grid>
                 ))}
