@@ -37,7 +37,7 @@ type Props = {
     products: IProductItem[];
 };
 
-export function ProductShopView({ products }: Props) {
+export function ProductShopView({ products }: Readonly<Props>) {
     const { state: checkoutState } = useCheckoutContext();
 
     const openFilters = useBoolean();
@@ -167,7 +167,11 @@ function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps) {
     }
 
     if (category !== 'all') {
-        inputData = inputData.filter((product) => product.category === category);
+        inputData = inputData.filter(
+            (product) =>
+                Array.isArray(product.category) &&
+                product.category.some((cat) => cat.name === category)
+        );
     }
 
     if (colors.length) {

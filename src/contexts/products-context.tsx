@@ -30,7 +30,7 @@ export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
-            const { data, error: supabaseError } = await supabase.from("Products").select("*");
+            const { data, error: supabaseError } = await supabase.from("Products").select("*, producer:Producers(*), category:ProductCategories(*)").order('name', { ascending: true });
             if (supabaseError) {
                 setLoadError(supabaseError.message);
                 setProducts([]);
@@ -62,11 +62,51 @@ export const useProducts = () => {
     return context;
 };
 
+export const useProductFilterCategory = (categoryId: number | undefined, isBio: boolean, sorting: 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default') => {
+    const context = useContext(ProductsContext);
+    if (!context) throw new Error("useProducts csak a ProductsProvider-en belül használható");
+    if (categoryId != undefined && categoryId != 8) {  //8 = all products
+        let products = context.products.filter(p => p.category?.filter(c=>c.id == categoryId).length ?? false);
+        const loading = context.loading;
+        const error = context.loading;
+        if (sorting) {
+            products = products.sort((a, b) => {
+                if (sorting === 'name-asc') return a.name.localeCompare(b.name);
+                if (sorting === 'name-desc') return b.name.localeCompare(a.name);
+                if (sorting === 'price-asc') return a.netPrice - b.netPrice;
+                if (sorting === 'price-desc') return b.netPrice - a.netPrice;
+                return 0;
+            });
+        }
+
+        if(isBio) {
+            products = products.filter(p => p.bio);
+        }
+        return {products, loading, error};
+    }
+    if(sorting) {
+        let sortedProducts = context.products.sort((a, b) => {
+            if (sorting === 'name-asc') return a.name.localeCompare(b.name);
+            if (sorting === 'name-desc') return b.name.localeCompare(a.name);
+            if (sorting === 'price-asc') return a.netPrice - b.netPrice;
+            if (sorting === 'price-desc') return b.netPrice - a.netPrice;
+            return 0;
+        });
+        if(isBio) {
+            sortedProducts = sortedProducts.filter(p => p.bio);
+        }
+
+        return { products: sortedProducts, loading: context.loading, error: context.error };
+    }
+
+    return context;
+}
+
 //--------------------------------------------------------------------------------------
 
 interface ProductsInCategoryProviderProps {
     children: ReactNode;
-    categoryId: number;
+    categoryId?: number;
 }
 
 export const ProductsInCategoryContext = createContext<ProductsContextType>({
@@ -82,19 +122,21 @@ export function ProductsInCategoryProvider({ children, categoryId }: Readonly<Pr
 
     useEffect(() => {
         async function fetchProductsByCategory() {
-            if (!categoryId) {
-                setProducts([]);
-                setLoading(false);
-                return;
-            }
+
             setLoading(true);
             setError(null);
-            const { data, error: supabaseError } = await supabase
+
+            let supabaseResponse = supabase
                 .from("ProductCategories_Products")
                 .select(
                     "Products(*)"
                 )
-                .eq('categoryId', categoryId);
+
+            if (categoryId) {
+                supabaseResponse = supabaseResponse.eq('categoryId', categoryId);
+            }
+
+            const { data, error: supabaseError } = await supabaseResponse
 
             if (supabaseError) {
                 setError(supabaseError.message);
@@ -191,7 +233,7 @@ export function ProductsInMonthInCategoryProvider({ children, categoryId, month 
             }
 
             const { data, error: supabaseError } = await query;
-            
+
             if (supabaseError) {
                 setError(supabaseError.message);
                 setProducts([]);
@@ -235,7 +277,7 @@ export const FeaturedProductsContext = createContext<ProductsContextType>({
     error: null,
 });
 
-export function FeaturedProductsProvider({ children, limit = 5 }: Readonly<{ children: ReactNode, limit?:number }>) {
+export function FeaturedProductsProvider({ children, limit = 5 }: Readonly<{ children: ReactNode, limit?: number }>) {
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
@@ -283,7 +325,7 @@ export const StarProductsContext = createContext<ProductsContextType>({
     error: null,
 });
 
-export function StarProductsProvider({ children, limit = 1 }: Readonly<{ children: ReactNode, limit?:number }>) {
+export function StarProductsProvider({ children, limit = 1 }: Readonly<{ children: ReactNode, limit?: number }>) {
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
@@ -319,6 +361,6 @@ export function StarProductsProvider({ children, limit = 1 }: Readonly<{ childre
 
 export const useStarProducts = () => {
     const context = useContext(StarProductsContext);
-     if (!context) throw new Error("useStarProducts csak a StarProductsProvider-en belül használható");
+    if (!context) throw new Error("useStarProducts csak a StarProductsProvider-en belül használható");
     return context;
 };

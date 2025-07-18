@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Paper, Button, InputBase, IconButton } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 import { fCurrency } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
@@ -27,17 +29,14 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     const {
         onAddToCart,
         state: checkoutState,
-        onChangeItemQuantity,
     } = useCheckoutContext();
 
     const { product } = props;
     const router = useRouter();
 
     const openProductPage = () => {
-        router.push(`/termekek/${product.url}`);
+        router.push(paths.product.details(product.url));
     }
-
-    const [inCart, setInCart] = useState<boolean>(false);
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
@@ -45,8 +44,8 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         boxShadow: "0px 2px 12px 0px #DFDBD14D",
         maxWidth: {
             xs: '100%',
-            sm: 249,
-            md: 249,
+            sm: '100%',
+            md: '100%',
             lg: 249,
             xl: 249
         },
@@ -103,11 +102,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         flexDirection: 'column',
         gap: 8,
         width: '100%',
-    }
-
-    const addToCart = () => {
-        toast.success(`${product.name} hozzáadva a kosárhoz!`);
-        setInCart(true);
     }
 
     return (
@@ -188,7 +182,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         {product.name}
                     </button>
                     <ProducerAvatar
-                        avatarUrl="https://placehold.co/48"
+                        avatarUrl={product.producer?.featuredImage ?? "https://placehold.co/48"}
                         avatarAlt="Termelő"
                         style={{ position: 'absolute', top: -24, left: 16 }}
                     />

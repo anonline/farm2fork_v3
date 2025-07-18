@@ -24,7 +24,6 @@ export function CheckoutCart() {
     const {
         loading,
         onChangeStep,
-        onApplyDiscount,
         onDeleteCartItem,
         state: checkoutState,
         onChangeItemQuantity,
@@ -58,7 +57,7 @@ export function CheckoutCart() {
 
     return (
         <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 8 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
                 <Card sx={{ mb: 3 }}>
                     <CardHeader
                         title={
@@ -96,18 +95,19 @@ export function CheckoutCart() {
                 </Button>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
-                <CheckoutSummary checkoutState={checkoutState} onApplyDiscount={onApplyDiscount} />
+            <Grid size={{ xs: 12, md: 5 }} sx={{backgroundColor: '#F8F8F8', padding: '24px'}}>
+                <CheckoutSummary checkoutState={checkoutState} />
 
                 <Button
                     fullWidth
-                    size="large"
+                    size="medium"
                     type="submit"
                     variant="contained"
                     disabled={isCartEmpty}
+                    color='primary'
                     onClick={() => onChangeStep('next')}
                 >
-                    Check out
+                    Tovább a megrendeléshez
                 </Button>
             </Grid>
         </Grid>

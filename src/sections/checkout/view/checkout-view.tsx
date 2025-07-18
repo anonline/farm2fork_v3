@@ -1,6 +1,5 @@
 'use client';
 
-import Grid from '@mui/material/Grid';
 import { Box, Badge } from '@mui/material';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -9,7 +8,6 @@ import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 import { CheckoutCart } from '../checkout-cart';
 import { useCheckoutContext } from '../context';
-import { CheckoutSteps } from '../checkout-steps';
 import { CheckoutPayment } from '../checkout-payment';
 import { CheckoutOrderComplete } from '../checkout-order-complete';
 import { CheckoutBillingAddress } from '../checkout-billing-address';
@@ -17,7 +15,7 @@ import { CheckoutBillingAddress } from '../checkout-billing-address';
 // ----------------------------------------------------------------------
 
 export function CheckoutView() {
-    const { state:checkoutState, steps, activeStep, completed, onResetCart } = useCheckoutContext();
+    const { state:checkoutState, activeStep, completed, onResetCart } = useCheckoutContext();
 
     return (
         <Container sx={{ mb: 10 }}>
@@ -29,14 +27,14 @@ export function CheckoutView() {
                 <Typography sx={{ fontSize: '32px', fontWeight: '700', lineHeight: '44px', color: '#262626', textTransform: 'upperCase' }}>Termékek</Typography>
             </Box>
 
-            <Grid container justifyContent={completed ? 'center' : 'flex-start'}>
+            {/*<Grid container justifyContent={completed ? 'center' : 'flex-start'}>
                 <Grid size={{ xs: 12, md: 8 }}>
                     <CheckoutSteps steps={steps} activeStep={activeStep ?? 0} />
                 </Grid>
-            </Grid>
+            </Grid>*/}
 
             <>
-                {activeStep === 0 && <CheckoutCart />}
+                {(activeStep === 0 || activeStep === undefined) && <CheckoutCart />}
 
                 {activeStep === 1 && <CheckoutBillingAddress />}
 

@@ -37,7 +37,7 @@ export function CheckoutCartProductList({
 }: Readonly<Props>) {
     return (
         <Scrollbar>
-            <Table sx={{ minWidth: 720 }}>
+            <Table sx={{ minWidth: '100%' }}>
                 <TableBody>
                     {checkoutState.items.map((row) => (
                         <CheckoutCartProduct

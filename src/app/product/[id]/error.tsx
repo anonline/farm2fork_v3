@@ -11,19 +11,19 @@ import { EmptyContent } from 'src/components/empty-content';
 
 // ----------------------------------------------------------------------
 
-export default function Error({
+export default function ErrorPage({
     error,
     reset,
-}: {
+}: Readonly<{
     error: Error & { digest?: string };
     reset: () => void;
-}) {
+}>) {
     console.error(error);
     return (
         <Container sx={{ mt: 5, mb: 10 }}>
             <EmptyContent
                 filled
-                title={'Product not found!<br />' + error}
+                title={'Product not found! ' + error}
                 action={
                     <Button
                         component={RouterLink}

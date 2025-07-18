@@ -1,4 +1,6 @@
 import type { IDateValue } from './common';
+import type { IProducerItem } from './producer';
+import type { ICategoryItem } from './category';
 
 // ----------------------------------------------------------------------
 
@@ -76,7 +78,7 @@ export type IProductItem = {
     images: string[];
     colors: string[];
     quantity: number;
-    category: string;
+    category?: ICategoryItem[];
     available: number;
     totalSold: number;
     description: string;
@@ -88,6 +90,7 @@ export type IProductItem = {
     priceSale: number | null;
     reviews: IProductReview[];
     producerId :number;
+    producer?: IProducerItem;
     newLabel: {
         content: string;
         enabled: boolean;
@@ -101,4 +104,16 @@ export type IProductItem = {
         starCount: number;
         reviewCount: number;
     }[];
+};
+
+export type IProductCategory = {
+    id:number;
+    name:string;
+    slug:string;
+    description:string;
+    created_at:Date;
+    parentId:number | null | undefined;
+    coverUrl: string;
+    enabled:boolean;
+    order: number;
 };

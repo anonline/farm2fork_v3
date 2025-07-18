@@ -81,7 +81,7 @@ type Props = {
     currentProduct?: IProductItem;
 };
 
-export function ProductNewEditForm({ currentProduct }: Props) {
+export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
     const router = useRouter();
 
     const openDetails = useBoolean(true);
@@ -114,7 +114,15 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     const methods = useForm<NewProductSchemaType>({
         resolver: zodResolver(NewProductSchema),
         defaultValues,
-        values: currentProduct,
+        values: currentProduct
+            ? {
+                  ...currentProduct,
+                  category:
+                      Array.isArray(currentProduct.category) && currentProduct.category.length > 0
+                          ? currentProduct.category[0].name || ''
+                          : '',
+              }
+            : undefined,
     });
 
     const {
@@ -146,7 +154,7 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
     const handleRemoveFile = useCallback(
         (inputFile: File | string) => {
-            const filtered = values.images && values.images?.filter((file) => file !== inputFile);
+            const filtered = values.images?.filter((file) => file !== inputFile);
             setValue('images', filtered);
         },
         [setValue, values.images]
