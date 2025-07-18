@@ -67,8 +67,8 @@ export const useProductFilterCategory = (categoryId: number | undefined, isBio: 
     if (!context) throw new Error("useProducts csak a ProductsProvider-en belül használható");
     if (categoryId != undefined && categoryId != 8) {  //8 = all products
         let products = context.products.filter(p => p.category?.filter(c=>c.id == categoryId).length ?? 0 > 0);
-        let loading = context.loading;
-        let error = context.loading;
+        const loading = context.loading;
+        const error = context.loading;
         if (sorting) {
             products = products.sort((a, b) => {
                 if (sorting === 'name-asc') return a.name.localeCompare(b.name);

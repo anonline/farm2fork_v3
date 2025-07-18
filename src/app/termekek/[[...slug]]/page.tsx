@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import { ProductsProvider } from 'src/contexts/products-context';
+import { CategoryProvider } from 'src/contexts/category-context';
 
 import ProductsPage from 'src/components/products-page/products-page';
-import { CategoryProvider } from 'src/contexts/category-context';
 
 // ----------------------------------------------------------------------
 

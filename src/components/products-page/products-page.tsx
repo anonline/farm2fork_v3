@@ -1,18 +1,18 @@
 'use client';
 
-import { Fragment, useEffect, useState } from "react";
+import type { IProductItem } from "src/types/product";
+import type { ICategoryItem } from "src/types/category";
+import type { SelectChangeEvent } from "@mui/material/Select";
 
-import { Box, Button, Grid, IconButton, InputAdornment, MenuItem, Select, Skeleton, Stack, TextField, Typography } from "@mui/material";
+import { Fragment, useState, useEffect } from "react";
 
-import { useProductFilterCategory, useProducts } from "src/contexts/products-context";
+import { Box, Grid, Stack, Button, Select, MenuItem, Skeleton, TextField, IconButton, Typography, InputAdornment } from "@mui/material";
 
-import ProductCard from "../product-card/product-card";
 import { useCategories } from "src/contexts/category-context";
-import { IProductItem } from "src/types/product";
-import { ICategoryItem } from "src/types/category";
-import { SelectChangeEvent } from "@mui/material/Select";
+import { useProductFilterCategory } from "src/contexts/products-context";
 
 import F2FIcons from "../f2ficons/f2ficons";
+import ProductCard from "../product-card/product-card";
 
 
 
@@ -59,8 +59,7 @@ export default function ProductsPage({ urlSlug }: { urlSlug?: string }) {
 
 
     return (
-        <>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', padding: '0px', gap: '20px', width: '100%' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', padding: '0px', gap: '20px', width: '100%' }}>
                 <Typography sx={{ fontSize: '64px', fontWeight: '600', textTransform: 'uppercase', lineHeight: '70px', letterSpacing: '-1px' }}>Termékek</Typography>
 
                 <ProductPageFilter categories={categories} activeCategoryId={activeCategoryId} filterChangeAction={handleCategoryChange} />
@@ -92,7 +91,6 @@ export default function ProductsPage({ urlSlug }: { urlSlug?: string }) {
                     }
                 </Grid>
             </Box>
-        </>
 
     );
 
@@ -108,7 +106,7 @@ export function ProductPageFilter({ categories, activeCategoryId, filterChangeAc
 
     return (
         <Box sx={{ paddingBottom: '6px', borderBottom: '1px solid #bababa', width: '100%', display: { xs: 'none', sm: 'block' }, }}>
-            <Stack direction={'row'} spacing={'16px'} flexWrap={'wrap'} sx={{ width: '100%' }}>
+            <Stack direction="row" spacing="16px" flexWrap="wrap" sx={{ width: '100%' }}>
                 {categories.map((category) => (
                     <Button key={category.id}
                         onClick={() => filterChangeAction(category.id)}
@@ -275,7 +273,7 @@ export function ProductPageTextFilter({ categories, selectedCategory, isBio, isL
                 // Remove IconComponent to avoid default dropdown icon
                 IconComponent={() => null}
             >
-                <MenuItem value={'default'}>Rendezés</MenuItem>
+                <MenuItem value="default">Rendezés</MenuItem>
                 <MenuItem value="name-asc">Név szerint növekvő</MenuItem>
                 <MenuItem value="name-desc">Név szerint csökkenő</MenuItem>
                 <MenuItem value="price-asc">Ár szerint növekvő</MenuItem>

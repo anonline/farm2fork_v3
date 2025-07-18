@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Paper, Button, InputBase, IconButton } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 import { fCurrency } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
@@ -18,7 +20,6 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
-import { paths } from 'src/routes/paths';
 
 interface ProductCardProps {
     product: IProductItem;

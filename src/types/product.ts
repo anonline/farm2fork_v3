@@ -1,6 +1,6 @@
-import { ICategoryItem } from './category';
 import type { IDateValue } from './common';
-import { IProducerItem } from './producer';
+import type { IProducerItem } from './producer';
+import type { ICategoryItem } from './category';
 
 // ----------------------------------------------------------------------
 

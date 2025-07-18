@@ -114,7 +114,15 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     const methods = useForm<NewProductSchemaType>({
         resolver: zodResolver(NewProductSchema),
         defaultValues,
-        values: currentProduct,
+        values: currentProduct
+            ? {
+                  ...currentProduct,
+                  category:
+                      Array.isArray(currentProduct.category) && currentProduct.category.length > 0
+                          ? currentProduct.category[0].name || ''
+                          : '',
+              }
+            : undefined,
     });
 
     const {
