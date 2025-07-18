@@ -29,7 +29,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     const {
         onAddToCart,
         state: checkoutState,
-        onChangeItemQuantity,
     } = useCheckoutContext();
 
     const { product } = props;
@@ -38,8 +37,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     const openProductPage = () => {
         router.push(paths.product.details(product.url));
     }
-
-    const [inCart, setInCart] = useState<boolean>(false);
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
@@ -105,11 +102,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         flexDirection: 'column',
         gap: 8,
         width: '100%',
-    }
-
-    const addToCart = () => {
-        toast.success(`${product.name} hozzáadva a kosárhoz!`);
-        setInCart(true);
     }
 
     return (

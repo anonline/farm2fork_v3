@@ -23,7 +23,7 @@ type Props = {
     onApplyDiscount?: CheckoutContextValue['onApplyDiscount'];
 };
 
-export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Props) {
+export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Readonly<Props>) {
     const { shipping, subtotal, discount, total } = checkoutState;
 
     const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';

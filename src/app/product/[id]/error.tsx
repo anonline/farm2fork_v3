@@ -11,13 +11,13 @@ import { EmptyContent } from 'src/components/empty-content';
 
 // ----------------------------------------------------------------------
 
-export default function Error({
+export default function ErrorPage({
     error,
     reset,
-}: {
+}: Readonly<{
     error: Error & { digest?: string };
     reset: () => void;
-}) {
+}>) {
     console.error(error);
     return (
         <Container sx={{ mt: 5, mb: 10 }}>

@@ -37,7 +37,7 @@ type Props = {
     products: IProductItem[];
 };
 
-export function ProductShopView({ products }: Props) {
+export function ProductShopView({ products }: Readonly<Props>) {
     const { state: checkoutState } = useCheckoutContext();
 
     const openFilters = useBoolean();

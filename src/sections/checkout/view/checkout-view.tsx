@@ -15,7 +15,7 @@ import { CheckoutBillingAddress } from '../checkout-billing-address';
 // ----------------------------------------------------------------------
 
 export function CheckoutView() {
-    const { state:checkoutState, steps, activeStep, completed, onResetCart } = useCheckoutContext();
+    const { state:checkoutState, activeStep, completed, onResetCart } = useCheckoutContext();
 
     return (
         <Container sx={{ mb: 10 }}>

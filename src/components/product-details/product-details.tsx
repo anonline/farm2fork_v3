@@ -26,7 +26,7 @@ import FeaturedProducerCard from "../producer-card/featured-producer-card";
 export default function ProductDetails() {
     const { onAddToCart } = useCheckoutContext();
 
-    const { product, loading, error } = useProduct();
+    const { product } = useProduct();
     const renderTitle = () => (
         <Typography variant="h1"
             sx={{

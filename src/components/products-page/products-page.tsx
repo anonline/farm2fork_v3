@@ -4,7 +4,7 @@ import type { IProductItem } from "src/types/product";
 import type { ICategoryItem } from "src/types/category";
 import type { SelectChangeEvent } from "@mui/material/Select";
 
-import { Fragment, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { Box, Grid, Stack, Button, Select, MenuItem, Skeleton, TextField, IconButton, Typography, InputAdornment } from "@mui/material";
 
@@ -14,15 +14,15 @@ import { useProductFilterCategory } from "src/contexts/products-context";
 import F2FIcons from "../f2ficons/f2ficons";
 import ProductCard from "../product-card/product-card";
 
+type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 
-
-export default function ProductsPage({ urlSlug }: { urlSlug?: string }) {
+export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>) {
     console.log("ProductsPage rendered with urlSlug:", urlSlug);
     const { categories } = useCategories();
     const [spinLoading, setSpinLoading] = useState(false);
     const [productList, setProductList] = useState<IProductItem[]>([]);
     const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(8);
-    const [sorting, setSorting] = useState<'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default'>('default');
+    const [sorting, setSorting] = useState<SortingOption>('default');
     const [isBio, setIsBio] = useState(false);
 
     useEffect(() => {
@@ -73,7 +73,7 @@ export default function ProductsPage({ urlSlug }: { urlSlug?: string }) {
                     }
                 }} />
                 <Grid container spacing={2} justifyContent="start" style={{ marginTop: '20px', width: '100%' }}>
-                    {loading != false ? (
+                    {loading !== false ? (
                         Array.from({ length: 5 }, (__, cellIndex) => (
                             <Skeleton key={cellIndex} height={513} width={235} />
                         ))
@@ -102,7 +102,7 @@ type ProductPageFilterProps = {
     filterChangeAction: (id: number | undefined) => void;
 }
 
-export function ProductPageFilter({ categories, activeCategoryId, filterChangeAction }: ProductPageFilterProps) {
+export function ProductPageFilter({ categories, activeCategoryId, filterChangeAction }: Readonly<ProductPageFilterProps>) {
 
     return (
         <Box sx={{ paddingBottom: '6px', borderBottom: '1px solid #bababa', width: '100%', display: { xs: 'none', sm: 'block' }, }}>
@@ -122,7 +122,7 @@ export function ProductPageFilter({ categories, activeCategoryId, filterChangeAc
     )
 }
 
-export function ProductPageTextFilter({ categories, selectedCategory, isBio, isLoading, filterChangeAction, orderChangeAction, bioChangeAction, onCategoryChangeAction }: { categories: ICategoryItem[]; selectedCategory: number | undefined; isBio: boolean; isLoading: boolean; filterChangeAction: (text: string) => void; orderChangeAction: (order: 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default') => void; bioChangeAction: (isBio: boolean) => void; onCategoryChangeAction: (categoryId: number | undefined) => void }) {
+export function ProductPageTextFilter({ categories, selectedCategory, isBio, isLoading, filterChangeAction, orderChangeAction, bioChangeAction, onCategoryChangeAction }: Readonly<{ categories: ICategoryItem[]; selectedCategory: number | undefined; isBio: boolean; isLoading: boolean; filterChangeAction: (text: string) => void; orderChangeAction: (order: SortingOption) => void; bioChangeAction: (isBio: boolean) => void; onCategoryChangeAction: (categoryId: number | undefined) => void }>) {
     const searchIcon = <F2FIcons name="Search2" width={20} height={20} />;
     const loadingIcon = <F2FIcons name="Loading" width={20} height={20} />;
 
@@ -136,9 +136,9 @@ export function ProductPageTextFilter({ categories, selectedCategory, isBio, isL
         filterChangeAction(value);
     };
 
-    const [order, setOrder] = useState<'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default'>('default');
-    const handleOrderChange = (event: SelectChangeEvent<'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default'>) => {
-        const value = event.target.value as 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
+    const [order, setOrder] = useState<SortingOption>('default');
+    const handleOrderChange = (event: SelectChangeEvent<SortingOption>) => {
+        const value = event.target.value as SortingOption;
         setOrder(value);
         orderChangeAction(value);
     };

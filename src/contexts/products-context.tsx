@@ -66,7 +66,7 @@ export const useProductFilterCategory = (categoryId: number | undefined, isBio: 
     const context = useContext(ProductsContext);
     if (!context) throw new Error("useProducts csak a ProductsProvider-en belül használható");
     if (categoryId != undefined && categoryId != 8) {  //8 = all products
-        let products = context.products.filter(p => p.category?.filter(c=>c.id == categoryId).length ?? 0 > 0);
+        let products = context.products.filter(p => p.category?.filter(c=>c.id == categoryId).length ?? false);
         const loading = context.loading;
         const error = context.loading;
         if (sorting) {

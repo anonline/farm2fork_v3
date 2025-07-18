@@ -24,7 +24,6 @@ export function CheckoutCart() {
     const {
         loading,
         onChangeStep,
-        onApplyDiscount,
         onDeleteCartItem,
         state: checkoutState,
         onChangeItemQuantity,

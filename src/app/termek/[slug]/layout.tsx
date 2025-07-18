@@ -8,7 +8,7 @@ type Props = {
     children: React.ReactNode;
 };
 
-export default function Layout({ children }: Props) {
+export default function Layout({ children }: Readonly<Props>) {
     return (
     <MainLayout sx={{padding:'0px'}}>
         <Container maxWidth={false} sx={{margin: '0 auto', padding: '0px !important'}}>
