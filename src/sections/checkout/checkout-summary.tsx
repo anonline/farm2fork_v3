@@ -26,7 +26,7 @@ type Props = {
 export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Props) {
     const { shipping, subtotal, discount, total } = checkoutState;
 
-    const displayShipping = shipping !== null ? 'Free' : '-';
+    const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';
 
     const rowStyles: SxProps<Theme> = {
         display: 'flex',
@@ -35,7 +35,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Prop
     return (
         <Card sx={{ mb: 3 }}>
             <CardHeader
-                title="Order summary"
+                title="Vásárlás részletei"
                 action={
                     onEdit && (
                         <Button
@@ -55,7 +55,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Prop
                         variant="body2"
                         sx={{ flexGrow: 1, color: 'text.secondary' }}
                     >
-                        Subtotal
+                        Összeg
                     </Typography>
                     <Typography component="span" variant="subtitle2">
                         {fCurrency(subtotal)}
@@ -68,7 +68,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Prop
                         variant="body2"
                         sx={{ flexGrow: 1, color: 'text.secondary' }}
                     >
-                        Discount
+                        Kedvezmény
                     </Typography>
                     <Typography component="span" variant="subtitle2">
                         {discount ? fCurrency(-discount) : '-'}
@@ -81,9 +81,9 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Prop
                         variant="body2"
                         sx={{ flexGrow: 1, color: 'text.secondary' }}
                     >
-                        Shipping
+                        Szállítás
                     </Typography>
-                    <Typography component="span" variant="subtitle2">
+                    <Typography component="span" variant="subtitle2" sx={{ fontStyle: 'italic', fontWeight: '400', fontSize: '14px', lineHeight: '22px', color: '#979594' }}>
                         {shipping ? fCurrency(shipping) : displayShipping}
                     </Typography>
                 </Box>
@@ -92,19 +92,19 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Prop
 
                 <Box sx={{ ...rowStyles }}>
                     <Typography component="span" variant="subtitle1" sx={{ flexGrow: 1 }}>
-                        Total
+                        Összesen
                     </Typography>
 
                     <Box sx={{ textAlign: 'right' }}>
                         <Typography
                             component="span"
                             variant="subtitle1"
-                            sx={{ display: 'block', color: 'error.main' }}
+                            sx={{ display: 'block', fontWeight: '600', fontSize: '28px', lineHeight: '40px' }}
                         >
-                            {fCurrency(total)}
+                            kb. {fCurrency(total)}
                         </Typography>
                         <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
-                            (VAT included if applicable)
+                            A végleges árat a rendelés feldolgozása után tudjuk pontosítani.
                         </Typography>
                     </Box>
                 </Box>
@@ -112,7 +112,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Prop
                 {onApplyDiscount && (
                     <TextField
                         fullWidth
-                        placeholder="Discount codes / Gifts"
+                        placeholder="Kedvezmény kódok / Ajándékok"
                         value="DISCOUNT5"
                         slotProps={{
                             input: {

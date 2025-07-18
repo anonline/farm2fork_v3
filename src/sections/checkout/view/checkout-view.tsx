@@ -29,14 +29,14 @@ export function CheckoutView() {
                 <Typography sx={{ fontSize: '32px', fontWeight: '700', lineHeight: '44px', color: '#262626', textTransform: 'upperCase' }}>Termékek</Typography>
             </Box>
 
-            <Grid container justifyContent={completed ? 'center' : 'flex-start'}>
+            {/*<Grid container justifyContent={completed ? 'center' : 'flex-start'}>
                 <Grid size={{ xs: 12, md: 8 }}>
                     <CheckoutSteps steps={steps} activeStep={activeStep ?? 0} />
                 </Grid>
-            </Grid>
+            </Grid>*/}
 
             <>
-                {activeStep === 0 && <CheckoutCart />}
+                {(activeStep === 0 || activeStep === undefined) && <CheckoutCart />}
 
                 {activeStep === 1 && <CheckoutBillingAddress />}
 

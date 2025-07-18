@@ -25,47 +25,53 @@ import FeaturedProducerCard from "../producer-card/featured-producer-card";
 
 export default function ProductDetails() {
     const { onAddToCart } = useCheckoutContext();
-    
+
     const { product, loading, error } = useProduct();
     const renderTitle = () => (
         <Typography variant="h1"
-            sx={{ 
-                fontSize: {sx:'30px', md:'64px'},
-                fontWeight: 600, 
-                textTransform: 'uppercase', 
-                lineHeight: {sm:'40px', md:'56px'}, 
-                letterSpacing: '-0.01em', 
-                color: themeConfig.textColor.default, 
-                }}>
+            sx={{
+                fontSize: { sx: '30px', md: '64px' },
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                lineHeight: { sm: '40px', md: '56px' },
+                letterSpacing: '-0.01em',
+                color: themeConfig.textColor.default,
+            }}>
             {product?.name}
         </Typography>
     )
+
     const renderDescription = () => (
         <Typography
             sx={{ fontFamily: themeConfig.fontFamily.primary, fontSize: '16px', fontWeight: 400, lineHeight: '24px', letterSpacing: '0.32px', color: themeConfig.textColor.default }}>
             {product?.shortDescription}
         </Typography>
     )
+
     const renderSeasonality = () => (
+
         (product?.seasonality && (
-            <Typography
+            <Box
                 sx={{
                     fontFamily: themeConfig.fontFamily.primary,
                     fontSize: '16px',
                     fontWeight: 700,
                     lineHeight: '24px', letterSpacing: '0.16px', color: themeConfig.textColor.default, textTransform: 'capitalize'
                 }}>
-                
-                {product.seasonality ? 'Szezonalitás: ' + product.seasonality.map((season, index, months) => (
-                    <span style={{ fontWeight: 500 }} key={season}>{Months[season]}{(index < months.length - 1 ? ', ' : '')}</span>
-                )) : null}
-            </Typography>
+                <Typography sx={{ fontWeight: 600, display: 'inline' }}>Szezonalitás: </Typography>
+                {product.seasonality.map((season) => (
+                    <Typography style={{ fontWeight: 500, display: 'inline' }} key={season}>
+                        {Months[season]}
+                    </Typography>
+                )).reduce((prev, curr, idx) => idx === 0 ? [curr] : [prev, ', ', curr], [] as React.ReactNode[])}
+            </Box>
         ))
     )
-    const renderPriceDetails =()=>{
+
+    const renderPriceDetails = () => {
         const priceDetailsStyle = {
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' }, 
+            flexDirection: { xs: 'column', sm: 'row' },
             gap: { xs: 1, sm: '20px' },
             alignItems: { sm: 'center' },
             justifyContent: 'start',
@@ -128,8 +134,8 @@ export default function ProductDetails() {
             </Box>
             <Box sx={{ width: { xs: "100%", md: '50%' }, display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%', alignItems: 'center', wordBreak: "break-word" }}>
-                        <Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%', alignItems: 'center', justifyItems: 'space-between', wordBreak: "break-word" }}>
+                        <Box sx={{ width: '90%' }}>
                             {renderTitle()}
                         </Box>
                         <Box>
@@ -152,28 +158,33 @@ export default function ProductDetails() {
     )
     return (
         <>
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error}</p>}
-            {renderHead()}
-            <Container>
-                <ProductDetailsSmallInfo product={product} />
+            <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
+                {renderHead()}
+                <Container>
+                    <ProductDetailsSmallInfo product={product} />
+                </Container>
+                {/* galery */}
             </Container>
-            {/* galery */}
-            <Box sx={{ 
-                backgroundColor: "#f5f5f5", 
-                borderRadius:'12px'
+
+            <Container maxWidth={false} sx={{
+                padding: '0px',
+                backgroundColor: "#f5f5f5",
             }}>
+                <Container maxWidth="lg" sx={{ padding: '32px' }}>
                     {product?.producerId !== undefined && (
                         <ProducersProvider>
                             <FeaturedProducerCard producerId={product.producerId} />
                         </ProducersProvider>
                     )}
-            </Box>
+                </Container>
+            </Container>
+            <Container maxWidth="lg" sx={{ padding: '20px' }}>
                 {product?.producerId !== undefined && (
                     <ProductsProvider>
                         <ProducerProducts producerId={product.producerId} />
                     </ProductsProvider>
                 )}
+            </Container>
         </>
     );
 };

@@ -237,7 +237,7 @@ function HeaderSearchProductResultItem({ name, image, price, bio, unit }: Readon
 function HeaderSearchProducerResultItem({ name, image, description, bio }: Readonly<HeaderSearchProducerResultItem>) {
     return (
         <Box sx={{ display: 'flex', border: "1px solid #dfdcd1", borderRadius: '8px', gap: '8px', alignItems: 'center', padding: "8px", width: '100%', cursor: 'pointer', backgroundColor: '#fff', '&:hover': { transform: 'scale(1.01)' } }}>
-            <img src={image ?? "https://placehold.co/64x64"} alt={name} style={{ width: "64px", height: "64px", borderRadius: '4px' }} />
+            <img src={image ?? "https://placehold.co/64x64"} alt={name} style={{ width: "64px", height: "64px", borderRadius: '4px', objectFit:'cover' }} />
             <Box sx={{ width: '80%', alignItems: 'top', display: 'flex', height: '64px', flexDirection: 'column', gap: '4px' }}>
                 <Typography
                     sx={{

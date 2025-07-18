@@ -23,7 +23,7 @@ export default function Error({
         <Container sx={{ mt: 5, mb: 10 }}>
             <EmptyContent
                 filled
-                title={'Product not found!<br />' + error}
+                title={'Product not found! ' + error}
                 action={
                     <Button
                         component={RouterLink}
