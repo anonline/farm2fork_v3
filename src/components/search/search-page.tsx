@@ -38,30 +38,42 @@ export default function SearchPage() {
 
     return (
         <main>
-            <h1>Search Page</h1>
-            <p>{searchTerm}</p>
+            <h1
+                style={{
+                    fontSize: "32px",
+                    fontWeight: 700,
+                    lineHeight: "44px",
+                }}>
+                Keresési eredmények
+            </h1>
             <SearchPageProductGrid products={products} />
             <SearchPageProducerGrid producers={producers} />
         </main>
     );
 }
 
-function SearchPageProductGrid({ products }: { products: IProductItem[] }) {
+function SearchPageProductGrid({ products }: Readonly<{ products: IProductItem[] }>) {
     return (
         <div>
-            <h2>Products</h2>
+            <h2 style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                lineHeight: "30px",
+            }}>
+                Termékek
+            </h2>
             {products.length === 0 ? (
-                <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
+                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px', }}>
                     {Array.from({ length: 5 }).map((_, index) => (
-                        <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={index}>
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
                             <Skeleton height={400} />
                         </Grid>
                     ))}
                 </Grid>
             ) : (
-                <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
+                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
                     {products.map((product, index) => (
-                        <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={index}>
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
                             <SearchPageProductItems key={product.id} product={product} />
                         </Grid>
                     ))}
@@ -71,21 +83,40 @@ function SearchPageProductGrid({ products }: { products: IProductItem[] }) {
     );
 }
 
-function SearchPageProductItems({ product }: { product: IProductItem }) {
+function SearchPageProductItems({ product }: Readonly<{ product: IProductItem }>) {
     return <ProductCard product={product} />;
 }
 
-function SearchPageProducerGrid({ producers }: { producers: IProducerItem[] }) {
+function SearchPageProducerGrid({ producers }: Readonly<{ producers: IProducerItem[] }>) {
     return (
         <div>
-            <h2>Producers</h2>
-            {producers.map((producer) => (
-                <SearchPageProducerItems key={producer.id} producer={producer} />
-            ))}
+            <h2 style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                lineHeight: "30px",
+            }}>
+                Termelők
+            </h2>
+            {producers.length === 0 ? (
+                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
+                            <Skeleton height={400} />
+                        </Grid>
+                    ))}
+                </Grid>
+            ) : (
+                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
+                    {producers.map((producer, index) => (
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
+                            <SearchPageProducerItems key={producer.id} producer={producer} />
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
         </div>
     );
 }
-
-function SearchPageProducerItems({ producer }: { producer: IProducerItem }) {
+function SearchPageProducerItems({ producer }: Readonly<{ producer: IProducerItem }>) {
     return <ProducerCard producer={producer} />;
 }
