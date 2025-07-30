@@ -65,16 +65,16 @@ function SearchPageProductGrid({ products }: Readonly<{ products: IProductItem[]
             {products.length === 0 ? (
                 <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px', }}>
                     {Array.from({ length: 5 }).map((_, index) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={'_' + index}>
                             <Skeleton height={400} />
                         </Grid>
                     ))}
                 </Grid>
             ) : (
                 <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
-                    {products.map((product, index) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
-                            <SearchPageProductItems key={product.id} product={product} />
+                    {products.map((product) => (
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={product.id}>
+                            <SearchPageProductItems product={product} />
                         </Grid>
                     ))}
                 </Grid>
@@ -100,16 +100,16 @@ function SearchPageProducerGrid({ producers }: Readonly<{ producers: IProducerIt
             {producers.length === 0 ? (
                 <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
                     {Array.from({ length: 5 }).map((_, index) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={'_' + index}>
                             <Skeleton height={400} />
                         </Grid>
                     ))}
                 </Grid>
             ) : (
                 <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
-                    {producers.map((producer, index) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={index}>
-                            <SearchPageProducerItems key={producer.id} producer={producer} />
+                    {producers.map((producer) => (
+                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={producer.id}>
+                            <SearchPageProducerItems producer={producer} />
                         </Grid>
                     ))}
                 </Grid>
