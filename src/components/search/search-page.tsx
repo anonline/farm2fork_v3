@@ -5,7 +5,7 @@ import type { IProducerItem } from 'src/types/producer';
 
 import { useState, useEffect } from 'react';
 
-import { Grid, Skeleton } from '@mui/material';
+import { Grid, Skeleton, Typography } from '@mui/material';
 
 import { useSearchParams } from 'src/routes/hooks';
 
@@ -14,109 +14,121 @@ import ProducerCard from '../producer-card/producer-card';
 
 export default function SearchPage() {
     const searchParams = useSearchParams();
-    const searchTerm = searchParams.get('s') ?? 'No search parameter provided.';
+    const searchTerm = searchParams.get('s') || '';
 
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [producers, setProducers] = useState<IProducerItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            const res = await fetch(`/api/search/products?q=${searchTerm}`);
-            const data = await res.json();
-            setProducts(data);
-        };
+        if (!searchTerm) {
+            setIsLoading(false);
+            return;
+        }
 
-        const fetchProducers = async () => {
-            const res = await fetch(`/api/search/producers?q=${searchTerm}`);
-            const data = await res.json();
-            setProducers(data);
-        };
+        setIsLoading(true);
 
-        fetchProducts();
-        fetchProducers();
+        Promise.all([
+            fetch(`/api/search/products?q=${searchTerm}`).then((res) => res.json()),
+            fetch(`/api/search/producers?q=${searchTerm}`).then((res) => res.json()),
+        ])
+            .then(([productData, producerData]) => {
+                setProducts(productData || []);
+                setProducers(producerData || []);
+            })
+            .catch((err) => {
+                console.error('Hiba a keresés során:', err);
+                setProducts([]);
+                setProducers([]);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }, [searchTerm]);
 
     return (
         <main>
             <h1
                 style={{
-                    fontSize: "32px",
+                    fontSize: '32px',
                     fontWeight: 700,
-                    lineHeight: "44px",
-                }}>
+                    lineHeight: '44px',
+                }}
+            >
                 Keresési eredmények
             </h1>
-            <SearchPageProductGrid products={products} />
-            <SearchPageProducerGrid producers={producers} />
+            <SearchPageProductGrid products={products} isLoading={isLoading} />
+            <SearchPageProducerGrid producers={producers} isLoading={isLoading} />
         </main>
     );
 }
 
-function SearchPageProductGrid({ products }: Readonly<{ products: IProductItem[] }>) {
+function SearchPageProductGrid({ products, isLoading }: Readonly<{ products: IProductItem[], isLoading: boolean }>) {
+    let content;
+
+    if (isLoading) {
+        content = Array.from({ length: 5 }).map((_, index) => (
+            <Grid size={{xs:6, sm:4, lg:2.4}} key={'prod_skeleton_' + index}>
+                <Skeleton variant="rectangular" height={320} />
+            </Grid>
+        ));
+    } else if (products.length > 0) {
+        content = products.map((product) => (
+            <Grid size={{xs:6, sm:4, lg:2.4}} key={product.id}>
+                <ProductCard product={product} />
+            </Grid>
+        ));
+    } else {
+        content = (
+            <Typography sx={{ width: '100%', textAlign: 'center', py: 5 }}>
+                Nem található a keresésnek megfelelő termék.
+            </Typography>
+        );
+    }
+
     return (
         <div>
-            <h2 style={{
-                fontSize: "20px",
-                fontWeight: 700,
-                lineHeight: "30px",
-            }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '30px' }}>
                 Termékek
             </h2>
-            {products.length === 0 ? (
-                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px', }}>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={'_' + index}>
-                            <Skeleton height={400} />
-                        </Grid>
-                    ))}
-                </Grid>
-            ) : (
-                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
-                    {products.map((product) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={product.id}>
-                            <SearchPageProductItems product={product} />
-                        </Grid>
-                    ))}
-                </Grid>
-            )}
+            <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
+                {content}
+            </Grid>
         </div>
     );
 }
 
-function SearchPageProductItems({ product }: Readonly<{ product: IProductItem }>) {
-    return <ProductCard product={product} />;
-}
+function SearchPageProducerGrid({ producers, isLoading }: Readonly<{ producers: IProducerItem[], isLoading: boolean }>) {
+    let content;
 
-function SearchPageProducerGrid({ producers }: Readonly<{ producers: IProducerItem[] }>) {
+    if (isLoading) {
+        content = Array.from({ length: 5 }).map((_, index) => (
+            <Grid size={{xs:6, sm:4, lg:2.4}} key={'producer_skeleton_' + index}>
+                <Skeleton variant="rectangular" height={320} />
+            </Grid>
+        ));
+    } else if (producers.length > 0) {
+        content = producers.map((producer) => (
+            <Grid size={{xs:6, sm:4, lg:2.4}} key={producer.id}>
+                <ProducerCard producer={producer} />
+            </Grid>
+        ));
+    } else {
+        content = (
+            <Typography sx={{ width: '100%', textAlign: 'center', py: 5 }}>
+                Nem található a keresésnek megfelelő termelő.
+            </Typography>
+        );
+    }
+
     return (
         <div>
-            <h2 style={{
-                fontSize: "20px",
-                fontWeight: 700,
-                lineHeight: "30px",
-            }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '30px', marginTop: '40px' }}>
                 Termelők
             </h2>
-            {producers.length === 0 ? (
-                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={'_' + index}>
-                            <Skeleton height={400} />
-                        </Grid>
-                    ))}
-                </Grid>
-            ) : (
-                <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
-                    {producers.map((producer) => (
-                        <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={producer.id}>
-                            <SearchPageProducerItems producer={producer} />
-                        </Grid>
-                    ))}
-                </Grid>
-            )}
+            <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
+                {content}
+            </Grid>
         </div>
     );
-}
-function SearchPageProducerItems({ producer }: Readonly<{ producer: IProducerItem }>) {
-    return <ProducerCard producer={producer} />;
 }
