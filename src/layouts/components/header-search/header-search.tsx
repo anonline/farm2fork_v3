@@ -1,9 +1,9 @@
 import type { IProductItem } from "src/types/product";
 import type { IProducerItem } from "src/types/producer";
 
-import { useRef , useState, useEffect, forwardRef } from "react";
+import { useRef, useState, useEffect, forwardRef, useCallback } from "react"; // useCallback importálása
 
-import { Box, Link, TextField, Typography, InputAdornment } from "@mui/material";
+import { Box, Link, Button, TextField, Typography, InputAdornment } from "@mui/material";
 
 import { paths } from "src/routes/paths";
 
@@ -115,10 +115,19 @@ export default function HeaderSearch() {
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         const queryString = event.target.value;
-        if (queryString.length >= searchTextLimit) {
-            setQuery(queryString);
-        }
+        setQuery(queryString);
     };
+
+    // Enter billentyű kezelése
+    const handleEnterPress = useCallback((event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            if (debouncedQuery.trim().length >= searchTextLimit) {
+                event.preventDefault();
+                window.location.href = `/search?s=${debouncedQuery}`;
+            }
+        }
+    }, [debouncedQuery, searchTextLimit]);
+
 
     return (
         <Box sx={{ width: 200, position: 'relative' }}>
@@ -127,6 +136,7 @@ export default function HeaderSearch() {
                 size="small"
                 placeholder="Keresés"
                 onChange={handleSearch}
+                onKeyDown={handleEnterPress}
                 onFocus={() => {
                     if (debouncedQuery.length >= searchTextLimit && (products.length > 0 || producers.length > 0)) {
                         setShowResults(true);
@@ -144,69 +154,90 @@ export default function HeaderSearch() {
             />
 
             {!isLoading && showResults && (
-                <HeaderSearchResultArea ref={resultsRef} products={products} producers={producers} />
+                <HeaderSearchResultArea ref={resultsRef} products={products} producers={producers} link={debouncedQuery} />
             )}
         </Box>
     )
 }
 
+
+
 type HeaderSearchResultAreaProps = {
     products?: HeaderSearchProductResultItem[];
     producers?: HeaderSearchProducerResultItem[];
+    link?: any;
 }
 
 const HeaderSearchResultArea = forwardRef<HTMLDivElement, HeaderSearchResultAreaProps>(
-    ({ products, producers }, ref) => (
-            <Box
-                ref={ref}
-                sx={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    marginTop: 1,
-                    border: '1px solid #dcdcd1',
-                    backgroundColor: '#f5f5f5',
-                    boxShadow: 1,
-                    zIndex: 1000,
-                    borderRadius: "4px",
-                    minWidth: { xs: '100vw', sm: '400px' },
-                    padding: "8px"
-                }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: "8px", alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+    ({ products, producers, link }, ref) => (
 
-                        <Typography sx={{ fontWeight: '600', fontSize: '14px', lineHeight: '22px', color: '#262626' }}>
-                            Termékek
-                        </Typography>
-                        <Typography sx={{ fontWeight: '600', fontSize: '12px', lineHeight: '22px', color: '#262626', textDecoration: 'underline' }}>
-                            Összes találat ({products?.length || 0})
-                        </Typography>
-                    </Box>
-                    {products !== undefined ? products.map((result) => (
-                        <Link href={`${paths.product.details(result.slug)}`} key={result.id} style={{ textDecoration: 'none', width: '100%' }}>
-                            <HeaderSearchProductResultItem {...result} />
-                        </Link>
-                    )) : null}
+        <Box
+            ref={ref}
+            sx={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: 1,
+                border: '1px solid #dcdcd1',
+                backgroundColor: '#f5f5f5',
+                boxShadow: 1,
+                zIndex: 1000,
+                borderRadius: "4px",
+                minWidth: { xs: '100vw', sm: '400px' },
+                padding: "8px"
+            }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: "8px", alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-
-                        <Typography sx={{ fontWeight: '600', fontSize: '14px', lineHeight: '22px', color: '#262626' }}>
-                            Termelők
-                        </Typography>
-                        <Typography sx={{ fontWeight: '600', fontSize: '12px', lineHeight: '22px', color: '#262626', textDecoration: 'underline' }}>
-                            Összes találat ({products?.length || 0})
-                        </Typography>
-                    </Box>
-                    {producers !== undefined ? producers.map((result) => (
-                        <Link href={`${paths.producers.details(result.slug)}`} key={result.id} style={{ textDecoration: 'none', width: '100%' }}>
-                            <HeaderSearchProducerResultItem {...result} />
-                        </Link>
-                    )) : null}
+                    <Typography sx={{ fontWeight: '600', fontSize: '14px', lineHeight: '22px', color: '#262626' }}>
+                        Termékek
+                    </Typography>
+                    <Button
+                        href={`/search/?s=${link}`}
+                        sx={{
+                            fontWeight: '600',
+                            fontSize: '12px',
+                            lineHeight: '22px',
+                            color: '#262626',
+                            textDecoration: 'underline'
+                        }}
+                    >
+                        Összes találat ({products?.length || 0})
+                    </Button>
                 </Box>
+                {products !== undefined ? products.map((result) => (
+                    <Link href={`${paths.product.details(result.slug)}`} key={result.id} style={{ textDecoration: 'none', width: '100%' }}>
+                        <HeaderSearchProductResultItem {...result} />
+                    </Link>
+                )) : null}
 
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+
+                    <Typography sx={{ fontWeight: '600', fontSize: '14px', lineHeight: '22px', color: '#262626' }}>
+                        Termelők
+                    </Typography>
+                    <Button
+                        href={`/search/?s=${link}`}
+                        sx={{
+                            fontWeight: '600',
+                            fontSize: '12px',
+                            lineHeight: '22px',
+                            color: '#262626',
+                            textDecoration: 'underline'
+                        }}>
+                        Összes találat ({producers?.length || 0})
+                    </Button>
+                </Box>
+                {producers !== undefined ? producers.map((result) => (
+                    <Link href={`${paths.producers.details(result.slug)}`} key={result.id} style={{ textDecoration: 'none', width: '100%' }}>
+                        <HeaderSearchProducerResultItem {...result} />
+                    </Link>
+                )) : null}
             </Box>
-        ))
+        </Box>
+    ))
+
 
 function HeaderSearchProductResultItem({ name, image, price, bio, unit }: Readonly<HeaderSearchProductResultItem>) {
     return (
@@ -237,7 +268,7 @@ function HeaderSearchProductResultItem({ name, image, price, bio, unit }: Readon
 function HeaderSearchProducerResultItem({ name, image, description, bio }: Readonly<HeaderSearchProducerResultItem>) {
     return (
         <Box sx={{ display: 'flex', border: "1px solid #dfdcd1", borderRadius: '8px', gap: '8px', alignItems: 'center', padding: "8px", width: '100%', cursor: 'pointer', backgroundColor: '#fff', '&:hover': { transform: 'scale(1.01)' } }}>
-            <img src={image ?? "https://placehold.co/64x64"} alt={name} style={{ width: "64px", height: "64px", borderRadius: '4px', objectFit:'cover' }} />
+            <img src={image ?? "https://placehold.co/64x64"} alt={name} style={{ width: "64px", height: "64px", borderRadius: '4px', objectFit: 'cover' }} />
             <Box sx={{ width: '80%', alignItems: 'top', display: 'flex', height: '64px', flexDirection: 'column', gap: '4px' }}>
                 <Typography
                     sx={{
