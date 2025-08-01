@@ -1,4 +1,5 @@
-import type { IPostItem } from 'src/types/blog';
+
+import type { IArticleItem } from 'src/types/article';
 
 import Box from '@mui/material/Box';
 import Pagination, { paginationClasses } from '@mui/material/Pagination';
@@ -11,7 +12,7 @@ import { PostItemHorizontal } from './post-item-horizontal';
 // ----------------------------------------------------------------------
 
 type Props = {
-    posts: IPostItem[];
+    posts: IArticleItem[];
     loading?: boolean;
 };
 

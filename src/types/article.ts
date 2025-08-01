@@ -7,4 +7,5 @@ export type IArticleItem = {
     link:string,
     category:string,
     publish_date: Date,
+    publish: string,
 }

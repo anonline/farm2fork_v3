@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
+import { ArticlesProvider } from 'src/contexts/articles-context';
 
 import { PostListView } from 'src/sections/blog/view';
 
@@ -9,5 +10,9 @@ import { PostListView } from 'src/sections/blog/view';
 export const metadata: Metadata = { title: `Post list | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-    return <PostListView />;
+    return (
+        <ArticlesProvider>
+            <PostListView />
+        </ArticlesProvider>
+    )
 }

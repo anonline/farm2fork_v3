@@ -1,5 +1,5 @@
-import type { IPostItem } from 'src/types/blog';
 import type { CardProps } from '@mui/material/Card';
+import type { IArticleItem } from 'src/types/article';
 
 import { usePopover } from 'minimal-shared/hooks';
 
@@ -7,7 +7,6 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
@@ -26,7 +25,7 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-    post: IPostItem;
+    post: IArticleItem;
     editHref: string;
     detailsHref: string;
 };
@@ -103,7 +102,7 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
                             component="span"
                             sx={{ typography: 'caption', color: 'text.disabled' }}
                         >
-                            {fDate(post.createdAt)}
+                            {fDate(post.publish_date)}
                         </Box>
                     </Box>
 
@@ -131,7 +130,7 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
                                 }),
                             ]}
                         >
-                            {post.description}
+                            {post.medium}
                         </Typography>
                     </Stack>
 
@@ -156,17 +155,17 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
                         >
                             <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
                                 <Iconify icon="solar:chat-round-dots-bold" width={16} />
-                                {fShortenNumber(post.totalComments)}
+                                {fShortenNumber(0)}
                             </Box>
 
                             <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
                                 <Iconify icon="solar:eye-bold" width={16} />
-                                {fShortenNumber(post.totalViews)}
+                                {fShortenNumber(0)}
                             </Box>
 
                             <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
                                 <Iconify icon="solar:share-bold" width={16} />
-                                {fShortenNumber(post.totalShares)}
+                                {fShortenNumber(0)}
                             </Box>
                         </Box>
                     </Box>
@@ -182,19 +181,10 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
                         display: { xs: 'none', sm: 'block' },
                     }}
                 >
-                    <Avatar
-                        alt={post.author.name}
-                        src={post.author.avatarUrl}
-                        sx={{
-                            top: 16,
-                            right: 16,
-                            zIndex: 9,
-                            position: 'absolute',
-                        }}
-                    />
+                    
                     <Image
                         alt={post.title}
-                        src={post.coverUrl}
+                        src={post.image}
                         sx={{ height: 1, borderRadius: 1.5 }}
                     />
                 </Box>

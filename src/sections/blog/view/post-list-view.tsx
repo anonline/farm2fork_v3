@@ -1,6 +1,7 @@
 'use client';
 
-import type { IPostItem, IPostFilters } from 'src/types/blog';
+import type { IPostFilters } from 'src/types/blog';
+import type { IArticleItem } from 'src/types/article';
 
 import { orderBy } from 'es-toolkit';
 import { useState, useCallback } from 'react';
@@ -15,8 +16,8 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { POST_SORT_OPTIONS } from 'src/_mock';
-import { useGetPosts } from 'src/actions/blog';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useArticles } from "src/contexts/articles-context";
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -25,12 +26,12 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { PostSort } from '../post-sort';
 import { PostSearch } from '../post-search';
 import { PostListHorizontal } from '../post-list-horizontal';
-
 // ----------------------------------------------------------------------
 
 export function PostListView() {
-    const { posts, postsLoading } = useGetPosts();
-
+    const {articles: posts, loading: postsLoading} = useArticles();
+//    const { posts, postsLoading } = useGetPosts();
+    
     const [sortBy, setSortBy] = useState('latest');
 
     const { state, setState } = useSetState<IPostFilters>({ publish: 'all' });
@@ -123,7 +124,7 @@ export function PostListView() {
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-    inputData: IPostItem[];
+    inputData: IArticleItem[];
     filters: IPostFilters;
     sortBy: string;
 };
@@ -132,15 +133,11 @@ function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps) {
     const { publish } = filters;
 
     if (sortBy === 'latest') {
-        inputData = orderBy(inputData, ['createdAt'], ['desc']);
+        inputData = orderBy(inputData, ['publish_date'], ['desc']);
     }
 
     if (sortBy === 'oldest') {
-        inputData = orderBy(inputData, ['createdAt'], ['asc']);
-    }
-
-    if (sortBy === 'popular') {
-        inputData = orderBy(inputData, ['totalViews'], ['desc']);
+        inputData = orderBy(inputData, ['publish_date'], ['asc']);
     }
 
     if (publish !== 'all') {
