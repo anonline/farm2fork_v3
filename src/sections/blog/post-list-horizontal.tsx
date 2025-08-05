@@ -25,7 +25,7 @@ export function PostListHorizontal({ posts, loading }: Readonly<Props>) {
                 key={post.id}
                 post={post}
                 detailsHref={paths.dashboard.post.details(post.title)}
-                editHref={paths.dashboard.post.edit(post.title)}
+                editHref={paths.dashboard.post.edit(post.id.toString())}
             />
         ));
 
