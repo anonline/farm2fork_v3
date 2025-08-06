@@ -51,6 +51,9 @@ import { InvoiceAnalytic } from '../invoice-analytic';
 import { InvoiceTableRow } from '../invoice-table-row';
 import { InvoiceTableToolbar } from '../invoice-table-toolbar';
 import { InvoiceTableFiltersResult } from '../invoice-table-filters-result';
+import { Alert } from '@mui/material';
+import { getOption } from 'src/actions/option-ssr';
+import { OptionsEnum } from 'src/types/option';
 
 // ----------------------------------------------------------------------
 
@@ -66,14 +69,14 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 // ----------------------------------------------------------------------
 
-export function InvoiceListView() {
+export function InvoiceListView({ documents, hasKey }: { documents: IInvoice[], hasKey: boolean }) {
     const theme = useTheme();
 
     const table = useTable({ defaultOrderBy: 'createDate' });
 
     const confirmDialog = useBoolean();
 
-    const [tableData, setTableData] = useState<IInvoice[]>(_invoices);
+    const [tableData, setTableData] = useState<IInvoice[]>(documents);
 
     const filters = useSetState<IInvoiceTableFilters>({
         name: '',
@@ -226,6 +229,12 @@ export function InvoiceListView() {
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                {hasKey && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        Nincs Billingo API kulcs beállítva. A Billingo integráció használatához szükséges a Billingo API kulcs beállítása.
+                    </Alert>
+                )}
 
                 <Card sx={{ mb: { xs: 3, md: 5 } }}>
                     <Scrollbar sx={{ minHeight: 108 }}>
