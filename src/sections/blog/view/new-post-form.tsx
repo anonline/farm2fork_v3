@@ -11,16 +11,25 @@ import TextField from '@mui/material/TextField';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import dayjs from 'dayjs';
+import { useState } from 'react';
 
 
 const NewPostSchema = zod.object({
+    id: zod.number().optional(),
     title: zod.string().min(3, { message: 'A címnek legalább 3 karakter hosszúnak kell lennie!' }),
     year: zod.string()
         .length(4, { message: 'Az évszámnak pontosan 4 karakterből kell állnia!' })
-        .refine((val) => !isNaN(parseInt(val, 10)), { message: 'Az évszám csak számjegyeket tartalmazhat!' }),
+        .refine((val) => {
+            const yearNum = parseInt(val, 10);
+            const currentYear = new Date().getFullYear();
+            return yearNum >= 1900 && yearNum <= currentYear;
+        }, { message: `Az évszámnak 1900 és ${new Date().getFullYear()} között kell lennie!` }),
     medium: zod.string().min(1, { message: 'A médium megadása kötelező!' }),
     link: zod.string().url({ message: 'Érvénytelen URL formátum!' }).or(zod.literal('')),
     image: zod.string().url({ message: 'Érvénytelen kép URL formátum!' }).or(zod.literal('')),
+    category: zod.string().min(1, { message: 'A kategória megadása kötelező!' }),
     publish_date: zod.string().min(1, { message: 'A dátum megadása kötelező!' }),
     publish: zod.string().min(1, { message: 'A státusz megadása kötelező!' }),
 });
@@ -37,6 +46,7 @@ export default function NewPostForm({ onSave, onCancel }: Readonly<NewPostFormPr
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm<NewPostFormData>({
         resolver: zodResolver(NewPostSchema),
@@ -46,10 +56,15 @@ export default function NewPostForm({ onSave, onCancel }: Readonly<NewPostFormPr
             medium: '',
             link: '',
             image: '',
-            publish_date: new Date().toISOString().slice(0, 10),
+            publish_date: new Date().toISOString().slice(0, 10), // This returns a string in 'YYYY-MM-DD' format
             publish: 'draft',
         },
     });
+
+    // Local state for DesktopDatePicker
+    const [publishDate, setPublishDate] = useState<dayjs.Dayjs | null>(
+        dayjs(new Date().toISOString().slice(0, 10))
+    );
 
     const processForm: SubmitHandler<NewPostFormData> = (data) => {
         onSave(data);
@@ -99,15 +114,25 @@ export default function NewPostForm({ onSave, onCancel }: Readonly<NewPostFormPr
                         error={!!errors.image}
                         helperText={errors.image?.message}
                     />
+
                     <TextField
-                        {...register('publish_date')}
-                        label="Publish Date"
-                        type="date"
+                        {...register('category')}
+                        label="Category"
                         fullWidth
-                        error={!!errors.publish_date}
-                        helperText={errors.publish_date?.message}
-                        InputLabelProps={{ shrink: true }}
+                        error={!!errors.category}
+                        helperText={errors.category?.message}
                     />
+                    <DesktopDatePicker
+                        label="Publish Date"
+                        value={publishDate}
+                        minDate={dayjs('2017-01-01')}
+                        onChange={(date) => {
+                            setPublishDate(date);
+                            setValue('publish_date', date ? date.format('YYYY-MM-DD') : '');
+                        }}
+                        slotProps={{ textField: { fullWidth: true, error: !!errors.publish_date, helperText: errors.publish_date?.message } }}
+                    />
+
                     <TextField
                         {...register('publish')}
                         label="Publish Status"
@@ -115,6 +140,8 @@ export default function NewPostForm({ onSave, onCancel }: Readonly<NewPostFormPr
                         error={!!errors.publish}
                         helperText={errors.publish?.message}
                     />
+                    
+                        
                 </Stack>
             </DialogContent>
             <DialogActions>

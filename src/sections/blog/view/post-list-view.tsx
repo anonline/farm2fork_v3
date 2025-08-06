@@ -27,18 +27,9 @@ import { PostSort } from '../post-sort';
 import NewPostForm from './new-post-form';
 import { PostSearch } from '../post-search';
 import { PostListHorizontal } from '../post-list-horizontal';
+import { insertNewArticle } from 'src/actions/articles';
+import { toast } from 'sonner';
 // ----------------------------------------------------------------------
-
-interface INewPostData {
-    title: string;
-    year: string;
-    medium: string;
-    link: string;
-    image: string;
-    publish_date: string; 
-    publish: string;      
-}
-
 
 export function PostListView() {
     const { articles: posts, loading: postsLoading } = useArticles();
@@ -56,8 +47,15 @@ export function PostListView() {
         [setState]
     );
 
-    const handleSaveNewPost = (newPost: INewPostData) => {
+    const handleSaveNewPost = (newPost: IArticleItem) => {
         console.log('Saving new post:', newPost);
+        try {
+            insertNewArticle(newPost);
+            toast.success('Új bejegyzés sikeresen mentve!');
+        } catch (error) {
+            toast.error(`Hiba történt az új bejegyzés mentésekor: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
+            return;
+        }
         setIsModalOpen(false);
     };
 
