@@ -55,7 +55,7 @@ type Props = {
     currentPost?: IPostItem;
 };
 
-export function PostNewEditForm({ currentPost }: Props) {
+export function PostNewEditForm({ currentPost }: Readonly<Props>) {
     const router = useRouter();
 
     const showPreview = useBoolean();

@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
-import { fShortenNumber } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Image } from 'src/components/image';
@@ -24,13 +23,14 @@ import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
+
 type Props = CardProps & {
     post: IArticleItem;
-    editHref: string;
+    onEdit: () => void;
     detailsHref: string;
 };
 
-export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }: Props) {
+export function PostItemHorizontal({ sx, post, onEdit, detailsHref, ...other }: Props) {
     const menuActions = usePopover();
 
     const renderMenuActions = () => (
@@ -40,29 +40,29 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
             onClose={menuActions.onClose}
             slotProps={{ arrow: { placement: 'bottom-center' } }}
         >
+            {/* --- JAVÍTÁS ITT: A felesleges <li> tagek eltávolítva --- */}
             <MenuList>
-                <li>
-                    <MenuItem
-                        component={RouterLink}
-                        href={detailsHref}
-                        onClick={() => menuActions.onClose()}
-                    >
-                        <Iconify icon="solar:eye-bold" />
-                        View
-                    </MenuItem>
-                </li>
+                <MenuItem
+                    component="a"
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => menuActions.onClose()}
+                >
+                    <Iconify icon="solar:eye-bold" />
+                    View
+                </MenuItem>
 
-                <li>
-                    <MenuItem
-                        component={RouterLink}
-                        href={editHref}
-                        onClick={() => menuActions.onClose()}
-                    >
-                        <Iconify icon="solar:pen-bold" />
-                        Edit
-                    </MenuItem>
-                </li>
-
+                <MenuItem
+                    onClick={() => {
+                        onEdit();
+                        menuActions.onClose();
+                    }}
+                >
+                    <Iconify icon="solar:pen-bold" />
+                    Edit
+                </MenuItem>
+                
                 <MenuItem onClick={() => menuActions.onClose()} sx={{ color: 'error.main' }}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                     Delete
@@ -70,7 +70,7 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
             </MenuList>
         </CustomPopover>
     );
-
+    
     return (
         <>
             <Card sx={[{ display: 'flex' }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
@@ -141,33 +141,6 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
                         >
                             <Iconify icon="eva:more-horizontal-fill" />
                         </IconButton>
-
-                        <Box
-                            sx={{
-                                gap: 1.5,
-                                flexGrow: 1,
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                typography: 'caption',
-                                color: 'text.disabled',
-                                justifyContent: 'flex-end',
-                            }}
-                        >
-                            <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-                                <Iconify icon="solar:chat-round-dots-bold" width={16} />
-                                {fShortenNumber(0)}
-                            </Box>
-
-                            <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-                                <Iconify icon="solar:eye-bold" width={16} />
-                                {fShortenNumber(0)}
-                            </Box>
-
-                            <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-                                <Iconify icon="solar:share-bold" width={16} />
-                                {fShortenNumber(0)}
-                            </Box>
-                        </Box>
                     </Box>
                 </Stack>
 
@@ -181,7 +154,6 @@ export function PostItemHorizontal({ sx, post, editHref, detailsHref, ...other }
                         display: { xs: 'none', sm: 'block' },
                     }}
                 >
-                    
                     <Image
                         alt={post.title}
                         src={post.image}

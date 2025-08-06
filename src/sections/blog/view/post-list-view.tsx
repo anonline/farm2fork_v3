@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
 import type { IPostFilters } from 'src/types/blog';
 import type { IArticleItem } from 'src/types/article';
 
+// Szükséges importok a szűréshez és rendezéshez
 import { orderBy } from 'es-toolkit';
 import { useState, useCallback } from 'react';
 import { useSetState } from 'minimal-shared/hooks';
@@ -10,7 +11,7 @@ import { useSetState } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { Dialog } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
@@ -26,124 +27,146 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { PostSort } from '../post-sort';
 import NewPostForm from './new-post-form';
 import { PostSearch } from '../post-search';
-import { PostListHorizontal } from '../post-list-horizontal';
-import { insertNewArticle } from 'src/actions/articles';
-import { toast } from 'sonner';
-// ----------------------------------------------------------------------
+import PostListHorizontal from '../post-list-horizontal';
 
-export function PostListView() {
-    const { articles: posts, loading: postsLoading } = useArticles();
+
+type NewPostFormData = {
+    title: string;
+    year: string;
+    medium: string;
+    link: string;
+    image: string;
+    publish_date: string;
+    publish: boolean;
+    categoryId: number;
+};
+
+export default function PostListView() {
+    const { articles, loading, createArticle, updateArticle } = useArticles();
+
     const [sortBy, setSortBy] = useState('latest');
-    const { state, setState } = useSetState<IPostFilters>({ publish: 'all' });
+    const { state: filters, setState: setFilters } = useSetState<IPostFilters>({ publish: 'all' });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPost, setSelectedPost] = useState<IArticleItem | null>(null);
 
-    const dataFiltered = applyFilter({ inputData: posts, filters: state, sortBy });
+    const dataFiltered = applyFilter({ inputData: articles, filters, sortBy });
 
     const handleFilterPublish = useCallback(
         (event: React.SyntheticEvent, newValue: string) => {
-            setState({ publish: newValue });
+            setFilters({ publish: newValue });
         },
-        [setState]
+        [setFilters]
     );
 
-    const handleSaveNewPost = (newPost: IArticleItem) => {
-        console.log('Saving new post:', newPost);
-        try {
-            insertNewArticle(newPost);
-            toast.success('Új bejegyzés sikeresen mentve!');
-        } catch (error) {
-            toast.error(`Hiba történt az új bejegyzés mentésekor: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
-            return;
-        }
-        setIsModalOpen(false);
+    const handleOpenCreateModal = () => {
+        setSelectedPost(null);
+        setIsModalOpen(true);
     };
 
+    const handleOpenEditModal = (post: IArticleItem) => {
+        setSelectedPost(post);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedPost(null);
+    };
+
+    const handleSave = (data: any, categoryId: number | undefined) => {
+        if (typeof categoryId !== 'number' || categoryId <= 0) {
+            alert("Hiba: Kérlek, válassz egy érvényes kategóriát!");
+            return;
+        }
+
+        const { category, ...articleData } = data;
+
+        if (selectedPost) {
+            updateArticle(selectedPost.id, articleData, categoryId);
+        } else {
+            createArticle(articleData, categoryId);
+        }
+        handleCloseModal();
+    };
 
     return (
-        <>
-            <DashboardContent>
-                <CustomBreadcrumbs
-                    heading="List"
-                    links={[
-                        { name: 'Dashboard', href: paths.dashboard.root },
-                        { name: 'Blog', href: paths.dashboard.post.root },
-                        { name: 'List' },
-                    ]}
-                    action={
-                        <Button
-                            onClick={() => setIsModalOpen(true)}
-                            variant="contained"
-                            startIcon={<Iconify icon="mingcute:add-line" />}
-                        >
-                            New post
-                        </Button>
-                    }
-                    sx={{ mb: { xs: 3, md: 5 } }}
+        <DashboardContent>
+            <CustomBreadcrumbs
+                heading="List"
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Blog', href: paths.dashboard.post.root },
+                    { name: 'List' },
+                ]}
+                action={
+                    <Button
+                        onClick={handleOpenCreateModal}
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                    >
+                        New post
+                    </Button>
+                }
+                sx={{ mb: { xs: 3, md: 5 } }}
+            />
+
+            <Box
+                sx={{
+                    gap: 3,
+                    display: 'flex',
+                    mb: { xs: 3, md: 5 },
+                    justifyContent: 'space-between',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'flex-end', sm: 'center' },
+                }}
+            >
+                <PostSearch redirectPath={(title: string) => paths.dashboard.post.details(title)} />
+                <PostSort
+                    sort={sortBy}
+                    onSort={(newValue: string) => setSortBy(newValue)}
+                    sortOptions={POST_SORT_OPTIONS}
                 />
+            </Box>
 
-                <Box
-                    sx={{
-                        gap: 3,
-                        display: 'flex',
-                        mb: { xs: 3, md: 5 },
-                        justifyContent: 'space-between',
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        alignItems: { xs: 'flex-end', sm: 'center' },
-                    }}
-                >
-                    <PostSearch redirectPath={(title: string) => paths.dashboard.post.details(title)} />
-
-                    <PostSort
-                        sort={sortBy}
-                        onSort={(newValue: string) => setSortBy(newValue)}
-                        sortOptions={POST_SORT_OPTIONS}
+            <Tabs
+                value={filters.publish}
+                onChange={handleFilterPublish}
+                sx={{ mb: { xs: 3, md: 5 } }}
+            >
+                {['all', 'published', 'draft'].map((tab) => (
+                    <Tab
+                        key={tab}
+                        iconPosition="end"
+                        value={tab}
+                        label={tab}
+                        icon={
+                            <Label
+                                variant={((tab === 'all' || tab === filters.publish) && 'filled') || 'soft'}
+                                color={(tab === 'published' && 'info') || 'default'}
+                            >
+                                {tab === 'all' && articles.length}
+                                {tab === 'published' && articles.filter((post) => post.publish === 'published').length}
+                                {tab === 'draft' && articles.filter((post) => post.publish === 'draft').length}
+                            </Label>
+                        }
+                        sx={{ textTransform: 'capitalize' }}
                     />
-                </Box>
+                ))}
+            </Tabs>
 
-                <Tabs
-                    value={state.publish}
-                    onChange={handleFilterPublish}
-                    sx={{ mb: { xs: 3, md: 5 } }}
-                >
-                    {['all', 'published', 'draft'].map((tab) => (
-                        <Tab
-                            key={tab}
-                            iconPosition="end"
-                            value={tab}
-                            label={tab}
-                            icon={
-                                <Label
-                                    variant={
-                                        ((tab === 'all' || tab === state.publish) && 'filled') || 'soft'
-                                    }
-                                    color={(tab === 'published' && 'info') || 'default'}
-                                >
-                                    {tab === 'all' && posts.length}
-                                    {tab === 'published' &&
-                                        posts.filter((post) => post.publish === 'published').length}
-                                    {tab === 'draft' &&
-                                        posts.filter((post) => post.publish === 'draft').length}
-                                </Label>
-                            }
-                            sx={{ textTransform: 'capitalize' }}
-                        />
-                    ))}
-                </Tabs>
+            {!loading && <PostListHorizontal posts={dataFiltered} onEditPost={handleOpenEditModal} />}
 
-                <PostListHorizontal posts={dataFiltered} loading={postsLoading} />
-            </DashboardContent>
-
-            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} fullWidth maxWidth="sm">
+            <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="sm">
                 <NewPostForm
-                    onSave={handleSaveNewPost}
-                    onCancel={() => setIsModalOpen(false)}
+                    currentPost={selectedPost}
+                    onSave={handleSave}
+                    onCancel={handleCloseModal}
                 />
             </Dialog>
-        </>
+        </DashboardContent>
     );
-}
-
+};
 
 type ApplyFilterProps = {
     inputData: IArticleItem[];

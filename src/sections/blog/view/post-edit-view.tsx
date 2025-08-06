@@ -9,8 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { Container } from '@mui/material';
 import TextField from '@mui/material/TextField';
+import { Switch, Container, FormControlLabel } from '@mui/material';
 
 const PostSchema = zod.object({
     title: zod.string().min(3, { message: 'A címnek legalább 3 karakter hosszúnak kell lennie!' }),
@@ -101,10 +101,10 @@ export function PostEditView({ post }: Readonly<Props>) {
                         helperText={errors.publish_date?.message}
                     />
 
-                    <TextField {...register('publish')}
-                        label="Publish Status"
-                        error={!!errors.publish}
-                        helperText={errors.publish?.message}
+                    <FormControlLabel
+                        label="Publish"
+                        control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
+                        sx={{ pl: 3, flexGrow: 1 }}
                     />
                 </Stack>
 

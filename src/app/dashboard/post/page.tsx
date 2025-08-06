@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import { CONFIG } from 'src/global-config';
 import { ArticlesProvider } from 'src/contexts/articles-context';
 
-import { PostListView } from 'src/sections/blog/view';
+import PostListView from 'src/sections/blog/view/post-list-view';
+
 
 // ----------------------------------------------------------------------
 

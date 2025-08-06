@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
+import type { IArticleItem } from 'src/types/article';
 
 import { NextResponse } from 'next/server';
-import { IArticleItem } from 'src/types/article';
+
 import { updateArticle } from 'src/actions/articles';
 
 // POST api/articles/[id]

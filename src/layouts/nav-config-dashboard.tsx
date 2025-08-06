@@ -146,9 +146,7 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.blog,
                 children: [
                     { title: 'List', path: paths.dashboard.post.root },
-                    { title: 'Details', path: paths.dashboard.post.demo.details },
                     { title: 'Create', path: paths.dashboard.post.new },
-                    { title: 'Edit', path: paths.dashboard.post.demo.edit },
                 ],
             },
             /*{

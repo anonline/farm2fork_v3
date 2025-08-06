@@ -1,154 +1,120 @@
+"use client";
+
 import type { SubmitHandler } from 'react-hook-form';
+import type { IArticleItem } from 'src/types/article';
 
 import { z as zod } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useMemo, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import dayjs from 'dayjs';
-import { useState } from 'react';
+import { Select, Switch, MenuItem, InputLabel, Typography, FormControl, FormControlLabel } from '@mui/material';
 
+import { useArticles } from 'src/contexts/articles-context';
 
-const NewPostSchema = zod.object({
-    id: zod.number().optional(),
+const PostSchema = zod.object({
     title: zod.string().min(3, { message: 'A címnek legalább 3 karakter hosszúnak kell lennie!' }),
-    year: zod.string()
-        .length(4, { message: 'Az évszámnak pontosan 4 karakterből kell állnia!' })
-        .refine((val) => {
-            const yearNum = parseInt(val, 10);
-            const currentYear = new Date().getFullYear();
-            return yearNum >= 1900 && yearNum <= currentYear;
-        }, { message: `Az évszámnak 1900 és ${new Date().getFullYear()} között kell lennie!` }),
+    year: zod.string().length(4, { message: 'Az évszámnak pontosan 4 karakterből kell állnia!' }),
     medium: zod.string().min(1, { message: 'A médium megadása kötelező!' }),
     link: zod.string().url({ message: 'Érvénytelen URL formátum!' }).or(zod.literal('')),
     image: zod.string().url({ message: 'Érvénytelen kép URL formátum!' }).or(zod.literal('')),
-    category: zod.string().min(1, { message: 'A kategória megadása kötelező!' }),
     publish_date: zod.string().min(1, { message: 'A dátum megadása kötelező!' }),
-    publish: zod.string().min(1, { message: 'A státusz megadása kötelező!' }),
+    publish: zod.boolean(),
+    categoryId: zod.number({ invalid_type_error: "Kategória kiválasztása kötelező" }).min(1, "Kategória kiválasztása kötelező"),
 });
 
-type NewPostFormData = zod.infer<typeof NewPostSchema>;
-
+type NewPostFormData = zod.infer<typeof PostSchema>;
 
 interface NewPostFormProps {
-    onSave: (newPost: NewPostFormData) => void;
+    onSave: (data: any, categoryId: number) => void;
     onCancel: () => void;
+    currentPost?: IArticleItem | null;
 }
 
-export default function NewPostForm({ onSave, onCancel }: Readonly<NewPostFormProps>) {
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors },
-    } = useForm<NewPostFormData>({
-        resolver: zodResolver(NewPostSchema),
-        defaultValues: {
-            title: '',
-            year: new Date().getFullYear().toString(),
-            medium: '',
-            link: '',
-            image: '',
-            publish_date: new Date().toISOString().slice(0, 10), // This returns a string in 'YYYY-MM-DD' format
-            publish: 'draft',
-        },
-    });
+export default function NewPostForm({ onSave, onCancel, currentPost }: Readonly<NewPostFormProps>) {
+    const { categories } = useArticles();
 
-    // Local state for DesktopDatePicker
-    const [publishDate, setPublishDate] = useState<dayjs.Dayjs | null>(
-        dayjs(new Date().toISOString().slice(0, 10))
-    );
+    const defaultValues = useMemo(() => ({
+        title: currentPost?.title || '',
+        year: currentPost?.year || new Date().getFullYear().toString(),
+        medium: currentPost?.medium || '',
+        link: currentPost?.link || '',
+        image: currentPost?.image || '',
+        publish_date: currentPost ? new Date(currentPost.publish_date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+        publish: currentPost ? currentPost.publish === 'published' : false,
+        // --- A LÉNYEG ITT VAN ---
+        // A 'currentPost' megléte esetén beállítjuk a 'categoryId'-t, egyébként 0-ra (a placeholder-re).
+        categoryId: currentPost?.categoryId || 0,
+    }), [currentPost]);
+
+    const { control, register, handleSubmit, reset, formState: { errors } } = useForm<NewPostFormData>({
+        resolver: zodResolver(PostSchema),
+        defaultValues,
+    });
+    
+    useEffect(() => {
+        // Ez a hook biztosítja, hogy a form értékei frissüljenek,
+        // amikor a `currentPost` prop megváltozik (pl. másik poszt szerkesztését nyitod meg).
+        reset(defaultValues);
+    }, [defaultValues, reset]);
 
     const processForm: SubmitHandler<NewPostFormData> = (data) => {
-        onSave(data);
+        const { categoryId, ...articleData } = data;
+        const dataToSave = {
+            ...articleData,
+            publish: data.publish ? 'published' : 'draft',
+        };
+        onSave(dataToSave, categoryId);
     };
 
     return (
         <form onSubmit={handleSubmit(processForm)}>
-            <DialogTitle>Create a new post</DialogTitle>
+            <DialogTitle>{currentPost ? 'Poszt szerkesztése' : 'Új poszt létrehozása'}</DialogTitle>
             <DialogContent>
-                <Typography color="text.secondary" sx={{ mb: 3 }}>
-                    Az űrlap elküldése előtt a rendszer ellenőrzi a megadott adatokat.
-                </Typography>
-                <Stack spacing={3} sx={{ mt: 2 }}>
-                    <TextField
-                        {...register('title')}
-                        label="Title"
-                        fullWidth
-                        autoFocus
-                        error={!!errors.title}
-                        helperText={errors.title?.message}
-                    />
-                    <TextField
-                        {...register('year')}
-                        label="Year"
-                        fullWidth
-                        error={!!errors.year}
-                        helperText={errors.year?.message}
-                    />
-                    <TextField
-                        {...register('medium')}
-                        label="Medium"
-                        fullWidth
-                        error={!!errors.medium}
-                        helperText={errors.medium?.message}
-                    />
-                    <TextField
-                        {...register('link')}
-                        label="Link"
-                        fullWidth
-                        error={!!errors.link}
-                        helperText={errors.link?.message}
-                    />
-                    <TextField
-                        {...register('image')}
-                        label="Image URL"
-                        fullWidth
-                        error={!!errors.image}
-                        helperText={errors.image?.message}
-                    />
-
-                    <TextField
-                        {...register('category')}
-                        label="Category"
-                        fullWidth
-                        error={!!errors.category}
-                        helperText={errors.category?.message}
-                    />
-                    <DesktopDatePicker
-                        label="Publish Date"
-                        value={publishDate}
-                        minDate={dayjs('2017-01-01')}
-                        onChange={(date) => {
-                            setPublishDate(date);
-                            setValue('publish_date', date ? date.format('YYYY-MM-DD') : '');
-                        }}
-                        slotProps={{ textField: { fullWidth: true, error: !!errors.publish_date, helperText: errors.publish_date?.message } }}
-                    />
-
-                    <TextField
-                        {...register('publish')}
-                        label="Publish Status"
-                        fullWidth
-                        error={!!errors.publish}
-                        helperText={errors.publish?.message}
-                    />
+                <Stack spacing={3} sx={{ mt: 2, pt: 1 }}>
+                    <TextField {...register('title')} label="Title" fullWidth autoFocus error={!!errors.title} helperText={errors.title?.message} />
+                    <TextField {...register('year')} label="Year" fullWidth error={!!errors.year} helperText={errors.year?.message} />
+                    <TextField {...register('medium')} label="Medium" fullWidth error={!!errors.medium} helperText={errors.medium?.message} />
                     
-                        
+                    <FormControl fullWidth error={!!errors.categoryId}>
+                        <InputLabel id="category-select-label">Category</InputLabel>
+                        <Controller
+                            name="categoryId"
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} labelId="category-select-label" label="Category">
+                                    <MenuItem value={0} disabled>Válassz kategóriát...</MenuItem>
+                                    {categories.map((category) => (
+                                        <MenuItem key={category.id} value={category.id}>
+                                            {category.title}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                        {errors.categoryId && <Typography color="error" variant="caption" sx={{ pl: 2, pt: 0.5 }}>{errors.categoryId.message}</Typography>}
+                    </FormControl>
+
+                    <TextField {...register('link')} label="Link" fullWidth error={!!errors.link} helperText={errors.link?.message} />
+                    <TextField {...register('image')} label="Image URL" fullWidth error={!!errors.image} helperText={errors.image?.message} />
+                    <TextField {...register('publish_date')} label="Publish Date" type="date" InputLabelProps={{ shrink: true }} error={!!errors.publish_date} helperText={errors.publish_date?.message} fullWidth />
+                    
+                    <FormControlLabel
+                        label="Publish"
+                        sx={{ pl: 1 }}
+                        control={<Controller name="publish" control={control} render={({ field }) => <Switch {...field} checked={field.value} />} />}
+                    />
                 </Stack>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel} variant="outlined" color="inherit">Cancel</Button>
-                <Button type="submit" variant="contained" sx={{ bgcolor: 'rgb(70, 110, 80)', '&:hover': { bgcolor: 'rgb(60, 90, 65)' } }}>
-                    Mentés
-                </Button>
+                <Button type="submit" variant="contained">Mentés</Button>
             </DialogActions>
         </form>
     );

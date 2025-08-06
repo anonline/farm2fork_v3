@@ -1,11 +1,17 @@
-export type IArticleItem = {
-    id?: number,
-    title: string,
-    medium: string,
-    image: string,
-    year: string,
-    link: string,
-    category?: string,
-    publish_date: Date | string, // Use Date for internal handling, but can be string for API compatibility
-    publish: string,
+export interface ICategory {
+  id: number;
+  title: string;
+}
+
+export interface IArticleItem {
+  id: number;
+  title: string;
+  medium: string;
+  image: string;
+  year: string;
+  link: string;
+  category: string; 
+  categoryId: number;
+  publish_date: Date | string;
+  publish: string;
 }

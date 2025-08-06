@@ -1,12 +1,7 @@
 import type { SWRConfiguration } from 'swr';
-import type { IFaqItem, IFaqCategoryItem } from 'src/types/faq';
-
-import useSWR from 'swr';
-import { useMemo } from 'react';
+import type { IArticleItem } from 'src/types/article';
 
 import { supabase } from 'src/lib/supabase';
-import { IArticleItem } from 'src/types/article';
-import { title } from 'process';
 
 // ----------------------------------------------------------------------
 
