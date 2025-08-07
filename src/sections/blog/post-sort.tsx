@@ -16,7 +16,7 @@ type Props = {
     sortOptions: { value: string; label: string }[];
 };
 
-export function PostSort({ sort, sortOptions, onSort }: Props) {
+export function PostSort({ sort, sortOptions, onSort }: Readonly<Props>) {
     const menuActions = usePopover();
 
     const renderMenuActions = () => (

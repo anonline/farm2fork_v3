@@ -1,27 +1,23 @@
 "use client";
 
-import type { ReactNode } from "react";
-import type { IArticleItem } from "src/types/article";
+import type { ReactNode} from "react";
+import type { ICategory, IArticleItem } from "src/types/article";
 
 import { createClient } from "@supabase/supabase-js";
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, useContext, useCallback, createContext } from "react";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export interface ICategory {
-    id: number;
-    title: string;
-}
 
 type ArticlesContextType = {
     articles: IArticleItem[];
     categories: ICategory[];
     loading: boolean;
     error: string | null;
-    createArticle: (articleData: Omit<IArticleItem, 'id' | 'category' | 'categoryId'>, categoryId: number) => Promise<void>;
-    updateArticle: (id: number, articleData: Partial<IArticleItem>, categoryId: number) => Promise<void>;
+    refetchArticles: () => Promise<void>;
+    createArticle: (articleData: Omit<IArticleItem, 'id' | 'categories' | 'categoryIds'>, categoryIds: number[]) => Promise<any>;
+    updateArticle: (id: number, articleData: Partial<IArticleItem>, categoryIds: number[]) => Promise<any>;
     deleteArticle: (id: number) => Promise<void>;
 };
 
@@ -33,142 +29,84 @@ export function ArticlesProvider({ children }: Readonly<{ children: ReactNode }>
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        async function fetchData() {
-            setLoading(true);
+    const fetchArticles = useCallback(async () => {
+        setLoading(true);
+        setError(null);
 
-            const [articlesResponse, categoriesResponse] = await Promise.all([
-                supabase.from("Articles").select("*, ArticlesCategoriesRelations( ArticleCategories ( id, title ) )"),
-                supabase.from("ArticleCategories").select("*")
-            ]);
+        const [articlesResponse, categoriesResponse] = await Promise.all([
+            supabase.from("Articles").select("*, ArticlesCategoriesRelations( ArticleCategories ( id, title ) )"),
+            supabase.from("ArticleCategories").select("*")
+        ]);
 
-            if (articlesResponse.error) {
-                setError(articlesResponse.error.message);
-            } else {
-                const articlesWithCategories = articlesResponse.data.map(article => ({
+        if (articlesResponse.error) {
+            setError(articlesResponse.error.message);
+        } else {
+            const articlesWithCategories = articlesResponse.data.map(article => {
+                let relations = [];
+                if (article.ArticlesCategoriesRelations) {
+                    relations = Array.isArray(article.ArticlesCategoriesRelations)
+                        ? article.ArticlesCategoriesRelations
+                        : [article.ArticlesCategoriesRelations];
+                }
+                return {
                     ...article,
-                    category: article?.ArticlesCategoriesRelations?.[0]?.ArticleCategories?.title ?? 'N/A',
-                    categoryId: article?.ArticlesCategoriesRelations?.[0]?.ArticleCategories?.id ?? 0,
-                }));
-                setArticles(articlesWithCategories ?? []);
-            }
-
-            if (categoriesResponse.error) {
-                setError(categoriesResponse.error.message);
-            } else {
-                setCategories(categoriesResponse.data ?? []);
-            }
-            
-            setLoading(false);
+                    categories: relations.map((rel: any) => rel.ArticleCategories).filter(Boolean),
+                    categoryIds: relations.map((rel: any) => rel.ArticleCategories?.id).filter(Boolean),
+                };
+            });
+            setArticles(articlesWithCategories ?? []);
         }
-        fetchData();
+
+        if (categoriesResponse.error) {
+            setError(categoriesResponse.error.message);
+        } else {
+            setCategories(categoriesResponse.data ?? []);
+        }
+
+        setLoading(false);
     }, []);
 
-    const createArticle = async (articleData: Omit<IArticleItem, 'id' | 'category' | 'categoryId'>, categoryId: number) => {
-        const { data: newArticle, error: articleError } = await supabase
-            .from('Articles')
-            .insert([articleData])
-            .select()
-            .single();
+    useEffect(() => {
+        fetchArticles();
+    }, [fetchArticles]);
 
-        if (articleError || !newArticle) {
-            setError(articleError?.message || "Hiba a cikk létrehozásakor.");
-            return;
-        }
+    const createArticle = async (articleData: Omit<IArticleItem, 'id' | 'categories' | 'categoryIds'>, categoryIds: number[]) => {
+        const { data: newArticle, error: articleError } = await supabase.from('Articles').insert([articleData]).select().single();
+        if (articleError) { throw new Error(articleError.message); }
+        if (!newArticle) { throw new Error("Hiba a cikk létrehozásakor."); }
 
-        const { error: relationError } = await supabase
-            .from('ArticlesCategoriesRelations')
-            .insert([{ articleId: newArticle.id, categoryId }]);
+        const relationsToInsert = categoryIds.map(catId => ({ articleId: newArticle.id, categoryId: catId }));
+        const { error: relationError } = await supabase.from('ArticlesCategoriesRelations').insert(relationsToInsert);
+        if (relationError) { throw new Error(relationError.message); }
 
-        if (relationError) {
-            setError(relationError.message);
-            return;
-        }
-        
-        const { data: finalArticleData } = await supabase
-            .from("Articles")
-            .select("*, ArticlesCategoriesRelations!inner( ArticleCategories ( id, title ) )")
-            .eq('id', newArticle.id)
-            .single();
-        
-        if (finalArticleData) {
-            const articleWithCategory = {
-                ...finalArticleData,
-                category: finalArticleData.ArticlesCategoriesRelations[0]?.ArticleCategories?.title,
-                categoryId: finalArticleData.ArticlesCategoriesRelations[0]?.ArticleCategories?.id,
-            };
-            setArticles(prev => [...prev, articleWithCategory]);
-        }
+        return newArticle;
     };
 
-    const updateArticle = async (id: number, articleData: Partial<IArticleItem>, categoryId: number) => {
-        const { error: articleError } = await supabase
-            .from('Articles')
-            .update(articleData)
-            .eq('id', id);
+    const updateArticle = async (id: number, articleData: Partial<IArticleItem>, categoryIds: number[]) => {
+        const { error: articleError } = await supabase.from('Articles').update(articleData).eq('id', id);
+        if (articleError) { throw new Error(articleError.message); }
 
-        if (articleError) {
-            setError(articleError.message);
-            return;
-        }
+        const { error: deleteError } = await supabase.from('ArticlesCategoriesRelations').delete().eq('articleId', id);
+        if (deleteError) { throw new Error(deleteError.message); }
 
-        const { error: relationError } = await supabase
-            .from('ArticlesCategoriesRelations')
-            .update({ categoryId })
-            .eq('articleId', id);
-
-        if (relationError) {
-            setError(relationError.message);
-            return;
-        }
-        
-        const { data: finalArticleData } = await supabase
-            .from("Articles")
-            .select("*, ArticlesCategoriesRelations!inner( ArticleCategories ( id, title ) )")
-            .eq('id', id)
-            .single();
-
-        if (finalArticleData) {
-            const updatedArticleWithCategory = {
-                ...finalArticleData,
-                category: finalArticleData.ArticlesCategoriesRelations[0]?.ArticleCategories?.title,
-                categoryId: finalArticleData.ArticlesCategoriesRelations[0]?.ArticleCategories?.id,
-            };
-            setArticles(prev => prev.map(article => (article.id === id ? updatedArticleWithCategory : article)));
+        if (categoryIds && categoryIds.length > 0) {
+            const relationsToInsert = categoryIds.map(catId => ({ articleId: id, categoryId: catId }));
+            const { error: insertError } = await supabase.from('ArticlesCategoriesRelations').insert(relationsToInsert);
+            if (insertError) { throw new Error(insertError.message); }
         }
     };
 
     const deleteArticle = async (id: number) => {
-        const { error: relationError } = await supabase
-            .from('ArticlesCategoriesRelations')
-            .delete()
-            .eq('articleId', id);
+        const { error: relationError } = await supabase.from('ArticlesCategoriesRelations').delete().eq('articleId', id);
+        if (relationError) { throw new Error(relationError.message); }
 
-        if (relationError) {
-            setError(relationError.message);
-            return;
-        }
-
-        const { error: articleError } = await supabase
-            .from('Articles')
-            .delete()
-            .eq('id', id);
-
-        if (articleError) {
-            setError(articleError.message);
-            return;
-        }
-
-        setArticles(prev => prev.filter(article => article.id !== id));
+        const { error: articleError } = await supabase.from('Articles').delete().eq('id', id);
+        if (articleError) { throw new Error(articleError.message); }
     };
 
-    const value = { articles, categories, loading, error, createArticle, updateArticle, deleteArticle };
+    const value = { articles, categories, loading, error, refetchArticles: fetchArticles, createArticle, updateArticle, deleteArticle };
 
-    return (
-        <ArticlesContext.Provider value={value}>
-            {children}
-        </ArticlesContext.Provider>
-    );
+    return <ArticlesContext.Provider value={value}>{children}</ArticlesContext.Provider>;
 }
 
 export const useArticles = () => {

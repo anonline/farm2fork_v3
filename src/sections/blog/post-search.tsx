@@ -29,7 +29,7 @@ type Props = {
     redirectPath: (title: string) => string;
 };
 
-export function PostSearch({ redirectPath, sx }: Props) {
+export function PostSearch({ redirectPath, sx }: Readonly<Props>) {
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState('');

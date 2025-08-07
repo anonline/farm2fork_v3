@@ -4,14 +4,14 @@ export interface ICategory {
 }
 
 export interface IArticleItem {
-  id?: number;
+  id: number;
   title: string;
   medium: string;
   image: string;
   year: string;
   link: string;
-  category: string; 
-  categoryId: number;
+  categories: ICategory[];
+  categoryIds: number[];
   publish_date: Date | string;
   publish: string;
 }

@@ -3,7 +3,6 @@
 import type { IPostFilters } from 'src/types/blog';
 import type { IArticleItem } from 'src/types/article';
 
-// Szükséges importok a szűréshez és rendezéshez
 import { orderBy } from 'es-toolkit';
 import { useState, useCallback } from 'react';
 import { useSetState } from 'minimal-shared/hooks';
@@ -16,7 +15,7 @@ import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 
-import { POST_PUBLISH_OPTIONS_LABELS, POST_SORT_OPTIONS } from 'src/_mock';
+import { POST_SORT_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useArticles } from "src/contexts/articles-context";
 
@@ -30,39 +29,23 @@ import { PostSearch } from '../post-search';
 import PostListHorizontal from '../post-list-horizontal';
 
 
-type NewPostFormData = {
-    title: string;
-    year: string;
-    medium: string;
-    link: string;
-    image: string;
-    publish_date: string;
-    publish: boolean;
-    categoryId: number;
-};
-
-
-
 export default function PostListView() {
-    const { articles, loading, createArticle, updateArticle } = useArticles();
+    const { articles = [], loading, createArticle, updateArticle, deleteArticle, refetchArticles } = useArticles();
 
     const [sortBy, setSortBy] = useState('latest');
     const { state: filters, setState: setFilters } = useSetState<IPostFilters>({ publish: 'all' });
-
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPost, setSelectedPost] = useState<IArticleItem | null>(null);
+    const [selectedPost, setSelectedPost] = useState<IArticleItem | undefined>(undefined);
 
     const dataFiltered = applyFilter({ inputData: articles, filters, sortBy });
 
     const handleFilterPublish = useCallback(
-        (event: React.SyntheticEvent, newValue: string) => {
-            setFilters({ publish: newValue });
-        },
+        (event: React.SyntheticEvent, newValue: string) => { setFilters({ publish: newValue }); },
         [setFilters]
     );
 
     const handleOpenCreateModal = () => {
-        setSelectedPost(null);
+        setSelectedPost(undefined);
         setIsModalOpen(true);
     };
 
@@ -73,77 +56,76 @@ export default function PostListView() {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setSelectedPost(null);
+        setSelectedPost(undefined);
     };
 
-    const handleSave = (data: any, categoryId: number | undefined) => {
-        if (typeof categoryId !== 'number' || categoryId <= 0) {
-            alert("Hiba: Kérlek, válassz egy érvényes kategóriát!");
-            return;
-        }
-
+    const handleSave = async (data: any, categoryIds: number[]) => {
         const { category, ...articleData } = data;
-
-        if (selectedPost) {
-            updateArticle(selectedPost.id ?? 0, articleData, categoryId);
-        } else {
-            createArticle(articleData, categoryId);
+        try {
+            if (selectedPost) {
+                await updateArticle(selectedPost.id, articleData, categoryIds);
+            } else {
+                await createArticle(articleData, categoryIds);
+            }
+            await refetchArticles();
+            handleCloseModal();
+        } catch (err) {
+            // --- JAVÍTÁS ITT ---
+            console.error("Mentési hiba:", err);
+            // Típus-ellenőrzés a biztonságos hibakezeléshez
+            if (err instanceof Error) {
+                alert(`Hiba történt a mentés során: ${err.message}`);
+            } else {
+                alert('Ismeretlen hiba történt a mentés során.');
+            }
         }
+    };
 
-        
-        handleCloseModal();
+    const handleDeletePost = async (postToDelete: IArticleItem) => {
+        try {
+            await deleteArticle(postToDelete.id);
+            await refetchArticles();
+        } catch (err) {
+            // --- JAVÍTÁS ITT ---
+            console.error("Törlési hiba:", err);
+            // Típus-ellenőrzés a biztonságos hibakezeléshez
+            if (err instanceof Error) {
+                alert(`Hiba történt a törlés során: ${err.message}`);
+            } else {
+                alert('Ismeretlen hiba történt a törlés során.');
+            }
+        }
     };
 
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="Hírek kezelése"
+                heading="List"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Hírek', href: paths.dashboard.post.root },
-                    { name: 'Összes' },
+                    { name: 'Blog', href: paths.dashboard.post.root },
+                    { name: 'List' },
                 ]}
                 action={
-                    <Button
-                        onClick={handleOpenCreateModal}
-                        variant="contained"
-                        startIcon={<Iconify icon="mingcute:add-line" />}
-                    >
-                        Új hír hozzáadása
+                    <Button onClick={handleOpenCreateModal} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
+                        New post
                     </Button>
                 }
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 
-            <Box
-                sx={{
-                    gap: 3,
-                    display: 'flex',
-                    mb: { xs: 3, md: 5 },
-                    justifyContent: 'space-between',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    alignItems: { xs: 'flex-end', sm: 'center' },
-                }}
-            >
+            <Box sx={{ gap: 3, display: 'flex', mb: { xs: 3, md: 5 }, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-end', sm: 'center' } }}>
                 <PostSearch redirectPath={(title: string) => paths.dashboard.post.details(title)} />
-                <PostSort
-                    sort={sortBy}
-                    onSort={(newValue: string) => setSortBy(newValue)}
-                    sortOptions={POST_SORT_OPTIONS}
-                />
+                <PostSort sort={sortBy} onSort={(newValue: string) => setSortBy(newValue)} sortOptions={POST_SORT_OPTIONS} />
             </Box>
 
-            <Tabs
-                value={filters.publish}
-                onChange={handleFilterPublish}
-                sx={{ mb: { xs: 3, md: 5 } }}
-            >
+            <Tabs value={filters.publish} onChange={handleFilterPublish} sx={{ mb: { xs: 3, md: 5 } }}>
                 {['all', 'published', 'draft'].map((tab) => (
                     <Tab
                         key={tab}
                         iconPosition="end"
                         value={tab}
-                        label={POST_PUBLISH_OPTIONS_LABELS.find((label) => label.value === tab)?.label || 'N/A'}
+                        label={tab}
                         icon={
                             <Label
                                 variant={((tab === 'all' || tab === filters.publish) && 'filled') || 'soft'}
@@ -159,7 +141,8 @@ export default function PostListView() {
                 ))}
             </Tabs>
 
-            {!loading && <PostListHorizontal posts={dataFiltered} onEditPost={handleOpenEditModal} />}
+            {loading && <p>Betöltés...</p>}
+            {!loading && <PostListHorizontal posts={dataFiltered} onEditPost={handleOpenEditModal} onDeletePost={handleDeletePost} />}
 
             <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="sm">
                 <NewPostForm
@@ -170,7 +153,8 @@ export default function PostListView() {
             </Dialog>
         </DashboardContent>
     );
-};
+}
+
 
 type ApplyFilterProps = {
     inputData: IArticleItem[];
@@ -178,20 +162,20 @@ type ApplyFilterProps = {
     sortBy: string;
 };
 
-function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps) {
+function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps): IArticleItem[] {
+    if (!inputData) {
+        return [];
+    }
     const { publish } = filters;
-
+    let filteredData = [...inputData];
     if (sortBy === 'latest') {
-        inputData = orderBy(inputData, ['publish_date'], ['desc']);
+        filteredData = orderBy(filteredData, ['publish_date'], ['desc']);
     }
-
     if (sortBy === 'oldest') {
-        inputData = orderBy(inputData, ['publish_date'], ['asc']);
+        filteredData = orderBy(filteredData, ['publish_date'], ['asc']);
     }
-
     if (publish !== 'all') {
-        inputData = inputData.filter((post) => post.publish === publish);
+        filteredData = filteredData.filter((post) => post.publish === publish);
     }
-
-    return inputData;
+    return filteredData;
 }

@@ -13,7 +13,7 @@ type Props = {
     params: Promise<{ title: string }>;
 };
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params }: Readonly<Props>) {
     const { title } = await params;
 
     const { post } = await getPost(title);
