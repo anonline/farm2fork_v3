@@ -97,7 +97,7 @@ export default function PostListView() {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="List"
+                heading="Hírek kezelése"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
                     { name: 'Hírek', href: paths.dashboard.post.root },

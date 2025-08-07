@@ -144,10 +144,7 @@ export const navData: NavSectionProps['data'] = [
                 title: 'Hírek',
                 path: paths.dashboard.post.root,
                 icon: ICONS.blog,
-                children: [
-                    { title: 'List', path: paths.dashboard.post.root },
-                    { title: 'Create', path: paths.dashboard.post.new },
-                ],
+                
             },
             /*{
         title: 'Job',
