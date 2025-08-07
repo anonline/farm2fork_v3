@@ -20,6 +20,7 @@ import { Label } from 'src/components/label';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
+import { POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ export function PostItemHorizontal({ sx, post, onEdit, detailsHref, ...other }: 
                     onClick={() => menuActions.onClose()}
                 >
                     <Iconify icon="solar:eye-bold" />
-                    View
+                    Megnyitás
                 </MenuItem>
 
                 <MenuItem
@@ -60,12 +61,12 @@ export function PostItemHorizontal({ sx, post, onEdit, detailsHref, ...other }: 
                     }}
                 >
                     <Iconify icon="solar:pen-bold" />
-                    Edit
+                    Szerkesztés
                 </MenuItem>
                 
                 <MenuItem onClick={() => menuActions.onClose()} sx={{ color: 'error.main' }}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
-                    Delete
+                    Törlés
                 </MenuItem>
             </MenuList>
         </CustomPopover>
@@ -95,7 +96,7 @@ export function PostItemHorizontal({ sx, post, onEdit, detailsHref, ...other }: 
                             variant="soft"
                             color={(post.publish === 'published' && 'info') || 'default'}
                         >
-                            {post.publish}
+                            {POST_PUBLISH_OPTIONS_LABELS.find((label) => label.value === post.publish)?.label || 'N/A'}
                         </Label>
 
                         <Box
@@ -132,6 +133,8 @@ export function PostItemHorizontal({ sx, post, onEdit, detailsHref, ...other }: 
                         >
                             {post.medium}
                         </Typography>
+
+                        
                     </Stack>
 
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -141,13 +144,19 @@ export function PostItemHorizontal({ sx, post, onEdit, detailsHref, ...other }: 
                         >
                             <Iconify icon="eva:more-horizontal-fill" />
                         </IconButton>
+                        <Label
+                            variant="soft"
+                            color={'default'}
+                        >
+                            {post.category.length > 0 ? post.category : 'Nincs kategória'}
+                        </Label>
                     </Box>
                 </Stack>
 
                 <Box
                     sx={{
                         p: 1,
-                        width: 180,
+                        width: 240,
                         height: 240,
                         flexShrink: 0,
                         position: 'relative',

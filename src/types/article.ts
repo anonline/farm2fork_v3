@@ -4,7 +4,7 @@ export interface ICategory {
 }
 
 export interface IArticleItem {
-  id: number;
+  id?: number;
   title: string;
   medium: string;
   image: string;

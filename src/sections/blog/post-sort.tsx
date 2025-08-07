@@ -59,9 +59,9 @@ export function PostSort({ sort, sortOptions, onSort }: Props) {
                 }
                 sx={{ fontWeight: 'fontWeightSemiBold', textTransform: 'capitalize' }}
             >
-                Sort by:
+                Rendezés:
                 <Box component="span" sx={{ ml: 0.5, fontWeight: 'fontWeightBold' }}>
-                    {sort}
+                    {sortOptions.find((option) => option.value === sort)?.label || 'N/A'}
                 </Box>
             </Button>
 

@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 
-import { POST_SORT_OPTIONS } from 'src/_mock';
+import { POST_PUBLISH_OPTIONS_LABELS, POST_SORT_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useArticles } from "src/contexts/articles-context";
 
@@ -40,6 +40,8 @@ type NewPostFormData = {
     publish: boolean;
     categoryId: number;
 };
+
+
 
 export default function PostListView() {
     const { articles, loading, createArticle, updateArticle } = useArticles();
@@ -83,10 +85,12 @@ export default function PostListView() {
         const { category, ...articleData } = data;
 
         if (selectedPost) {
-            updateArticle(selectedPost.id, articleData, categoryId);
+            updateArticle(selectedPost.id ?? 0, articleData, categoryId);
         } else {
             createArticle(articleData, categoryId);
         }
+
+        
         handleCloseModal();
     };
 
@@ -96,8 +100,8 @@ export default function PostListView() {
                 heading="List"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Blog', href: paths.dashboard.post.root },
-                    { name: 'List' },
+                    { name: 'Hírek', href: paths.dashboard.post.root },
+                    { name: 'Összes' },
                 ]}
                 action={
                     <Button
@@ -105,7 +109,7 @@ export default function PostListView() {
                         variant="contained"
                         startIcon={<Iconify icon="mingcute:add-line" />}
                     >
-                        New post
+                        Új hír hozzáadása
                     </Button>
                 }
                 sx={{ mb: { xs: 3, md: 5 } }}
@@ -139,7 +143,7 @@ export default function PostListView() {
                         key={tab}
                         iconPosition="end"
                         value={tab}
-                        label={tab}
+                        label={POST_PUBLISH_OPTIONS_LABELS.find((label) => label.value === tab)?.label || 'N/A'}
                         icon={
                             <Label
                                 variant={((tab === 'all' || tab === filters.publish) && 'filled') || 'soft'}

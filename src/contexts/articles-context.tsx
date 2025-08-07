@@ -38,7 +38,7 @@ export function ArticlesProvider({ children }: Readonly<{ children: ReactNode }>
             setLoading(true);
 
             const [articlesResponse, categoriesResponse] = await Promise.all([
-                supabase.from("Articles").select("*, ArticlesCategoriesRelations!inner( ArticleCategories ( id, title ) )"),
+                supabase.from("Articles").select("*, ArticlesCategoriesRelations( ArticleCategories ( id, title ) )"),
                 supabase.from("ArticleCategories").select("*")
             ]);
 
@@ -47,8 +47,8 @@ export function ArticlesProvider({ children }: Readonly<{ children: ReactNode }>
             } else {
                 const articlesWithCategories = articlesResponse.data.map(article => ({
                     ...article,
-                    category: article.ArticlesCategoriesRelations[0]?.ArticleCategories?.title ?? 'N/A',
-                    categoryId: article.ArticlesCategoriesRelations[0]?.ArticleCategories?.id ?? 0,
+                    category: article?.ArticlesCategoriesRelations?.[0]?.ArticleCategories?.title ?? 'N/A',
+                    categoryId: article?.ArticlesCategoriesRelations?.[0]?.ArticleCategories?.id ?? 0,
                 }));
                 setArticles(articlesWithCategories ?? []);
             }
