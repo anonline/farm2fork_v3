@@ -3,7 +3,6 @@ import type { ICategoryItem } from 'src/types/category';
 import { cookies } from 'next/headers';
 
 import { supabaseSSR } from 'src/lib/supabase-ssr';
-import { deleteImageAndCleanDB } from 'src/lib/blob/blobService';
 
 export async function getCategoryById(id: number): Promise<ICategoryItem | null> {
     const cookieStore = await cookies();

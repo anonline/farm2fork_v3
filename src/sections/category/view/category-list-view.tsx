@@ -33,8 +33,8 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useCategories } from 'src/contexts/category-context';
 import { deleteCategoriesByIds } from 'src/actions/category';
+import { useCategories } from 'src/contexts/category-context';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
