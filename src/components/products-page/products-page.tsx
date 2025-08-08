@@ -106,7 +106,7 @@ export function ProductPageFilter({ categories, activeCategoryId, filterChangeAc
     return (
         <Box sx={{ paddingBottom: '6px', borderBottom: '1px solid #bababa', width: '100%', display: { xs: 'none', sm: 'block' }, }}>
             <Stack direction="row" spacing="16px" flexWrap="wrap" sx={{ width: '100%' }}>
-                {categories.map((category) => (
+                {categories.filter(c=>c.level<2).map((category) => (
                     <Button key={category.id}
                         onClick={() => filterChangeAction(category.id ?? 8)}
                         sx={{
