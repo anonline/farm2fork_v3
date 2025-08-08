@@ -5,8 +5,9 @@ import { NextResponse } from 'next/server';
 import { updateArticle } from 'src/actions/articles';
 
 // POST api/articles/[id]
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+
+export async function POST(req: NextRequest, context: { params: { id: string } }) {
+  const { id } = context.params;
 
   try {
     const body = await req.json();
