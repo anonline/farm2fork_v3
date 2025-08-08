@@ -6,6 +6,7 @@ import useSWR from 'swr';
 import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
+import { deleteImageAndCleanDB } from 'src/lib/blob/blobService';
 
 // ----------------------------------------------------------------------
 
@@ -17,35 +18,9 @@ const swrOptions: SWRConfiguration = {
 
 // ----------------------------------------------------------------------
 
-type CategoriesData = {
-    categories: ICategoryItem[];
-};
 
-export function useGetProductCategories() {
-    const { data, isLoading, error, isValidating } = useSWR<CategoriesData>(
-        'categories',
-        async () => {
-            const response = await supabase.from('ProductCategories').select('*');
-            const { data: categories, error: responseError } = response;
 
-            if (responseError) throw responseError.message;
-            return { categories };
-        }
-    );
 
-    const memoizedValue = useMemo(
-        () => ({
-            categories: data?.categories || [],
-            categoriesLoading: isLoading,
-            categoriesError: error,
-            categoriesValidating: isValidating,
-            categoriesEmpty: !isLoading && !isValidating && !data?.categories.length,
-        }),
-        [data?.categories, error, isLoading, isValidating]
-    );
-
-    return memoizedValue;
-}
 
 // ----------------------------------------------------------------------
 
@@ -113,4 +88,101 @@ export function useSearchCategories(query: string) {
     );
 
     return memoizedValue;
+}
+
+////----
+export async function useDeleteCategoryById(categoryId: number): Promise<boolean> {
+    const coverUrl = await supabase
+        .from('ProductCategories')
+        .select('coverUrl')
+        .eq('id', categoryId)
+        .maybeSingle();
+
+    try {
+        if (coverUrl.data?.coverUrl) {
+            deleteImageAndCleanDB(coverUrl.data?.coverUrl);
+        }
+
+        const { error } = await supabase.from('ProductCategories').delete().eq('id', categoryId);
+
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('Hiba a kategória törlésekor:', error);
+        return false;
+    }
+}
+
+
+
+export async function insertCategory(category: Partial<ICategoryItem>): Promise<ICategoryItem> {
+    const { data, error } = await supabase
+        .from('ProductCategories')
+        .insert(category)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data as ICategoryItem;
+}
+
+export async function updateCategory(category: Partial<ICategoryItem>): Promise<ICategoryItem> {
+    const coverUrl = await supabase
+        .from('ProductCategories')
+        .select('coverUrl')
+        .eq('id', category.id)
+        .maybeSingle();
+
+    if (coverUrl.data?.coverUrl && category.coverUrl !== coverUrl.data.coverUrl) {
+        await deleteImageAndCleanDB(coverUrl.data.coverUrl);
+    }
+
+    if(category.id == 8 && category.parentId != null) {
+        category.parentId = null; // Prevent changing the root category's parent
+    }
+    const { data, error } = await supabase
+        .from('ProductCategories')
+        .update(category)
+        .eq('id', category.id)
+        .select()
+        .maybeSingle();
+
+    if (error) throw error;
+    return data as ICategoryItem;
+}
+
+export async function deleteCategoryById(categoryId: number): Promise<boolean> {
+
+    const coverUrl = await supabase
+        .from('ProductCategories')
+        .select('coverUrl')
+        .eq('id', categoryId)
+        .maybeSingle();
+
+    try {
+        if (coverUrl.data?.coverUrl) {
+            deleteImageAndCleanDB(coverUrl.data?.coverUrl);
+        }
+
+        const { error } = await supabase.from('ProductCategories').delete().eq('id', categoryId);
+
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('Hiba a kategória törlésekor:', error);
+        return false;
+    }
+}
+
+export async function deleteCategoriesByIds(categoryIds: number[]): Promise<boolean> {
+    try {
+        await Promise.all(
+            categoryIds.map(async (id) => {
+                await deleteCategoryById(id);
+            })
+        );
+        return true;
+    } catch {
+        return false;
+    }
 }

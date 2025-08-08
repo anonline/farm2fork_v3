@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode} from "react";
+import type { ReactNode } from "react";
 import type { ICategoryItem } from "src/types/category";
 
 import { createClient } from "@supabase/supabase-js";
@@ -36,8 +36,11 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
                 setLoadError(error.message);
                 setCategories([]);
             } else {
-                //console.log("Fetched categories:", data);
-                setCategories(data ?? []);
+                console.log("Fetched categories:", data);
+                const sortedCategories = sortCategoriesByChildren(data ?? []);
+                setCategories(sortedCategories);
+                console.log("sorted:", sortedCategories);
+
                 setLoadError(null);
             }
             setLoading(false);
@@ -52,8 +55,23 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
     );
 }
 
+const sortCategoriesByChildren = (categories: ICategoryItem[], parentId: number | null = null, level: number = 0): ICategoryItem[] => {
+    const children = categories
+        .filter(cat => cat.parentId === parentId)
+        .sort((a, b) => a.name.localeCompare(b.name)); 
+
+    return children.flatMap(child => {
+        const childWithLevel = { ...child, level };
+
+        return [
+            childWithLevel,
+            ...sortCategoriesByChildren(categories, child.id, level + 1)
+        ];
+    });
+};
+
 export const useCategories = () => {
-  const context = useContext(CategoryContext);
-  if (!context) throw new Error("useProducts csak a CategoryProvider-en belül használható");
-  return context;
+    const context = useContext(CategoryContext);
+    if (!context) throw new Error("useCategories can only be used within a CategoryProvider");
+    return context;
 };
