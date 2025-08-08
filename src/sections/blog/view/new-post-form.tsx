@@ -68,12 +68,12 @@ export default function NewPostForm({ onSave, onCancel, currentPost }: Readonly<
 
     return (
         <form onSubmit={handleSubmit(processForm)}>
-            <DialogTitle>{currentPost ? 'Poszt szerkesztése' : 'Új poszt létrehozása'}</DialogTitle>
+            <DialogTitle>{currentPost ? 'Hír szerkesztése' : 'Új hír létrehozása'}</DialogTitle>
             <DialogContent>
                 <Stack spacing={3} sx={{ mt: 2, pt: 1 }}>
 
                     <TextField {...register('title')}
-                        label="Title"
+                        label="Cím"
                         fullWidth
                         autoFocus
                         error={!!errors.title}
@@ -81,21 +81,21 @@ export default function NewPostForm({ onSave, onCancel, currentPost }: Readonly<
                     />
 
                     <TextField {...register('year')}
-                        label="Year"
+                        label="Év"
                         fullWidth
                         error={!!errors.year}
                         helperText={errors.year?.message}
                     />
 
                     <TextField {...register('medium')}
-                        label="Medium"
+                        label="Médium"
                         fullWidth
                         error={!!errors.medium}
                         helperText={errors.medium?.message}
                     />
 
                     <FormControl component="fieldset" variant="standard" error={!!errors.categoryIds}>
-                        <FormLabel component="legend">Categories</FormLabel>
+                        <FormLabel component="legend">Kategóriák</FormLabel>
                         <FormGroup>
                             <Controller
                                 name="categoryIds"
@@ -136,14 +136,14 @@ export default function NewPostForm({ onSave, onCancel, currentPost }: Readonly<
                     />
 
                     <TextField {...register('image')}
-                        label="Image URL"
+                        label="Kép URL"
                         fullWidth
                         error={!!errors.image}
                         helperText={errors.image?.message}
                     />
 
                     <TextField {...register('publish_date')}
-                        label="Publish Date"
+                        label="Közzététel dátuma"
                         type="date"
                         InputLabelProps={{ shrink: true }}
                         error={!!errors.publish_date}
@@ -152,7 +152,7 @@ export default function NewPostForm({ onSave, onCancel, currentPost }: Readonly<
                     />
 
                     <FormControlLabel
-                        label="Publish"
+                        label="Közzétett"
                         sx={{ pl: 1 }}
                         control={<Controller
                             name="publish"

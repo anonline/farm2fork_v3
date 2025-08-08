@@ -28,15 +28,16 @@ import { Label } from 'src/components/label';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
+import { POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock/_blog';
+import { label } from 'yet-another-react-lightbox';
 
 type Props = CardProps & {
     post: IArticleItem;
     onEdit: () => void;
-    detailsHref: string;
     onDelete: () => void;
 };
 
-export function PostItemHorizontal({ sx, post, onEdit, onDelete, detailsHref, ...other }: Props) {
+export function PostItemHorizontal({ sx, post, onEdit, onDelete, ...other }: Props) {
     const menuActions = usePopover();
     const [openConfirm, setOpenConfirm] = useState(false);
 
@@ -105,14 +106,14 @@ export function PostItemHorizontal({ sx, post, onEdit, onDelete, detailsHref, ..
                 <Stack spacing={1} sx={{ flexGrow: 1, p: 3 }}>
                     <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Label variant="soft" color={(post.publish === 'published' && 'info') || 'default'}>
-                            {post.publish}
+                            {POST_PUBLISH_OPTIONS_LABELS.find(label => label.value === post.publish)?.label}
                         </Label>
                         <Box component="span" sx={{ typography: 'caption', color: 'text.disabled' }}>
                             {fDate(post.publish_date)}
                         </Box>
                     </Box>
                     <Stack spacing={1} sx={{ flexGrow: 1 }}>
-                        <Link component={RouterLink} href={detailsHref} color="inherit" variant="subtitle2">
+                        <Link color="inherit" variant="subtitle2">
                             {post.title}
                         </Link>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -120,9 +121,13 @@ export function PostItemHorizontal({ sx, post, onEdit, onDelete, detailsHref, ..
                         </Typography>
                     </Stack>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Label variant="soft" color="default">
-                            {post.categories.length > 0 ? post.categories.map(cat => cat.title).join(', ') : 'Nincs kategória'}
-                        </Label>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', gap: 1 }}>
+                            {post.categories.length > 0 ? post.categories.map(cat => (
+                                <Label variant="soft" color="default" key={cat.id}>
+                                    {cat.title}
+                                </Label>
+                            )) : 'Nincs kategória'}
+                        </Box>
                         <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
                             <Iconify icon="eva:more-horizontal-fill" />
                         </IconButton>

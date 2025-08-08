@@ -19,7 +19,7 @@ export default function PostListHorizontal({ posts, onEditPost, onDeletePost }: 
         <Grid size={{xs:12, md:6}} key={post.id}>
           <PostItemHorizontal
             post={post}
-            detailsHref={paths.dashboard.post.details(post.title)}
+
             onEdit={() => onEditPost(post)}
             onDelete={() => onDeletePost(post)}
           />

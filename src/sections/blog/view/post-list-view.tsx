@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 
-import { POST_SORT_OPTIONS } from 'src/_mock';
+import { POST_PUBLISH_OPTIONS_LABELS, POST_SORT_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useArticles } from "src/contexts/articles-context";
 
@@ -27,6 +27,7 @@ import { PostSort } from '../post-sort';
 import NewPostForm from './new-post-form';
 import { PostSearch } from '../post-search';
 import PostListHorizontal from '../post-list-horizontal';
+import { toast } from 'src/components/snackbar';
 
 
 export default function PostListView() {
@@ -69,14 +70,15 @@ export default function PostListView() {
             }
             await refetchArticles();
             handleCloseModal();
+            toast.success(`A(z) ${data.title} bejegyzés sikeresen mentve.`);
         } catch (err) {
             // --- JAVÍTÁS ITT ---
             console.error("Mentési hiba:", err);
             // Típus-ellenőrzés a biztonságos hibakezeléshez
             if (err instanceof Error) {
-                alert(`Hiba történt a mentés során: ${err.message}`);
+                toast.error(`Hiba történt a mentés során: ${err.message}`);
             } else {
-                alert('Ismeretlen hiba történt a mentés során.');
+                toast.error('Ismeretlen hiba történt a mentés során.');
             }
         }
     };
@@ -85,6 +87,7 @@ export default function PostListView() {
         try {
             await deleteArticle(postToDelete.id);
             await refetchArticles();
+            toast.warning(`A(z) ${postToDelete.title} bejegyzés sikeresen törölve.`);
         } catch (err) {
             // --- JAVÍTÁS ITT ---
             console.error("Törlési hiba:", err);
@@ -100,32 +103,31 @@ export default function PostListView() {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="List"
+                heading="Hírek kezelése"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Blog', href: paths.dashboard.post.root },
-                    { name: 'List' },
+                    { name: 'Hírek', href: paths.dashboard.post.root },
+                    { name: 'Összes hír' },
                 ]}
                 action={
                     <Button onClick={handleOpenCreateModal} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
-                        New post
+                        Új hír
                     </Button>
                 }
-                sx={{ mb: { xs: 3, md: 5 } }}
+                
             />
 
-            <Box sx={{ gap: 3, display: 'flex', mb: { xs: 3, md: 5 }, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-end', sm: 'center' } }}>
-                <PostSearch redirectPath={(title: string) => paths.dashboard.post.details(title)} />
+            <Box sx={{ gap: 3, display: 'flex', justifyContent: 'end', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-end', sm: 'center' } }}>
                 <PostSort sort={sortBy} onSort={(newValue: string) => setSortBy(newValue)} sortOptions={POST_SORT_OPTIONS} />
             </Box>
 
-            <Tabs value={filters.publish} onChange={handleFilterPublish} sx={{ mb: { xs: 3, md: 5 } }}>
+            <Tabs value={filters.publish} onChange={handleFilterPublish} sx={{ mb: { xs: 3, md: 3 } }}>
                 {['all', 'published', 'draft'].map((tab) => (
                     <Tab
                         key={tab}
                         iconPosition="end"
                         value={tab}
-                        label={tab}
+                        label={POST_PUBLISH_OPTIONS_LABELS.find(label => label.value === tab)?.label}
                         icon={
                             <Label
                                 variant={((tab === 'all' || tab === filters.publish) && 'filled') || 'soft'}

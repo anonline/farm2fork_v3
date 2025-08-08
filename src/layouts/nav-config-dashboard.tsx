@@ -144,7 +144,12 @@ export const navData: NavSectionProps['data'] = [
                 title: 'Hírek',
                 path: paths.dashboard.post.root,
                 icon: ICONS.blog,
-                
+                children: [
+                    //{ title: 'Profile', path: paths.dashboard.user.root },
+                    //{ title: 'Cards', path: paths.dashboard.user.cards },
+                    { title: 'Összes hír', path: paths.dashboard.post.root },
+                    { title: 'Kategóriák kezelése', path: paths.dashboard.post.categories.root },
+                ],
             },
             /*{
         title: 'Job',
