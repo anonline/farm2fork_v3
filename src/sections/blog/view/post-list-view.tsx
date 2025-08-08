@@ -71,9 +71,7 @@ export default function PostListView() {
             handleCloseModal();
             toast.success(`A(z) ${data.title} bejegyzés sikeresen mentve.`);
         } catch (err) {
-            // --- JAVÍTÁS ITT ---
             console.error("Mentési hiba:", err);
-            // Típus-ellenőrzés a biztonságos hibakezeléshez
             if (err instanceof Error) {
                 toast.error(`Hiba történt a mentés során: ${err.message}`);
             } else {
@@ -88,9 +86,7 @@ export default function PostListView() {
             await refetchArticles();
             toast.warning(`A(z) ${postToDelete.title} bejegyzés sikeresen törölve.`);
         } catch (err) {
-            // --- JAVÍTÁS ITT ---
             console.error("Törlési hiba:", err);
-            // Típus-ellenőrzés a biztonságos hibakezeléshez
             if (err instanceof Error) {
                 alert(`Hiba történt a törlés során: ${err.message}`);
             } else {

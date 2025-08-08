@@ -1,6 +1,7 @@
 export interface ICategory {
   id: number;
   title: string;
+  articleCount?: number;
 }
 
 export interface IArticleItem {
