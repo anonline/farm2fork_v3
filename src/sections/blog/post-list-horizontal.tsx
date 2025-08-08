@@ -2,8 +2,6 @@ import type { IArticleItem } from 'src/types/article';
 
 import { Grid } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-
 import { PostItemHorizontal } from './post-item-horizontal';
 
 interface Props {

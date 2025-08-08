@@ -20,16 +20,14 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { RouterLink } from 'src/routes/components';
-
 import { fDate } from 'src/utils/format-time';
+
+import { POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock/_blog';
 
 import { Label } from 'src/components/label';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-import { POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock/_blog';
-import { label } from 'yet-another-react-lightbox';
 
 type Props = CardProps & {
     post: IArticleItem;

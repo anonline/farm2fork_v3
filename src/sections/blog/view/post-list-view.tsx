@@ -15,19 +15,18 @@ import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 
-import { POST_PUBLISH_OPTIONS_LABELS, POST_SORT_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useArticles } from "src/contexts/articles-context";
+import { POST_SORT_OPTIONS, POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { PostSort } from '../post-sort';
 import NewPostForm from './new-post-form';
-import { PostSearch } from '../post-search';
 import PostListHorizontal from '../post-list-horizontal';
-import { toast } from 'src/components/snackbar';
 
 
 export default function PostListView() {
