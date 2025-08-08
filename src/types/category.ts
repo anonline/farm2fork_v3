@@ -1,14 +1,15 @@
 export type ICategoryTableFilter = {};
 
 export type ICategoryItem = {
-    id: number;
+    id: number | null;
     name: string;
     slug: string;
     description: string;
     coverUrl: string;
     created_at: string;
-    parentId: number;
+    parentId: number | null;
     enabled: boolean;
     Parent: ICategoryItem | null;
     children: ICategoryItem[];
+    level: number;
 };

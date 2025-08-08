@@ -44,7 +44,7 @@ export function ProductProvider({ children, slug }: ProductProviderProps) {
             setLoading(false);
         }
         fetchProducts();
-    }, []);
+    }, [slug]);
 
     return (
         <ProductContext.Provider value={{ product, loading, error: loaderror }}>

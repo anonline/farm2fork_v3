@@ -46,6 +46,7 @@ export const paths = {
     figmaUrl:
         'https://www.figma.com/design/oAxS3CUFO0ou7rH2lTS8oI/%5BPreview%5D-Minimal-Web.v7.0.0',
     categories: {
+        list: (slug: string) => `/termekek/${slug}`,
         root: '/termekek',
         zoldsegek: '/termekek/zoldsegek',
         gyumolcsok: '/termekek/gyumolcsok',
@@ -178,7 +179,7 @@ export const paths = {
             categories: {
                 root: `${ROOTS.DASHBOARD}/product/categories`,
                 new: `${ROOTS.DASHBOARD}/product/categories/new`,
-                edit: (id: string) => `${ROOTS.DASHBOARD}/product/categories/${id}/edit`,
+                edit: (id: string) => `${ROOTS.DASHBOARD}/product/categories/${id}`,
             },
         },
         invoice: {

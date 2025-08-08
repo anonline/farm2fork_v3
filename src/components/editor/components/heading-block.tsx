@@ -15,12 +15,12 @@ import type { EditorToolbarProps } from '../types';
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 const HEADING_OPTIONS = [
-    'Heading 1',
-    'Heading 2',
-    'Heading 3',
-    'Heading 4',
-    'Heading 5',
-    'Heading 6',
+    'Címsor 1',
+    'Címsor 2',
+    'Címsor 3',
+    'Címsor 4',
+    'Címsor 5',
+    'Címsor 6',
 ];
 
 export function HeadingBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
@@ -57,13 +57,13 @@ export function HeadingBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
                     border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
                 })}
             >
-                {(editor.isActive('heading', { level: 1 }) && 'Heading 1') ||
-                    (editor.isActive('heading', { level: 2 }) && 'Heading 2') ||
-                    (editor.isActive('heading', { level: 3 }) && 'Heading 3') ||
-                    (editor.isActive('heading', { level: 4 }) && 'Heading 4') ||
-                    (editor.isActive('heading', { level: 5 }) && 'Heading 5') ||
-                    (editor.isActive('heading', { level: 6 }) && 'Heading 6') ||
-                    'Paragraph'}
+                {(editor.isActive('heading', { level: 1 }) && 'Címsor 1') ||
+                    (editor.isActive('heading', { level: 2 }) && 'Címsor 2') ||
+                    (editor.isActive('heading', { level: 3 }) && 'Címsor 3') ||
+                    (editor.isActive('heading', { level: 4 }) && 'Címsor 4') ||
+                    (editor.isActive('heading', { level: 5 }) && 'Címsor 5') ||
+                    (editor.isActive('heading', { level: 6 }) && 'Címsor 6') ||
+                    'Bekezdés'}
 
                 <Iconify
                     width={16}
@@ -100,7 +100,7 @@ export function HeadingBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
             >
                 <ToolbarItem
                     component="li"
-                    label="Paragraph"
+                    label="Bekezdés"
                     active={editor.isActive('paragraph')}
                     onClick={() => {
                         handleClose();

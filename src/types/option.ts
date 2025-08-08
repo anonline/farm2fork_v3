@@ -6,7 +6,8 @@ export enum OptionsEnum {
     HomeHeroTitle               = "home_heroTitle",
     HomeHeroPrimaryBtnText      = "home_heroPrimaryButtonText",
     HomeHeroSecondaryBtnText    = "home_heroSecondaryButtonText",
-    HomeHeroMinHeight           = "home_heroMinHeight"
+    HomeHeroMinHeight           = "home_heroMinHeight",
+    MaxFileUploadSizeMB        = "max_file_upload_mb",
 }
 
 export type Option<T> = {
