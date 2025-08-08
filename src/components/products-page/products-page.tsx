@@ -17,7 +17,6 @@ import ProductCard from "../product-card/product-card";
 type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 
 export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>) {
-    console.log("ProductsPage rendered with urlSlug:", urlSlug);
     const { categories } = useCategories();
     const [spinLoading, setSpinLoading] = useState(false);
     const [productList, setProductList] = useState<IProductItem[]>([]);
@@ -28,9 +27,9 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
     useEffect(() => {
         if (urlSlug && categories.length > 0) {
             const category = categories.find(c => c.slug === urlSlug);
-            console.log("Category from URL slug:", category);
+            
             if (category) {
-                setActiveCategoryId(category.id);
+                setActiveCategoryId(category.id ?? 8);
             }
         }
     }, [urlSlug, categories]);
@@ -109,7 +108,7 @@ export function ProductPageFilter({ categories, activeCategoryId, filterChangeAc
             <Stack direction="row" spacing="16px" flexWrap="wrap" sx={{ width: '100%' }}>
                 {categories.map((category) => (
                     <Button key={category.id}
-                        onClick={() => filterChangeAction(category.id)}
+                        onClick={() => filterChangeAction(category.id ?? 8)}
                         sx={{
                             fontSize: '16px',
                             fontWeight: activeCategoryId == category.id ? '600' : '500',
@@ -191,7 +190,7 @@ export function ProductPageTextFilter({ categories, selectedCategory, isBio, isL
                 }}
             >
                 {categories.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
+                    <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'}>
                         {category.name}
                     </MenuItem>
                 ))}                
