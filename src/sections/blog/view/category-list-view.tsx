@@ -39,6 +39,7 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { DashboardContent } from 'src/layouts/dashboard';
 
 // ----------------------------------------------------------------------
 
@@ -167,7 +168,7 @@ export default function CategoryListView() {
     );
 
     return (
-        <Container>
+        <DashboardContent>
             <CustomBreadcrumbs
                 heading="Kategóriák"
                 links={[
@@ -182,8 +183,8 @@ export default function CategoryListView() {
                 }
             />
             
-            <Card sx={{ mt: 5 }}>
-                <Box sx={{ height: 650, width: '100%' }}>
+            <Card sx={{ mt: 2 }}>
+                <Box sx={{ minHeight: '60vh', width: '100%' }}>
                     <DataGrid
                         rows={categories}
                         columns={columns}
@@ -236,6 +237,6 @@ export default function CategoryListView() {
                     <Button onClick={confirmBulkDelete} color="error" variant="contained">Törlés</Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </DashboardContent>
     );
 }
