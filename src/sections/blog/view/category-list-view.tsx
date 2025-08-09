@@ -15,7 +15,6 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
-import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
@@ -29,6 +28,7 @@ import {
 
 import { paths } from 'src/routes/paths';
 
+import { DashboardContent } from 'src/layouts/dashboard';
 import {
     createArticleCategory,
     updateArticleCategory,
@@ -39,7 +39,6 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { DashboardContent } from 'src/layouts/dashboard';
 
 // ----------------------------------------------------------------------
 
