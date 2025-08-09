@@ -18,10 +18,6 @@ const swrOptions: SWRConfiguration = {
 
 // ----------------------------------------------------------------------
 
-
-
-
-
 // ----------------------------------------------------------------------
 
 type CategoryData = {
@@ -100,7 +96,7 @@ export async function useDeleteCategoryById(categoryId: number): Promise<boolean
 
     try {
         if (coverUrl.data?.coverUrl) {
-            deleteImageAndCleanDB(coverUrl.data?.coverUrl);
+            await deleteImageAndCleanDB(coverUrl.data?.coverUrl);
         }
 
         const { error } = await supabase.from('ProductCategories').delete().eq('id', categoryId);
@@ -112,8 +108,6 @@ export async function useDeleteCategoryById(categoryId: number): Promise<boolean
         return false;
     }
 }
-
-
 
 export async function insertCategory(category: Partial<ICategoryItem>): Promise<ICategoryItem> {
     const { data, error } = await supabase
@@ -133,13 +127,10 @@ export async function updateCategory(category: Partial<ICategoryItem>): Promise<
         .eq('id', category.id)
         .maybeSingle();
 
-    if (coverUrl.data?.coverUrl && category.coverUrl !== coverUrl.data.coverUrl) {
-        await deleteImageAndCleanDB(coverUrl.data.coverUrl);
-    }
-
-    if(category.id == 8 && category.parentId != null) {
+    if (category.id == 8 && category.parentId != null) {
         category.parentId = null; // Prevent changing the root category's parent
     }
+
     const { data, error } = await supabase
         .from('ProductCategories')
         .update(category)
@@ -148,11 +139,16 @@ export async function updateCategory(category: Partial<ICategoryItem>): Promise<
         .maybeSingle();
 
     if (error) throw error;
+
+    if (coverUrl.data?.coverUrl && category.coverUrl !== coverUrl.data.coverUrl) {
+        console.log(coverUrl.data.coverUrl);
+        await deleteImageAndCleanDB(coverUrl.data.coverUrl);
+    }
+
     return data as ICategoryItem;
 }
 
 export async function deleteCategoryById(categoryId: number): Promise<boolean> {
-
     const coverUrl = await supabase
         .from('ProductCategories')
         .select('coverUrl')
@@ -161,7 +157,7 @@ export async function deleteCategoryById(categoryId: number): Promise<boolean> {
 
     try {
         if (coverUrl.data?.coverUrl) {
-            deleteImageAndCleanDB(coverUrl.data?.coverUrl);
+            await deleteImageAndCleanDB(coverUrl.data?.coverUrl);
         }
 
         const { error } = await supabase.from('ProductCategories').delete().eq('id', categoryId);
