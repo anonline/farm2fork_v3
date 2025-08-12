@@ -11,6 +11,18 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 
 // ----------------------------------------------------------------------
 
+// Example PUBLISH_OPTIONS definition; replace with your actual options or import if defined elsewhere
+const PUBLISH_OPTIONS = [
+    { value: 'true', label: 'Közzétéve' },
+    { value: 'false', label: 'Rejtve' },
+];
+
+// Example BIO_OPTIONS definition; replace with your actual options or import if defined elsewhere
+const BIO_OPTIONS = [
+    { value: 'true', label: 'Bio' },
+    { value: 'false', label: 'Nem bio' },
+];
+
 type Props = FiltersResultProps & {
     filters: UseSetStateReturn<IProductTableFilters>;
 };
@@ -36,6 +48,15 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
         [updateFilters, currentFilters.publish]
     );
 
+    const handleRemoveBio = useCallback(
+        (inputValue: string) => {
+            const newValue = currentFilters.bio.filter((item) => item !== inputValue);
+
+            updateFilters({ bio: newValue });
+        },
+        [updateFilters, currentFilters.bio]
+    );
+
     return (
         <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
             <FiltersBlock label="Stock:" isShow={!!currentFilters.stock.length}>
@@ -49,13 +70,24 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
                 ))}
             </FiltersBlock>
 
-            <FiltersBlock label="Publish:" isShow={!!currentFilters.publish.length}>
+            <FiltersBlock label="Közzétéve:" isShow={!!currentFilters.publish.length}>
                 {currentFilters.publish.map((item) => (
                     <Chip
                         {...chipProps}
                         key={item}
-                        label={upperFirst(item)}
+                        label={upperFirst(PUBLISH_OPTIONS.find((option) => option.value === item)?.label || item)}
                         onDelete={() => handleRemovePublish(item)}
+                    />
+                ))}
+            </FiltersBlock>
+
+            <FiltersBlock label="Bio:" isShow={!!currentFilters.bio.length}>
+                {currentFilters.bio.map((item) => (
+                    <Chip
+                        {...chipProps}
+                        key={item}
+                        label={upperFirst(BIO_OPTIONS.find((option) => option.value === item)?.label || item)}
+                        onDelete={() => handleRemoveBio(item)}
                     />
                 ))}
             </FiltersBlock>

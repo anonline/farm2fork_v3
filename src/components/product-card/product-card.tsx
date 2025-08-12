@@ -135,7 +135,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                 aria-label={product.name}
             >
                 <img
-                    src={product.featuredImage || "https://placehold.co/429"}
+                    src={product.featuredImage || "https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp"}
                     alt={product.name}
                     style={productImageStyle}
                 />

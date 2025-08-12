@@ -64,6 +64,7 @@ export type IProductItem = {
     netPrice: number;
     netPriceVIP: number;
     netPriceCompany: number;
+    vat: number;
     seasonality: MonthKeys[],
     featured: boolean,
     star: boolean,
