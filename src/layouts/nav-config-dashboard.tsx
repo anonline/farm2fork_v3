@@ -145,10 +145,10 @@ export const navData: NavSectionProps['data'] = [
                 path: paths.dashboard.post.root,
                 icon: ICONS.blog,
                 children: [
-                    { title: 'List', path: paths.dashboard.post.root },
-                    { title: 'Details', path: paths.dashboard.post.demo.details },
-                    { title: 'Create', path: paths.dashboard.post.new },
-                    { title: 'Edit', path: paths.dashboard.post.demo.edit },
+                    //{ title: 'Profile', path: paths.dashboard.user.root },
+                    //{ title: 'Cards', path: paths.dashboard.user.cards },
+                    { title: 'Összes hír', path: paths.dashboard.post.root },
+                    { title: 'Kategóriák kezelése', path: paths.dashboard.post.categories.root },
                 ],
             },
             /*{

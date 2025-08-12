@@ -11,15 +11,22 @@ import RolunkArticleGridItem from "./rolunk-article-griditem";
 export default function RolunkArticles() {
     const articlesStorage = useArticles();
 
-    const categories = [...Array.from(new Set(articlesStorage.articles.map(p => p.category)))];
+    const categories = [
+        ...Array.from(
+            new Set(
+                articlesStorage.articles
+                    .filter(a => a.publish === 'published')
+                    .flatMap(article => article.categories.map(cat => cat.title))
+                    .filter(Boolean)
+            )
+        ),
+    ];
     const [activeCategory, setActiveCategory] = useState(categories[0]);
     const INITIAL_VISIBLE_COUNT = 3;
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
     const [loading, setLoading] = useState(false);
 
-    const filteredArticles = activeCategory === categories[0]
-        ? articlesStorage.articles
-        : articlesStorage.articles.filter(article => article.category === activeCategory);
+    const filteredArticles = articlesStorage.articles.filter(article => article.publish === 'published' && article.categories.find(cat => cat.title === activeCategory));
 
     const sortedArticles = [...filteredArticles].sort((a, b) => {
         const dateA = new Date(a.publish_date).getTime();
@@ -28,8 +35,8 @@ export default function RolunkArticles() {
     });
 
     const handleCategoryChange = (category: string) => {
-            setActiveCategory(category);
-            setVisibleCount(INITIAL_VISIBLE_COUNT);
+        setActiveCategory(category);
+        setVisibleCount(INITIAL_VISIBLE_COUNT);
     };
 
     const handleLoadMore = () => {
@@ -37,7 +44,7 @@ export default function RolunkArticles() {
         setTimeout(() => {
             setVisibleCount(sortedArticles.length);
             setLoading(false);
-        }, 1000);
+        }, 300);
     };
 
     useEffect(() => {
@@ -85,7 +92,7 @@ export default function RolunkArticles() {
                         gap: 1,
                     }}
                 >
-                    { categories.map(category => (
+                    {categories.map(category => (
                         <Button
                             key={category}
                             onClick={() => handleCategoryChange(category)}
@@ -106,7 +113,15 @@ export default function RolunkArticles() {
 
             <Grid container spacing={{ xs: 2, md: 4 }}>
                 {sortedArticles.slice(0, visibleCount).map(article => (
-                    <RolunkArticleGridItem key={article.id} article={article} />
+                    <RolunkArticleGridItem
+                        key={article.id}
+                        article={{
+                            ...article,
+                            publish_date: typeof article.publish_date === "string"
+                                ? article.publish_date
+                                : article.publish_date.toISOString(),
+                        }}
+                    />
                 ))}
             </Grid>
 

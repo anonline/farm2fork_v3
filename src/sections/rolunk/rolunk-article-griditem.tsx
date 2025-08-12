@@ -14,7 +14,7 @@ type ArticleGridItem = {
     year: string,
     medium: string,
     image: string,
-    publish_date: Date,
+    publish_date: string,
 }
 
 type ArticleGridItemProps = {
@@ -42,12 +42,12 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
 
     const imgStyle: SxProps = {
         width: '100%',
-        height: 'auto',
         borderRadius: "8px",
         objectFit: 'cover',
         borderStyle: 'solid',
         borderWidth: '1px',
         borderColor: '#00000000',
+        height: "240px",
         ...(isHovered && { borderColor: "black" })
     };
 

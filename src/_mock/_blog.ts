@@ -4,7 +4,12 @@ export const POST_PUBLISH_OPTIONS = [
 ];
 
 export const POST_SORT_OPTIONS = [
-    { value: 'latest', label: 'Latest' },
-    { value: 'popular', label: 'Popular' },
-    { value: 'oldest', label: 'Oldest' },
+    { value: 'latest', label: 'Legújabb' },
+    { value: 'oldest', label: 'Legrégebbi' },
 ];
+
+export const POST_PUBLISH_OPTIONS_LABELS = [
+    { value: 'all', label: 'Összes' },
+    { value: 'published', label: 'Közzétéve' },
+    { value: 'draft', label: 'Piszkozat' },
+]

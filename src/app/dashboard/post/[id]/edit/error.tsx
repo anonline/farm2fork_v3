@@ -12,13 +12,13 @@ import { EmptyContent } from 'src/components/empty-content';
 
 // ----------------------------------------------------------------------
 
-export default function Error({
+export default function ErrorPage({
     error,
     reset,
-}: {
+}: Readonly<{
     error: Error & { digest?: string };
     reset: () => void;
-}) {
+}>) {
     return (
         <DashboardContent maxWidth={false}>
             <EmptyContent

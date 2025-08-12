@@ -194,13 +194,9 @@ export const paths = {
         },
         post: {
             root: `${ROOTS.DASHBOARD}/post`,
-            new: `${ROOTS.DASHBOARD}/post/new`,
-            details: (title: string) => `${ROOTS.DASHBOARD}/post/${kebabCase(title)}`,
-            edit: (title: string) => `${ROOTS.DASHBOARD}/post/${kebabCase(title)}/edit`,
-            demo: {
-                details: `${ROOTS.DASHBOARD}/post/${kebabCase(MOCK_TITLE)}`,
-                edit: `${ROOTS.DASHBOARD}/post/${kebabCase(MOCK_TITLE)}/edit`,
-            },
+            categories: {
+                root: `${ROOTS.DASHBOARD}/post/categories`
+            }
         },
         order: {
             root: `${ROOTS.DASHBOARD}/order`,
