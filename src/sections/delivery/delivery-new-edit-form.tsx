@@ -1,54 +1,38 @@
 'use client';
 
-import type { IDeliveryPerson } from 'src/types/delivery';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import { LoadingButton } from '@mui/lab';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { LoadingButton } from '@mui/lab';
 
 import { paths } from 'src/routes/paths';
-
+import { toast } from 'src/components/snackbar';
+import { IDeliveryPerson } from 'src/types/delivery';
 import { createDelivery, updateDelivery } from 'src/actions/delivery';
 
-import { toast } from 'src/components/snackbar';
 
 // ----------------------------------------------------------------------
 
-// MÓDOSÍTÁS: A függvény most már fel van készítve, hogy számot is kaphat.
+
 const formatPhoneNumber = (value: string | number | null | undefined) => {
-    // Ha az érték null vagy undefined, üres stringet adunk vissza.
-    if (!value) {
-        return '';
-    }
-    // Biztos, ami biztos, stringgé alakítjuk.
+    if (!value) return '';
     const stringValue = String(value);
-
     const digits = stringValue.replace(/\D/g, '');
-
-    let formatted = '';
-    // Csak akkor kezdjük el a "+36"-ot, ha van mit formázni.
-    if (digits.length > 0) {
-        // Ha a szám már tartalmazza a 36-ot az elején, ne duplázzuk meg.
-        const numberSlice = digits.startsWith('36') ? digits.substring(2) : digits;
-        
-        formatted = `+36 (${numberSlice.substring(0, 2)}`;
-        
-        if (numberSlice.length > 2) {
-            formatted += `) ${numberSlice.substring(2, 5)}`;
-        }
-        if (numberSlice.length > 5) {
-            formatted += ` ${numberSlice.substring(5, 9)}`;
-        }
+    if (digits.length === 0) return '';
+    const numberSlice = digits.startsWith('36') ? digits.substring(2) : digits;
+    let formatted = `+36 (${numberSlice.substring(0, 2)}`;
+    if (numberSlice.length > 2) {
+        formatted += `) ${numberSlice.substring(2, 5)}`;
+    }
+    if (numberSlice.length > 5) {
+        formatted += ` ${numberSlice.substring(5, 9)}`;
     }
     return formatted;
 };
-
-// ----------------------------------------------------------------------
 
 type Props = {
     currentDelivery?: IDeliveryPerson;
@@ -73,10 +57,8 @@ export default function DeliveryNewEditForm({ currentDelivery }: Readonly<Props>
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-
         if (name === 'phone') {
-            const formatted = formatPhoneNumber(value);
-            setFormData(prev => ({ ...prev, phone: formatted }));
+            setFormData(prev => ({ ...prev, phone: formatPhoneNumber(value) }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -86,7 +68,6 @@ export default function DeliveryNewEditForm({ currentDelivery }: Readonly<Props>
         event.preventDefault();
         setIsSubmitting(true);
         try {
-            // Mentés előtt a biztonság kedvéért újra megtisztítjuk a számot
             const submissionData = {
                 ...formData,
                 phone: formData.phone.replace(/\D/g, ''),
@@ -95,12 +76,11 @@ export default function DeliveryNewEditForm({ currentDelivery }: Readonly<Props>
             if (currentDelivery) {
                 await updateDelivery(currentDelivery.id, submissionData);
                 toast.success('Sikeres mentés!');
-                window.close();
             } else {
                 await createDelivery(submissionData);
                 toast.success('Futár sikeresen létrehozva!');
-                router.push(paths.dashboard.delivery.root);
             }
+            router.push(paths.dashboard.delivery.root);
         } catch (error: any) {
             toast.error(error.message);
             setIsSubmitting(false);
