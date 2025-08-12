@@ -274,7 +274,7 @@ export const navData: NavSectionProps['data'] = [
                     </Label>
                 ),
             },*/
-            
+
             /*{
                 title: 'Params',
                 path: '/dashboard/params?id=e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1',
@@ -287,6 +287,10 @@ export const navData: NavSectionProps['data'] = [
                 info: <Iconify width={18} icon="eva:external-link-fill" />,
             },
             { title: 'Blank', path: paths.dashboard.blank, icon: ICONS.blank },*/
+            
+                
+        { title:'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
         ],
+
     },
 ];
