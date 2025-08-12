@@ -188,7 +188,7 @@ export function ProducerListView() {
                     showInMenu
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Edit"
-                    href={paths.dashboard.product.edit(params.row.id)}
+                    href={paths.dashboard.product.edit(params.row.url)}
                 />,
                 <GridActionsCellItem
                     showInMenu

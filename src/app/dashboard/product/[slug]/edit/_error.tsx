@@ -24,6 +24,7 @@ export default function Error({
             <EmptyContent
                 filled
                 title="Product could not be opened to edit!"
+                description={error.message}
                 action={
                     <Button
                         component={RouterLink}

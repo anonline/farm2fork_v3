@@ -230,7 +230,7 @@ export function ProductListView() {
                     showInMenu
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Szerkesztés"
-                    href={paths.dashboard.product.edit(params.row.id)}
+                    href={paths.dashboard.product.edit(params.row.url)}
                 />,
                 <GridActionsCellItem
                     showInMenu

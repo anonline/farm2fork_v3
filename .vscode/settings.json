@@ -3,5 +3,8 @@
         "connectionId": "anonline",
         "projectKey": "anonline_farm2fork_v3"
     },
-    "prettier.tabWidth": 4
+    "prettier.tabWidth": 4,
+    "cSpell.words": [
+        "salegross"
+    ]
 }

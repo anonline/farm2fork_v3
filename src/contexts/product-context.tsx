@@ -41,6 +41,7 @@ export function ProductProvider({ children, slug }: ProductProviderProps) {
                 setProduct(data ?? null);
                 setError(null);
             }
+            console.log(data);
             setLoading(false);
         }
         fetchProducts();
@@ -55,6 +56,7 @@ export function ProductProvider({ children, slug }: ProductProviderProps) {
 
 export const useProduct = () => {
   const context = useContext(ProductContext);
+  console.log(context.product);
   if (!context) throw new Error("useProduct csak a ProductProvider-en belül használható");
   return context;
 };

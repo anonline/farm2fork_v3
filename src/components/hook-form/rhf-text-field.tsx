@@ -1,3 +1,4 @@
+import React from 'react';
 import type { TextFieldProps } from '@mui/material/TextField';
 
 import { Controller, useFormContext } from 'react-hook-form';
@@ -11,7 +12,7 @@ export type RHFTextFieldProps = TextFieldProps & {
     name: string;
 };
 
-export function RHFTextField({
+export function RHFTextFieldComponent({
     name,
     helperText,
     slotProps,
@@ -65,3 +66,5 @@ export function RHFTextField({
         />
     );
 }
+
+export const RHFTextField = React.memo(RHFTextFieldComponent);

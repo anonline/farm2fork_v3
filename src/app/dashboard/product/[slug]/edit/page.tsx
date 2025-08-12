@@ -1,24 +1,27 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
-import { getProduct } from 'src/actions/product-ssr';
 
 import { ProductEditView } from 'src/sections/product/view';
 
+import { ProductProvider } from 'src/contexts/product-context';
+
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Product edit | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Termék szerkesztése | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-    params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 export default async function Page({ params }: Props) {
-    const { id } = await params;
+  const { slug } = await params;
 
-    const { product } = await getProduct(id);
+  //const { product } = await useGetProduct(id);
 
-    return <ProductEditView product={product} />;
+  return (<ProductProvider slug={slug}>
+    <ProductEditView />
+  </ProductProvider>);
 }
 
 // ----------------------------------------------------------------------

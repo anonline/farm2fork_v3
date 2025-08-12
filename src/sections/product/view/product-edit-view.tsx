@@ -10,22 +10,22 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { ProductNewEditForm } from '../product-new-edit-form';
 
+import { useProduct } from 'src/contexts/product-context';
+
 // ----------------------------------------------------------------------
 
-type Props = {
-    product?: IProductItem;
-};
+export function ProductEditView() {
+    const { product } = useProduct();
 
-export function ProductEditView({ product }: Props) {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="Edit"
+                heading={product?.name + ' szerkesztése'}
                 backHref={paths.dashboard.product.root}
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Product', href: paths.dashboard.product.root },
-                    { name: product?.name },
+                    { name: 'Termék', href: paths.dashboard.product.root },
+                    { name: 'Szerkesztés' },
                 ]}
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
