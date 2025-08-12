@@ -1,22 +1,11 @@
 'use client';
 
+import type { GridColDef, GridRowSelectionModel, GridColumnVisibilityModel } from '@mui/x-data-grid';
 import type { IDeliveryPerson } from 'src/types/delivery';
-import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 
+import { useState, useCallback, useEffect } from 'react';
 import { useSWRConfig } from 'swr';
-import { useState, useCallback } from 'react';
-
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Link from '@mui/material/Link';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import DialogTitle from '@mui/material/DialogTitle';
-import ListItemText from '@mui/material/ListItemText';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+import { useRouter } from 'next/navigation';
 import {
     DataGrid,
     GridActionsCellItem,
@@ -26,27 +15,52 @@ import {
     GridToolbarColumnsButton,
 } from '@mui/x-data-grid';
 
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import DialogTitle from '@mui/material/DialogTitle';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import ListItemText from '@mui/material/ListItemText';
+
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
-
-import { useGetDeliveries, deleteDeliveries } from 'src/actions/delivery';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { useGetDeliveries, deleteDeliveries } from 'src/actions/delivery';
 
 
 // ----------------------------------------------------------------------
 
 
 export default function DeliveryListView() {
+    const router = useRouter();
     const { deliveries, deliveriesLoading } = useGetDeliveries();
     const { mutate } = useSWRConfig();
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [openBulkDeleteConfirm, setOpenBulkDeleteConfirm] = useState(false);
     const [openSingleDeleteConfirm, setOpenSingleDeleteConfirm] = useState(false);
     const [deliveryToDelete, setDeliveryToDelete] = useState<IDeliveryPerson | null>(null);
+
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({});
+
+    useEffect(() => {
+        setColumnVisibilityModel({
+            phone: !isMobile,
+        });
+    }, [isMobile]);
 
     const confirmBulkDelete = async () => {
         try {
@@ -85,6 +99,7 @@ export default function DeliveryListView() {
             field: 'name',
             headerName: 'Név',
             flex: 1,
+            minWidth: 180,
             disableColumnMenu: true,
             renderCell: (params) => (
                 <RenderCellName
@@ -122,8 +137,7 @@ export default function DeliveryListView() {
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Szerkesztés"
                     onClick={() => {
-                        const url = paths.dashboard.delivery.edit(id);
-                        window.open(url, '_blank', 'noopener,noreferrer');
+                        router.push(paths.dashboard.delivery.edit(id));
                     }}
                 />,
                 <GridActionsCellItem
@@ -186,51 +200,55 @@ export default function DeliveryListView() {
                         }}
                         onRowSelectionModelChange={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                         rowSelectionModel={selectedRowIds}
+                        columnVisibilityModel={columnVisibilityModel}
+                        onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
                     />
                 </Card>
             </Container>
 
             <Dialog open={openSingleDeleteConfirm} onClose={() => setOpenSingleDeleteConfirm(false)}>
                 <DialogTitle>Törlés Megerősítése</DialogTitle>
+
                 <DialogContent>
                     <Typography>
                         Biztosan törölni szeretnéd a(z) <strong>{deliveryToDelete?.name}</strong> nevű futárt?
                     </Typography>
                 </DialogContent>
+
                 <DialogActions>
                     <Button onClick={() => setOpenSingleDeleteConfirm(false)} color="inherit">Mégse</Button>
+
                     <Button onClick={confirmSingleDelete} color="error" variant="contained">Törlés</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={openBulkDeleteConfirm} onClose={() => setOpenBulkDeleteConfirm(false)}>
                 <DialogTitle>Törlés Megerősítése</DialogTitle>
+
                 <DialogContent>
                     <Typography>
                         Biztosan törölni szeretnéd a kiválasztott <strong>{selectedRowIds.length}</strong> elemet?
                     </Typography>
                 </DialogContent>
+
                 <DialogActions>
                     <Button onClick={() => setOpenBulkDeleteConfirm(false)} color="inherit">Mégse</Button>
+
                     <Button onClick={confirmBulkDelete} color="error" variant="contained">Törlés</Button>
                 </DialogActions>
             </Dialog>
         </>
     );
-}
+};
 
 
 const formatPhoneNumber = (value: string | number | null | undefined) => {
     if (!value) return '';
     const stringValue = String(value);
     const digits = stringValue.replace(/\D/g, '');
-
     if (digits.length === 0) return '';
-
     const numberSlice = digits.startsWith('36') ? digits.substring(2) : digits;
-
     let formatted = `+36 (${numberSlice.substring(0, 2)}`;
-
     if (numberSlice.length > 2) {
         formatted += `) ${numberSlice.substring(2, 5)}`;
     }
@@ -239,6 +257,7 @@ const formatPhoneNumber = (value: string | number | null | undefined) => {
     }
     return formatted;
 };
+
 
 function CustomToolbar({ selectedRowCount, onBulkDeleteClick }: Readonly<{ selectedRowCount: number, onBulkDeleteClick: () => void }>) {
     return (
@@ -260,7 +279,8 @@ function CustomToolbar({ selectedRowCount, onBulkDeleteClick }: Readonly<{ selec
             <GridToolbarFilterButton />
         </GridToolbarContainer>
     );
-}
+};
+
 
 function RenderCellName({ row, href }: Readonly<{ row: { name: string }, href: string }>) {
     return (
@@ -271,8 +291,6 @@ function RenderCellName({ row, href }: Readonly<{ row: { name: string }, href: s
                         component={RouterLink}
                         href={href}
                         sx={{ color: 'text.primary', typography: 'body2' }}
-                        target="_blank"
-                        rel="noopener noreferrer"
                     >
                         {row.name}
                     </Link>
@@ -284,4 +302,4 @@ function RenderCellName({ row, href }: Readonly<{ row: { name: string }, href: s
             />
         </Box>
     );
-}
+};
