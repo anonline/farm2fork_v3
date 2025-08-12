@@ -228,6 +228,7 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.parameter,
                 children: [
                     { title: 'Kezdőképernyő beállításai', path: '#/dashboard/settings/home' },
+                    { title:'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
                     {
                         title: 'Level 1a',
                         path: '#/dashboard/menu_level/menu_level_1a',
@@ -289,7 +290,7 @@ export const navData: NavSectionProps['data'] = [
             { title: 'Blank', path: paths.dashboard.blank, icon: ICONS.blank },*/
             
                 
-        { title:'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
+        
         ],
 
     },

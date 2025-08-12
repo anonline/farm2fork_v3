@@ -1,11 +1,25 @@
 'use client';
 
-import type { GridColDef, GridRowSelectionModel, GridColumnVisibilityModel } from '@mui/x-data-grid';
 import type { IDeliveryPerson } from 'src/types/delivery';
+import type { GridColDef, GridRowSelectionModel, GridColumnVisibilityModel } from '@mui/x-data-grid';
 
-import { useState, useCallback, useEffect } from 'react';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import Container from '@mui/material/Container';
+import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import DialogTitle from '@mui/material/DialogTitle';
+import ListItemText from '@mui/material/ListItemText';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 import {
     DataGrid,
     GridActionsCellItem,
@@ -15,27 +29,14 @@ import {
     GridToolbarColumnsButton,
 } from '@mui/x-data-grid';
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Link from '@mui/material/Link';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import DialogTitle from '@mui/material/DialogTitle';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import ListItemText from '@mui/material/ListItemText';
-
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+
+import { useGetDeliveries, deleteDeliveries } from 'src/actions/delivery';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { useGetDeliveries, deleteDeliveries } from 'src/actions/delivery';
 
 
 // ----------------------------------------------------------------------
