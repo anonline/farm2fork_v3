@@ -30,8 +30,9 @@ export default function HomeIntegrations() {
                                 src={partner.imageUrl}
                                 alt={partner.name}
                                 sx={{
-                                    width: '72px', 
-                                    height: '72px',
+                                    width: '100%', 
+                                    height: 'auto',
+                                    maxWidth: '72px',
                                     display: 'block',
                                     mx: 'auto',
                                     filter: 'grayscale(100%)',

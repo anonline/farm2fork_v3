@@ -21,14 +21,14 @@ import {
 
 import { paths } from 'src/routes/paths';
 
+import { uploadFile } from 'src/lib/blob/blobClient';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { createPartner, updatePartner, deletePartner, useGetPartners, updatePartnerOrder } from 'src/actions/partner';
 
+import { Upload } from 'src/components/upload';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { Upload } from 'src/components/upload';
-import { uploadFile } from 'src/lib/blob/blobClient';
 
 
 // ----------------------------------------------------------------------
