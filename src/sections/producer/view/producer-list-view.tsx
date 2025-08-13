@@ -180,18 +180,22 @@ export function ProducerListView() {
             getActions: (params) => [
                 <GridActionsLinkItem
                     showInMenu
+                    key={`view-${params.row.id}`}
                     icon={<Iconify icon="solar:eye-bold" />}
                     label="View"
-                    href={paths.dashboard.product.details(params.row.id)}
+                    target="_blank"
+                    href={paths.producers.details(params.row.slug)}
                 />,
                 <GridActionsLinkItem
                     showInMenu
+                    key={`edit-${params.row.id}`}
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Edit"
-                    href={paths.dashboard.product.edit(params.row.url)}
+                    href={paths.dashboard.producer.edit(params.row.url)}
                 />,
                 <GridActionsCellItem
                     showInMenu
+                    key={`delete-${params.row.id}`}
                     icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                     label="Delete"
                     onClick={() => handleDeleteRow(params.row.id)}
@@ -382,14 +386,16 @@ type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' 
     href: string;
     sx?: SxProps<Theme>;
     ref?: React.RefObject<HTMLLIElement | null>;
+    target?: string;
 };
 
-export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsLinkItemProps) {
+export function GridActionsLinkItem({ ref, href, label, icon, sx, target }: GridActionsLinkItemProps) {
     return (
         <MenuItem ref={ref} sx={sx}>
             <Link
                 component={RouterLink}
                 href={href}
+                target={target}
                 underline="none"
                 color="inherit"
                 sx={{ width: 1, display: 'flex', alignItems: 'center' }}

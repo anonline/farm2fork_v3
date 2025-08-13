@@ -108,15 +108,13 @@ export const NewProductSchema = zod.object({
 type ProductNewEditFormProps = {
     currentProduct: IProductItem | null;
 };
-export function ProductNewEditForm({ currentProduct }: ProductNewEditFormProps) {
+export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFormProps>) {
     const router = useRouter();
 
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
     const openPricing = useBoolean(true);
     const openFeatured = useBoolean(true);
-
-    const [includeTaxes, setIncludeTaxes] = useState(false);
 
     const defaultValues: NewProductSchemaType = {
         name: '',
@@ -199,10 +197,6 @@ export function ProductNewEditForm({ currentProduct }: ProductNewEditFormProps) 
     const handleRemoveAllFiles = useCallback(() => {
         setValue('images', [], { shouldValidate: true });
     }, [setValue]);
-
-    const handleChangeIncludeTaxes = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        setIncludeTaxes(event.target.checked);
-    }, []);
 
     const renderCollapseButton = (value: boolean, onToggle: () => void) => (
         <IconButton onClick={onToggle}>
@@ -577,13 +571,13 @@ export function ProductNewEditForm({ currentProduct }: ProductNewEditFormProps) 
             }}
         >
             <FormControlLabel
-                label="Publish"
+                label="Közzétéve"
                 control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
                 sx={{ pl: 3, flexGrow: 1 }}
             />
 
             <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
-                {!currentProduct ? 'Create product' : 'Save changes'}
+                {!currentProduct ? 'Termék létrehozása' : 'Változtatások mentése'}
             </Button>
         </Box>
     );

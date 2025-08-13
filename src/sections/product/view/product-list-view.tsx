@@ -165,7 +165,7 @@ export function ProductListView() {
             renderCell: (params) => (
                 <RenderCellProduct
                     params={params}
-                    href={paths.dashboard.product.details(params.row.id)}
+                    href={paths.dashboard.product.edit(params.row.url)}
                 />
             ),
         },
@@ -221,6 +221,7 @@ export function ProductListView() {
             getActions: (params) => [
                 <GridActionsLinkItem
                     showInMenu
+                    key={`view-${params.row.id}`}
                     icon={<Iconify icon="solar:eye-bold" />}
                     label="Megtekintés"
                     target='_blank'
@@ -228,12 +229,14 @@ export function ProductListView() {
                 />,
                 <GridActionsLinkItem
                     showInMenu
+                    key={`edit-${params.row.id}`}
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Szerkesztés"
                     href={paths.dashboard.product.edit(params.row.url)}
                 />,
                 <GridActionsCellItem
                     showInMenu
+                    key={`delete-${params.row.id}`}
                     icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                     label="Törlés"
                     onClick={() => handleDeleteRow(params.row.id)}
