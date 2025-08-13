@@ -81,7 +81,7 @@ export function HomeView(props: Readonly<HomeViewProps>) {
                 </Container>
             </Box>
 
-            <Box sx={oddBoxStyle}>
+            <Box sx={evenBoxStyle}>
                 <Container maxWidth="lg">
                     <HomeIntegrations />
                 </Container>

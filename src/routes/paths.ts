@@ -32,8 +32,8 @@ export const paths = {
         editProfile: '/profil/edit-account',
     },
     rendelesMenete: '/rendeles-menete',
-    szezonalitas:'/szezonalitas/Jan',
-    tarolas:'/tarolas',
+    szezonalitas: '/szezonalitas/Jan',
+    tarolas: '/tarolas',
     page403: '/error/403',
     page404: '/error/404',
     page500: '/error/500',
@@ -136,7 +136,7 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/faqs`,
             new: `${ROOTS.DASHBOARD}/faqs/new`,
             edit: (id: number) => `${ROOTS.DASHBOARD}/faqs/${id}/edit`,
-            categories : {
+            categories: {
                 root: `${ROOTS.DASHBOARD}/faqs/categories`,
                 new: `${ROOTS.DASHBOARD}/faqs/categories/new`,
                 edit: (id: number) => `${ROOTS.DASHBOARD}/faqs/categories/${id}/edit`,
@@ -227,6 +227,9 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/delivery`,
             new: `${ROOTS.DASHBOARD}/delivery/new`,
             edit: (id: string | number) => `${ROOTS.DASHBOARD}/delivery/edit/${id}`,
+        },
+        partners: {
+            root: `${ROOTS.DASHBOARD}/partners`,
         },
     },
 };
