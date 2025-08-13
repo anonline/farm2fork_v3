@@ -3,6 +3,7 @@
 import type { IPartner } from 'src/types/partner';
 import type { DropAnimation, UniqueIdentifier } from '@dnd-kit/core';
 
+import { z as zod } from 'zod';
 import { useState, useEffect } from 'react';
 import {
     arrayMove, useSortable, SortableContext, rectSortingStrategy, sortableKeyboardCoordinates,
@@ -13,44 +14,33 @@ import {
     defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 
-
+import { LoadingButton } from '@mui/lab';
+import {
+    Box, Card, Link, Stack, Button, Dialog, Portal, Tooltip, TextField, IconButton, Typography, DialogTitle, DialogActions, DialogContent
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { updatePartner, deletePartner, useGetPartners, updatePartnerOrder } from 'src/actions/partner';
+import { DashboardContent } from 'src/layouts/dashboard';
+import { createPartner, updatePartner, deletePartner, useGetPartners, updatePartnerOrder } from 'src/actions/partner';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import {
-    Box,
-    Button,
-    Card,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    Link,
-    Portal,
-    Stack,
-    TextField,
-    Tooltip,
-    Typography
-} from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { DashboardContent } from 'src/layouts/dashboard';
 
 
 // ----------------------------------------------------------------------
 
 
+const PartnerSchema = zod.object({
+    name: zod.string().min(1, { message: 'A név megadása kötelező!' }),
+    imageUrl: zod.string().url({ message: 'Érvénytelen kép URL formátum!' }),
+    link: zod.string().url({ message: 'Érvénytelen weboldal link formátum!' }),
+});
+
 const dropAnimationConfig: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
-        styles: {
-            active: { opacity: '0.5' },
-        },
+        styles: { active: { opacity: '0.5' } },
     }),
 };
 
@@ -59,9 +49,9 @@ export default function PartnerListView() {
     const [items, setItems] = useState<IPartner[]>([]);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
-    const [formData, setFormData] = useState({ name: '', imageUrl: '', link: '' });
-    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const [openFormDialog, setOpenFormDialog] = useState(false);
     const [editingPartner, setEditingPartner] = useState<IPartner | null>(null);
+    const [formData, setFormData] = useState({ name: '', imageUrl: '', link: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
@@ -82,7 +72,6 @@ export default function PartnerListView() {
         if (over) {
             const activeIndex = items.findIndex((item) => item.id === activeId);
             const overIndex = items.findIndex((item) => item.id === over.id);
-
             if (activeIndex !== overIndex) {
                 const newItems = arrayMove(items, activeIndex, overIndex);
                 setItems(newItems);
@@ -98,14 +87,24 @@ export default function PartnerListView() {
         }
     };
 
-    const handleOpenEditDialog = (partner: IPartner) => {
-        setEditingPartner(partner);
-        setFormData({ name: partner.name, imageUrl: partner.imageUrl, link: partner.link });
-        setOpenEditDialog(true);
+    const handleOpenNewDialog = () => {
+        setEditingPartner(null);
+        setFormData({ name: '', imageUrl: '', link: '' });
+        setOpenFormDialog(true);
     };
 
-    const handleCloseEditDialog = () => {
-        setOpenEditDialog(false);
+    const handleOpenEditDialog = (partner: IPartner) => {
+        setEditingPartner(partner);
+        setFormData({
+            name: partner.name || '',
+            imageUrl: partner.imageUrl || '',
+            link: partner.link || '',
+        });
+        setOpenFormDialog(true);
+    };
+
+    const handleCloseFormDialog = () => {
+        setOpenFormDialog(false);
         setEditingPartner(null);
     };
 
@@ -113,14 +112,26 @@ export default function PartnerListView() {
         setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
-    const handleSaveChanges = async () => {
-        if (!editingPartner) return;
+    
+    const handleSubmit = async () => {
+        const validationResult = PartnerSchema.safeParse(formData);
+        
+        if (!validationResult.success) {
+            toast.error(validationResult.error.errors[0].message);
+            return;
+        }
+
         setIsSubmitting(true);
         try {
-            await updatePartner(editingPartner.id, formData);
-            toast.success('Sikeres mentés!');
+            if (editingPartner) {
+                await updatePartner(editingPartner.id, validationResult.data);
+                toast.success('Sikeres mentés!');
+            } else {
+                await createPartner(validationResult.data);
+                toast.success('Partner sikeresen létrehozva!');
+            }
             partnersMutate();
-            handleCloseEditDialog();
+            handleCloseFormDialog();
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -135,7 +146,7 @@ export default function PartnerListView() {
             toast.success('Partner sikeresen törölve!');
             partnersMutate();
             setOpenDeleteConfirm(false);
-            handleCloseEditDialog();
+            handleCloseFormDialog();
         } catch (error: any) {
             toast.error(error.message);
         }
@@ -147,18 +158,13 @@ export default function PartnerListView() {
                 heading="Partnerek"
                 links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Partnerek' }]}
                 action={
-                    <Button variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
+                    <Button variant="contained" startIcon={<Iconify icon="mingcute:add-line" />} onClick={handleOpenNewDialog}>
                         Új Partner
                     </Button>
                 }
             />
 
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={({ active }) => setActiveId(active.id)}
-                onDragEnd={handleDragEnd}
-            >
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={({ active }) => setActiveId(active.id)} onDragEnd={handleDragEnd}>
                 <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
                     <Box component="ul" sx={{ p: 3, gap: 3, display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' } }}>
                         {items.map(item => (
@@ -173,20 +179,24 @@ export default function PartnerListView() {
                 </Portal>
             </DndContext>
 
-            <Dialog open={openEditDialog} onClose={handleCloseEditDialog} fullWidth maxWidth="sm">
-                <DialogTitle>Partner szerkesztése</DialogTitle>
+            <Dialog open={openFormDialog} onClose={handleCloseFormDialog} fullWidth maxWidth="sm">
+                <DialogTitle>{editingPartner ? 'Partner szerkesztése' : 'Új Partner'}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ pt: 1 }}>
-                        <TextField name="name" label="Név" value={formData.name} onChange={handleFormChange} />
-                        <TextField name="imageUrl" label="Kép URL" value={formData.imageUrl} onChange={handleFormChange} />
-                        <TextField name="link" label="Weboldal Link" value={formData.link} onChange={handleFormChange} />
+                        <TextField name="name" label="Név" value={formData.name} onChange={handleFormChange} required />
+                        <TextField name="imageUrl" label="Kép URL" value={formData.imageUrl} onChange={handleFormChange} required />
+                        <TextField name="link" label="Weboldal Link" value={formData.link} onChange={handleFormChange} required />
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDeleteConfirm(true)} color="error">Törlés</Button>
+                    {editingPartner && (
+                        <Button onClick={() => setOpenDeleteConfirm(true)} color="error">Törlés</Button>
+                    )}
                     <Box sx={{ flexGrow: 1 }} />
-                    <Button onClick={handleCloseEditDialog} color="inherit">Mégse</Button>
-                    <LoadingButton onClick={handleSaveChanges} variant="contained" loading={isSubmitting}>Mentés</LoadingButton>
+                    <Button onClick={handleCloseFormDialog} color="inherit">Mégse</Button>
+                    <LoadingButton onClick={handleSubmit} variant="contained" loading={isSubmitting}>
+                        {editingPartner ? 'Mentés' : 'Létrehozás'}
+                    </LoadingButton>
                 </DialogActions>
             </Dialog>
 
@@ -220,7 +230,7 @@ function PartnerItemBase({ item, onEdit, isDragging, isOverlay, ...props }: Read
     return (
         <Box component="li" sx={{ listStyle: 'none' }} {...props}>
             <Tooltip title={item.name} arrow>
-                <Link href={item.link} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: 'none', display: 'block' }}>
+                <Link href={item.link || '#'} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: 'none', display: 'block' }}>
                     <Card sx={{ p: 2, aspectRatio: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', boxShadow: isOverlay ? '0px 8px 16px 0px rgba(0,0,0,0.24)' : undefined, opacity: isDragging ? 0.48 : 1, '&:hover .actions': { opacity: 1 } }}>
                         <Box component="img" src={item.imageUrl} alt={item.name} sx={{ width: '80%', height: '80%', objectFit: 'contain' }} />
                         <Stack direction="row" className="actions" sx={{ top: 8, right: 8, position: 'absolute', opacity: 0, transition: 'opacity 0.2s', bgcolor: 'background.paper', borderRadius: '50%' }}>

@@ -1,4 +1,5 @@
 import { MainLayout } from 'src/layouts/main';
+import { PartnersProvider } from 'src/contexts/partners-context';
 import { StarProductsProvider, FeaturedProductsProvider } from 'src/contexts/products-context';
 
 // ----------------------------------------------------------------------
@@ -11,7 +12,9 @@ export default function Layout({ children }: Readonly<Props>) {
     return (
         <FeaturedProductsProvider>
             <StarProductsProvider>
-                <MainLayout>{children}</MainLayout>
+                <PartnersProvider>
+                    <MainLayout>{children}</MainLayout>
+                </PartnersProvider>
             </StarProductsProvider>
         </FeaturedProductsProvider>
     )
