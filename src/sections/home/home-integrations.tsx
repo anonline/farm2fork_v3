@@ -7,7 +7,7 @@ import { usePartners } from "src/contexts/partners-context";
 import { Image } from "src/components/image";
 
 export default function HomeIntegrations() {
-    const { partners, partnersLoading } = usePartners();
+    const { partners } = usePartners();
     
     const h2Style = {
         fontSize: { xs: "32px", md: "40px" },

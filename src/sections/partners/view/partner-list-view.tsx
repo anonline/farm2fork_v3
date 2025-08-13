@@ -16,7 +16,7 @@ import {
 
 import { LoadingButton } from '@mui/lab';
 import {
-    Box, Card, Link, Stack, Button, Dialog, Portal, Tooltip, TextField, IconButton, Typography, DialogTitle, DialogActions, DialogContent
+    Box, Card, Stack, Button, Dialog, Portal, Tooltip, TextField, IconButton, Typography, DialogTitle, DialogActions, DialogContent
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -112,10 +112,9 @@ export default function PartnerListView() {
         setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
-    
     const handleSubmit = async () => {
         const validationResult = PartnerSchema.safeParse(formData);
-        
+
         if (!validationResult.success) {
             toast.error(validationResult.error.errors[0].message);
             return;
@@ -230,15 +229,45 @@ function PartnerItemBase({ item, onEdit, isDragging, isOverlay, ...props }: Read
     return (
         <Box component="li" sx={{ listStyle: 'none' }} {...props}>
             <Tooltip title={item.name} arrow>
-                <Link href={item.link || '#'} target="_blank" rel="noopener noreferrer" sx={{ textDecoration: 'none', display: 'block' }}>
-                    <Card sx={{ p: 2, aspectRatio: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', boxShadow: isOverlay ? '0px 8px 16px 0px rgba(0,0,0,0.24)' : undefined, opacity: isDragging ? 0.48 : 1, '&:hover .actions': { opacity: 1 } }}>
-                        <Box component="img" src={item.imageUrl} alt={item.name} sx={{ width: '80%', height: '80%', objectFit: 'contain' }} />
-                        <Stack direction="row" className="actions" sx={{ top: 8, right: 8, position: 'absolute', opacity: 0, transition: 'opacity 0.2s', bgcolor: 'background.paper', borderRadius: '50%' }}>
-                            {onEdit && <IconButton size="small" onClick={(e) => { e.preventDefault(); onEdit(); }}><Iconify icon="solar:pen-bold" /></IconButton>}
-                            <IconButton size="small" {...props.listeners}><Iconify icon="custom:drag-dots-fill" /></IconButton>
-                        </Stack>
-                    </Card>
-                </Link>
+                <Card sx={{
+                    p: 2,
+                    aspectRatio: '1 / 1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    boxShadow: isOverlay ? '0px 8px 16px 0px rgba(0,0,0,0.24)' : undefined,
+                    opacity: isDragging ? 0.48 : 1, '&:hover .actions': { opacity: 1 }
+                }}
+                >
+                    <Box
+                        component="img"
+                        src={item.imageUrl}
+                        alt={item.name}
+                        sx={{
+                            width: '80%',
+                            height: '80%',
+                            objectFit: 'contain'
+                        }}
+                    />
+
+                    <Stack
+                        direction="row"
+                        className="actions"
+                        sx={{
+                            top: 8,
+                            right: 8,
+                            position: 'absolute',
+                            opacity: 0,
+                            transition: 'opacity 0.2s',
+                            bgcolor: 'background.paper',
+                            borderRadius: '50%'
+                        }}
+                    >
+                        {onEdit && <IconButton size="small" onClick={onEdit}><Iconify icon="solar:pen-bold" /></IconButton>}
+                        <IconButton size="small" {...props.listeners}><Iconify icon="custom:drag-dots-fill" /></IconButton>
+                    </Stack>
+                </Card>
             </Tooltip>
         </Box>
     );
