@@ -29,7 +29,6 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { Upload } from 'src/components/upload';
 import { uploadFile } from 'src/lib/blob/blobClient';
-import { set } from 'nprogress';
 
 
 // ----------------------------------------------------------------------
