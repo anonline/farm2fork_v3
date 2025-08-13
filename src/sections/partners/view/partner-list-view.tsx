@@ -40,6 +40,7 @@ import {
     Typography
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { DashboardContent } from 'src/layouts/dashboard';
 
 
 // ----------------------------------------------------------------------
@@ -141,7 +142,7 @@ export default function PartnerListView() {
     };
 
     return (
-        <Container>
+        <DashboardContent>
             <CustomBreadcrumbs
                 heading="Partnerek"
                 links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Partnerek' }]}
@@ -199,7 +200,7 @@ export default function PartnerListView() {
                     <Button onClick={handleDelete} color="error">Törlés</Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </DashboardContent>
     );
 }
 
