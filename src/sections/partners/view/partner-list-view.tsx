@@ -27,6 +27,9 @@ import { createPartner, updatePartner, deletePartner, useGetPartners, updatePart
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { Upload } from 'src/components/upload';
+import { uploadFile } from 'src/lib/blob/blobClient';
+import { set } from 'nprogress';
 
 
 // ----------------------------------------------------------------------
@@ -34,7 +37,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 const PartnerSchema = zod.object({
     name: zod.string().min(1, { message: 'A név megadása kötelező!' }),
-    imageUrl: zod.string().url({ message: 'Érvénytelen kép URL formátum!' }),
+    imageUrl: zod.union([zod.string(), zod.instanceof(File)]).optional(),
     link: zod.string().url({ message: 'Érvénytelen weboldal link formátum!' }),
 });
 
@@ -51,7 +54,7 @@ export default function PartnerListView() {
 
     const [openFormDialog, setOpenFormDialog] = useState(false);
     const [editingPartner, setEditingPartner] = useState<IPartner | null>(null);
-    const [formData, setFormData] = useState({ name: '', imageUrl: '', link: '' });
+    const [formData, setFormData] = useState<{ name: string; imageUrl: string | File | null; link: string }>({ name: '', imageUrl: '', link: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
@@ -113,26 +116,52 @@ export default function PartnerListView() {
     };
 
     const handleSubmit = async () => {
-        const validationResult = PartnerSchema.safeParse(formData);
 
-        if (!validationResult.success) {
-            toast.error(validationResult.error.errors[0].message);
+        if (isSubmitting){
             return;
         }
 
         setIsSubmitting(true);
+
+        let imageUrl = formData.imageUrl;
+
+        if (imageUrl instanceof File) {
+            imageUrl = await handlePartnerImageUpload(imageUrl);
+        }
+
+        const validationResult = PartnerSchema.safeParse({
+            ...formData,
+            imageUrl,
+        });
+        
+        if (!validationResult.success) {
+            console.error(validationResult.error);
+            setIsSubmitting(false);
+            toast.error('Hiba a partner adatainak ellenőrzése során.');
+            return;
+        }
+        console.log(formData);
+
         try {
+            console.log(validationResult.data);
             if (editingPartner) {
-                await updatePartner(editingPartner.id, validationResult.data);
+                await updatePartner(editingPartner.id, {
+                    ...validationResult.data,
+                    imageUrl: typeof validationResult.data.imageUrl === 'string' ? validationResult.data.imageUrl : ''
+                });
                 toast.success('Sikeres mentés!');
             } else {
-                await createPartner(validationResult.data);
+                await createPartner({
+                    ...validationResult.data,
+                    imageUrl: typeof validationResult.data.imageUrl === 'string' ? validationResult.data.imageUrl : ''
+                });
                 toast.success('Partner sikeresen létrehozva!');
             }
             partnersMutate();
             handleCloseFormDialog();
         } catch (error: any) {
-            toast.error(error.message);
+            console.error('Partner mentési hiba:', error);
+            toast.error('Hiba a partner mentése során.');
         } finally {
             setIsSubmitting(false);
         }
@@ -151,6 +180,22 @@ export default function PartnerListView() {
         }
     };
 
+    const handleRemovePartnerImage = () => {
+        setFormData(prev => ({ ...prev, imageUrl: '' }));
+    };
+
+    const handlePartnerImageUpload = async (file: File) => {
+        try {
+            const response = await uploadFile(file, 'assets', 0);
+            toast.success('Kép sikeresen feltöltve!');
+            return response.url;
+        } catch (error: any) {
+            console.error('Image upload error:', error);
+            toast.error('Hiba a fájl felöltése során.');
+        }
+        return '';
+    };
+
     return (
         <DashboardContent>
             <CustomBreadcrumbs
@@ -165,7 +210,7 @@ export default function PartnerListView() {
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={({ active }) => setActiveId(active.id)} onDragEnd={handleDragEnd}>
                 <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
-                    <Box component="ul" sx={{ p: 3, gap: 3, display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' } }}>
+                    <Box component="ul" sx={{ p: 3, gap: 3, display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(6, 1fr)', lg: 'repeat(8, 1fr)' } }}>
                         {items.map(item => (
                             <SortablePartnerItem key={item.id} item={item} onEdit={() => handleOpenEditDialog(item)} />
                         ))}
@@ -183,8 +228,15 @@ export default function PartnerListView() {
                 <DialogContent>
                     <Stack spacing={2} sx={{ pt: 1 }}>
                         <TextField name="name" label="Név" value={formData.name} onChange={handleFormChange} required />
-                        <TextField name="imageUrl" label="Kép URL" value={formData.imageUrl} onChange={handleFormChange} required />
-                        <TextField name="link" label="Weboldal Link" value={formData.link} onChange={handleFormChange} required />
+                        <TextField name="link" label="Weboldal Link" value={formData.link} onChange={handleFormChange} />
+
+                        <Upload
+                            thumbnail
+                            maxSize={10 * 1024 * 1024}
+                            value={formData.imageUrl}
+                            onRemove={handleRemovePartnerImage}
+                            onDropAccepted={(files) => setFormData(prev => ({ ...prev, imageUrl: files[0] }))}
+                        />
                     </Stack>
                 </DialogContent>
                 <DialogActions>

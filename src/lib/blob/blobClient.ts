@@ -4,7 +4,7 @@ export type UploadFolder = 'categories' | 'products' | 'assets';
 // lib/blobClient.ts
 export async function uploadFile(file: File, folder: UploadFolder, entityId: number) {
   const res = await fetch(
-    `/api/upload?folder=${folder}&filename=${encodeURIComponent(file.name)}&entityId=${entityId}`,
+    `/api/img/upload?folder=${folder}&filename=${encodeURIComponent(file.name)}&entityId=${entityId}`,
     { method: 'POST', body: file }
   );
 
@@ -14,7 +14,7 @@ export async function uploadFile(file: File, folder: UploadFolder, entityId: num
 
 export async function deleteFile(url: string, folder: UploadFolder) {
   const res = await fetch(
-    `/api/delete?url=${encodeURIComponent(url)}&folder=${folder}`,
+    `/api/img/delete?url=${encodeURIComponent(url)}&folder=${folder}`,
     { method: 'DELETE' }
   );
 

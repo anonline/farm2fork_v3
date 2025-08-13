@@ -65,7 +65,7 @@ export function Upload({
                                 size="small"
                                 onClick={onRemoveAll}
                             >
-                                Remove all
+                                Összes törlése
                             </Button>
                         )}
 
@@ -76,7 +76,7 @@ export function Upload({
                                 onClick={onUpload}
                                 startIcon={<Iconify icon="eva:cloud-upload-fill" />}
                             >
-                                Upload
+                                Feltöltés
                             </Button>
                         )}
                     </Box>
