@@ -17,25 +17,11 @@ import { createDelivery, updateDelivery } from 'src/actions/delivery';
 
 import { toast } from 'src/components/snackbar';
 
+import { formatPhoneNumber } from './view/delivery-list-view';
+
 
 // ----------------------------------------------------------------------
 
-
-const formatPhoneNumber = (value: string | number | null | undefined) => {
-    if (!value) return '';
-    const stringValue = String(value);
-    const digits = stringValue.replace(/\D/g, '');
-    if (digits.length === 0) return '';
-    const numberSlice = digits.startsWith('36') ? digits.substring(2) : digits;
-    let formatted = `+36 (${numberSlice.substring(0, 2)}`;
-    if (numberSlice.length > 2) {
-        formatted += `) ${numberSlice.substring(2, 5)}`;
-    }
-    if (numberSlice.length > 5) {
-        formatted += ` ${numberSlice.substring(5, 9)}`;
-    }
-    return formatted;
-};
 
 type Props = {
     currentDelivery?: IDeliveryPerson;

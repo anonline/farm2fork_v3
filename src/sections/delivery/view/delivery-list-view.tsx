@@ -243,7 +243,7 @@ export default function DeliveryListView() {
 };
 
 
-const formatPhoneNumber = (value: string | number | null | undefined) => {
+export const formatPhoneNumber = (value: string | number | null | undefined) => {
     if (!value) return '';
     const stringValue = String(value);
     const digits = stringValue.replace(/\D/g, '');
