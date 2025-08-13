@@ -223,5 +223,10 @@ export const paths = {
                 edit: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}/edit`,
             },
         },
+        delivery: {
+            root: `${ROOTS.DASHBOARD}/delivery`,
+            new: `${ROOTS.DASHBOARD}/delivery/new`,
+            edit: (id: string | number) => `${ROOTS.DASHBOARD}/delivery/edit/${id}`,
+        },
     },
 };
