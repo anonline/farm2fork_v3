@@ -68,28 +68,13 @@ export function useGetProduct(productId: string) {
     return memoizedValue;
 }
 
-export function useGetProductBySlug(slug: string) {
-  const { data, isLoading, error, isValidating } = useSWR<ProductsData>("products", async () =>  {
+export async function fetchGetProductBySlug(slug: string) {
     const response = await supabase.from("Products").select("*").eq('url',slug).maybeSingle();
-    const { data: products, error: responseError } = response;
+    const { data, error: responseError } = response;
     
     if (responseError) throw responseError.message;
-    return { products };
-  });
-  
-  const memoizedValue = useMemo(
-    () => ({
-      products: data?.products || [],
-      productsLoading: isLoading,
-      productsError: error,
-      productsValidating: isValidating,
-      productsEmpty: !isLoading && !isValidating && !data?.products.length,
-    }),
-    [data?.products, error, isLoading, isValidating]
-  );
-
-    return memoizedValue;
-}
+    return { product: data as IProductItem };
+  }
 
 // ----------------------------------------------------------------------
 

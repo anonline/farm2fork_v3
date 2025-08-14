@@ -36,7 +36,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { useProduct } from 'src/contexts/product-context';
 import { isArray } from 'util';
-import { useGetProductBySlug } from 'src/actions/product';
+import { fetchGetProductBySlug } from 'src/actions/product';
 
 // ----------------------------------------------------------------------
 
@@ -72,7 +72,9 @@ export const NewProductSchema = zod.object({
     // Not required
     category: zod.string(),
     cardText: zod.string().optional(),
-    taxes: zod.number({ coerce: true }).nullable(),
+    star: zod.boolean(),
+    featured: zod.boolean(),
+    bio: zod.boolean(),
     priceSale: zod.number({ coerce: true }).nullable(),
     saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
     netPrice: zod.number({ coerce: true })
@@ -126,7 +128,9 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
         code: '',
         sku: '',
         price: null,
-        taxes: null,
+        featured: false,
+        star: false,
+        bio: false,
         priceSale: null,
         quantity: null,
         tags: [],
@@ -204,29 +208,41 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
         </IconButton>
     );
 
-    const handleURLGenerate = (e: { target: { value: string } })=>{
+    const handleURLGenerate = async (e: { target: { value: string } }) => {
         const name = e.target.value.toString();
-        // Replace Hungarian accented characters with English equivalents
+        let slug = generateSlug(name);
+
+        let suffix = 2;
+        let uniqueSlug = slug;
+        let exists = false;
+
+        // Ellenőrizd, hogy van-e már ilyen slug
+        do {
+            const { product } = await fetchGetProductBySlug(uniqueSlug);
+            exists = product && product.id !== currentProduct?.id;
+            if (exists) {
+                uniqueSlug = `${slug}-${suffix}`;
+                suffix++;
+            }
+        } while (exists);
+
+        setValue('url', uniqueSlug, { shouldValidate: true });
+    };
+
+    const generateSlug = (name: string) => {
         const hungarianMap: Record<string, string> = {
             'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o',
             'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O'
         };
-        console.log(e);
         let slug = name
             .split('')
-            .map((char:string) => hungarianMap[char] || char)
+            .map((char: string) => hungarianMap[char] || char)
             .join('')
             .replace(/\s+/g, '-')
             .replace(/[^a-zA-Z0-9\-]/g, '')
             .toLowerCase();
-
-        const alreadyProductWithSameSlug = useGetProductBySlug(slug);
-        if(!alreadyProductWithSameSlug.productsEmpty){
-            slug += '-2';
-        }
-
-        setValue('url', slug.toString(), { shouldValidate: true });
-    };
+        return slug;
+    }
 
 
     const renderDetails = () => (
@@ -242,7 +258,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                 <Divider />
 
                 <Stack spacing={3} sx={{ p: 3 }}>
-                    <Field.Text name="name" label="Termék név" onBlur={handleURLGenerate}/>
+                    <Field.Text name="name" label="Termék név" onBlur={handleURLGenerate} />
 
                     <Field.Text name="url" label="Termék URL" slotProps={{ input: { readOnly: true } }} variant='filled' />
 
@@ -407,7 +423,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                 </Stack>
 
                 <Divider />
-                
+
                 <Stack spacing={3} sx={{ p: 3 }}>
                     <Field.Switch name="featured" label="Főoldalon kiemelt termék" />
                     <Field.Switch name="star" label="Szezonális sztár termék" />
