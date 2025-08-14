@@ -1,9 +1,8 @@
 'use client';
 
-import { DashboardContent } from 'src/layouts/dashboard';
-
 import { paths } from 'src/routes/paths';
 
+import { DashboardContent } from 'src/layouts/dashboard';
 import { ShippingProvider } from 'src/contexts/shipping-context';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
