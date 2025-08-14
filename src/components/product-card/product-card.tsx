@@ -15,6 +15,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { themeConfig } from 'src/theme';
 
 import { toast } from 'src/components/snackbar';
+import { useSideCart } from 'src/components/sidecart';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
@@ -444,6 +445,7 @@ type ProductCardButtonProps = {
 }
 
 function ProductCardButton({ product, label, onAddToCart, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
+    const { openSideCart } = useSideCart();
 
     const baseStyle: SxProps = {
         ...sx,
@@ -481,6 +483,7 @@ function ProductCardButton({ product, label, onAddToCart, isDisabled = false, sx
             subtotal: product.netPrice,
         });
         toast.success("Sikeresen kosárhoz adva.");
+        openSideCart();
     }
     return (
         <Button variant={isDisabled ? 'outlined' : 'contained'} disabled={isDisabled} color={isDisabled ? 'inherit' : 'primary'} onClick={handleButtonClick} sx={isDisabled ? disabledButtonStyle : buttonStyle}>
