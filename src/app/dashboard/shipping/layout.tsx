@@ -10,6 +10,7 @@ import { ShippingProvider } from 'src/contexts/shipping-context';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import ShippingListView from 'src/sections/shipping/view/shipping-list-view';
+import { DashboardContent } from 'src/layouts/dashboard';
 
 
 // ----------------------------------------------------------------------
@@ -17,7 +18,7 @@ import ShippingListView from 'src/sections/shipping/view/shipping-list-view';
 export default function Layout() {
   return (
     <ShippingProvider>
-      <Container maxWidth="xl">
+      <DashboardContent maxWidth="xl">
         <CustomBreadcrumbs
           heading="Szállítási Zónák"
           links={[
@@ -26,7 +27,7 @@ export default function Layout() {
           ]}
         />
         <ShippingListView />
-      </Container>
+      </DashboardContent>
     </ShippingProvider>
   );
 }
