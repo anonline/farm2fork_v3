@@ -36,11 +36,13 @@ type EventHandler =
 export type NumberInputProps = Omit<React.ComponentProps<typeof NumberInputRoot>, 'onChange'> & {
     min?: number;
     max?: number;
+    step?: number;
     error?: boolean;
     disabled?: boolean;
     value?: number | null;
     hideDivider?: boolean;
     hideButtons?: boolean;
+    digits?: number;
     disableInput?: boolean;
     helperText?: React.ReactNode;
     captionText?: React.ReactNode;
@@ -62,6 +64,8 @@ export function NumberInput({
     disableInput,
     min = 0,
     max = 9999,
+    step = 1,
+    digits = 2,
     ...other
 }: NumberInputProps) {
     const id = useId();
@@ -71,22 +75,27 @@ export function NumberInput({
     const isDecrementDisabled = currentValue <= min || disabled;
     const isIncrementDisabled = currentValue >= max || disabled;
 
+    const round = (num: number, decimals = 2) =>
+        Number(Math.round(Number(num + 'e' + decimals)) + 'e-' + decimals);
+
     const handleDecrement = useCallback(
         (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             if (!isDecrementDisabled) {
-                onChange?.(event, currentValue - 1);
+                const newValue = round(Number(currentValue) - Number(step), digits);
+                onChange?.(event, newValue);
             }
         },
-        [isDecrementDisabled, onChange, currentValue]
+        [isDecrementDisabled, onChange, currentValue, step, digits]
     );
 
     const handleIncrement = useCallback(
         (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             if (!isIncrementDisabled) {
-                onChange?.(event, currentValue + 1);
+                const newValue = round(Number(currentValue) + Number(step), digits);
+                onChange?.(event, newValue);
             }
         },
-        [isIncrementDisabled, onChange, currentValue]
+        [isIncrementDisabled, onChange, currentValue, step, digits]
     );
 
     const handleChange = useCallback(

@@ -1,13 +1,12 @@
 import type { IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
@@ -23,8 +22,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { fetchGetProductBySlug } from 'src/actions/product';
 import {
-    _tags,
     PRODUCT_SIZE_OPTIONS,
     PRODUCT_GENDER_OPTIONS,
     PRODUCT_COLOR_NAME_OPTIONS,
@@ -40,66 +39,93 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 
 export const NewProductSchema = zod.object({
-    name: zod.string().min(1, { message: 'Name is required!' }),
-    description: schemaHelper
-        .editor({ message: 'Description is required!' })
-        .min(100, { message: 'Description must be at least 100 characters' })
-        .max(500, { message: 'Description must be less than 500 characters' }),
-    images: schemaHelper.files({ message: 'Images is required!' }),
-    code: zod.string().min(1, { message: 'Product code is required!' }),
-    sku: zod.string().min(1, { message: 'Product sku is required!' }),
+    name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
+    url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
+    shortDescription: schemaHelper
+        .editor({ message: 'Leírás megadása kötelező!' })
+        .max(1000, { message: 'A leírásnak kevesebb mint 1000 karakternek kell lennie' }),
+    images: schemaHelper.files({ message: 'Képek megadása kötelező!' }),
+    code: zod.string().min(1, { message: 'Termék kód megadása kötelező!' }),
+    sku: zod.string().min(1, { message: 'Termék SKU megadása kötelező!' }),
     quantity: schemaHelper.nullableInput(
-        zod.number({ coerce: true }).min(1, { message: 'Quantity is required!' }),
+        zod.number({ coerce: true }).min(1, { message: 'Mennyiség megadása kötelező!' }),
         {
-            // message for null value
-            message: 'Quantity is required!',
+            message: 'Mennyiség megadása kötelező!',
         }
     ),
-    colors: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-    sizes: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-    tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-    gender: zod.array(zod.string()).min(1, { message: 'Choose at least one option!' }),
+    colors: zod.string().array().min(1, { message: 'Válassz ki legalább egy lehetőséget!' }),
+    sizes: zod.string().array().min(1, { message: 'Válassz ki legalább egy lehetőséget!' }),
+    tags: zod.string().array().min(2, { message: 'Legalább 2 elem megadása kötelező!' }),
+    gender: zod.array(zod.string()).min(1, { message: 'Válassz ki legalább egy lehetőséget!' }),
     price: schemaHelper.nullableInput(
-        zod.number({ coerce: true }).min(1, { message: 'Price is required!' }),
+        zod.number({ coerce: true }).min(1, { message: 'Ár megadása kötelező!' }),
         {
             // message for null value
-            message: 'Price is required!',
+            message: 'Ár megadása kötelező!',
         }
     ),
     // Not required
     category: zod.string(),
-    subDescription: zod.string(),
-    taxes: zod.number({ coerce: true }).nullable(),
+    cardText: zod.string().optional(),
+    star: zod.boolean(),
+    featured: zod.boolean(),
+    bio: zod.boolean(),
     priceSale: zod.number({ coerce: true }).nullable(),
     saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
-    newLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
+    netPrice: zod.number({ coerce: true })
+        .int({ message: "Kérjük, adjon meg egy érvényes nettó árat!" })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' }),
+    grossPrice: zod.number({ coerce: true })
+        .int({ message: "Kérjük, adjon meg egy érvényes bruttó árat!" })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' }),
+    salegrossPrice: zod.number({ coerce: true })
+        .int({ message: "Kérjük, adjon meg egy érvényes bruttó árat!" })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .nullable(),
+    netPriceVIP: zod.number({ coerce: true })
+        .int({ message: "Kérjük, adjon meg egy érvényes VIP nettó árat!" })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' }),
+    netPriceCompany: zod.number({ coerce: true })
+        .int({ message: "Kérjük, adjon meg egy érvényes Céges nettó árat!" })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' }),
+    vat: zod.number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
+        .max(100, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
+        .default(27),
 });
 
 // ----------------------------------------------------------------------
 
-type Props = {
-    currentProduct?: IProductItem;
+type ProductNewEditFormProps = {
+    currentProduct: IProductItem | null;
 };
-
-export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
+export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFormProps>) {
     const router = useRouter();
 
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
     const openPricing = useBoolean(true);
-
-    const [includeTaxes, setIncludeTaxes] = useState(false);
+    const openFeatured = useBoolean(true);
 
     const defaultValues: NewProductSchemaType = {
         name: '',
-        description: '',
-        subDescription: '',
+        shortDescription: '',
+        cardText: '',
+        url: '',
         images: [],
         /********/
         code: '',
         sku: '',
         price: null,
-        taxes: null,
+        featured: false,
+        star: false,
+        bio: false,
         priceSale: null,
         quantity: null,
         tags: [],
@@ -107,8 +133,13 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
         category: PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
         colors: [],
         sizes: [],
-        newLabel: { enabled: false, content: '' },
         saleLabel: { enabled: false, content: '' },
+        vat: 0,
+        netPrice: 0,
+        grossPrice: 0,
+        salegrossPrice: null,
+        netPriceVIP: 0,
+        netPriceCompany: 0,
     };
 
     const methods = useForm<NewProductSchemaType>({
@@ -116,12 +147,12 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
         defaultValues,
         values: currentProduct
             ? {
-                  ...currentProduct,
-                  category:
-                      Array.isArray(currentProduct.category) && currentProduct.category.length > 0
-                          ? currentProduct.category[0].name || ''
-                          : '',
-              }
+                ...currentProduct,
+                category:
+                    Array.isArray(currentProduct.category) && currentProduct.category.length > 0
+                        ? currentProduct.category[0].name || ''
+                        : '',
+            }
             : undefined,
     });
 
@@ -133,12 +164,14 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
         formState: { isSubmitting },
     } = methods;
 
-    const values = watch();
+    //const values = watch();
+
+    //const [netPrice, grossPrice, vat] = watch(['netPrice','grossPrice','vat']);
 
     const onSubmit = handleSubmit(async (data) => {
         const updatedData = {
             ...data,
-            taxes: includeTaxes ? defaultValues.taxes : data.taxes,
+            //taxes: includeTaxes ? defaultValues.taxes : data.taxes,
         };
 
         try {
@@ -152,21 +185,17 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
         }
     });
 
-    const handleRemoveFile = useCallback(
+    /*const handleRemoveFile = useCallback(
         (inputFile: File | string) => {
-            const filtered = values.images?.filter((file) => file !== inputFile);
-            setValue('images', filtered);
+            //const filtered = values.images?.filter((file) => file !== inputFile);
+            //setValue('images', filtered);
         },
         [setValue, values.images]
-    );
+    );*/
 
     const handleRemoveAllFiles = useCallback(() => {
         setValue('images', [], { shouldValidate: true });
     }, [setValue]);
-
-    const handleChangeIncludeTaxes = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        setIncludeTaxes(event.target.checked);
-    }, []);
 
     const renderCollapseButton = (value: boolean, onToggle: () => void) => (
         <IconButton onClick={onToggle}>
@@ -174,11 +203,48 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
         </IconButton>
     );
 
+    const handleURLGenerate = async (e: { target: { value: string } }) => {
+        const name = e.target.value.toString();
+        const slug = generateSlug(name);
+
+        let suffix = 2;
+        let uniqueSlug = slug;
+        let exists = false;
+
+        // Ellenőrizd, hogy van-e már ilyen slug
+        do {
+            const { product } = await fetchGetProductBySlug(uniqueSlug);
+            exists = product && product.id !== currentProduct?.id;
+            if (exists) {
+                uniqueSlug = `${slug}-${suffix}`;
+                suffix++;
+            }
+        } while (exists);
+
+        setValue('url', uniqueSlug, { shouldValidate: true });
+    };
+
+    const generateSlug = (name: string) => {
+        const hungarianMap: Record<string, string> = {
+            'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o',
+            'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O'
+        };
+        const slug = name
+            .split('')
+            .map((char: string) => hungarianMap[char] || char)
+            .join('')
+            .replace(/\s+/g, '-')
+            .replace(/[^a-zA-Z0-9-]/g, '')
+            .toLowerCase();
+        return slug;
+    }
+
+
     const renderDetails = () => (
         <Card>
             <CardHeader
-                title="Details"
-                subheader="Title, short description, image..."
+                title="Alapadatok"
+                subheader="Cím, rövid leírás, kép..."
                 action={renderCollapseButton(openDetails.value, openDetails.onToggle)}
                 sx={{ mb: 3 }}
             />
@@ -187,23 +253,26 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                 <Divider />
 
                 <Stack spacing={3} sx={{ p: 3 }}>
-                    <Field.Text name="name" label="Product name" />
+                    <Field.Text name="name" label="Termék név" onBlur={handleURLGenerate} />
 
-                    <Field.Text name="subDescription" label="Sub description" multiline rows={4} />
+                    <Field.Text name="url" label="Termék URL" slotProps={{ input: { readOnly: true } }} variant='filled' />
+
+                    <Field.Text name="cardText" label="Kártyán megjelenő rövid leírás" />
 
                     <Stack spacing={1.5}>
-                        <Typography variant="subtitle2">Content</Typography>
-                        <Field.Editor name="description" sx={{ maxHeight: 480 }} />
+                        <Typography variant="subtitle2">Leírás</Typography>
+                        <Field.Editor name="shortDescription" sx={{ maxHeight: 580 }} placeholder='Írja be a termék leírását...' />
                     </Stack>
 
                     <Stack spacing={1.5}>
-                        <Typography variant="subtitle2">Images</Typography>
+                        <Typography variant="subtitle2">Galéria</Typography>
                         <Field.Upload
                             multiple
+
                             thumbnail
                             name="images"
-                            maxSize={3145728}
-                            onRemove={handleRemoveFile}
+                            maxSize={10 * 1024 * 1024}
+                            //onRemove={/*handleRemoveFile*/}
                             onRemoveAll={handleRemoveAllFiles}
                             onUpload={() => console.info('ON UPLOAD')}
                         />
@@ -216,8 +285,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
     const renderProperties = () => (
         <Card>
             <CardHeader
-                title="Properties"
-                subheader="Additional functions and attributes..."
+                title="Tulajdonságok"
+                subheader="További funkciók és attribútumok..."
                 action={renderCollapseButton(openProperties.value, openProperties.onToggle)}
                 sx={{ mb: 3 }}
             />
@@ -234,16 +303,49 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                             gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
                         }}
                     >
-                        <Field.Text name="code" label="Product code" />
+                        <Field.Editor name="usageInformation" placeholder="Felhasználási információk" />
+                        <Field.Editor name="storingInformation" placeholder="Tárolási információk" />
 
-                        <Field.Text name="sku" label="Product SKU" />
+                        <Field.NumberInput
+                            name="mininumQuantity"
+                            min={0.1}
+                            step={0.1}
+                            max={999}
+                            helperText="Korárba tétel minimuma"
+                            digits={2}
+                            slotProps={{
+                                inputWrapper: {
+                                    sx: { width: '100%' }
+                                }
+                            }}
+                        />
 
-                        <Field.Text
-                            name="quantity"
-                            label="Quantity"
-                            placeholder="0"
-                            type="number"
-                            slotProps={{ inputLabel: { shrink: true } }}
+                        <Field.NumberInput
+                            name="maximumQuantity"
+                            min={0.1}
+                            step={0.1}
+                            max={999}
+                            helperText="Korárba tétel maximuma"
+                            digits={2}
+                            slotProps={{
+                                inputWrapper: {
+                                    sx: { width: '100%' }
+                                }
+                            }}
+                        />
+
+                        <Field.NumberInput
+                            name="stepQuantity"
+                            min={0.1}
+                            step={0.1}
+                            max={999}
+                            helperText="Korárba tétel léptéke"
+                            digits={2}
+                            slotProps={{
+                                inputWrapper: {
+                                    sx: { width: '100%' }
+                                }
+                            }}
                         />
 
                         <Field.Select
@@ -280,10 +382,10 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                         />
                     </Box>
 
-                    <Field.Autocomplete
+                    {/*<Field.Autocomplete
                         name="tags"
-                        label="Tags"
-                        placeholder="+ Tags"
+                        label="Címkék"
+                        placeholder="+ Címke"
                         multiple
                         freeSolo
                         disableCloseOnSelect
@@ -295,7 +397,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                             </li>
                         )}
                         renderTags={(selected, getTagProps) =>
-                            selected.map((option, index) => (
+                            isArray(selected) && selected.map((option, index) => (
                                 <Chip
                                     {...getTagProps({ index })}
                                     key={option}
@@ -306,7 +408,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                                 />
                             ))
                         }
-                    />
+                    />*/}
 
                     <Stack spacing={1}>
                         <Typography variant="subtitle2">Gender</Typography>
@@ -318,27 +420,42 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                         />
                     </Stack>
 
-                    <Divider sx={{ borderStyle: 'dashed' }} />
 
-                    <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
-                        <Field.Switch name="saleLabel.enabled" label={null} sx={{ m: 0 }} />
-                        <Field.Text
-                            name="saleLabel.content"
-                            label="Sale label"
-                            fullWidth
-                            disabled={!values.saleLabel.enabled}
-                        />
-                    </Box>
+                </Stack>
+            </Collapse>
+        </Card>
+    );
 
-                    <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
-                        <Field.Switch name="newLabel.enabled" label={null} sx={{ m: 0 }} />
-                        <Field.Text
-                            name="newLabel.content"
-                            label="New label"
-                            fullWidth
-                            disabled={!values.newLabel.enabled}
-                        />
-                    </Box>
+    const renderFeatured = () => (
+        <Card>
+            <CardHeader
+                title="Kiemelt termék"
+                subheader="Kiemelt termék beállítások"
+                action={renderCollapseButton(openFeatured.value, openFeatured.onToggle)}
+                sx={{ mb: 3 }}
+            />
+
+            <Collapse in={openFeatured.value}>
+                <Divider />
+
+                <Stack spacing={1.5} sx={{ p: 3 }}>
+                    <Typography variant="subtitle2">Kiemelt kép</Typography>
+                    <Field.Upload
+                        thumbnail
+                        name="featuredImage"
+                        maxSize={10 * 1024 * 1024}
+                        //onRemove={/*handleRemoveFile*/}
+                        onRemoveAll={handleRemoveAllFiles}
+                        onUpload={() => console.info('ON UPLOAD')}
+                    />
+                </Stack>
+
+                <Divider />
+
+                <Stack spacing={3} sx={{ p: 3 }}>
+                    <Field.Switch name="featured" label="Főoldalon kiemelt termék" />
+                    <Field.Switch name="star" label="Szezonális sztár termék" />
+                    <Field.Switch name="bio" label="Bio termék" />
                 </Stack>
             </Collapse>
         </Card>
@@ -347,8 +464,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
     const renderPricing = () => (
         <Card>
             <CardHeader
-                title="Pricing"
-                subheader="Price related inputs"
+                title="Árak"
+                subheader="Árakkal kapcsolatos beviteli mezők"
                 action={renderCollapseButton(openPricing.value, openPricing.onToggle)}
                 sx={{ mb: 3 }}
             />
@@ -358,17 +475,22 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
 
                 <Stack spacing={3} sx={{ p: 3 }}>
                     <Field.Text
-                        name="price"
-                        label="Regular price"
+                        name="netPrice"
+                        label="Nettó alapár"
                         placeholder="0.00"
                         type="number"
+                        onBlur={(e) => {
+                            const net = Number(e.target.value);
+                            const gross = Math.round(net * (1 + (watch('vat') ?? 0) / 100));
+                            setValue('grossPrice', gross, { shouldValidate: true });
+                        }}
                         slotProps={{
                             inputLabel: { shrink: true },
                             input: {
-                                startAdornment: (
+                                endAdornment: (
                                     <InputAdornment position="start" sx={{ mr: 0.75 }}>
                                         <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            $
+                                            Ft
                                         </Box>
                                     </InputAdornment>
                                 ),
@@ -377,17 +499,42 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                     />
 
                     <Field.Text
-                        name="priceSale"
-                        label="Sale price"
-                        placeholder="0.00"
+                        name="vat"
+                        label="Áfa (%)"
+                        placeholder="0"
                         type="number"
                         slotProps={{
                             inputLabel: { shrink: true },
                             input: {
-                                startAdornment: (
+                                endAdornment: (
                                     <InputAdornment position="start" sx={{ mr: 0.75 }}>
                                         <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            $
+                                            %
+                                        </Box>
+                                    </InputAdornment>
+                                ),
+                                inputProps: { min: 0, max: 100, step: 1 },
+                            },
+                        }}
+                    />
+
+                    <Field.Text
+                        name="grossPrice"
+                        label="Bruttó alapár"
+                        placeholder="0.00"
+                        type="number"
+                        onBlur={(e) => {
+                            const gross = Number(e.target.value);
+                            const net = Math.round(gross / (1 + (watch('vat') ?? 0) / 100));
+                            setValue('netPrice', net, { shouldValidate: true });
+                        }}
+                        slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                                        <Box component="span" sx={{ color: 'text.disabled' }}>
+                                            Ft
                                         </Box>
                                     </InputAdornment>
                                 ),
@@ -395,37 +542,64 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
                         }}
                     />
 
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                id="toggle-taxes"
-                                checked={includeTaxes}
-                                onChange={handleChangeIncludeTaxes}
-                            />
-                        }
-                        label="Price includes taxes"
+                    <Field.Text
+                        name="netPriceVIP"
+                        label="VIP alapár (nettó)"
+                        placeholder="0.00"
+                        type="number"
+                        slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                                        <Box component="span" sx={{ color: 'text.disabled' }}>
+                                            Ft
+                                        </Box>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
 
-                    {!includeTaxes && (
-                        <Field.Text
-                            name="taxes"
-                            label="Tax (%)"
-                            placeholder="0.00"
-                            type="number"
-                            slotProps={{
-                                inputLabel: { shrink: true },
-                                input: {
-                                    startAdornment: (
-                                        <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                            <Box component="span" sx={{ color: 'text.disabled' }}>
-                                                %
-                                            </Box>
-                                        </InputAdornment>
-                                    ),
-                                },
-                            }}
-                        />
-                    )}
+                    <Field.Text
+                        name="netPriceCompany"
+                        label="Céges alapár (nettó)"
+                        placeholder="0.00"
+                        type="number"
+                        slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                                        <Box component="span" sx={{ color: 'text.disabled' }}>
+                                            Ft
+                                        </Box>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
+                    />
+
+                    <Field.Text
+                        name="salegrossPrice"
+                        label="Akciós ár (bruttó)"
+                        placeholder="0.00"
+                        type="number"
+                        slotProps={{
+                            inputLabel: { shrink: true },
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                                        <Box component="span" sx={{ color: 'text.disabled' }}>
+                                            Ft
+                                        </Box>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
+                    />
+
+
                 </Stack>
             </Collapse>
         </Card>
@@ -441,25 +615,42 @@ export function ProductNewEditForm({ currentProduct }: Readonly<Props>) {
             }}
         >
             <FormControlLabel
-                label="Publish"
+                label="Közzétéve"
                 control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
                 sx={{ pl: 3, flexGrow: 1 }}
             />
 
             <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
-                {!currentProduct ? 'Create product' : 'Save changes'}
+                {!currentProduct ? 'Termék létrehozása' : 'Változtatások mentése'}
             </Button>
         </Box>
     );
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
-            <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-                {renderDetails()}
-                {renderProperties()}
-                {renderPricing()}
-                {renderActions()}
-            </Stack>
+            <Box
+                sx={{
+                    mx: 'auto',
+                    maxWidth: { xs: 720, xl: '100%' },
+                    display: 'grid',
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        md: '1fr',
+                        lg: '7fr 3fr',
+                    },
+                    gap: { xs: 3, md: 5 },
+                }}
+            >
+                <Stack spacing={{ xs: 3, md: 5 }}>
+                    {renderDetails()}
+                    {renderProperties()}
+                </Stack>
+                <Stack spacing={{ xs: 3, md: 5 }}>
+                    {renderFeatured()}
+                    {renderPricing()}
+                    {renderActions()}
+                </Stack>
+            </Box>
         </Form>
     );
 }

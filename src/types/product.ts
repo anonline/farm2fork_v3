@@ -53,6 +53,7 @@ export type IProductItem = {
     sku: string;
     name: string;
     shortDescription: string;
+    cardText?: string;
     featuredImage: string;
     stepQuantity: number;
     mininumQuantity: number;
@@ -61,9 +62,12 @@ export type IProductItem = {
     slug: string;
     unit:string;
     bio: boolean;
+    grossPrice:number;
+    salegrossPrice: number | null;
     netPrice: number;
     netPriceVIP: number;
     netPriceCompany: number;
+    vat: number;
     seasonality: MonthKeys[],
     featured: boolean,
     star: boolean,

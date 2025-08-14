@@ -8,6 +8,7 @@ export enum OptionsEnum {
     HomeHeroSecondaryBtnText    = "home_heroSecondaryButtonText",
     HomeHeroMinHeight           = "home_heroMinHeight",
     MaxFileUploadSizeMB        = "max_file_upload_mb",
+    ProductPlaceholderImageURL = "product_placeholder_image_url",
 }
 
 export type Option<T> = {

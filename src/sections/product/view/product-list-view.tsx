@@ -23,7 +23,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import {
     DataGrid,
     gridClasses,
-    GridToolbarExport,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,
@@ -34,9 +33,8 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { PRODUCT_STOCK_OPTIONS } from 'src/_mock';
-import { useGetProducts } from 'src/actions/product';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useProducts } from 'src/contexts/products-context';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -48,11 +46,13 @@ import { ProductTableToolbar } from '../product-table-toolbar';
 import { ProductTableFiltersResult } from '../product-table-filters-result';
 import {
     RenderCellBio,
+    RenderCellTags,
     RenderCellStock,
     RenderCellPrice,
     RenderCellPublish,
     RenderCellProduct,
-    RenderCellCreatedAt,
+    RenderCellCategories,
+    RenderCellGrossPrice,
 } from '../product-table-row';
 
 // ----------------------------------------------------------------------
@@ -76,7 +76,7 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 export function ProductListView() {
     const confirmDialog = useBoolean();
 
-    const { products, productsLoading } = useGetProducts();
+    const { products, loading: productsLoading } = useProducts();
 
     const [tableData, setTableData] = useState<IProductItem[]>(products);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
@@ -94,7 +94,7 @@ export function ProductListView() {
         }
     }, [products]);
 
-    const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
+    const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0 || currentFilters.bio.length > 0;
 
     const dataFiltered = applyFilter({
         inputData: tableData,
@@ -139,13 +139,13 @@ export function ProductListView() {
         { field: 'category', headerName: 'Category', filterable: false },
         {
             field: 'publish',
-            headerName: '',
+            headerName: 'Aktív',
             width: 110,
             renderCell: (params) => <RenderCellPublish params={params} />,
         },
         {
             field: 'bio',
-            headerName: '',
+            headerName: 'Bio',
             width: 90,
 
             renderCell: (params) => <RenderCellBio params={params} />,
@@ -159,31 +159,48 @@ export function ProductListView() {
             renderCell: (params) => (
                 <RenderCellProduct
                     params={params}
-                    href={paths.dashboard.product.details(params.row.id)}
+                    href={paths.dashboard.product.edit(params.row.url)}
                 />
             ),
         },
         {
             field: 'inventoryType',
             headerName: 'Készlet',
-            width: 160,
-            type: 'singleSelect',
-            valueOptions: PRODUCT_STOCK_OPTIONS,
+            width: 100,
+            editable: false,
+
             renderCell: (params) => <RenderCellStock params={params} />,
         },
         {
             field: 'price',
-            headerName: 'Ár',
+            headerName: 'nettó Ár',
             width: 140,
-            editable: true,
+            editable: false,
+
             renderCell: (params) => <RenderCellPrice params={params} />,
         },
-
         {
-            field: 'createdAt',
-            headerName: 'Dátum',
+            field: 'grossprice',
+            headerName: 'bruttó Ár',
+            width: 140,
+            editable: false,
+            renderCell: (params) => <RenderCellGrossPrice params={params} />,
+        },
+        {
+            field: 'tags',
+            headerName: 'Címkék',
+            width: 240,
+            editable: false,
+
+            renderCell: (params) => <RenderCellTags params={params} />,
+        },
+        {
+            field: 'categories',
+            headerName: 'Kategóriák',
             width: 160,
-            renderCell: (params) => <RenderCellCreatedAt params={params} />,
+            editable: false,
+
+            renderCell: (params) => <RenderCellCategories params={params} />,
         },
         {
             type: 'actions',
@@ -198,18 +215,22 @@ export function ProductListView() {
             getActions: (params) => [
                 <GridActionsLinkItem
                     showInMenu
+                    key={`view-${params.row.id}`}
                     icon={<Iconify icon="solar:eye-bold" />}
                     label="Megtekintés"
-                    href={paths.dashboard.product.details(params.row.id)}
+                    target='_blank'
+                    href={paths.product.details(params.row.url)}
                 />,
                 <GridActionsLinkItem
                     showInMenu
+                    key={`edit-${params.row.id}`}
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Szerkesztés"
-                    href={paths.dashboard.product.edit(params.row.id)}
+                    href={paths.dashboard.product.edit(params.row.url)}
                 />,
                 <GridActionsCellItem
                     showInMenu
+                    key={`delete-${params.row.id}`}
                     icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                     label="Törlés"
                     onClick={() => handleDeleteRow(params.row.id)}
@@ -228,10 +249,10 @@ export function ProductListView() {
         <ConfirmDialog
             open={confirmDialog.value}
             onClose={confirmDialog.onFalse}
-            title="Delete"
+            title="Törlés"
             content={
                 <>
-                    Are you sure want to delete <strong> {selectedRowIds.length} </strong> items?
+                    Biztosan törölni szeretné a kijelölt <strong> {selectedRowIds.length} </strong> elemet?
                 </>
             }
             action={
@@ -243,7 +264,7 @@ export function ProductListView() {
                         confirmDialog.onFalse();
                     }}
                 >
-                    Delete
+                    Törlés
                 </Button>
             }
         />
@@ -253,11 +274,11 @@ export function ProductListView() {
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="List"
+                    heading="Összes termék"
                     links={[
                         { name: 'Dashboard', href: paths.dashboard.root },
-                        { name: 'Product', href: paths.dashboard.product.root },
-                        { name: 'List' },
+                        { name: 'Termékek', href: paths.dashboard.product.root },
+                        { name: 'Összes termék' },
                     ]}
                     action={
                         <Button
@@ -300,7 +321,7 @@ export function ProductListView() {
                         slots={{
                             toolbar: CustomToolbarCallback,
                             noRowsOverlay: () => <EmptyContent />,
-                            noResultsOverlay: () => <EmptyContent title="No results found" />,
+                            noResultsOverlay: () => <EmptyContent title="Nincs találat." />,
                         }}
                         slotProps={{
                             toolbar: { setFilterButtonEl },
@@ -353,7 +374,7 @@ function CustomToolbar({
                 <ProductTableToolbar
                     filters={filters}
                     options={{
-                        stocks: PRODUCT_STOCK_OPTIONS,
+                        //stocks: PRODUCT_STOCK_OPTIONS,
                         publishs: PUBLISH_OPTIONS,
                         bios: BIO_OPTIONS,
                     }}
@@ -383,7 +404,7 @@ function CustomToolbar({
 
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton ref={setFilterButtonEl} />
-                    <GridToolbarExport />
+                    {/* <GridToolbarExport /> */}
                 </Box>
             </GridToolbarContainer>
 
@@ -404,9 +425,10 @@ type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' 
     href: string;
     sx?: SxProps<Theme>;
     ref?: React.RefObject<HTMLLIElement | null>;
+    target?: string;
 };
 
-export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsLinkItemProps) {
+export function GridActionsLinkItem({ ref, href, label, icon, sx, target }: GridActionsLinkItemProps) {
     return (
         <MenuItem ref={ref} sx={sx}>
             <Link
@@ -415,6 +437,7 @@ export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsL
                 underline="none"
                 color="inherit"
                 sx={{ width: 1, display: 'flex', alignItems: 'center' }}
+                target={target}
             >
                 {icon && <ListItemIcon>{icon}</ListItemIcon>}
                 {label}
@@ -431,14 +454,18 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, filters }: ApplyFilterProps) {
-    const { stock, publish } = filters;
+    const { stock, publish, bio } = filters;
 
     if (stock.length) {
         inputData = inputData.filter((product) => stock.includes(product.inventoryType));
     }
 
     if (publish.length) {
-        inputData = inputData.filter((product) => publish.includes(product.publish));
+        inputData = inputData.filter((product) => publish.includes(product.publish ? 'true' : 'false'));
+    }
+
+    if (bio.length) {
+        inputData = inputData.filter((product) => bio.includes(product.bio ? 'true' : 'false'));
     }
 
     return inputData;

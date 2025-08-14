@@ -72,7 +72,7 @@ export function ProductDetailsView({ product }: Props) {
             <ProductDetailsToolbar
                 backHref={paths.dashboard.product.root}
                 liveHref={paths.product.details(`${product?.id}`)}
-                editHref={paths.dashboard.product.edit(`${product?.id}`)}
+                editHref={paths.dashboard.product.edit(`${product?.url}`)}
                 publish={publish}
                 onChangePublish={handleChangePublish}
                 publishOptions={PRODUCT_PUBLISH_OPTIONS}

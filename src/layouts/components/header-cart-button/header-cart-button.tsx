@@ -1,18 +1,19 @@
 import { Badge, Button } from "@mui/material";
 
-import { paths } from "src/routes/paths";
-
 import { fCurrency } from "src/utils/format-number";
 
+import { useSideCart } from "src/components/sidecart";
 import F2FIcons from "src/components/f2ficons/f2ficons";
 
 import { useCheckoutContext } from "src/sections/checkout/context";
 
 export default function HeaderCartButton() {
-const { state:checkoutState,  } = useCheckoutContext();
+    const { state: checkoutState } = useCheckoutContext();
+    const { openSideCart } = useSideCart();
+
     return (
         <Button
-            href={paths.product.checkout}
+            onClick={openSideCart}
             startIcon={
                 <Badge badgeContent={checkoutState.totalItems} color='primary' sx={{marginRight: '10px'}}>
                     <F2FIcons

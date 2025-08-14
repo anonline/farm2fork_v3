@@ -15,6 +15,7 @@ import { themeConfig } from 'src/theme';
 import { supabase } from 'src/lib/supabase';
 
 import { Logo } from 'src/components/logo';
+import { SideCart, useSideCart, SideCartProvider } from 'src/components/sidecart';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -60,7 +61,28 @@ export function MainLayout({
     slotProps,
     layoutQuery = 'md',
 }: MainLayoutProps) {
+    return (
+        <SideCartProvider>
+            <MainLayoutContent
+                sx={sx}
+                cssVars={cssVars}
+                children={children}
+                slotProps={slotProps}
+                layoutQuery={layoutQuery}
+            />
+        </SideCartProvider>
+    );
+}
+
+function MainLayoutContent({
+    sx,
+    cssVars,
+    children,
+    slotProps,
+    layoutQuery = 'md',
+}: MainLayoutProps) {
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
+    const { isOpen: isSideCartOpen, closeSideCart } = useSideCart();
     const navData = slotProps?.nav?.data ?? mainNavData;
     const [announcement, setAnnouncement] = useState<string | null>(null);
     const authContext = useAuthContext();
@@ -215,6 +237,7 @@ export function MainLayout({
             <HomeFooter sx={slotProps?.footer?.sx} />
         ) : (*/
         <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
+
     //);
 
     const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
@@ -237,6 +260,10 @@ export function MainLayout({
             sx={sx}
         >
             {renderMain()}
+            <SideCart
+                open={isSideCartOpen}
+                onClose={closeSideCart}
+            />
         </LayoutSection>
     );
 }

@@ -68,6 +68,14 @@ export function useGetProduct(productId: string) {
     return memoizedValue;
 }
 
+export async function fetchGetProductBySlug(slug: string) {
+    const response = await supabase.from("Products").select("*").eq('url',slug).maybeSingle();
+    const { data, error: responseError } = response;
+    
+    if (responseError) throw responseError.message;
+    return { product: data as IProductItem };
+  }
+
 // ----------------------------------------------------------------------
 
 type SearchResultsData = {

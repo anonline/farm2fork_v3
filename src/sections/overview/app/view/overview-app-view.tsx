@@ -9,9 +9,8 @@ import { _appAuthors, _appRelated, _appInvoices, _appInstalled } from 'src/_mock
 
 import { svgColorClasses } from 'src/components/svg-color';
 
-import { useMockedUser } from 'src/auth/hooks';
-
 import { AppWidget } from '../app-widget';
+import AllUserWidget from '../alluser-widget';
 import { AppNewInvoice } from '../app-new-invoice';
 import { AppTopAuthors } from '../app-top-authors';
 import { AppTopRelated } from '../app-top-related';
@@ -22,8 +21,7 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
 
-export function OverviewAppView() {
-    const { user } = useMockedUser();
+export function OverviewAppView({totalUsers,usersByMonthAtLastYear,newUsersPercent}:Readonly<{totalUsers: number, usersByMonthAtLastYear: number[], newUsersPercent: number}>) {
 
     const theme = useTheme();
 
@@ -73,16 +71,7 @@ export function OverviewAppView() {
                 </Grid>
 
         <Grid size={{ xs: 12, md: 4 }}>
-          <AppWidgetSummary
-            title="Összes felhaszáló"
-            percent={2.44}
-            total={678}
-            chart={{
-              colors: [theme.palette.error.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [18, 19, 31, 8, 16, 37, 12, 33],
-            }}
-          />
+          <AllUserWidget total={totalUsers} series={usersByMonthAtLastYear} percent={newUsersPercent} />
         </Grid>
 
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>

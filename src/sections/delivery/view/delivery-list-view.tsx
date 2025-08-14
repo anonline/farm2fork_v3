@@ -115,7 +115,7 @@ export default function DeliveryListView() {
             width: 200,
             disableColumnMenu: true,
             align: 'center',
-            headerAlign: 'center',
+            headerAlign: 'left',
             renderCell: (params) => (
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                     <Typography variant="body2" noWrap>
