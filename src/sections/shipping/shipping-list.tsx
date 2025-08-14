@@ -10,11 +10,11 @@ import { useMemo, useState } from 'react';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { 
-    DataGrid, 
-    GridActionsCellItem, 
-    GridToolbarContainer, 
-    GridToolbarQuickFilter 
+import {
+    DataGrid,
+    GridActionsCellItem,
+    GridToolbarContainer,
+    GridToolbarQuickFilter
 } from '@mui/x-data-grid';
 import {
     Box,
@@ -43,7 +43,9 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+
 // ----------------------------------------------------------------------
+
 
 const dayMap: { [key: number]: string } = { 1: 'Hétfő', 2: 'Kedd', 3: 'Szerda', 4: 'Csütörtök', 5: 'Péntek', 6: 'Szombat', 0: 'Vasárnap' };
 
@@ -60,7 +62,7 @@ export default function ShippingListView() {
     const [openFormDialog, setOpenFormDialog] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [zipCode, setZipCode] = useState('');
-    const [currentRules, setCurrentRules] = useState<Partial<IShippingZone>[]>([]);
+    const [currentRules, setCurrentRules] = useState<IShippingZone[]>([]);
     const [rulesInDialog, setRulesInDialog] = useState<Partial<IShippingZone>[]>([]);
     const [newOrderDay, setNewOrderDay] = useState<number | ''>('');
     const [newCutoffTime, setNewCutoffTime] = useState<Dayjs | null>(null);
@@ -121,12 +123,9 @@ export default function ShippingListView() {
             toast.error('Az irányítószám megadása és legalább egy szabály felvétele kötelező!');
             return;
         }
-
         try {
             if (isEditMode) {
-                const idsToDelete = currentRules
-                    .map(r => r.ID)
-                    .filter((id): id is number => !!id);
+                const idsToDelete = currentRules.map(r => r.ID).filter((id): id is number => !!id);
                 if (idsToDelete.length > 0) {
                     await deleteShippingZoneRules(idsToDelete);
                 }
@@ -146,19 +145,25 @@ export default function ShippingListView() {
         }
     };
 
+    const usedOrderDays = useMemo(() => rulesInDialog.map(rule => rule.RendelesiNap), [rulesInDialog]);
+
     const columns: GridColDef[] = [
         {
             field: 'zipCode',
             headerName: 'Irányítószám',
-            width: 150,
-            align: 'center',
+            width: 150, align: 'center',
             headerAlign: 'center',
-            // MÓDOSÍTÁS: A renderCell biztosítja a vertikális igazítást
             renderCell: (params) => (
-                <Box sx={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Typography variant="body2">{params.value}</Typography>
-                </Box>
-            ),
+                <Box
+                    sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                >
+                    <Typography variant="body2">{params.value}</Typography></Box>),
         },
         {
             field: 'rules', headerName: 'Szabályok', flex: 1, sortable: false, disableColumnMenu: true,
@@ -216,20 +221,48 @@ export default function ShippingListView() {
                                     direction="row"
                                     alignItems="center"
                                     spacing={2}
-                                    sx={{ p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+                                    sx={{
+                                        p: 1,
+                                        border: '1px solid',
+                                        borderColor: 'divider',
+                                        borderRadius: 1
+                                    }}
                                 >
-                                    <Typography sx={{ flexGrow: 1 }}>{`${dayMap[rule.RendelesiNap!]} ${rule.CutoffIdo!.slice(0, 5)} -> ${dayMap[rule.SzallitasiNap!]}`}</Typography>
-                                    <IconButton onClick={() => handleDeleteRuleFromDialog(index)} color="error"><Iconify icon="solar:trash-bin-trash-bold" /></IconButton>
+                                    <Typography sx={{ flexGrow: 1 }}>
+                                        {`${dayMap[rule.RendelesiNap!]} ${rule.CutoffIdo!.slice(0, 5)} -> ${dayMap[rule.SzallitasiNap!]}`}
+                                    </Typography>
+                                    <IconButton onClick={() => handleDeleteRuleFromDialog(index)} color="error">
+                                        <Iconify icon="solar:trash-bin-trash-bold" /></IconButton>
                                 </Stack>
                             ))}
                         </Stack>
                     )}
                     <Stack spacing={2} sx={{ p: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}>
                         <Typography variant="subtitle1">Új szabály hozzáadása</Typography>
-                        <TextField label="Irányítószám" value={zipCode} onChange={(e) => setZipCode(e.target.value)} disabled={isEditMode} />
-                        <FormControl fullWidth><InputLabel>Rendelési nap</InputLabel><Select value={newOrderDay} label="Rendelési nap" onChange={(e) => setNewOrderDay(e.target.value as number)}>{Object.entries(dayMap).map(([key, value]) => <MenuItem key={key} value={Number(key)}>{value}</MenuItem>)}</Select></FormControl>
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="hu"><TimePicker label="Határidő" value={newCutoffTime} onChange={(newValue) => setNewCutoffTime(newValue)} ampm={false} /></LocalizationProvider>
-                        <FormControl fullWidth><InputLabel>Szállítási nap</InputLabel><Select value={newDeliveryDay} label="Szállítási nap" onChange={(e) => setNewDeliveryDay(e.target.value as number)}>{Object.entries(dayMap).map(([key, value]) => <MenuItem key={key} value={Number(key)}>{value}</MenuItem>)}</Select></FormControl>
+                        <TextField
+                            label="Irányítószám"
+                            value={zipCode}
+                            onChange={(e) => setZipCode(e.target.value)} disabled={isEditMode || rulesInDialog.length > 0}
+                        />
+                        <FormControl fullWidth>
+                            <InputLabel>Rendelési nap</InputLabel>
+                            <Select value={newOrderDay} label="Rendelési nap" onChange={(e) => setNewOrderDay(e.target.value as number)}>
+                                {Object.entries(dayMap).map(([key, value]) => (
+                                    <MenuItem key={key} value={Number(key)} disabled={usedOrderDays.includes(Number(key))}>
+                                        {value}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="hu">
+                            <TimePicker label="Határidő" value={newCutoffTime} onChange={(newValue) => setNewCutoffTime(newValue)} ampm={false} />
+                        </LocalizationProvider>
+                        <FormControl fullWidth>
+                            <InputLabel>Szállítási nap</InputLabel>
+                            <Select value={newDeliveryDay} label="Szállítási nap" onChange={(e) => setNewDeliveryDay(e.target.value as number)}>
+                                {Object.entries(dayMap).map(([key, value]) => <MenuItem key={key} value={Number(key)}>{value}</MenuItem>)}
+                            </Select>
+                        </FormControl>
                         <Box><Button variant="contained" onClick={handleAddRuleToDialog}>Szabály hozzáadása a listához</Button></Box>
                     </Stack>
                 </DialogContent>
