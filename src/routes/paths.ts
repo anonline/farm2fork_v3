@@ -231,5 +231,9 @@ export const paths = {
         partners: {
             root: `${ROOTS.DASHBOARD}/partners`,
         },
+        shipping: {
+            root: `${ROOTS.DASHBOARD}/shipping`,
+        },
+
     },
 };
