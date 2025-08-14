@@ -9,6 +9,7 @@ import { fNumber, fPercent } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart } from 'src/components/chart';
+import { Link } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -22,9 +23,12 @@ type Props = CardProps & {
         series: number[];
         options?: ChartOptions;
     };
+    subtitle?: string;
+    link?: string;
+    suffix?: string;
 };
 
-export function AppWidgetSummary({ title, percent, total, chart, sx, ...other }: Props) {
+export function AppWidgetSummary({ title, percent, total, chart, sx, subtitle = 'az elmúlt 30 napban', link, suffix, ...other }: Props) {
     const theme = useTheme();
 
     const chartColors = chart.colors ?? [theme.palette.primary.main];
@@ -35,7 +39,10 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other }:
         stroke: { width: 0 },
         xaxis: { categories: chart.categories },
         tooltip: {
-            y: { formatter: (value: number) => fNumber(value), title: { formatter: () => '' } },
+            y: {
+                formatter: (value: number) => `${fNumber(value)}${suffix ?? ''}`,
+                title: { formatter: () => '' }
+            },
         },
         plotOptions: { bar: { borderRadius: 1.5, columnWidth: '64%' } },
         ...chart.options,
@@ -63,7 +70,7 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other }:
             </Box>
 
             <Box component="span" sx={{ typography: 'body2', color: 'text.secondary' }}>
-                az elmúlt 7 napban
+                {subtitle}
             </Box>
         </Box>
     );
@@ -83,8 +90,12 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other }:
             {...other}
         >
             <Box sx={{ flexGrow: 1 }}>
-                <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
-
+                {link ? (
+                    <Link href={link}>
+                        <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
+                    </Link>) : (
+                        <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
+                    )}
                 <Box sx={{ mt: 1.5, mb: 1, typography: 'h3' }}>{fNumber(total)}</Box>
 
                 {renderTrending()}

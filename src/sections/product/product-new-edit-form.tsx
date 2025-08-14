@@ -34,8 +34,6 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { useProduct } from 'src/contexts/product-context';
-import { isArray } from 'util';
 import { fetchGetProductBySlug } from 'src/actions/product';
 
 // ----------------------------------------------------------------------
@@ -54,7 +52,6 @@ export const NewProductSchema = zod.object({
     quantity: schemaHelper.nullableInput(
         zod.number({ coerce: true }).min(1, { message: 'Mennyiség megadása kötelező!' }),
         {
-            // message for null value
             message: 'Mennyiség megadása kötelező!',
         }
     ),
@@ -290,8 +287,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
     const renderProperties = () => (
         <Card>
             <CardHeader
-                title="Properties"
-                subheader="Additional functions and attributes..."
+                title="Tulajdonságok"
+                subheader="További funkciók és attribútumok..."
                 action={renderCollapseButton(openProperties.value, openProperties.onToggle)}
                 sx={{ mb: 3 }}
             />
@@ -308,16 +305,49 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
                         }}
                     >
-                        <Field.Text name="code" label="Product code" />
+                        <Field.Editor name="usageInformation" placeholder="Felhasználási információk" />
+                        <Field.Editor name="storingInformation" placeholder="Tárolási információk" />
 
-                        <Field.Text name="sku" label="Product SKU" />
+                        <Field.NumberInput
+                            name="mininumQuantity"
+                            min={0.1}
+                            step={0.1}
+                            max={999}
+                            helperText="Korárba tétel minimuma"
+                            digits={2}
+                            slotProps={{
+                                inputWrapper: {
+                                    sx: { width: '100%' }
+                                }
+                            }}
+                        />
 
-                        <Field.Text
-                            name="quantity"
-                            label="Quantity"
-                            placeholder="0"
-                            type="number"
-                            slotProps={{ inputLabel: { shrink: true } }}
+                        <Field.NumberInput
+                            name="maximumQuantity"
+                            min={0.1}
+                            step={0.1}
+                            max={999}
+                            helperText="Korárba tétel maximuma"
+                            digits={2}
+                            slotProps={{
+                                inputWrapper: {
+                                    sx: { width: '100%' }
+                                }
+                            }}
+                        />
+
+                        <Field.NumberInput
+                            name="stepQuantity"
+                            min={0.1}
+                            step={0.1}
+                            max={999}
+                            helperText="Korárba tétel léptéke"
+                            digits={2}
+                            slotProps={{
+                                inputWrapper: {
+                                    sx: { width: '100%' }
+                                }
+                            }}
                         />
 
                         <Field.Select
