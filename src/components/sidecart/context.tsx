@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+
+import { useState, useContext, createContext } from 'react';
 
 // ----------------------------------------------------------------------
 

@@ -1,13 +1,12 @@
 import type { IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
@@ -23,8 +22,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { fetchGetProductBySlug } from 'src/actions/product';
 import {
-    _tags,
     PRODUCT_SIZE_OPTIONS,
     PRODUCT_GENDER_OPTIONS,
     PRODUCT_COLOR_NAME_OPTIONS,
@@ -34,7 +33,6 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { fetchGetProductBySlug } from 'src/actions/product';
 
 // ----------------------------------------------------------------------
 
@@ -207,7 +205,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
 
     const handleURLGenerate = async (e: { target: { value: string } }) => {
         const name = e.target.value.toString();
-        let slug = generateSlug(name);
+        const slug = generateSlug(name);
 
         let suffix = 2;
         let uniqueSlug = slug;
@@ -231,12 +229,12 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
             'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o',
             'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O'
         };
-        let slug = name
+        const slug = name
             .split('')
             .map((char: string) => hungarianMap[char] || char)
             .join('')
             .replace(/\s+/g, '-')
-            .replace(/[^a-zA-Z0-9\-]/g, '')
+            .replace(/[^a-zA-Z0-9-]/g, '')
             .toLowerCase();
         return slug;
     }

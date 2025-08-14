@@ -23,7 +23,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import {
     DataGrid,
     gridClasses,
-    GridToolbarExport,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,
@@ -34,9 +33,8 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { PRODUCT_STOCK_OPTIONS } from 'src/_mock';
-
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useProducts } from 'src/contexts/products-context';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -48,18 +46,14 @@ import { ProductTableToolbar } from '../product-table-toolbar';
 import { ProductTableFiltersResult } from '../product-table-filters-result';
 import {
     RenderCellBio,
+    RenderCellTags,
     RenderCellStock,
     RenderCellPrice,
     RenderCellPublish,
     RenderCellProduct,
-    RenderCellCreatedAt,
-    RenderCellUnit,
-    RenderCellTags,
     RenderCellCategories,
     RenderCellGrossPrice,
 } from '../product-table-row';
-import { RenderCellCategory } from 'src/sections/category/category-table-row';
-import { useProducts } from 'src/contexts/products-context';
 
 // ----------------------------------------------------------------------
 

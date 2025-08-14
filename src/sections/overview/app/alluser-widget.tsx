@@ -1,7 +1,8 @@
 import { useTheme } from '@mui/material/styles';
 
-import { AppWidgetSummary } from "./app-widget-summary";
 import { paths } from 'src/routes/paths';
+
+import { AppWidgetSummary } from "./app-widget-summary";
 
 export default function AllUserWidget({ total, series, percent }: Readonly<{ total: number, series: number[], percent: number }>) {
     const theme = useTheme();
@@ -36,7 +37,7 @@ export default function AllUserWidget({ total, series, percent }: Readonly<{ tot
             chart={{
                 colors: [theme.palette.error.main],
                 categories: lastTwelveMonthNameHungarian,
-                series: series,
+                series,
                 
             }}
         />

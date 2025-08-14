@@ -9,8 +9,8 @@ import { _appAuthors, _appRelated, _appInvoices, _appInstalled } from 'src/_mock
 
 import { svgColorClasses } from 'src/components/svg-color';
 
-
 import { AppWidget } from '../app-widget';
+import AllUserWidget from '../alluser-widget';
 import { AppNewInvoice } from '../app-new-invoice';
 import { AppTopAuthors } from '../app-top-authors';
 import { AppTopRelated } from '../app-top-related';
@@ -18,7 +18,6 @@ import { AppAreaInstalled } from '../app-area-installed';
 import { AppWidgetSummary } from '../app-widget-summary';
 import { AppCurrentDownload } from '../app-current-download';
 import { AppTopInstalledCountries } from '../app-top-installed-countries';
-import AllUserWidget from '../alluser-widget';
 
 // ----------------------------------------------------------------------
 

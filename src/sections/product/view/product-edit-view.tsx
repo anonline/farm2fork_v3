@@ -3,12 +3,11 @@
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useProduct } from 'src/contexts/product-context';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { ProductNewEditForm } from '../product-new-edit-form';
-
-import { useProduct } from 'src/contexts/product-context';
 
 // ----------------------------------------------------------------------
 

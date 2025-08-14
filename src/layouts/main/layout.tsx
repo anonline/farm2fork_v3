@@ -15,7 +15,7 @@ import { themeConfig } from 'src/theme';
 import { supabase } from 'src/lib/supabase';
 
 import { Logo } from 'src/components/logo';
-import { SideCart, SideCartProvider, useSideCart } from 'src/components/sidecart';
+import { SideCart, useSideCart, SideCartProvider } from 'src/components/sidecart';
 
 import { useAuthContext } from 'src/auth/hooks';
 

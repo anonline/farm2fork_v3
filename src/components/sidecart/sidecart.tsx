@@ -1,9 +1,10 @@
-import { Drawer, Box, Typography, IconButton, Button, useMediaQuery, Stack, Divider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { Box, Stack, Drawer, Button, Divider, Typography, IconButton, useMediaQuery } from '@mui/material';
 
-import { fCurrency } from 'src/utils/format-number';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+
+import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';

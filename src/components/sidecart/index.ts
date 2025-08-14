@@ -1,2 +1,2 @@
 export { SideCart } from './sidecart';
-export { SideCartProvider, useSideCart } from './context';
+export { useSideCart, SideCartProvider } from './context';

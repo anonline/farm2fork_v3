@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
+import { ProductProvider } from 'src/contexts/product-context';
 
 import { ProductEditView } from 'src/sections/product/view';
-
-import { ProductProvider } from 'src/contexts/product-context';
 
 // ----------------------------------------------------------------------
 

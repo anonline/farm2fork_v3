@@ -1,10 +1,10 @@
 import type { GridCellParams } from '@mui/x-data-grid';
+import type { ICategoryItem } from 'src/types/category';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
 import ListItemText from '@mui/material/ListItemText';
-
 
 import { RouterLink } from 'src/routes/components';
 
@@ -12,7 +12,6 @@ import { fCurrency } from 'src/utils/format-number';
 import { fTime, fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
-import { ICategoryItem } from 'src/types/category';
 
 
 // ----------------------------------------------------------------------
