@@ -41,7 +41,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 export default function ShippingCostList() {
     const { methods: shippingMethods, methodsLoading, methodsMutate } = useGetShippingCostMethods();
-    
+
     const [openFormDialog, setOpenFormDialog] = useState(false);
     const [editingMethod, setEditingMethod] = useState<IShippingCostMethod | null>(null);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
@@ -87,10 +87,10 @@ export default function ShippingCostList() {
 
     const onSubmit = handleSubmit(async (data) => {
         try {
-            if (editingMethod) { 
+            if (editingMethod) {
                 await updateShippingCostMethod(editingMethod.id, data);
                 toast.success('Sikeres mentés!');
-            } else { 
+            } else {
                 await createShippingCostMethod(data);
                 toast.success('Sikeres létrehozás!');
             }
@@ -115,86 +115,95 @@ export default function ShippingCostList() {
     };
 
     const columns: GridColDef<IShippingCostMethod>[] = [
-        { 
-            field: 'name', 
-            headerName: 'Név', 
-            flex: 1, 
-            minWidth: 180 
-        },
-        { 
-            field: 'enabledPublic', 
-            headerName: 'Publikus', 
-            width: 100, 
-            align: 'center', 
-            headerAlign: 'center', 
-            renderCell: (params) => <RenderCellBoolean value={params.value} /> 
-        },
-        { 
-            field: 'enabledVIP', 
-            headerName: 'VIP', 
-            width: 100, 
-            align: 'center', 
-            headerAlign: 'center', 
-            renderCell: (params) => <RenderCellBoolean value={params.value} /> 
-        },
-        { 
-            field: 'enabledCompany', 
-            headerName: 'Céges', 
-            width: 100, 
-            align: 'center', 
-            headerAlign: 'center', 
-            renderCell: (params) => <RenderCellBoolean value={params.value} /> 
-        },
-        { 
-            field: 'netCostPublic', 
-            headerName: 'Nettó ár (Publikus)', 
-            width: 160, align: 'right', 
-            headerAlign: 'right', 
-            renderCell: (params) => fCurrency(params.value) 
-        },
-        { 
-            field: 'netCostVIP', 
-            headerName: 'Nettó ár (VIP)', 
-            width: 160, 
-            align: 'right', 
-            headerAlign: 'right', 
-            renderCell: (params) => fCurrency(params.value) 
-        },
-        { 
-            field: 'netCostCompany', 
-            headerName: 'Nettó ár (Céges)', 
-            width: 160, align: 'right', 
-            headerAlign: 'right', 
-            renderCell: (params) => fCurrency(params.value) 
-        },
-        { 
-            field: 'vat', 
-            headerName: 'ÁFA', 
-            width: 100, 
-            align: 'right', 
-            headerAlign: 'right', 
-            renderCell: (params) => fPercent(params.value) 
-        },
-        { 
-            field: 'freeLimit', 
-            headerName: 'Ingyenes határ', 
-            width: 150, 
-            align: 'right', 
-            headerAlign: 'right', 
-            renderCell: (params) => fCurrency(params.value) 
-        },
         {
-            field: 'actions', 
-            type: 'actions', 
-            headerName: '', 
-            width: 80, 
+            field: 'name',
+            headerName: 'Név',
+            flex: 1,
+            minWidth: 180
+        },
+
+        {
+            field: 'enabledPublic',
+            headerName: 'Publikus',
+            width: 100,
+            align: 'center',
+            headerAlign: 'center',
+            renderCell: (params) => <RenderCellBoolean value={params.value} />
+        },
+
+        {
+            field: 'enabledVIP',
+            headerName: 'VIP',
+            width: 100,
+            align: 'center',
+            headerAlign: 'center',
+            renderCell: (params) => <RenderCellBoolean value={params.value} />
+        },
+
+        {
+            field: 'enabledCompany',
+            headerName: 'Céges',
+            width: 100,
+            align: 'center',
+            headerAlign: 'center',
+            renderCell: (params) => <RenderCellBoolean value={params.value} />
+        },
+
+        {
+            field: 'netCostPublic',
+            headerName: 'Nettó ár (Publikus)',
+            width: 160, align: 'right',
+            headerAlign: 'right',
+            renderCell: (params) => fCurrency(params.value)
+        },
+
+        {
+            field: 'netCostVIP',
+            headerName: 'Nettó ár (VIP)',
+            width: 160,
+            align: 'right',
+            headerAlign: 'right',
+            renderCell: (params) => fCurrency(params.value)
+        },
+
+        {
+            field: 'netCostCompany',
+            headerName: 'Nettó ár (Céges)',
+            width: 160, align: 'right',
+            headerAlign: 'right',
+            renderCell: (params) => fCurrency(params.value)
+        },
+
+        {
+            field: 'vat',
+            headerName: 'ÁFA',
+            width: 100,
+            align: 'right',
+            headerAlign: 'right',
+            renderCell: (params) => fPercent(params.value)
+        },
+
+        {
+            field: 'freeLimit',
+            headerName: 'Ingyenes határ',
+            width: 150,
+            align: 'right',
+            headerAlign: 'right',
+            renderCell: (params) => fCurrency(params.value)
+        },
+
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: '',
+            width: 80,
             align: 'right',
             getActions: ({ row }) => [
-                <GridActionsCellItem 
-                key="edit" 
-                icon={<Iconify icon="solar:pen-bold" />} 
-                label="Szerkesztés" 
-                onClick={() => handleOpenEdit(row)} />,
+                <GridActionsCellItem
+                    key="edit"
+                    icon={<Iconify icon="solar:pen-bold" />}
+                    label="Szerkesztés"
+                    onClick={() => handleOpenEdit(row)} />,
             ],
         },
     ];
@@ -202,8 +211,8 @@ export default function ShippingCostList() {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="Szállítási Költségek"
-                links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Szállítási Költségek' }]}
+                heading="Szállítási díjak és metódusok"
+                links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Szállítási díjak és methódusok' }]}
                 action={
                     <Button onClick={handleOpenNew} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
                         Új metódus
@@ -299,32 +308,7 @@ const ShippingCostSchema = zod.object({
     vatVIP: zod.boolean(),
     vatCompany: zod.boolean(),
     freeLimit: zod.coerce.number().min(0, { message: 'A limit nem lehet negatív' }),
-}).refine((data) => {
-    if (data.enabledPublic && data.netCostPublic <= 0) {
-        return false;
-    }
-    return true;
-}, {
-    message: 'Ha a publikus szállítás engedélyezve van, az ára nem lehet 0!',
-    path: ['netCostPublic'],
-}).refine((data) => {
-    if (data.enabledVIP && data.netCostVIP <= 0) {
-        return false;
-    }
-    return true;
-}, {
-    message: 'Ha a VIP szállítás engedélyezve van, az ára nem lehet 0!',
-    path: ['netCostVIP'],
-}).refine((data) => {
-    if (data.enabledCompany && data.netCostCompany <= 0) {
-        return false;
-    }
-    return true;
-}, {
-    message: 'Ha a céges szállítás engedélyezve van, az ára nem lehet 0!',
-    path: ['netCostCompany'],
 });
-
 
 type ShippingCostSchemaType = zod.infer<typeof ShippingCostSchema>;
 
@@ -334,16 +318,16 @@ function RenderCellBoolean({ value }: Readonly<{ value: boolean }>) {
             icon={
                 <Iconify
                     icon={value ? 'solar:check-circle-bold' : 'solar:close-circle-bold'}
+                    sx={{ color: 'inherit !important' }}
                 />
             }
             color={value ? 'success' : 'error'}
             size="small"
             sx={{
-                height: '24px',
-                width: '24px',
-                pl: 1.89,
+                width: "24px",
+                alignSelf: 'center',
                 '& .MuiChip-icon': {
-                    m: 0,
+                    ml: 1.4,
                 },
             }}
         />
