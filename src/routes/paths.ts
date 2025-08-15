@@ -234,6 +234,8 @@ export const paths = {
         shipping: {
             root: `${ROOTS.DASHBOARD}/shipping`,
         },
-
+        shippingCost: {
+            root: `${ROOTS.DASHBOARD}/shipping-cost`,
+        },
     },
 };
