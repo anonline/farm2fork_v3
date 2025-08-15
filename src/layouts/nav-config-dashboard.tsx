@@ -231,6 +231,7 @@ export const navData: NavSectionProps['data'] = [
                     { title:'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
                     { title:'Partnerek', path: paths.dashboard.partners.root, icon: ICONS.kanban },
                     { title:'Szállítási Zónák', path: paths.dashboard.shipping.root, icon: ICONS.tour },
+                    { title:'Szállítási díjak és metódusok', path: paths.dashboard.shippingCost.root, icon: ICONS.banking },
                     {
                         title: 'Level 1a',
                         path: '#/dashboard/menu_level/menu_level_1a',
