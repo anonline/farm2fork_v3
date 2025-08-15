@@ -4,40 +4,37 @@ import type { GridColDef } from '@mui/x-data-grid';
 import type { IPaymentMethod } from 'src/types/payment-method';
 
 import { z as zod } from 'zod';
-import { useMemo, useState } from 'react';
+import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller, FormProvider } from 'react-hook-form';
+import { useMemo, useState } from 'react';
 
-import { LoadingButton } from '@mui/lab';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import {
-    Box,
     Card,
-    Chip,
     Stack,
-    Button,
-    Dialog,
-    Select,
-    MenuItem,
     Typography,
-    InputLabel,
+    Button,
+    Box,
+    Dialog,
     DialogTitle,
-    FormControl,
     DialogContent,
     DialogActions,
+    Chip,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import { paths } from 'src/routes/paths';
-
 import { fCurrency } from 'src/utils/format-number';
-
-import { DashboardContent } from 'src/layouts/dashboard';
-import { createPaymentMethod, updatePaymentMethod, deletePaymentMethod, useGetPaymentMethods } from 'src/actions/payment-method';
-
+import { RHFTextField, RHFSwitch } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { RHFSwitch, RHFTextField } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { useGetPaymentMethods, createPaymentMethod, updatePaymentMethod, deletePaymentMethod } from 'src/actions/payment-method';
+import { DashboardContent } from 'src/layouts/dashboard';
 
 // ----------------------------------------------------------------------
 
@@ -74,7 +71,19 @@ function RenderCellBoolean({ value }: Readonly<{ value: boolean }>) {
     />;
 }
 
-export default function PaymentMethodList() {
+const BOOLEAN_COLUMNS_CONFIG = [
+    { field: 'protected', headerName: 'Védett' },
+    { field: 'enablePublic', headerName: 'Publikus' },
+    { field: 'enableVIP', headerName: 'VIP' },
+    { field: 'enableCompany', headerName: 'Céges' },
+];
+
+const CURRENCY_COLUMNS_CONFIG = [
+    { field: 'additionalCost', headerName: 'Plusz költség', width: 150 },
+];
+
+
+export default function PaymentMethodListView() {
     const { methods, methodsLoading, methodsMutate } = useGetPaymentMethods();
 
     const [openFormDialog, setOpenFormDialog] = useState(false);
@@ -146,61 +155,28 @@ export default function PaymentMethodList() {
     };
 
     const columns: GridColDef<IPaymentMethod>[] = [
-        {
-            field: 'name',
-            headerName: 'Név',
-            flex: 1,
-            minWidth: 180
-        },
-        {
-            field: 'slug',
-            headerName: 'Slug',
-            width: 150
-        },
-        {
-            field: 'type',
-            headerName: 'Típus',
-            width: 120
-        },
-        {
-            field: 'additionalCost',
-            headerName: 'Plusz költség',
-            width: 150, align: 'right',
-            headerAlign: 'right',
-            renderCell: (params) => fCurrency(params.value)
-        },
-        {
-            field: 'protected',
-            headerName: 'Védett',
+        { field: 'name', headerName: 'Név', flex: 1, minWidth: 180 },
+        { field: 'slug', headerName: 'Slug', width: 150 },
+        { field: 'type', headerName: 'Típus', width: 120 },
+        
+        ...CURRENCY_COLUMNS_CONFIG.map(col => ({
+            field: col.field,
+            headerName: col.headerName,
+            width: col.width,
+            align: 'right' as const,
+            headerAlign: 'right' as const,
+            renderCell: (params: any) => fCurrency(params.value)
+        })),
+
+        ...BOOLEAN_COLUMNS_CONFIG.map(col => ({
+            field: col.field,
+            headerName: col.headerName,
             width: 100,
-            align: 'center',
-            headerAlign: 'center',
-            renderCell: (params) => <RenderCellBoolean value={params.value} />
-        },
-        {
-            field: 'enablePublic',
-            headerName: 'Publikus',
-            width: 100,
-            align: 'center',
-            headerAlign: 'center',
-            renderCell: (params) => <RenderCellBoolean value={params.value} />
-        },
-        {
-            field: 'enableVIP',
-            headerName: 'VIP',
-            width: 100,
-            align: 'center',
-            headerAlign: 'center',
-            renderCell: (params) => <RenderCellBoolean value={params.value} />
-        },
-        {
-            field: 'enableCompany',
-            headerName: 'Céges',
-            width: 100,
-            align: 'center',
-            headerAlign: 'center',
-            renderCell: (params) => <RenderCellBoolean value={params.value} />
-        },
+            align: 'center' as const,
+            headerAlign: 'center' as const,
+            renderCell: (params: any) => <RenderCellBoolean value={params.value} />
+        })),
+        
         {
             field: 'actions',
             type: 'actions',
@@ -231,12 +207,7 @@ export default function PaymentMethodList() {
                     loading={methodsLoading}
                     autoHeight
                     disableRowSelectionOnClick
-                    // MÓDOSÍTÁS: A lapozási beállítások frissítve
-                    initialState={{
-                        pagination: {
-                            paginationModel: { pageSize: 10 },
-                        },
-                    }}
+                    initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
                     pageSizeOptions={[10, 25, 50]}
                 />
             </Card>
