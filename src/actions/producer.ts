@@ -4,32 +4,33 @@ import type { IProducerItem } from 'src/types/producer';
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
-import { endpoints } from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
 
 // ----------------------------------------------------------------------
 
 const swrOptions: SWRConfiguration = {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
+  revalidateIfStale: false,
+  revalidateOnFocus: true,
+  revalidateOnReconnect: false,
 };
 
 // ----------------------------------------------------------------------
 
 type ProducersData = {
-    producers: IProducerItem[];
+  producers: IProducerItem[];
 };
 
 export function useGetProducers() {
-  const { data, isLoading, error, isValidating } = useSWR<ProducersData>("producers", async () => {
-    const response = await supabase.from("Producers").select("*");
-
-    const { data: producers, error: responseError } = response;
-
-    if (responseError) throw responseError.message;
-    return { producers };
-  }, swrOptions);
+  const { data, isLoading, error, isValidating, mutate } = useSWR<ProducersData>(
+    'producers',
+    async () => {
+      const response = await supabase.from('Producers').select('*');
+      const { data: producers, error: responseError } = response;
+      if (responseError) throw responseError.message;
+      return { producers };
+    },
+    swrOptions
+  );
 
   const memoizedValue = useMemo(
     () => ({
@@ -38,93 +39,68 @@ export function useGetProducers() {
       producersError: error,
       producersValidating: isValidating,
       producersEmpty: !isLoading && !isValidating && !data?.producers.length,
+      producersMutate: mutate,
     }),
-    [data?.producers, error, isLoading, isValidating]
+    [data?.producers, error, isLoading, isValidating, mutate]
   );
 
-    return memoizedValue;
+  return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
-
-type ProducerData = {
-    producer: IProducerItem;
-};
-
-export function useGetProducer(producerId: string) {
-  const { data, isLoading, error, isValidating } = useSWR<ProducerData>("producer", async () => {
-    const response = await supabase.from("Producers").select("*").eq("id", producerId).single();
-    const { data: producer, error: responseError } = response;
-
-    if (responseError) throw responseError.message;
-    return { producer };
-  }, swrOptions);
-
-    const memoizedValue = useMemo(
-        () => ({
-            product: data?.producer,
-            productLoading: isLoading,
-            productError: error,
-            productValidating: isValidating,
-        }),
-        [data?.producer, error, isLoading, isValidating]
-    );
-
-    return memoizedValue;
-}
 
 export function useGetProducerBySlug(slug: string) {
-  const { data, isLoading, error, isValidating } = useSWR<ProducerData>("producer", async () => {
-    const response = await supabase.from("Producers").select("*").eq("slug", slug).single();
+  const swrKey = slug ? ['producer', slug] : null;
+
+  const { data, isLoading, error, isValidating } = useSWR(swrKey, async () => {
+    const response = await supabase.from('Producers').select('*').eq('slug', slug).single();
     const { data: producer, error: responseError } = response;
-
-    if (responseError) throw responseError.message;
-    return { producer };
-  }, swrOptions);
-
-    const memoizedValue = useMemo(
-        () => ({
-            product: data?.producer,
-            productLoading: isLoading,
-            productError: error,
-            productValidating: isValidating,
-        }),
-        [data?.producer, error, isLoading, isValidating]
-    );
-
-    return memoizedValue;
-}
-
-// ----------------------------------------------------------------------
-
-type ProducerSearchResultsData = {
-    results: IProducerItem[];
-};
-
-export function useSearchProducers(query: string) {
-    const url = query ? [endpoints.product.search, { params: { query } }] : '';
-
-  const { data, isLoading, error, isValidating } = useSWR<ProducerSearchResultsData>(url, async () => {
-    const response = await supabase.from("Producers").select("*").ilike("name", query).single();
-    const { data: producer, error: responseError } = response;
-
-    if (responseError) throw responseError.message;
-    return { results: producer };
-  }, {
-    ...swrOptions,
-    keepPreviousData: true,
+    if (responseError) throw responseError;
+    return producer;
   });
 
   const memoizedValue = useMemo(
     () => ({
-      searchResults: data?.results ?? [],
-      searchLoading: isLoading,
-      searchError: error,
-      searchValidating: isValidating,
-      searchEmpty: !isLoading && !isValidating && !data?.results.length,
+      producer: data,
+      producerLoading: isLoading,
+      producerError: error,
+      producerValidating: isValidating,
     }),
-    [data?.results, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating]
   );
 
-    return memoizedValue;
+  return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export async function fetchGetProducerBySlug(slug: string) {
+  const { data, error } = await supabase.from('Producers').select('id').eq('slug', slug).maybeSingle();
+
+  if (error) {
+    console.error('Hiba a producer lekérdezése közben (slug alapján):', error.message);
+    throw new Error(error.message);
+  }
+
+  return { producer: data as { id: number } | null };
+}
+
+// ----------------------------------------------------------------------
+
+export async function createProducer(producerData: Partial<IProducerItem>) {
+  const { error } = await supabase.from('Producers').insert([producerData]);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function updateProducer(id: number, producerData: Partial<IProducerItem>) {
+  const { error } = await supabase.from('Producers').update(producerData).eq('id', id);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function deleteProducer(id: number) {
+  const { error } = await supabase.from('Producers').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+  return { success: true };
 }
