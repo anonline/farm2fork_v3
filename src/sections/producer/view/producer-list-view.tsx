@@ -154,7 +154,7 @@ export function ProducerListView() {
       renderCell: (params) => (
         <RenderCellName
           params={params}
-          href={paths.dashboard.producer.details(params.row.id)}
+          href={paths.dashboard.producer.edit(params.row.slug)}
         />
       ),
     },
@@ -181,14 +181,6 @@ export function ProducerListView() {
       filterable: false,
       disableColumnMenu: true,
       getActions: (params) => [
-        <GridActionsLinkItem
-          showInMenu
-          key={`view-${params.row.id}`}
-          icon={<Iconify icon="solar:eye-bold" />}
-          label="Részletek"
-          target="_blank"
-          href={paths.producers.details(params.row.slug)}
-        />,
         <GridActionsLinkItem
           showInMenu
           key={`edit-${params.row.id}`}

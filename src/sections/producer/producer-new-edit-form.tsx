@@ -3,18 +3,16 @@
 import type { IProducerItem } from 'src/types/producer';
 
 import { z as zod } from 'zod';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, FormProvider } from 'react-hook-form';
 import { useMemo, useEffect, useCallback } from 'react';
+import { useForm, Controller, FormProvider } from 'react-hook-form';
 
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Stack, Typography, CardHeader } from '@mui/material';
+import { Box, Card, Stack, Checkbox, TextField, Typography, CardHeader, Autocomplete } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-
+import { useGetProducts } from 'src/actions/product';
 import { uploadFile } from 'src/lib/blob/blobClient';
-import { createProducer, updateProducer, fetchGetProducerBySlug } from 'src/actions/producer';
+import { createProducer, updateProducer, fetchGetProducerBySlug, updateProductAssignments } from 'src/actions/producer';
 
 import { toast } from 'src/components/snackbar';
 import { RHFSwitch, RHFEditor, RHFUpload, RHFTextField } from 'src/components/hook-form';
@@ -30,6 +28,7 @@ const ProducerSchema = zod.object({
   shortDescription: zod.string().nullable(),
   producingTags: zod.string().nullable(),
   featuredImage: zod.union([zod.string(), zod.instanceof(File)]).nullable().optional(),
+  productIds: zod.array(zod.number()).optional(),
 });
 
 type ProducerSchemaType = zod.infer<typeof ProducerSchema>;
@@ -39,31 +38,36 @@ type Props = {
 };
 
 export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>) {
-  const router = useRouter();
+  const { products, productsLoading } = useGetProducts();
 
-  const defaultValues = useMemo(() => ({
-    name: currentProducer?.name || '',
-    slug: currentProducer?.slug || '',
-    companyName: currentProducer?.companyName || null,
-    location: currentProducer?.location || null,
-    bio: currentProducer?.bio || false,
-    shortDescription: currentProducer?.shortDescription || null,
-    producingTags: currentProducer?.producingTags || null,
-    featuredImage: currentProducer?.featuredImage || null,
-  }), [currentProducer]);
+  const defaultValues = useMemo(() => {
+    const assignedProductIds = currentProducer
+      ? products.filter((p) => p.producerId === currentProducer.id).map((p) => p.id)
+      : [];
+
+    return {
+      name: currentProducer?.name || '',
+      slug: currentProducer?.slug || '',
+      companyName: currentProducer?.companyName || null,
+      location: currentProducer?.location || null,
+      bio: currentProducer?.bio || false,
+      shortDescription: currentProducer?.shortDescription || null,
+      producingTags: currentProducer?.producingTags || null,
+      featuredImage: currentProducer?.featuredImage || null,
+      productIds: assignedProductIds,
+    };
+  }, [currentProducer, products]);
 
   const methods = useForm<ProducerSchemaType>({
     resolver: zodResolver(ProducerSchema),
     defaultValues,
   });
 
-  const { reset, handleSubmit, setValue, formState: { isSubmitting } } = methods;
+  const { reset, handleSubmit, setValue, control, formState: { isSubmitting } } = methods;
 
   useEffect(() => {
-    if (currentProducer) {
-      reset(defaultValues);
-    }
-  }, [currentProducer, defaultValues, reset]);
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const generateSlug = (name: string) => {
     const hungarianMap: Record<string, string> = {
@@ -103,7 +107,6 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
   const onSubmit = handleSubmit(async (data) => {
     try {
       let finalImageUrl = data.featuredImage;
-
       if (finalImageUrl instanceof File) {
         const response = await uploadFile(finalImageUrl, 'producers', 0);
         if (!response.url) {
@@ -113,25 +116,36 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
         toast.success('Kép sikeresen feltöltve!');
       }
 
-      const plainShortDescription = data.shortDescription ? data.shortDescription.replace(/<[^>]*>/g, '') : null;
+      const plainShortDescription = data.shortDescription ? data.shortDescription.replace(/<.*?>/g, '') : null;
 
-      const dataToSubmit: Partial<IProducerItem> = {
-        ...data,
-        shortDescription: plainShortDescription ?? undefined,
-        featuredImage: typeof finalImageUrl === 'string' ? finalImageUrl : undefined,
+      const producerData: Partial<IProducerItem> = {
+        name: data.name,
+        slug: data.slug,
         companyName: data.companyName ?? undefined,
         location: data.location ?? undefined,
+        bio: data.bio,
+        shortDescription: plainShortDescription ?? undefined,
         producingTags: data.producingTags ?? undefined,
+        featuredImage: typeof finalImageUrl === 'string' ? finalImageUrl : undefined,
       };
 
+      let producerId = currentProducer?.id;
+
       if (currentProducer) {
-        await updateProducer(currentProducer.id, dataToSubmit);
-        toast.success('Sikeres mentés!');
+        await updateProducer(currentProducer.id, producerData);
+        toast.success('Termelő adatai sikeresen mentve!');
       } else {
-        await createProducer(dataToSubmit);
+        const newProducer = await createProducer(producerData);
+        producerId = newProducer.id;
         toast.success('Termelő sikeresen létrehozva!');
       }
-      router.push(paths.dashboard.producer.root);
+
+      if (!producerId) {
+        throw new Error('A termelő azonosítója nem található a mentés után.');
+      }
+      
+      await updateProductAssignments(producerId, data.productIds || []);
+      toast.success('Termék-hozzárendelések frissítve!');
 
     } catch (error: any) {
       console.error("Hiba a beküldés során:", error);
@@ -161,6 +175,41 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                         <Typography variant="subtitle2">Rövid leírás</Typography>
                         <RHFEditor name="shortDescription" />
                         <RHFTextField name="producingTags" label="Mit termel? (címkék vesszővel elválasztva)" />
+                    </Stack>
+                </Card>
+
+                <Card>
+                    <CardHeader title="Hozzárendelt termékek" />
+                    <Stack spacing={3} sx={{ p: 3 }}>
+                        <Controller
+                          name="productIds"
+                          control={control}
+                          render={({ field }) => (
+                            <Autocomplete
+                              {...field}
+                              multiple
+                              disableCloseOnSelect
+                              loading={productsLoading}
+                              options={products.map(p => p.id)}
+                              getOptionLabel={(id) => products.find(p => p.id === id)?.name ?? String(id)}
+                              isOptionEqualToValue={(option, value) => option === value}
+                              onChange={(event, newValue) => field.onChange(newValue)}
+                              renderOption={(props, optionId, { selected }) => {
+                                  const product = products.find(p => p.id === optionId);
+                                  if (!product) return null;
+                                  return (
+                                      <li {...props} key={product.id}>
+                                          <Checkbox checked={selected} />
+                                          {product.name}
+                                      </li>
+                                  );
+                              }}
+                              renderInput={(params) => (
+                                  <TextField {...params} label="Termékek" placeholder="Válassz termékeket" />
+                              )}
+                            />
+                          )}
+                        />
                     </Stack>
                 </Card>
             </Stack>

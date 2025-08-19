@@ -9,6 +9,7 @@ import { supabase } from 'src/lib/supabase';
 // ----------------------------------------------------------------------
 
 const swrOptions: SWRConfiguration = {
+  revalidateOnMount: true,
   revalidateIfStale: false,
   revalidateOnFocus: true,
   revalidateOnReconnect: false,
@@ -87,10 +88,12 @@ export async function fetchGetProducerBySlug(slug: string) {
 
 // ----------------------------------------------------------------------
 
+// src/actions/producer.ts
+
 export async function createProducer(producerData: Partial<IProducerItem>) {
-  const { error } = await supabase.from('Producers').insert([producerData]);
+  const { data, error } = await supabase.from('Producers').insert([producerData]).select().single();
   if (error) throw new Error(error.message);
-  return { success: true };
+  return data;
 }
 
 export async function updateProducer(id: number, producerData: Partial<IProducerItem>) {
@@ -102,5 +105,42 @@ export async function updateProducer(id: number, producerData: Partial<IProducer
 export async function deleteProducer(id: number) {
   const { error } = await supabase.from('Producers').delete().eq('id', id);
   if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function updateProductAssignments(producerId: number, newProductIds: number[]) {
+  const { data: currentProducts, error: fetchError } = await supabase
+    .from('Products')
+    .select('id')
+    .eq('producerId', producerId);
+
+  if (fetchError) throw new Error('A meglévő termékek lekérdezése sikertelen.');
+
+  const currentProductIds = currentProducts.map(p => p.id);
+
+  const productsToAssign = newProductIds.filter(id => !currentProductIds.includes(id));
+  const productsToUnassign = currentProductIds.filter(id => !newProductIds.includes(id));
+
+  const operations = [];
+
+  if (productsToAssign.length > 0) {
+    operations.push(
+      supabase.from('Products').update({ producer_id: producerId }).in('id', productsToAssign)
+    );
+  }
+
+  if (productsToUnassign.length > 0) {
+    operations.push(
+      supabase.from('Products').update({ producer_id: null }).in('id', productsToUnassign)
+    );
+  }
+
+  const results = await Promise.all(operations);
+  
+  const failedOp = results.find(res => res.error);
+  if (failedOp) {
+    throw new Error(`Hiba a termék-hozzárendelések frissítése során: ${failedOp.error?.message}`);
+  }
+
   return { success: true };
 }
