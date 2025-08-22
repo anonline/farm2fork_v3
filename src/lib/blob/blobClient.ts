@@ -1,5 +1,5 @@
 // lib/blobClient.ts
-export type UploadFolder = 'categories' | 'products' | 'assets';
+export type UploadFolder = 'categories' | 'products' | 'assets' | 'producers';
 
 // lib/blobClient.ts
 export async function uploadFile(file: File, folder: UploadFolder, entityId: number) {
