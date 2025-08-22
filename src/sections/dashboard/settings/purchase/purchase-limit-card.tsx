@@ -1,25 +1,45 @@
 "use client"
 import { Card, CardContent, CardHeader, InputAdornment, Stack, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type PurchaseLimitCardProps = {
     publicLimit?: number;
     vipLimit?: number;
     companyLimit?: number;
+    onLimitsChange?: (limits: { public: number; vip: number; company: number }) => void;
 };
 
-export function PurchaseLimitCard({ publicLimit = 5000, vipLimit = 5000, companyLimit = 5000 }: PurchaseLimitCardProps) {
+export function PurchaseLimitCard({ 
+    publicLimit = 5000, 
+    vipLimit = 5000, 
+    companyLimit = 5000,
+    onLimitsChange 
+}: PurchaseLimitCardProps) {
     const [limits, setLimits] = useState({
         public: publicLimit,
         vip: vipLimit,
         company: companyLimit
     });
 
+    // Update local state when props change
+    useEffect(() => {
+        setLimits({
+            public: publicLimit,
+            vip: vipLimit,
+            company: companyLimit
+        });
+    }, [publicLimit, vipLimit, companyLimit]);
+
     const handleLimitChange = (type: 'public' | 'vip' | 'company', value: number) => {
         // Prevent leading zeros and negative values
         let normalizedValue = Number(String(value).replace(/^0+(?=\d)/, ''));
         normalizedValue = Math.max(1, isNaN(normalizedValue) ? 1 : normalizedValue);
-        setLimits(prev => ({ ...prev, [type]: normalizedValue }));
+        
+        const newLimits = { ...limits, [type]: normalizedValue };
+        setLimits(newLimits);
+        
+        // Notify parent component of changes
+        onLimitsChange?.(newLimits);
     };
 
     return (
