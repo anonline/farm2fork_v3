@@ -21,8 +21,7 @@ export async function registerUser(data: RegistrationSchemaType) {
     uid: authData.user.id,
     firstname: data.stepTwo.firstName,
     lastname: data.stepTwo.lastName,
-    companyName: data.stepTwo.companyName || null,
-    taxNumber: data.stepTwo.taxNumber || null,
+    companyName: null,
     newsletterConsent: data.stepTwo.newsletter,
     acquisitionSource: data.stepThree.source || null,
     deliveryAddress: JSON.stringify([
@@ -43,6 +42,8 @@ export async function registerUser(data: RegistrationSchemaType) {
         city: data.stepThree.city,
         streetAddress: data.stepThree.streetAddress,
         floorDoor: data.stepThree.floorDoor,
+        companyName: data.stepTwo.companyName || null,
+        taxNumber: data.stepTwo.taxNumber || null,
       },
     ]),
   };
