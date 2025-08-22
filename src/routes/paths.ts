@@ -231,5 +231,8 @@ export const paths = {
         partners: {
             root: `${ROOTS.DASHBOARD}/partners`,
         },
+        settings: {
+            purchase: `${ROOTS.DASHBOARD}/settings/purchase`
+        }
     },
 };
