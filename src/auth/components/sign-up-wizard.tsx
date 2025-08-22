@@ -14,11 +14,10 @@ import { toast } from 'src/components/snackbar';
 
 import { StepOne, StepTwo, Stepper, StepThree, StepCompleted } from './form-steps';
 
-// A Zod sémák és a típus exportálása, hogy más fájlok is elérhessék
+
 export const StepOneSchema = zod.object({
   role: zod.enum(['private', 'company'], { required_error: 'Kérjük, válassza ki a szerepkörét!' }),
 });
-
 export const StepTwoSchema = zod
   .object({
     companyName: zod.string().optional(),
@@ -39,7 +38,6 @@ export const StepTwoSchema = zod
     message: 'A két jelszó nem egyezik!',
     path: ['passwordConfirm'],
   });
-
 export const StepThreeSchema = zod.object({
   fullName: zod.string().min(1, { message: 'Teljes név megadása kötelező!' }),
   zipCode: zod.string().min(1, { message: 'Irányítószám megadása kötelező!' }),
@@ -52,7 +50,6 @@ export const StepThreeSchema = zod.object({
   comment: zod.string().optional(),
   source: zod.string().optional(),
 });
-
 export const RegistrationSchema = zod
   .object({
     stepOne: StepOneSchema,
@@ -148,8 +145,19 @@ export function SignUpWizard() {
         </Box>
 
         {activeStep < STEPS.length && (
-          <Box sx={{ display: 'flex', mt: 3, justifyContent: activeStep === 0 ? 'flex-end' : 'space-between' }}>
-            <Button onClick={handleBack} disabled={activeStep === 0} sx={{ ...(activeStep === 0 && { display: 'none' }) }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              mt: 3, 
+              justifyContent: activeStep === 0 ? 'flex-end' : 'space-between',
+              gap: 2, 
+            }}
+          >
+            <Button 
+              onClick={handleBack} 
+              disabled={activeStep === 0} 
+              sx={{ ...(activeStep === 0 && { display: 'none' }) }}
+            >
               Vissza
             </Button>
             

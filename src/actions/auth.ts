@@ -1,8 +1,7 @@
-// Fájl: src/actions/auth.ts
-
 import type { RegistrationSchemaType } from 'src/auth/components/sign-up-wizard';
 
 import { supabase } from 'src/lib/supabase';
+
 
 export async function registerUser(data: RegistrationSchemaType) {
   const { email, password } = data.stepTwo;
@@ -23,10 +22,9 @@ export async function registerUser(data: RegistrationSchemaType) {
     firstname: data.stepTwo.firstName,
     lastname: data.stepTwo.lastName,
     companyName: data.stepTwo.companyName || null,
-    taxNumber: data.stepTwo.taxNumber || null,      
+    taxNumber: data.stepTwo.taxNumber || null,
     newsletterConsent: data.stepTwo.newsletter,
-    phoneNumber: data.stepThree.phone,
-    acquisitionSource: data.stepThree.source || null, 
+    acquisitionSource: data.stepThree.source || null,
     deliveryAddress: JSON.stringify([
       {
         fullName: data.stepThree.fullName,
@@ -35,6 +33,7 @@ export async function registerUser(data: RegistrationSchemaType) {
         streetAddress: data.stepThree.streetAddress,
         floorDoor: data.stepThree.floorDoor,
         comment: data.stepThree.comment,
+        phone: data.stepThree.phone,
       },
     ]),
     billingAddress: JSON.stringify([
@@ -48,9 +47,11 @@ export async function registerUser(data: RegistrationSchemaType) {
     ]),
   };
 
-const { error: dbError } = await supabase.from('CustomerDatas').insert(customerDataObject);
+  const { error: dbError } = await supabase.from('customerdata').insert(customerDataObject);
+
   if (dbError) {
-    return new Error(`Adatbázis hiba: ${dbError.message}`);
+    console.error('Supabase DB Error:', dbError);
+    throw new Error(`Adatbázis hiba: ${dbError.message || 'Ismeretlen hiba a mentés során.'}`);
   }
 
   return { user: authData.user };
