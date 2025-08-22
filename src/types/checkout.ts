@@ -14,6 +14,9 @@ export type ICheckoutItem = {
     available: number;
     subtotal?: number;
     note?: string;
+    minQuantity?: number;
+    maxQuantity?: number;
+    stepQuantity?: number;
 };
 
 export type ICheckoutDeliveryOption = {

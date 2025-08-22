@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material/styles';
-import { Box, Stack, Drawer, Button, Divider, Typography, IconButton, useMediaQuery } from '@mui/material';
+import { Box, Stack, Drawer, Button, Divider, Typography, IconButton, useMediaQuery, Alert } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -8,8 +8,14 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { NumberInput } from 'src/components/number-input';
+
+import { useAuthContext } from 'src/auth/hooks';
+import { useGetOption } from 'src/actions/options';
+import { OptionsEnum } from 'src/types/option';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
+import { ProductQuantitySelector } from '../product-card/product-card';
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +27,7 @@ type SideCartProps = {
 export function SideCart({ open, onClose }: SideCartProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { user, authenticated } = useAuthContext();
     
     const { 
         state: checkoutState, 
@@ -30,7 +37,33 @@ export function SideCart({ open, onClose }: SideCartProps) {
         onDeleteNote 
     } = useCheckoutContext();
 
+    // Determine user type for minimum purchase check
+    const getUserType = () => {
+        if (!authenticated) return 'public';
+        if (user?.user_metadata?.is_admin) return 'public'; // admin treated as public
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    };
+
+    const userType = getUserType();
+    
+    // Get the appropriate minimum purchase option based on user type
+    const getMinimumPurchaseOption = () => {
+        switch (userType) {
+            case 'vip':
+                return OptionsEnum.MinimumPurchaseForVIP;
+            case 'company':
+                return OptionsEnum.MinimumPurchaseForCompany;
+            default:
+                return OptionsEnum.MinimumPurchaseForPublic;
+        }
+    };
+
+    const { option: minimumPurchaseAmount } = useGetOption(getMinimumPurchaseOption());
+
     const isCartEmpty = !checkoutState.items.length;
+    const isUnderMinimum = minimumPurchaseAmount && checkoutState.subtotal < minimumPurchaseAmount;
 
     return (
         <Drawer
@@ -39,7 +72,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
             onClose={onClose}
             PaperProps={{
                 sx: {
-                    width: isMobile ? '100vw' : 420,
+                    width: isMobile ? '100vw' : 520,
                     height: '100vh',
                     display: 'flex',
                     flexDirection: 'column',
@@ -70,6 +103,21 @@ export function SideCart({ open, onClose }: SideCartProps) {
                 >
                     <Iconify icon="mingcute:close-line" />
                 </IconButton>
+
+                {/* Minimum Purchase Alert */}
+                {!isCartEmpty && isUnderMinimum && (
+                    <Alert 
+                        severity="warning" 
+                        sx={{ 
+                            mt: 2,
+                            '& .MuiAlert-message': {
+                                fontSize: '14px'
+                            }
+                        }}
+                    >
+                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Módosítsd a kosarad tartalmát itt, vagy adj hozzá termékeket!
+                    </Alert>
+                )}
             </Box>
 
             {/* Cart Items */}
@@ -262,25 +310,14 @@ function SideCartItem({
                 {/* Quantity and Delete */}
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton 
-                            size="small"
-                            onClick={() => onChangeItemQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            disabled={item.quantity <= 1}
-                        >
-                            <Iconify icon='eva:minus-circle-fill' width={16} />
-                        </IconButton>
-                        
-                        <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center' }}>
-                            {item.quantity}
-                        </Typography>
-                        
-                        <IconButton 
-                            size="small"
-                            onClick={() => onChangeItemQuantity(item.id, item.quantity + 1)}
-                            disabled={item.quantity >= item.available}
-                        >
-                            <Iconify icon='solar:add-circle-bold' width={16} />
-                        </IconButton>
+                        <NumberInput
+                            value={item.quantity}
+                            onChange={(_, newValue) => onChangeItemQuantity(item.id, newValue)}
+                            min={item.minQuantity || 1}
+                            max={item.maxQuantity || 999}
+                            step={item.stepQuantity || 0.1}
+                            sx={{ width: 96 }}
+                        />
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

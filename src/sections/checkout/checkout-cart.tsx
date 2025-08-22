@@ -10,9 +10,14 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { CONFIG } from 'src/global-config';
+import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
+
+import { useAuthContext } from 'src/auth/hooks';
+import { useGetOption } from 'src/actions/options';
+import { OptionsEnum } from 'src/types/option';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
@@ -21,6 +26,7 @@ import { CheckoutCartProductList } from './checkout-cart-product-list';
 // ----------------------------------------------------------------------
 
 export function CheckoutCart() {
+    const { user, authenticated } = useAuthContext();
     const {
         loading,
         onChangeStep,
@@ -31,7 +37,33 @@ export function CheckoutCart() {
         onDeleteNote
     } = useCheckoutContext();
 
+    // Determine user type for minimum purchase check
+    const getUserType = () => {
+        if (!authenticated) return 'public';
+        if (user?.user_metadata?.is_admin) return 'public'; // admin treated as public
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    };
+
+    const userType = getUserType();
+    
+    // Get the appropriate minimum purchase option based on user type
+    const getMinimumPurchaseOption = () => {
+        switch (userType) {
+            case 'vip':
+                return OptionsEnum.MinimumPurchaseForVIP;
+            case 'company':
+                return OptionsEnum.MinimumPurchaseForCompany;
+            default:
+                return OptionsEnum.MinimumPurchaseForPublic;
+        }
+    };
+
+    const { option: minimumPurchaseAmount } = useGetOption(getMinimumPurchaseOption());
+
     const isCartEmpty = !checkoutState.items.length;
+    const isUnderMinimum = minimumPurchaseAmount && checkoutState.subtotal < minimumPurchaseAmount;
 
     const renderLoading = () => (
         <Box
@@ -98,12 +130,27 @@ export function CheckoutCart() {
             <Grid size={{ xs: 12, md: 5 }} sx={{backgroundColor: '#F8F8F8', padding: '24px'}}>
                 <CheckoutSummary checkoutState={checkoutState} />
 
+                {/* Minimum Purchase Alert */}
+                {!isCartEmpty && isUnderMinimum && (
+                    <Alert 
+                        severity="warning" 
+                        sx={{ 
+                            mb: 2,
+                            '& .MuiAlert-message': {
+                                fontSize: '14px'
+                            }
+                        }}
+                    >
+                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Adj hozzá több terméket a kosárhoz a folytatáshoz!
+                    </Alert>
+                )}
+
                 <Button
                     fullWidth
                     size="medium"
                     type="submit"
                     variant="contained"
-                    disabled={isCartEmpty}
+                    disabled={isCartEmpty || isUnderMinimum}
                     color='primary'
                     onClick={() => onChangeStep('next')}
                 >

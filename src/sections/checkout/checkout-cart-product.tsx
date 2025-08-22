@@ -52,7 +52,9 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                                 onChange={(event, quantity: number) =>
                                     onChangeItemQuantity(row.id, quantity)
                                 }
-                                max={row.available}
+                                min={row.minQuantity || 1}
+                                max={row.maxQuantity || row.available}
+                                step={row.stepQuantity || 1}
                             />
 
                             <IconButton onClick={() => onDeleteCartItem(row.id)}>

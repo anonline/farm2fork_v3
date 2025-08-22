@@ -14,6 +14,7 @@ import { useRouter, usePathname, useSearchParams } from 'src/routes/hooks';
 import { SplashScreen } from 'src/components/loading-screen';
 
 import { CheckoutContext } from './checkout-context';
+import { q } from 'node_modules/framer-motion/dist/types.d-B50aGbjN';
 
 // ----------------------------------------------------------------------
 
@@ -145,6 +146,18 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         (itemId: number, quantity: number) => {
             const updatedItems = state.items.map((item) => {
                 if (item.id === itemId) {
+                    if (quantity < (item.minQuantity ?? 1)) {
+                        quantity = item.minQuantity ?? 1;
+                    }
+
+                    if (quantity % (item.stepQuantity ?? 1) != 0) {
+                        quantity = Math.round(quantity / (item.stepQuantity ?? 1)) * (item.stepQuantity ?? 1);
+                    }
+
+                    if (quantity > (item.maxQuantity ?? 100)) {
+                        quantity = item.maxQuantity ?? 100;
+                    }
+                    
                     item.subtotal = item.price * quantity;
 
                     return { ...item, quantity };
@@ -196,7 +209,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
             setField('items', updatedItems);
         }
-    },[setField]);
+    }, [setField]);
 
     const onDeleteNote = useCallback((itemId: number) => {
         const updatedItems = state.items.map((item) => {
@@ -208,7 +221,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         });
 
         setField('items', updatedItems);
-    },[setField]);
+    }, [setField]);
 
     const memoizedValue = useMemo(
         () => ({
