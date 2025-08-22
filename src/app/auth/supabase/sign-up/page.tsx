@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 
-import { SupabaseSignUpView } from 'src/auth/view/supabase';
+import SupabaseSignUpView from 'src/auth/view/supabase/supabase-sign-up-view';
 
 // ----------------------------------------------------------------------
 

@@ -10,8 +10,8 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import { Container, Typography } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
@@ -23,6 +23,7 @@ import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from '../../hooks';
 import { FormHead } from '../../components/form-head';
+import { Illustration } from './supabase-sign-up-view';
 import { signInWithPassword } from '../../context/supabase';
 
 // ----------------------------------------------------------------------
@@ -168,29 +169,33 @@ export function SupabaseSignInView() {
     );
 
     return (
-        <>
-            <FormHead
-                title="Belépés"
-                description={
-                    <>
-                        {/*{`Don’t have an account? `}
-            <Link component={RouterLink} href={paths.auth.supabase.signUp} variant="subtitle2">
-              Get started
-            </Link>*/}
-                    </>
-                }
-                sx={{ textAlign: { xs: 'center', md: 'left' } }}
-            />
+        <Container
+            maxWidth={false}
+            disableGutters
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+            }}>
+            <Box sx={{width:'450px', marginY:5}}>
+                <FormHead
+                    title="Belépés"
+                    
+                    sx={{ textAlign: { xs: 'center', md: 'left' }, }}
+                />
 
-            {!!errorMessage && (
-                <Alert severity="error" sx={{ mb: 3 }}>
-                    {errorMessage}
-                </Alert>
-            )}
+                {!!errorMessage && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        {errorMessage}
+                    </Alert>
+                )}
 
-            <Form methods={methods} onSubmit={onSubmit}>
-                {renderForm()}
-            </Form>
-        </>
+                <Form methods={methods} onSubmit={onSubmit}>
+                    {renderForm()}
+                </Form>
+            </Box>
+            <Box>
+                <Illustration />
+            </Box>
+        </Container>
     );
 }

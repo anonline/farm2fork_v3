@@ -1,4 +1,6 @@
-import { AuthSplitLayout } from 'src/layouts/auth-split';
+
+import { MainLayout } from 'src/layouts/main';
+import { ShippingProvider } from 'src/contexts/shipping-context';
 
 import { GuestGuard } from 'src/auth/guard';
 
@@ -8,10 +10,14 @@ type Props = {
     children: React.ReactNode;
 };
 
-export default function Layout({ children }: Props) {
+export default function Layout({ children }: Readonly<Props>) {
     return (
-        <GuestGuard>
-            <AuthSplitLayout>{children}</AuthSplitLayout>
-        </GuestGuard>
+        <ShippingProvider>
+            <GuestGuard>
+                <MainLayout>
+                    {children}
+                </MainLayout>
+            </GuestGuard>
+        </ShippingProvider>
     );
 }

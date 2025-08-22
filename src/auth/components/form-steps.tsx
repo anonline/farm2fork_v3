@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect } from 'react';
 import { useWatch, useFormContext } from 'react-hook-form';
 
 import Step from '@mui/material/Step';
@@ -8,9 +11,7 @@ import { Grid, Stack, Button, MenuItem, Typography } from '@mui/material';
 
 import { RHFSelect, RHFSwitch, RHFTextField } from 'src/components/hook-form';
 
-
 // ----------------------------------------------------------------------
-
 
 type StepperProps = {
   steps: string[];
@@ -41,7 +42,7 @@ export function Stepper({ steps, activeStep, sx }: Readonly<StepperProps>) {
   );
 }
 
-
+// --- Első lépés: Szerepkör választás ---
 export function StepOne() {
   return (
     <>
@@ -49,7 +50,6 @@ export function StepOne() {
         Szia!
       </Typography>
       <Typography sx={{ mb: 3 }}>Kérjük add meg a szerepkörödet. Magánszemély vagy cég?</Typography>
-
       <RHFSelect name="stepOne.role" label="Szerepkör">
         <MenuItem value="private">Magánszemély</MenuItem>
         <MenuItem value="company">Cég</MenuItem>
@@ -58,7 +58,7 @@ export function StepOne() {
   );
 }
 
-
+// --- Második lépés: Alapadatok ---
 export function StepTwo() {
   const { control } = useFormContext();
   const role = useWatch({ control, name: 'stepOne.role' });
@@ -66,7 +66,7 @@ export function StepTwo() {
 
   return (
     <>
-      <Typography variant="h4" sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>
         Add meg az adataid
       </Typography>
       <Stack spacing={2.5}>
@@ -87,20 +87,34 @@ export function StepTwo() {
   );
 }
 
-
+// --- Harmadik lépés: Szállítási adatok ---
 export function StepThree() {
+  const { watch, setValue } = useFormContext();
+  const firstName = watch('stepTwo.firstName');
+  const lastName = watch('stepTwo.lastName');
+
+  useEffect(() => {
+    if (firstName && lastName) {
+      setValue('stepThree.fullName', `${firstName} ${lastName}`, { shouldValidate: true });
+    }
+  }, [firstName, lastName, setValue]);
+
   return (
     <>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Cím adatok
+      <Typography variant="h4" sx={{ mb: 2 }}>
+        Szállítási adatok
       </Typography>
       <Stack spacing={2.5}>
         <RHFTextField name="stepThree.fullName" label="Teljes név" />
         <Grid container spacing={2}>
-          <Grid size={{xs:12, md:6}}>
-            <RHFTextField name="stepThree.zipCode" label="Irányítószám" />
+          <Grid size={{ xs: 12, md: 6 }}>
+            <RHFTextField
+              name="stepThree.zipCode"
+              label="Irányítószám"
+              inputProps={{ maxLength: 4 }}
+            />
           </Grid>
-          <Grid size={{xs:12, md:6}}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <RHFTextField name="stepThree.city" label="Település" />
           </Grid>
         </Grid>
@@ -119,7 +133,7 @@ export function StepThree() {
   );
 }
 
-
+// --- Befejező lépés: Sikeres regisztráció ---
 export function StepCompleted({ onReset }: Readonly<{ onReset: () => void }>) {
   return (
     <Stack alignItems="center" justifyContent="center" spacing={3} sx={{ flexGrow: 1 }}>

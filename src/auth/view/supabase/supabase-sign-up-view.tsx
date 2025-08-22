@@ -1,13 +1,13 @@
 'use client';
 
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
+
+import { Box, Stack, Container } from '@mui/material';
 
 import { SignUpWizard } from 'src/auth/components/sign-up-wizard';
 
 // ----------------------------------------------------------------------
 
-export function SupabaseSignUpView() {
+export default function SupabaseSignUpView() {
   return (
     <Container
       maxWidth={false}
@@ -15,9 +15,13 @@ export function SupabaseSignUpView() {
       sx={{
         display: 'flex',
         justifyContent: 'center',
+        
       }}
     >
-      
+      <Box 
+      display="flex"
+      sx={{gap:2}}
+      >
         <Stack
           sx={{
             p: { xs: 2, md: 4 }, 
@@ -28,8 +32,32 @@ export function SupabaseSignUpView() {
           }}
         >
           <SignUpWizard/>
+          
         </Stack>
-      
+      <Illustration/>
+      </Box>
     </Container>
+  );
+}
+
+export function Illustration() {
+  return (
+    <Box
+      sx={{
+        display: { xs: 'none', lg: 'flex' },
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 5,
+        color: 'common.white',
+        backgroundColor: 'common.white',
+      }}
+    >
+      <Box
+        component="img"
+        alt="Sign Up Picture"
+        src="/assets/images/sign-up/SignUp.webp"
+        sx={{ maxWidth: 600 }}
+      />
+    </Box>
   );
 }
