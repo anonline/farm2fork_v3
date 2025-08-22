@@ -14,7 +14,6 @@ import { useRouter, usePathname, useSearchParams } from 'src/routes/hooks';
 import { SplashScreen } from 'src/components/loading-screen';
 
 import { CheckoutContext } from './checkout-context';
-import { q } from 'node_modules/framer-motion/dist/types.d-B50aGbjN';
 
 // ----------------------------------------------------------------------
 

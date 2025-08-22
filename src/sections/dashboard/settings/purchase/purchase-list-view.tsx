@@ -1,15 +1,20 @@
 "use client"
+
+import { useState, useCallback } from "react";
+
 import { Button } from "@mui/material";
-import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
-import { useCallback, useState, useEffect } from "react";
-import { toast } from "src/components/snackbar";
+
+import { paths } from "src/routes/paths";
 
 import { DashboardContent } from "src/layouts/dashboard";
-import { paths } from "src/routes/paths";
-import { PurchaseLimitCard } from "./purchase-limit-card";
+import { useGetOption, updateOption } from "src/actions/options";
+
+import { toast } from "src/components/snackbar";
+import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 
 import { OptionsEnum } from "src/types/option";
-import { useGetOption, updateOption } from "src/actions/options";
+
+import { PurchaseLimitCard } from "./purchase-limit-card";
 
 export function PurchaseListView() {
     const {option:publicLimit, optionMutate: publicMutate} = useGetOption(OptionsEnum.MinimumPurchaseForPublic);

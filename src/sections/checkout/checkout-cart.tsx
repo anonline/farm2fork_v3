@@ -9,14 +9,16 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { CONFIG } from 'src/global-config';
 import { fCurrency } from 'src/utils/format-number';
+
+import { CONFIG } from 'src/global-config';
+import { useGetOption } from 'src/actions/options';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { useGetOption } from 'src/actions/options';
+
 import { OptionsEnum } from 'src/types/option';
 
 import { useCheckoutContext } from './context';

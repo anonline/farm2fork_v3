@@ -1,7 +1,9 @@
-import { useMemo } from "react";
-import { supabase } from "src/lib/supabase";
-import { OptionsEnum } from "src/types/option";
 import useSWR from "swr";
+import { useMemo } from "react";
+
+import { supabase } from "src/lib/supabase";
+
+import { OptionsEnum } from "src/types/option";
 
 export function useGetOption(option: OptionsEnum) {
   const SWR_KEY = `option-${option}`;

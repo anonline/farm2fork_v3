@@ -1,6 +1,8 @@
 "use client"
-import { Card, CardContent, CardHeader, InputAdornment, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+
+import { useState, useEffect } from "react";
+
+import { Card, Stack, TextField, CardHeader, Typography, CardContent, InputAdornment } from "@mui/material";
 
 type PurchaseLimitCardProps = {
     publicLimit?: number;
