@@ -1,5 +1,7 @@
 import type { ICheckoutItem, CheckoutContextValue } from 'src/types/checkout';
 
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
@@ -7,6 +9,9 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Badge from '@mui/material/Badge';
+import Collapse from '@mui/material/Collapse';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -25,6 +30,36 @@ type Props = {
 };
 
 export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity, onAddNote, onDeleteNote }: Readonly<Props>) {
+    const [showNoteField, setShowNoteField] = useState(false);
+    const [noteText, setNoteText] = useState(row.note || '');
+
+    const handleToggleNote = () => {
+        setShowNoteField(!showNoteField);
+    };
+
+    const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNoteText(event.target.value);
+    };
+
+    const handleNoteSubmit = () => {
+        if (noteText.trim()) {
+            onAddNote(row.id, noteText.trim());
+        } else {
+            onDeleteNote(row.id);
+        }
+        setShowNoteField(false);
+    };
+
+    const handleNoteKeyPress = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            handleNoteSubmit();
+        }
+        if (event.key === 'Escape') {
+            setNoteText(row.note || '');
+            setShowNoteField(false);
+        }
+    };
+
     return (
         <TableRow>
             <TableCell>
@@ -36,7 +71,7 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                         sx={{ width: 100, height: 100 }}
                     />
 
-                    <Stack spacing={1}>
+                    <Stack spacing={1} sx={{ flex: 1 }}>
                         <Typography noWrap sx={{ maxWidth: 240, fontWeight: 700, fontSize: '18px', lineHeight: '28px', color: '#262626' }}>
                             {row.name}
                         </Typography>
@@ -61,22 +96,45 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                                 <Iconify icon="solar:trash-bin-trash-bold" />
                             </IconButton>
                         </Box>
+
+                        <Collapse in={showNoteField}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Megjegyzés hozzáadása..."
+                                value={noteText}
+                                onChange={handleNoteChange}
+                                onKeyDown={handleNoteKeyPress}
+                                onBlur={handleNoteSubmit}
+                                autoFocus
+                                sx={{
+                                    mt: 1,
+                                    '& .MuiOutlinedInput-root': {
+                                        fontSize: '14px'
+                                    }
+                                }}
+                            />
+                        </Collapse>
+
                     </Stack>
                 </Box>
             </TableCell>
 
-            <TableCell align="right" sx={{ px: 1 }}>
+            <TableCell align="right" sx={{ px: 3 }}>
                 <Stack spacing={1}>
                     <Typography>
                         {fCurrency(row.subtotal)}
                     </Typography>
                     <Box>
-                        <IconButton>
-                            <F2FIcons name="CommentAdd" width={20} height={20}/>
+                        <IconButton onClick={handleToggleNote}>
+                            <F2FIcons
+                                name={row.note ? "CommentOn" : "CommentAdd"}
+                                width={20}
+                                height={20}
+                            />
                         </IconButton>
                     </Box>
                 </Stack>
-
             </TableCell>
         </TableRow>
     );
