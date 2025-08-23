@@ -65,7 +65,7 @@ export function CheckoutCart() {
     const { option: minimumPurchaseAmount } = useGetOption(getMinimumPurchaseOption());
 
     const isCartEmpty = !checkoutState.items.length;
-    const isUnderMinimum = minimumPurchaseAmount && checkoutState.subtotal < minimumPurchaseAmount;
+    const isUnderMinimum = minimumPurchaseAmount > 0 && checkoutState.subtotal < minimumPurchaseAmount;
 
     const renderLoading = () => (
         <Box
@@ -93,12 +93,7 @@ export function CheckoutCart() {
         <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 7 }}>
                 <Card sx={{ mb: 3 }}>
-                    <CardHeader
-                        title={
-                            <Alert severity="info" sx={{ mb: 2 }}>Hiba üzik </Alert>
-                        }
-                        sx={{ mb: 3 }}
-                    />
+                    
 
                     {loading ? (
                         renderLoading()
@@ -133,7 +128,7 @@ export function CheckoutCart() {
                 <CheckoutSummary checkoutState={checkoutState} />
 
                 {/* Minimum Purchase Alert */}
-                {!isCartEmpty && isUnderMinimum && (
+                {!isCartEmpty && typeof(isUnderMinimum) != 'number' && isUnderMinimum && (
                     <Alert 
                         severity="warning" 
                         sx={{ 

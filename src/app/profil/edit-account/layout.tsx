@@ -1,6 +1,7 @@
 import { Container } from '@mui/material';
 
 import { MainLayout } from 'src/layouts/main';
+import { ProfileGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 
@@ -10,9 +11,12 @@ type Props = {
 
 export default function Layout({ children }: Readonly<Props>) {
     return (
-    <MainLayout>
-        <Container sx={{margin: '0 auto', padding: '20px'}}>
-            {children}
-        </Container>
-    </MainLayout>);
+        <ProfileGuard>
+            <MainLayout>
+                <Container sx={{margin: '0 auto', padding: '20px'}}>
+                    {children}
+                </Container>
+            </MainLayout>
+        </ProfileGuard>
+    );
 }
