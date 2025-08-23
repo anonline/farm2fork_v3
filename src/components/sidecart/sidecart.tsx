@@ -225,6 +225,10 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
                         {/* Actions */}
                         <Stack spacing={1.5}>
+                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                                <Iconify icon="solar:info-circle-bold" width={18} sx={{ color: 'text.secondary' }} />
+                                A végleges árat a rendelés feldolgozása után tudjuk pontosítani.
+                            </Typography>
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -234,18 +238,6 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                 onClick={onClose}
                             >
                                 Kosár megtekintése
-                            </Button>
-                            
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                size="medium"
-                                component={RouterLink}
-                                href={paths.product.root}
-                                onClick={onClose}
-                                startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
-                            >
-                                Vásárlás folytatása
                             </Button>
                         </Stack>
                     </Stack>
@@ -273,15 +265,15 @@ function SideCartItem({
     onDeleteNote 
 }: Readonly<SideCartItemProps>) {
     return (
-        <Box sx={{ display: 'flex', gap: 2, p: 1 }}>
+        <Box sx={{ display: 'flex', gap: 2, p: 1, alignItems: 'center' }}>
             {/* Product Image */}
             <Box
                 component="img"
                 src={item.coverUrl ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                 alt={item.name}
                 sx={{
-                    width: 80,
-                    height: 80,
+                    width: 100,
+                    height: 100,
                     borderRadius: 1,
                     objectFit: 'cover',
                     bgcolor: 'background.neutral',
