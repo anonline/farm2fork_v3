@@ -24,7 +24,7 @@ type Props = {
 };
 
 export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Readonly<Props>) {
-    const { shipping, subtotal, discount, total } = checkoutState;
+    const { shipping, subtotal, discount, surcharge, total } = checkoutState;
 
     const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';
 
@@ -74,6 +74,21 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
                         {discount ? fCurrency(-discount) : '-'}
                     </Typography>
                 </Box>
+
+                {surcharge > 0 && (
+                    <Box sx={{ ...rowStyles }}>
+                        <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ flexGrow: 1, color: 'text.secondary' }}
+                        >
+                            Felár
+                        </Typography>
+                        <Typography component="span" variant="subtitle2">
+                            {fCurrency(surcharge)}
+                        </Typography>
+                    </Box>
+                )}
 
                 <Box sx={{ ...rowStyles }}>
                     <Typography

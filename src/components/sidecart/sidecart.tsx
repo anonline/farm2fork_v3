@@ -211,6 +211,17 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                 </Box>
                             )}
 
+                            {checkoutState.surcharge > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Felár
+                                    </Typography>
+                                    <Typography variant="subtitle2">
+                                        {fCurrency(checkoutState.surcharge)}
+                                    </Typography>
+                                </Box>
+                            )}
+
                             <Divider />
                             
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

@@ -11,7 +11,10 @@ export enum OptionsEnum {
     ProductPlaceholderImageURL  = "product_placeholder_image_url",
     MinimumPurchaseForPublic    = "minimum_purchase_for_public",
     MinimumPurchaseForVIP       = "minimum_purchase_for_vip",
-    MinimumPurchaseForCompany   = "minimum_purchase_for_company"
+    MinimumPurchaseForCompany   = "minimum_purchase_for_company",
+    SurchargePercentPublic      = "surcharge_percent_public",
+    SurchargePercentVIP         = "surcharge_percent_vip",
+    SurchargePercentCompany     = "surcharge_percent_company"
 }
 
 export type Option<T> = {

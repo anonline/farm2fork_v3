@@ -41,6 +41,7 @@ export type ICheckoutState = {
     subtotal: number;
     discount: number;
     shipping: number;
+    surcharge: number;
     totalItems: number;
     items: ICheckoutItem[];
     billing: IAddressItem | null;
@@ -69,6 +70,7 @@ export type CheckoutContextValue = {
     onDeleteCartItem: (itemId: number) => void;
     onApplyDiscount: (discount: number) => void;
     onApplyShipping: (discount: number) => void;
+    onApplySurcharge: (surcharge: number) => void;
     onCreateBillingAddress: (address: IAddressItem) => void;
     onAddNote: (itemId:number, note:string) => void;
     onDeleteNote: (itemId:number) => void;

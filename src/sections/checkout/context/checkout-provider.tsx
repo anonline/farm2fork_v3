@@ -11,6 +11,10 @@ import { useMemo, useState, Suspense, useEffect, useCallback } from 'react';
 import { paths } from 'src/routes/paths';
 import { useRouter, usePathname, useSearchParams } from 'src/routes/hooks';
 
+import { OptionsEnum } from 'src/types/option';
+import { useGetOption } from 'src/actions/options';
+import { useAuthContext } from 'src/auth/hooks';
+
 import { SplashScreen } from 'src/components/loading-screen';
 
 import { CheckoutContext } from './checkout-context';
@@ -26,6 +30,7 @@ const initialState: ICheckoutState = {
     total: 0,
     discount: 0,
     shipping: 0,
+    surcharge: 0,
     billing: null,
     totalItems: 0,
 };
@@ -54,6 +59,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         ? Number(searchParams.get('step'))
         : null;
 
+    const { user, authenticated } = useAuthContext();
+
     const [loading, setLoading] = useState(true);
 
     const { state, setState, setField, resetState } = useLocalStorage<ICheckoutState>(
@@ -62,17 +69,49 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         { initializeWithValue: false }
     );
 
+    // Get surcharge options based on user type
+    const { option: surchargePublic } = useGetOption(OptionsEnum.SurchargePercentPublic);
+    const { option: surchargeVIP } = useGetOption(OptionsEnum.SurchargePercentVIP);
+    const { option: surchargeCompany } = useGetOption(OptionsEnum.SurchargePercentCompany);
+
+    // Determine user type for surcharge calculation
+    const getUserType = useCallback(() => {
+        if (!authenticated) return 'public';
+        if (user?.user_metadata?.is_admin) return 'public'; // admin treated as public
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    }, [authenticated, user?.user_metadata]);
+
+    // Get the appropriate surcharge percentage based on user type
+    const getSurchargePercent = useCallback(() => {
+        const userType = getUserType();
+        switch (userType) {
+            case 'vip':
+                return surchargeVIP ?? 0;
+            case 'company':
+                return surchargeCompany ?? 0;
+            default:
+                return surchargePublic ?? 0;
+        }
+    }, [surchargeVIP, surchargeCompany, surchargePublic, getUserType]);
+
     const canReset = !isEqual(state, initialState);
     const completed = activeStep === CHECKOUT_STEPS.length;
 
     const updateTotals = useCallback(() => {
         const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
         const subtotal = state.items.reduce((total, item) => total + item.quantity * item.price, 0);
+        
+        // Calculate surcharge based on subtotal and user type
+        const surchargePercent = getSurchargePercent();
+        const surcharge = (subtotal * surchargePercent) / 100;
 
         setField('subtotal', subtotal);
         setField('totalItems', totalItems);
-        setField('total', subtotal - state.discount + state.shipping);
-    }, [setField, state.discount, state.items, state.shipping]);
+        setField('surcharge', surcharge);
+        setField('total', subtotal + surcharge - state.discount + state.shipping);
+    }, [setField, state.discount, state.items, state.shipping, getSurchargePercent]);
 
     useEffect(() => {
         const initializeCheckout = async () => {
@@ -80,7 +119,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
                 setLoading(true);
                 const restoredValue = getStorage(CHECKOUT_STORAGE_KEY);
                 if (restoredValue) {
-                    updateTotals();
+                    // Just initialize, don't call updateTotals here as it will be called by the second useEffect
                 }
             } finally {
                 setLoading(false);
@@ -88,7 +127,14 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         };
 
         initializeCheckout();
-    }, [updateTotals]);
+    }, []); // Only run once on mount
+
+    // Update totals whenever items, surcharge options, or user type changes
+    useEffect(() => {
+        if (!loading) {
+            updateTotals();
+        }
+    }, [state.items, surchargePublic, surchargeVIP, surchargeCompany, authenticated, user?.user_metadata?.is_vip, user?.user_metadata?.is_corp, user?.user_metadata?.is_admin, updateTotals, loading]);
 
     const onChangeStep = useCallback(
         (type: 'back' | 'next' | 'go', step?: number) => {
@@ -128,6 +174,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             }
 
             setField('items', updatedItems);
+            // Totals will be updated by the useEffect hook
         },
         [setField, state.items]
     );
@@ -137,6 +184,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             const updatedItems = state.items.filter((item) => item.id !== itemId);
 
             setField('items', updatedItems);
+            // Totals will be updated by the useEffect hook
         },
         [setField, state.items]
     );
@@ -165,6 +213,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             });
 
             setField('items', updatedItems);
+            // Totals will be updated by the useEffect hook
         },
         [setField, state.items]
     );
@@ -190,6 +239,13 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         [setField]
     );
 
+    const onApplySurcharge = useCallback(
+        (surcharge: number) => {
+            setField('surcharge', surcharge);
+        },
+        [setField]
+    );
+
     const onResetCart = useCallback(() => {
         if (completed) {
             resetState(initialState);
@@ -207,8 +263,9 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             });
 
             setField('items', updatedItems);
+            // Note: No need to update totals for note changes
         }
-    }, [setField]);
+    }, [setField, state.items]);
 
     const onDeleteNote = useCallback((itemId: number) => {
         const updatedItems = state.items.map((item) => {
@@ -220,7 +277,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         });
 
         setField('items', updatedItems);
-    }, [setField]);
+        // Note: No need to update totals for note changes
+    }, [setField, state.items]);
 
     const memoizedValue = useMemo(
         () => ({
@@ -240,6 +298,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onResetCart,
             onApplyDiscount,
             onApplyShipping,
+            onApplySurcharge,
             onDeleteCartItem,
             onChangeItemQuantity,
             onCreateBillingAddress,
@@ -259,6 +318,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onChangeStep,
             onApplyDiscount,
             onApplyShipping,
+            onApplySurcharge,
             onDeleteCartItem,
             onChangeItemQuantity,
             onCreateBillingAddress,
