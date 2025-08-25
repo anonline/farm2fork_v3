@@ -26,6 +26,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
+import Checkbox from '@mui/material/Checkbox';
 
 import { Form } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
@@ -75,6 +76,8 @@ export function CheckoutPayment() {
     const [deliveryTimeAccordionExpanded, setDeliveryTimeAccordionExpanded] = useState(false);
     const [paymentAccordionExpanded, setPaymentAccordionExpanded] = useState(false);
     const [hasShippingZoneError, setHasShippingZoneError] = useState(false);
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [dataTransferAccepted, setDataTransferAccepted] = useState(false);
 
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -92,6 +95,7 @@ export function CheckoutPayment() {
         onUpdateDeliveryComment,
         onUpdateDeliveryDateTime,
         onResetDeliveryDateTime,
+        onUpdatePaymentMethod,
         state: checkoutState,
     } = useCheckoutContext();
 
@@ -470,8 +474,23 @@ export function CheckoutPayment() {
         onResetDeliveryDateTime();
     }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, onResetDeliveryDateTime]);
 
+    // Initialize default payment method when available payment methods are loaded
+    useEffect(() => {
+        if (availablePaymentMethods.length > 0 && !checkoutState.selectedPaymentMethod) {
+            const defaultPaymentMethod = availablePaymentMethods[0];
+            setValue('payment', defaultPaymentMethod.id);
+            onUpdatePaymentMethod(defaultPaymentMethod);
+        }
+    }, [availablePaymentMethods, checkoutState.selectedPaymentMethod, setValue, onUpdatePaymentMethod]);
+
     const onSubmit = handleSubmit(async (data) => {
         try {
+            // Validate terms acceptance
+            if (!termsAccepted) {
+                // You could add some visual feedback here if needed
+                return;
+            }
+
             // Validate pickup location for personal pickup
             if (data.shippingMethod && isPersonalPickup(data.shippingMethod)) {
                 if (!data.pickupLocation) {
@@ -784,7 +803,14 @@ export function CheckoutPayment() {
                                     <Box sx={{ mb: 3 }}>
                                         <RadioGroup
                                             value={value || ''}
-                                            onChange={(e) => onChange(parseInt(e.target.value, 10))}
+                                            onChange={(e) => {
+                                                const methodId = parseInt(e.target.value, 10);
+                                                onChange(methodId);
+                                                
+                                                // Find the selected payment method and update context
+                                                const selectedMethod = availablePaymentMethods.find(m => m.id === methodId);
+                                                onUpdatePaymentMethod(selectedMethod || null);
+                                            }}
                                             sx={{ gap: 1 }}
                                         >
                                             {availablePaymentMethods.map((method) => (
@@ -853,11 +879,67 @@ export function CheckoutPayment() {
                             <Typography variant="subtitle1" sx={{ mb: 2 }}>
                                 Számlázási cím
                             </Typography>
-                            <Box sx={{ p: 3, border: '1px solid', borderColor: 'grey.300', borderRadius: 1 }}>
+                            <Box sx={{ p: 3, border: '1px solid', borderColor: 'grey.300', borderRadius: 1, mb: 3 }}>
                                 <Typography variant="body2" color="text.secondary">
                                     A számlázási cím adatai fognak megjelenni a számlán. Ezek az adatok a fizetés feldolgozásához szükségesek.
                                 </Typography>
                                 {/* TODO: Add billing address form fields */}
+                            </Box>
+
+                            {/* Terms and Conditions Checkboxes */}
+                            <Box sx={{ mb: 3 }}>
+                                {/* Always show this checkbox */}
+                                <Box sx={{ mb: 2 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={termsAccepted}
+                                                onChange={(e) => setTermsAccepted(e.target.checked)}
+                                            />
+                                        }
+                                        label={
+                                            <Typography variant="body2">
+                                                Elfogadom az{' '}
+                                                <Link href="#" sx={{ color: 'primary.main', textDecoration: 'none' }}>
+                                                    Általános szerződési feltételeket
+                                                </Link>
+                                                {' '}és az{' '}
+                                                <Link href="#" sx={{ color: 'primary.main', textDecoration: 'none' }}>
+                                                    Adatkezelési nyilatkozatot
+                                                </Link>
+                                                .
+                                            </Typography>
+                                        }
+                                        sx={{ alignItems: 'center', mt: 0 }}
+                                    />
+                                    {!termsAccepted && (
+                                        <FormHelperText error sx={{ ml: 3 }}>
+                                            Az Általános szerződési feltételek és az Adatkezelési nyilatkozat elfogadása kötelező!
+                                        </FormHelperText>
+                                    )}
+                                </Box>
+
+                                {/* Data transfer checkbox - conditionally visible */}
+                                {checkoutState.selectedPaymentMethod?.slug === 'simple' && (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={dataTransferAccepted}
+                                                onChange={(e) => setDataTransferAccepted(e.target.checked)}
+                                            />
+                                        }
+                                        label={
+                                            <Typography variant="body2">
+                                                A megrendeléssel elfogadom az{' '}
+                                                <Link href="#" sx={{ color: 'primary.main', textDecoration: 'none' }}>
+                                                    adattovábbítási nyilatkozatot
+                                                </Link>
+                                                .
+                                            </Typography>
+                                        }
+                                        sx={{ alignItems: 'center', mt: 0 }}
+                                    />
+                                )}
                             </Box>
                         </AccordionDetails>
                     </Accordion>
@@ -868,7 +950,7 @@ export function CheckoutPayment() {
                         onClick={() => onChangeStep('back')}
                         startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
                     >
-                        Back
+                        Vissza
                     </Button>
                 </Grid>
 

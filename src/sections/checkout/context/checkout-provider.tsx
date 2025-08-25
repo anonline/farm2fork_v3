@@ -2,6 +2,7 @@
 
 import type { IAddressItem } from 'src/types/common';
 import type { ICheckoutItem, ICheckoutState } from 'src/types/checkout';
+import type { IPaymentMethod } from 'src/types/payment-method';
 
 import { union, isEqual } from 'es-toolkit';
 import { getStorage } from 'minimal-shared/utils';
@@ -37,6 +38,7 @@ const initialState: ICheckoutState = {
     notificationEmails: [],
     deliveryComment: '',
     selectedDeliveryDateTime: null,
+    selectedPaymentMethod: null,
 };
 
 // ----------------------------------------------------------------------
@@ -89,6 +91,12 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
     // Get the appropriate surcharge percentage based on user type
     const getSurchargePercent = useCallback(() => {
+
+        if(state.selectedPaymentMethod != undefined 
+            && (state.selectedPaymentMethod?.slug == 'utanvet' || state.selectedPaymentMethod?.slug == 'utalas')){
+            return 0;
+        }
+
         const userType = getUserType();
         switch (userType) {
             case 'vip':
@@ -98,7 +106,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             default:
                 return surchargePublic ?? 0;
         }
-    }, [surchargeVIP, surchargeCompany, surchargePublic, getUserType]);
+    }, [surchargeVIP, surchargeCompany, surchargePublic, state.selectedPaymentMethod, getUserType]);
 
     const canReset = !isEqual(state, initialState);
     const completed = activeStep === CHECKOUT_STEPS.length;
@@ -114,8 +122,12 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         setField('subtotal', subtotal);
         setField('totalItems', totalItems);
         setField('surcharge', surcharge);
-        setField('total', subtotal + surcharge - state.discount + state.shipping);
-    }, [setField, state.discount, state.items, state.shipping, getSurchargePercent]);
+        
+        // Calculate payment method additional cost
+        const paymentAdditionalCost = state.selectedPaymentMethod?.additionalCost || 0;
+        
+        setField('total', subtotal + surcharge - state.discount + state.shipping + paymentAdditionalCost);
+    }, [setField, state.discount, state.items, state.shipping, state.selectedPaymentMethod, getSurchargePercent]);
 
     useEffect(() => {
         const initializeCheckout = async () => {
@@ -313,6 +325,10 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         setField('selectedDeliveryDateTime', null);
     }, [setField]);
 
+    const onUpdatePaymentMethod = useCallback((paymentMethod: IPaymentMethod | null) => {
+        setField('selectedPaymentMethod', paymentMethod);
+    }, [setField]);
+
     const memoizedValue = useMemo(
         () => ({
             state,
@@ -341,7 +357,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onUpdateNotificationEmails,
             onUpdateDeliveryComment,
             onUpdateDeliveryDateTime,
-            onResetDeliveryDateTime
+            onResetDeliveryDateTime,
+            onUpdatePaymentMethod
         }),
         [
             state,
@@ -366,7 +383,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onUpdateNotificationEmails,
             onUpdateDeliveryComment,
             onUpdateDeliveryDateTime,
-            onResetDeliveryDateTime
+            onResetDeliveryDateTime,
+            onUpdatePaymentMethod
         ]
     );
 

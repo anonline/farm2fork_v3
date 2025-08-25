@@ -1,4 +1,5 @@
 import type { IAddressItem } from './common';
+import type { IPaymentMethod } from './payment-method';
 
 // ----------------------------------------------------------------------
 
@@ -50,6 +51,7 @@ export type ICheckoutState = {
     notificationEmails: string[];
     deliveryComment: string;
     selectedDeliveryDateTime: string | null;
+    selectedPaymentMethod: IPaymentMethod | null;
 };
 
 export type CheckoutContextValue = {
@@ -84,4 +86,5 @@ export type CheckoutContextValue = {
     onUpdateDeliveryComment: (comment: string) => void;
     onUpdateDeliveryDateTime: (dateTime: string | null) => void;
     onResetDeliveryDateTime: () => void;
+    onUpdatePaymentMethod: (paymentMethod: IPaymentMethod | null) => void;
 };

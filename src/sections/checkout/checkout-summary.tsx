@@ -90,6 +90,21 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
                     </Box>
                 )}
 
+                {checkoutState.selectedPaymentMethod?.additionalCost != undefined && checkoutState.selectedPaymentMethod.additionalCost > 0 && (
+                    <Box sx={{ ...rowStyles }}>
+                        <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ flexGrow: 1, color: 'text.secondary' }}
+                        >
+                            Fizetési mód felár
+                        </Typography>
+                        <Typography component="span" variant="subtitle2">
+                            {fCurrency(checkoutState.selectedPaymentMethod.additionalCost)}
+                        </Typography>
+                    </Box>
+                )}
+
                 <Box sx={{ ...rowStyles }}>
                     <Typography
                         component="span"
