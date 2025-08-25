@@ -5,3 +5,5 @@ export * from './guest-guard';
 export * from './role-based-guard';
 
 export * from './profile-guard';
+
+export * from './user-auth-guard';

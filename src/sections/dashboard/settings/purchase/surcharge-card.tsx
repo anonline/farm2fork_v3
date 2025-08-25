@@ -48,7 +48,7 @@ export function SurchargeCard({
 
     return (
         <Card>
-            <CardHeader title="Felár" />
+            <CardHeader title="Zárolási felár" />
             <CardContent>
                 <Stack spacing={3}>
                     <Stack direction="row" spacing={6} sx={{width: '100%', justifyContent: 'space-between', alignItems: 'center'}}>

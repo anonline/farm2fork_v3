@@ -82,7 +82,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
                             variant="body2"
                             sx={{ flexGrow: 1, color: 'text.secondary' }}
                         >
-                            Felár
+                            Zárolási felár
                         </Typography>
                         <Typography component="span" variant="subtitle2">
                             {fCurrency(surcharge)}

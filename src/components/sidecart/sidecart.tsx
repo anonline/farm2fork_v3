@@ -214,7 +214,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                             {checkoutState.surcharge > 0 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <Typography variant="body2" color="text.secondary">
-                                        Felár
+                                        Zárolási felár
                                     </Typography>
                                     <Typography variant="subtitle2">
                                         {fCurrency(checkoutState.surcharge)}
