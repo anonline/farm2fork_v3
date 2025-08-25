@@ -86,6 +86,7 @@ export function CheckoutPayment() {
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(null);
     const [deliveryAccordionExpanded, setDeliveryAccordionExpanded] = useState(true);
     const [deliveryTimeAccordionExpanded, setDeliveryTimeAccordionExpanded] = useState(false);
+    const [hasShippingZoneError, setHasShippingZoneError] = useState(false);
 
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -242,11 +243,12 @@ export function CheckoutPayment() {
         }
         
         if (isHomeDelivery(selectedShippingMethod)) {
-            return selectedDeliveryAddressIndex !== null;
+            // For home delivery, also check that there's no shipping zone error
+            return selectedDeliveryAddressIndex !== null && !hasShippingZoneError;
         }
         
         return false;
-    }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, checkoutState.notificationEmails, isPersonalPickup, isHomeDelivery]);
+    }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, checkoutState.notificationEmails, isPersonalPickup, isHomeDelivery, hasShippingZoneError]);
 
     const defaultValues: PaymentSchemaType = {
         payment: '',
@@ -342,6 +344,10 @@ export function CheckoutPayment() {
         setSelectedDeliveryAddressIndex(index);
         setValue('deliveryAddressIndex', index);
         updateDeliveryAddressInContext(index);
+    };
+
+    const handleShippingZoneError = (hasError: boolean) => {
+        setHasShippingZoneError(hasError);
     };
 
     const handleNotificationEmailsChange = (emails: string[]) => {
@@ -575,6 +581,7 @@ export function CheckoutPayment() {
                                                 // TODO: Implement edit functionality later
                                                 console.log('Edit address at index:', index);
                                             }}
+                                            onShippingZoneError={handleShippingZoneError}
                                             isHomeDelivery={true}
                                         />
                                     </Box>

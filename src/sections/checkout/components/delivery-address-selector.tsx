@@ -13,6 +13,7 @@ type DeliveryAddressSelectorProps = {
   selectedAddressIndex: number | null;
   onAddressChange: (index: number) => void;
   onEditAddress?: (index: number) => void;
+  onShippingZoneError?: (hasError: boolean) => void;
   isHomeDelivery?: boolean;
 };
 
@@ -21,6 +22,7 @@ export function DeliveryAddressSelector({
   selectedAddressIndex,
   onAddressChange,
   onEditAddress,
+  onShippingZoneError,
   isHomeDelivery = false,
 }: DeliveryAddressSelectorProps) {
   const [shippingZoneError, setShippingZoneError] = useState<string | null>(null);
@@ -30,6 +32,9 @@ export function DeliveryAddressSelector({
   useEffect(() => {
     if (!isHomeDelivery || selectedAddressIndex === null || !deliveryAddresses[selectedAddressIndex]) {
       setShippingZoneError(null);
+      if (onShippingZoneError) {
+        onShippingZoneError(false);
+      }
       return;
     }
 
@@ -42,22 +47,30 @@ export function DeliveryAddressSelector({
         const isAvailable = await checkShippingZoneAvailable(selectedAddress.zipCode);
         
         if (!isAvailable) {
-          setShippingZoneError(
-            'Sajnos a kiválasztott címre még nem elérhető a házhozszállításunk. Kérlek válassz a személyes átvételi pontjaink közül. További információ a rendelés menetéről.'
-          );
+          const errorMessage = 'Sajnos a kiválasztott címre még nem elérhető a házhozszállításunk. Kérlek válassz a személyes átvételi pontjaink közül. További információ a rendelés menetéről.';
+          setShippingZoneError(errorMessage);
+          if (onShippingZoneError) {
+            onShippingZoneError(true);
+          }
+        } else {
+          if (onShippingZoneError) {
+            onShippingZoneError(false);
+          }
         }
       } catch (error) {
         console.error('Error checking shipping zone:', error);
-        setShippingZoneError(
-          'Hiba történt a szállítási zóna ellenőrzése során. Kérlek próbáld újra.'
-        );
+        const errorMessage = 'Hiba történt a szállítási zóna ellenőrzése során. Kérlek próbáld újra.';
+        setShippingZoneError(errorMessage);
+        if (onShippingZoneError) {
+          onShippingZoneError(true);
+        }
       } finally {
         setCheckingZone(false);
       }
     };
 
     checkShippingZone();
-  }, [selectedAddressIndex, deliveryAddresses, isHomeDelivery]);
+  }, [selectedAddressIndex, deliveryAddresses, isHomeDelivery, onShippingZoneError]);
   if (!deliveryAddresses || deliveryAddresses.length === 0) {
     return (
       <Box sx={{ p: 2, textAlign: 'center' }}>
