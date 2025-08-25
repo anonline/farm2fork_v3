@@ -41,11 +41,22 @@ const getRegistrationSchema = () => {
 
   const StepThreeSchema = zod.object({
     fullName: zod.string().optional(),
-    zipCode: zod.string().max(4, { message: 'Az irányítószám maximum 4 karakter lehet.' }).optional(),
+    zipCode: zod.string()
+      .regex(/^\d*$/, { message: 'Az irányítószám csak számokat tartalmazhat.' })
+      .max(4, { message: 'Az irányítószám maximum 4 karakter lehet.' })
+      .optional(),
     city: zod.string().optional(),
     streetAddress: zod.string().optional(),
     floorDoor: zod.string().optional(),
-    phone: zod.union([zod.string().regex(/^\+36\d{9}$/), zod.string().length(0)]).optional(),
+    phone: zod
+      .string()
+      .refine((val) => {
+        if (val === '' || !val) return true;
+        return /^\+36\d{9}$/.test(val);
+      }, {
+        message: 'Érvénytelen telefonszám formátum! (Pl: +36301234567)',
+      })
+      .optional(),
     comment: zod.string().optional(),
     source: zod.string().optional(),
   });
@@ -128,21 +139,24 @@ export function SignUpWizard() {
         </Box>
 
         {activeStep < STEPS.length && (
-          <Box sx={{ display: 'flex', mt: 3, justifyContent: 'space-between', gap: 2 }}>
-            <Button onClick={handleBack} disabled={activeStep === 0}>
+          <Box sx={{ display: 'flex', mt: 3, justifyContent: 'space-between', alignItems: 'center' }}>
+
+            <Button
+              onClick={handleBack}
+              disabled={activeStep === 0}
+              sx={{ visibility: activeStep === 0 ? 'hidden' : 'visible' }}
+            >
               Vissza
             </Button>
-
-            {activeStep === 0 && <Button fullWidth size="large" variant="contained" color="inherit" onClick={() => handleNext('stepOne')}>Tovább</Button>}
-            {activeStep === 1 && <Button fullWidth size="large" variant="contained" color="inherit" onClick={() => handleNext('stepTwo')}>Tovább</Button>}
-
+            {activeStep === 0 && <Button size="large" variant="contained" color="inherit" onClick={() => handleNext('stepOne')}>Tovább</Button>}
+            {activeStep === 1 && <Button size="large" variant="contained" color="inherit" onClick={() => handleNext('stepTwo')}>Tovább</Button>}
             {activeStep === 2 && (
-              <Stack spacing={2} sx={{ flexGrow: 1 }}>
-                <Button fullWidth size="large" variant="contained" color="inherit" type="submit" loading={isSubmitting}>
-                  Tovább
-                </Button>
-                <Button fullWidth size="large" variant="outlined" color="inherit" type="submit" loading={isSubmitting}>
+              <Stack direction="row" spacing={2}>
+                <Button size="large" variant="outlined" color="inherit" type="submit" loading={isSubmitting}>
                   Később adom meg
+                </Button>
+                <Button size="large" variant="contained" color="inherit" type="submit" loading={isSubmitting}>
+                  Tovább
                 </Button>
               </Stack>
             )}

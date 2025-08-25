@@ -1,7 +1,7 @@
 'use client';
 
 
-import { Box, Stack, Container, Typography } from '@mui/material';
+import { Box, Stack, Container } from '@mui/material';
 
 import { SignUpWizard } from 'src/auth/components/sign-up-wizard';
 
@@ -27,9 +27,6 @@ export default function SupabaseSignUpView() {
             maxWidth: 480,
           }}
         >
-          <Typography variant="h3" sx={{ mb: 5 }}>
-            Kezdd el ingyen
-          </Typography>
           <SignUpWizard />
         </Stack>
         
