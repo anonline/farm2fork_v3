@@ -29,7 +29,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 import { useGetCustomerData } from 'src/actions/customer';
-import { PickupLocationSelector, DeliveryAddressSelector } from './components';
+import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
@@ -67,6 +67,7 @@ export const PaymentSchema = zod.object({
     shippingMethod: zod.number().min(1, { message: 'Shipping method is required!' }),
     pickupLocation: zod.number().optional(),
     deliveryAddressIndex: zod.number().optional(),
+    notificationEmails: zod.array(zod.string().email()).optional(),
 }).refine((data) => {
     // If delivery type is personal pickup, pickup location is required
     // We need to check if the shipping method is "Személyes átvétel" (personal pickup)
@@ -83,6 +84,7 @@ export function CheckoutPayment() {
     const [selectedShippingMethod, setSelectedShippingMethod] = useState<number | null>(null);
     const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(null);
+    const [notificationEmails, setNotificationEmails] = useState<string[]>([]);
     
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -230,6 +232,7 @@ export function CheckoutPayment() {
         shippingMethod: selectedShippingMethod || 0,
         pickupLocation: selectedPickupLocation || undefined,
         deliveryAddressIndex: selectedDeliveryAddressIndex || undefined,
+        notificationEmails: notificationEmails,
     };
 
     const methods = useForm<PaymentSchemaType>({
@@ -319,6 +322,11 @@ export function CheckoutPayment() {
         setSelectedDeliveryAddressIndex(index);
         setValue('deliveryAddressIndex', index);
         updateDeliveryAddressInContext(index);
+    };
+
+    const handleNotificationEmailsChange = (emails: string[]) => {
+        setNotificationEmails(emails);
+        setValue('notificationEmails', emails);
     };
 
     // Initialize default shipping method and related selections when data is loaded
@@ -544,6 +552,12 @@ export function CheckoutPayment() {
                             </Box>
                         </AccordionDetails>
                     </Accordion>
+
+                    {/* Email Notification Section */}
+                    <EmailNotificationSelector
+                        emails={notificationEmails}
+                        onEmailsChange={handleNotificationEmailsChange}
+                    />
 
                     <CheckoutPaymentMethods
                         name="payment"
