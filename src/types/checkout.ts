@@ -46,6 +46,7 @@ export type ICheckoutState = {
     totalItems: number;
     items: ICheckoutItem[];
     billing: IAddressItem | null;
+    delivery: IAddressItem | null;
 };
 
 export type CheckoutContextValue = {
@@ -73,6 +74,7 @@ export type CheckoutContextValue = {
     onApplyShipping: (discount: number) => void;
     onApplySurcharge: (surcharge: number) => void;
     onCreateBillingAddress: (address: IAddressItem) => void;
+    onCreateDeliveryAddress: (address: IAddressItem) => void;
     onAddNote: (itemId:number, note:string) => void;
     onDeleteNote: (itemId:number) => void;
 };

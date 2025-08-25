@@ -32,6 +32,7 @@ const initialState: ICheckoutState = {
     shipping: 0,
     surcharge: 0,
     billing: null,
+    delivery: null,
     totalItems: 0,
 };
 
@@ -231,6 +232,13 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         [setField]
     );
 
+    const onCreateDeliveryAddress = useCallback(
+        (address: IAddressItem) => {
+            setField('delivery', address);
+        },
+        [setField]
+    );
+
     const onApplyDiscount = useCallback(
         (discount: number) => {
             setField('discount', discount);
@@ -308,6 +316,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onDeleteCartItem,
             onChangeItemQuantity,
             onCreateBillingAddress,
+            onCreateDeliveryAddress,
             onAddNote,
             onDeleteNote
         }),
@@ -328,6 +337,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onDeleteCartItem,
             onChangeItemQuantity,
             onCreateBillingAddress,
+            onCreateDeliveryAddress,
             onAddNote,
             onDeleteNote
         ]

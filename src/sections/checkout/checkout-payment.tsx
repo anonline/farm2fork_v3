@@ -5,6 +5,7 @@ import type {
 } from 'src/types/checkout';
 import type { IPickupLocation } from 'src/types/pickup-location';
 import type { IShippingCostMethod } from 'src/types/shipping-cost';
+import type { IAddressItem } from 'src/types/common';
 
 import { z as zod } from 'zod';
 import { useState, useEffect, useMemo } from 'react';
@@ -27,7 +28,8 @@ import { Iconify } from 'src/components/iconify';
 import { useAuthContext } from 'src/auth/hooks';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
-import { PickupLocationSelector } from './components';
+import { useGetCustomerData } from 'src/actions/customer';
+import { PickupLocationSelector, DeliveryAddressSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
@@ -64,6 +66,7 @@ export const PaymentSchema = zod.object({
     payment: zod.string().min(1, { message: 'Payment is required!' }),
     shippingMethod: zod.number().min(1, { message: 'Shipping method is required!' }),
     pickupLocation: zod.number().optional(),
+    deliveryAddressIndex: zod.number().optional(),
 }).refine((data) => {
     // If delivery type is personal pickup, pickup location is required
     // We need to check if the shipping method is "Személyes átvétel" (personal pickup)
@@ -79,16 +82,19 @@ export const PaymentSchema = zod.object({
 export function CheckoutPayment() {
     const [selectedShippingMethod, setSelectedShippingMethod] = useState<number | null>(null);
     const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
+    const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(null);
     
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
     const { methods: shippingMethods } = useGetShippingCostMethods();
+    const { customerData } = useGetCustomerData(user?.id);
     
     const {
         loading,
         onResetCart,
         onChangeStep,
         onApplyShipping,
+        onCreateDeliveryAddress,
         state: checkoutState,
     } = useCheckoutContext();
 
@@ -211,10 +217,19 @@ export function CheckoutPayment() {
         };
     }, [shippingMethods]);
 
+    // Check if method is home delivery
+    const isHomeDelivery = useMemo(() => {
+        return (methodId: number) => {
+            const method = shippingMethods.find(m => m.id === methodId);
+            return method?.name === 'Házhozszállítás';
+        };
+    }, [shippingMethods]);
+
     const defaultValues: PaymentSchemaType = {
         payment: '',
         shippingMethod: selectedShippingMethod || 0,
         pickupLocation: selectedPickupLocation || undefined,
+        deliveryAddressIndex: selectedDeliveryAddressIndex || undefined,
     };
 
     const methods = useForm<PaymentSchemaType>({
@@ -243,17 +258,38 @@ export function CheckoutPayment() {
                 const totalCost = getTotalMethodCost(selectedMethod);
                 onApplyShipping(totalCost);
                 
-                // Reset pickup location when switching from personal pickup
-                if (selectedShippingMethod && isPersonalPickup(selectedShippingMethod) && !isPersonalPickup(methodId)) {
-                    setSelectedPickupLocation(null);
-                    setValue('pickupLocation', undefined);
-                } else if (isPersonalPickup(methodId)) {
+                // Reset selections when switching between different method types
+                if (selectedShippingMethod) {
+                    const wasPersonalPickup = isPersonalPickup(selectedShippingMethod);
+                    const wasHomeDelivery = isHomeDelivery(selectedShippingMethod);
+                    const isNowPersonalPickup = isPersonalPickup(methodId);
+                    const isNowHomeDelivery = isHomeDelivery(methodId);
+                    
+                    // Reset pickup location when switching from personal pickup
+                    if (wasPersonalPickup && !isNowPersonalPickup) {
+                        setSelectedPickupLocation(null);
+                        setValue('pickupLocation', undefined);
+                    }
+                    
+                    // Reset delivery address when switching from home delivery
+                    if (wasHomeDelivery && !isNowHomeDelivery) {
+                        setSelectedDeliveryAddressIndex(null);
+                        setValue('deliveryAddressIndex', undefined);
+                    }
+                }
+                
+                // Set defaults for new method type
+                if (isPersonalPickup(methodId)) {
                     // Set default pickup location (Farm2Fork raktár) when switching to pickup
                     const defaultPickup = pickupLocations.find(loc => loc.enabled && loc.name.includes('Farm2Fork'));
                     if (defaultPickup) {
                         setSelectedPickupLocation(defaultPickup.id);
                         setValue('pickupLocation', defaultPickup.id);
                     }
+                } else if (isHomeDelivery(methodId) && customerData?.deliveryAddress?.length) {
+                    // Set first delivery address as default for home delivery
+                    setSelectedDeliveryAddressIndex(0);
+                    setValue('deliveryAddressIndex', 0);
                 }
             }
         }
@@ -264,7 +300,28 @@ export function CheckoutPayment() {
         setValue('pickupLocation', locationId);
     };
 
-    // Initialize default shipping method and pickup location when data is loaded
+    const updateDeliveryAddressInContext = (index: number) => {
+        if (customerData?.deliveryAddress?.[index]) {
+            const selectedAddress = customerData.deliveryAddress[index];
+            const addressItem: IAddressItem = {
+                name: selectedAddress.fullName,
+                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.streetAddress}${
+                    selectedAddress.floorDoor ? `, ${selectedAddress.floorDoor}` : ''
+                }`,
+                phoneNumber: selectedAddress.phone,
+                addressType: 'delivery',
+            };
+            onCreateDeliveryAddress(addressItem);
+        }
+    };
+
+    const handleDeliveryAddressChange = (index: number) => {
+        setSelectedDeliveryAddressIndex(index);
+        setValue('deliveryAddressIndex', index);
+        updateDeliveryAddressInContext(index);
+    };
+
+    // Initialize default shipping method and related selections when data is loaded
     useEffect(() => {
         if (availableShippingMethods.length > 0 && !selectedShippingMethod) {
             // Set first available method as default
@@ -284,8 +341,15 @@ export function CheckoutPayment() {
                     setValue('pickupLocation', defaultPickup.id);
                 }
             }
+            // If it's home delivery, set default delivery address
+            else if (isHomeDelivery(defaultMethod.id) && customerData?.deliveryAddress?.length) {
+                setSelectedDeliveryAddressIndex(0);
+                setValue('deliveryAddressIndex', 0);
+                // Update checkout context with first delivery address
+                handleDeliveryAddressChange(0);
+            }
         }
-    }, [availableShippingMethods, selectedShippingMethod, setValue, isPersonalPickup, pickupLocations, getTotalMethodCost, onApplyShipping]);
+    }, [availableShippingMethods, selectedShippingMethod, setValue, isPersonalPickup, isHomeDelivery, pickupLocations, customerData?.deliveryAddress, getTotalMethodCost, onApplyShipping]);
 
     // Recalculate available methods and costs when cart subtotal changes
     useEffect(() => {
@@ -306,9 +370,22 @@ export function CheckoutPayment() {
                         setSelectedPickupLocation(defaultPickup.id);
                         setValue('pickupLocation', defaultPickup.id);
                     }
-                } else {
+                    // Reset delivery address
+                    setSelectedDeliveryAddressIndex(null);
+                    setValue('deliveryAddressIndex', undefined);
+                } else if (isHomeDelivery(newMethod.id) && customerData?.deliveryAddress?.length) {
+                    // Set default delivery address
+                    setSelectedDeliveryAddressIndex(0);
+                    setValue('deliveryAddressIndex', 0);
+                    // Reset pickup location
                     setSelectedPickupLocation(null);
                     setValue('pickupLocation', undefined);
+                } else {
+                    // Reset both
+                    setSelectedPickupLocation(null);
+                    setValue('pickupLocation', undefined);
+                    setSelectedDeliveryAddressIndex(null);
+                    setValue('deliveryAddressIndex', undefined);
                 }
             } else {
                 // No methods available
@@ -317,6 +394,8 @@ export function CheckoutPayment() {
                 onApplyShipping(0);
                 setSelectedPickupLocation(null);
                 setValue('pickupLocation', undefined);
+                setSelectedDeliveryAddressIndex(null);
+                setValue('deliveryAddressIndex', undefined);
             }
         } else if (selectedShippingMethod) {
             // Update cost for current method
@@ -326,7 +405,7 @@ export function CheckoutPayment() {
                 onApplyShipping(totalCost);
             }
         }
-    }, [availableShippingMethods, selectedShippingMethod, shippingMethods, getTotalMethodCost, onApplyShipping, setValue, isPersonalPickup, pickupLocations]);
+    }, [availableShippingMethods, selectedShippingMethod, shippingMethods, getTotalMethodCost, onApplyShipping, setValue, isPersonalPickup, isHomeDelivery, pickupLocations, customerData?.deliveryAddress]);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -341,7 +420,18 @@ export function CheckoutPayment() {
                 }
             }
             
-            clearErrors('pickupLocation');
+            // Validate delivery address for home delivery
+            if (data.shippingMethod && isHomeDelivery(data.shippingMethod)) {
+                if (data.deliveryAddressIndex === undefined || data.deliveryAddressIndex === null) {
+                    setError('deliveryAddressIndex', {
+                        type: 'manual',
+                        message: 'Delivery address is required for home delivery!'
+                    });
+                    return;
+                }
+            }
+            
+            clearErrors(['pickupLocation', 'deliveryAddressIndex']);
             onResetCart();
             onChangeStep('next');
             console.info('DATA', data);
@@ -434,6 +524,21 @@ export function CheckoutPayment() {
                                         selectedPickupLocation={selectedPickupLocation}
                                         onLocationChange={handlePickupLocationChange}
                                     />
+                                )}
+
+                                {/* Delivery Address Selection */}
+                                {selectedShippingMethod && isHomeDelivery(selectedShippingMethod) && (
+                                    <Box sx={{ mt: 2 }}>
+                                        <DeliveryAddressSelector
+                                            deliveryAddresses={customerData?.deliveryAddress || []}
+                                            selectedAddressIndex={selectedDeliveryAddressIndex}
+                                            onAddressChange={handleDeliveryAddressChange}
+                                            onEditAddress={(index) => {
+                                                // TODO: Implement edit functionality later
+                                                console.log('Edit address at index:', index);
+                                            }}
+                                        />
+                                    </Box>
                                 )}
                             </Box>
                         </AccordionDetails>
