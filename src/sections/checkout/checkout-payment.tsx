@@ -43,6 +43,7 @@ import { CheckoutSummary } from './checkout-summary';
 import { CheckoutBillingInfo } from './checkout-billing-info';
 import { CheckoutPaymentMethods } from './checkout-payment-methods';
 import { Link } from '@mui/material';
+import { toast } from 'src/components/snackbar';
 
 // ----------------------------------------------------------------------
 
@@ -245,21 +246,57 @@ export function CheckoutPayment() {
     // Check if delivery details are complete
     const isDeliveryDetailsComplete = useMemo(() => {
         if (!selectedShippingMethod) return false;
-        
+
         const hasNotificationEmail = checkoutState.notificationEmails && checkoutState.notificationEmails.length > 0;
         if (!hasNotificationEmail) return false;
 
         if (isPersonalPickup(selectedShippingMethod)) {
             return selectedPickupLocation !== null;
         }
-        
+
         if (isHomeDelivery(selectedShippingMethod)) {
             // For home delivery, also check that there's no shipping zone error
             return selectedDeliveryAddressIndex !== null && !hasShippingZoneError;
         }
-        
+
         return false;
     }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, checkoutState.notificationEmails, isPersonalPickup, isHomeDelivery, hasShippingZoneError]);
+
+    // Check if all order requirements are complete
+    const isOrderComplete = useMemo(() => {
+        // Must have delivery details complete
+        if (!isDeliveryDetailsComplete) return false;
+
+        // Must have delivery date/time selected
+        if (!checkoutState.selectedDeliveryDateTime) return false;
+
+        // Must have payment method selected
+        if (!checkoutState.selectedPaymentMethod) return false;
+
+        // Must accept terms
+        if (!termsAccepted) return false;
+
+        // If simple payment method, must accept data transfer
+        if (checkoutState.selectedPaymentMethod?.slug === 'simple' && !dataTransferAccepted) return false;
+
+        return true;
+    }, [isDeliveryDetailsComplete, checkoutState.selectedDeliveryDateTime, checkoutState.selectedPaymentMethod, termsAccepted, dataTransferAccepted]);
+
+    // Format delivery date/time for display
+    const formatDeliveryDisplay = useMemo(() => {
+        if (!checkoutState.selectedDeliveryDateTime) return '';
+
+        try {
+            const date = new Date(checkoutState.selectedDeliveryDateTime);
+            const formattedDate = date.toLocaleDateString('hu-HU');
+            const timeRange = selectedShippingMethod && isPersonalPickup(selectedShippingMethod)
+                ? '06:00-19:00' // Default pickup hours
+                : '06:00-19:00'; // Default delivery hours
+            return `${formattedDate}`;
+        } catch {
+            return '';
+        }
+    }, [checkoutState.selectedDeliveryDateTime, selectedShippingMethod, isPersonalPickup]);
 
     const defaultValues: PaymentSchemaType = {
         payment: 0,
@@ -487,7 +524,7 @@ export function CheckoutPayment() {
         try {
             // Validate terms acceptance
             if (!termsAccepted) {
-                // You could add some visual feedback here if needed
+                toast.error('Az Általános Szerződési Feltételek elfogadása kötelező.');
                 return;
             }
 
@@ -719,7 +756,7 @@ export function CheckoutPayment() {
                                 selectedDateTime={checkoutState.selectedDeliveryDateTime}
                                 onDateTimeChange={onUpdateDeliveryDateTime}
                             />
-                            
+
                             {checkoutState.selectedDeliveryDateTime && (
                                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                                     <Button
@@ -739,11 +776,11 @@ export function CheckoutPayment() {
 
 
                     {/* Payment Method Accordion */}
-                    <Accordion 
-                        expanded={paymentAccordionExpanded} 
+                    <Accordion
+                        expanded={paymentAccordionExpanded}
                         onChange={() => setPaymentAccordionExpanded(!paymentAccordionExpanded)}
                         disabled={!checkoutState.selectedDeliveryDateTime}
-                        sx={{ 
+                        sx={{
                             mb: 3,
                             boxShadow: 'none !important',
                             '&:before': {
@@ -763,7 +800,7 @@ export function CheckoutPayment() {
                     >
                         <AccordionSummary
                             expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-                            sx={{ 
+                            sx={{
                                 '& .MuiAccordionSummary-content': {
                                     alignItems: 'center',
                                     gap: 2
@@ -806,7 +843,7 @@ export function CheckoutPayment() {
                                             onChange={(e) => {
                                                 const methodId = parseInt(e.target.value, 10);
                                                 onChange(methodId);
-                                                
+
                                                 // Find the selected payment method and update context
                                                 const selectedMethod = availablePaymentMethods.find(m => m.id === methodId);
                                                 onUpdatePaymentMethod(selectedMethod || null);
@@ -941,6 +978,40 @@ export function CheckoutPayment() {
                                     />
                                 )}
                             </Box>
+
+                            {/* Order Completion Button */}
+                            <Box sx={{ mt: 4, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                <Button
+                                    fullWidth
+                                    
+                                    type="submit"
+                                    variant="contained"
+                                    disabled={!isOrderComplete}
+                                    loading={isSubmitting}
+                                    sx={{
+                                        py: 1.5,
+                                        fontSize: '16px',
+                                        fontWeight: 600,
+                                        ...(isOrderComplete && {
+                                            bgcolor: 'primary.main',
+                                            '&:hover': {
+                                                bgcolor: 'primary.dark',
+                                            }
+                                        }),
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                    }}
+                                >
+                                    <Typography sx={{ fontWeight: 600 }}>
+                                        {isOrderComplete ? 'Megrendelés véglegesítése' : 'Kérjük töltse ki az összes mezőt'}
+                                    </Typography>
+                                    {checkoutState.selectedDeliveryDateTime && (
+                                        <Typography variant="body2" sx={{ color: 'grey.400' }}>
+                                            {selectedShippingMethod && isPersonalPickup(selectedShippingMethod) ? 'Átvétel' : 'Szállítás'}: {formatDeliveryDisplay}
+                                        </Typography>
+                                    )}
+                                </Button>
+                            </Box>
                         </AccordionDetails>
                     </Accordion>
 
@@ -955,26 +1026,14 @@ export function CheckoutPayment() {
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <CheckoutBillingInfo
-                        loading={loading}
-                        onChangeStep={onChangeStep}
-                        checkoutState={checkoutState}
-                    />
+                    
 
                     <CheckoutSummary
                         checkoutState={checkoutState}
                         onEdit={() => onChangeStep('go', 0)}
                     />
 
-                    <Button
-                        fullWidth
-                        size="large"
-                        type="submit"
-                        variant="contained"
-                        loading={isSubmitting}
-                    >
-                        Complete order
-                    </Button>
+                    
                 </Grid>
             </Grid>
         </Form>

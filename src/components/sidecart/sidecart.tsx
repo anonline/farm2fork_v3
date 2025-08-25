@@ -262,18 +262,20 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
 type SideCartItemProps = {
     item: any;
-    onDeleteCartItem: (itemId: number) => void;
-    onChangeItemQuantity: (itemId: number, quantity: number) => void;
-    onAddNote: (itemId: number, note: string) => void;
-    onDeleteNote: (itemId: number) => void;
+    onDeleteCartItem?: (itemId: number) => void;
+    onChangeItemQuantity?: (itemId: number, quantity: number) => void;
+    onAddNote?: (itemId: number, note: string) => void;
+    onDeleteNote?: (itemId: number) => void;
+    hideControl?:boolean
 };
 
-function SideCartItem({ 
+export function SideCartItem({ 
     item, 
     onDeleteCartItem, 
     onChangeItemQuantity,
     onAddNote,
-    onDeleteNote 
+    onDeleteNote,
+    hideControl = false
 }: Readonly<SideCartItemProps>) {
     return (
         <Box sx={{ display: 'flex', gap: 2, p: 1, alignItems: 'center' }}>
@@ -316,8 +318,10 @@ function SideCartItem({
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <NumberInput
+                            
+                            disabled={hideControl}
                             value={item.quantity}
-                            onChange={(_, newValue) => onChangeItemQuantity(item.id, newValue)}
+                            onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
                             min={item.minQuantity || 1}
                             max={item.maxQuantity || 999}
                             step={item.stepQuantity || 0.1}
@@ -329,14 +333,16 @@ function SideCartItem({
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                             {fCurrency(item.subtotal)}
                         </Typography>
-                        
-                        <IconButton 
-                            size="small" 
-                            color="error"
-                            onClick={() => onDeleteCartItem(item.id)}
-                        >
-                            <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                        </IconButton>
+
+                        {!hideControl && (
+                            <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => onDeleteCartItem?.(item.id)}
+                            >
+                                <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                            </IconButton>
+                        )}
                     </Box>
                 </Stack>
             </Box>
