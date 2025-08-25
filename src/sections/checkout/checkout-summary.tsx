@@ -23,9 +23,10 @@ type Props = {
     onEdit?: () => void;
     checkoutState: CheckoutContextValue['state'];
     onApplyDiscount?: CheckoutContextValue['onApplyDiscount'];
+    activeStep?: CheckoutContextValue['activeStep'];
 };
 
-export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Readonly<Props>) {
+export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, activeStep }: Readonly<Props>) {
     const { shipping, subtotal, discount, surcharge, total } = checkoutState;
 
     const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';
@@ -39,12 +40,14 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
             <CardHeader
                 title="Vásárlás részletei"
             />
+
+            {activeStep && (
                 <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                <Scrollbar sx={{ height: '100%' }}>
-                    <Stack spacing={0} sx={{ p: 2 }}>
-                        {checkoutState.items.map((item, index) => (
-                            <Box key={item.id}>
-                                <SideCartItem
+                    <Scrollbar sx={{ height: '100%' }}>
+                        <Stack spacing={0} sx={{ p: 2 }}>
+                            {checkoutState.items.map((item, index) => (
+                                <Box key={item.id}>
+                                    <SideCartItem
                                     item={item}
                                     hideControl
                                 />
@@ -56,7 +59,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
                     </Stack>
                 </Scrollbar>
             </Box>
-
+            )}
 
             <Stack spacing={2} sx={{ p: 3 }}>
                 <Box sx={{ ...rowStyles }}>

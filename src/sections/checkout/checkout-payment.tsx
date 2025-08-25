@@ -98,6 +98,7 @@ export function CheckoutPayment() {
         onResetDeliveryDateTime,
         onUpdatePaymentMethod,
         state: checkoutState,
+        activeStep
     } = useCheckoutContext();
 
     // Determine user type for shipping methods
@@ -561,8 +562,8 @@ export function CheckoutPayment() {
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
-            <Grid container spacing={3}>
-                <Grid size={{ xs: 12, md: 8 }}>
+            <Grid container spacing={5}>
+                <Grid size={{ xs: 12, md: 7 }}>
                     {/* Delivery Type Selection */}
                     <Accordion
                         expanded={deliveryAccordionExpanded}
@@ -1025,10 +1026,11 @@ export function CheckoutPayment() {
                     </Button>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
+                <Grid size={{ xs: 12, md: 5 }}>
                     
 
                     <CheckoutSummary
+                        activeStep={activeStep}
                         checkoutState={checkoutState}
                         onEdit={() => onChangeStep('go', 0)}
                     />
