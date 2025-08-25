@@ -1,4 +1,6 @@
-import { AuthSplitLayout } from 'src/layouts/auth-split';
+import { Container } from '@mui/material';
+
+import { MainLayout } from 'src/layouts/main';
 
 import { GuestGuard } from 'src/auth/guard';
 
@@ -8,20 +10,14 @@ type Props = {
     children: React.ReactNode;
 };
 
-export default function Layout({ children }: Props) {
+export default function Layout({ children }: Readonly<Props>) {
     return (
         <GuestGuard>
-            <AuthSplitLayout
-                slotProps={{
-                    section: {
-                        title: '',
-                        subtitle: '',
-                        imgUrl: 'https://farm2fork.hu/wp-content/uploads/2025/01/Frame-1.png',
-                    },
-                }}
-            >
-                {children}
-            </AuthSplitLayout>
+            <MainLayout>
+                <Container>
+                    {children}
+                </Container>
+            </MainLayout>
         </GuestGuard>
     );
 }
