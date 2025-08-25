@@ -525,7 +525,7 @@ function ProductCardButton({ qty = 1, product, label, onAddToCart, isDisabled = 
             });
             console.log(product);
             toast.success("Sikeresen kosárhoz adva.");
-            openSideCart();
+            //openSideCart();
         }
     }
     return (

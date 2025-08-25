@@ -15,7 +15,7 @@ export default function HeaderCartButton() {
         <Button
             onClick={openSideCart}
             startIcon={
-                <Badge badgeContent={checkoutState.totalItems} color='primary' sx={{marginRight: '10px'}}>
+                <Badge badgeContent={checkoutState.items.length} color='primary' sx={{marginRight: '10px'}}>
                     <F2FIcons
                         name="Bag"
                         width={24}

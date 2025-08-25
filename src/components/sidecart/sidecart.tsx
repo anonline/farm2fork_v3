@@ -91,7 +91,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                 }}
             >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Kosár ({checkoutState.totalItems})
+                    Kosár {(checkoutState.items.length > 0 ? '(' + checkoutState.items.length + ' db)' : '')}
                 </Typography>
                 
                 <IconButton
