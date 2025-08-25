@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useWatch, useFormContext } from 'react-hook-form';
 
 import Step from '@mui/material/Step';
 import MuiStepper from '@mui/material/Stepper';
 import StepLabel from '@mui/material/StepLabel';
 import { type Theme, type SxProps } from '@mui/material/styles';
-import { Grid, Stack, Button, MenuItem, Typography } from '@mui/material';
+import { Grid, Stack, Alert, Button, MenuItem, Typography } from '@mui/material';
+
+import { useShipping } from 'src/contexts/shipping-context';
 
 import { RHFSelect, RHFSwitch, RHFTextField } from 'src/components/hook-form';
 
@@ -90,6 +92,9 @@ export function StepTwo() {
 // --- Harmadik lépés: Szállítási adatok ---
 export function StepThree() {
   const { watch, setValue } = useFormContext();
+  const { shippingZones } = useShipping();
+  const [showDeliveryWarning, setShowDeliveryWarning] = useState(false);
+
   const firstName = watch('stepTwo.firstName');
   const lastName = watch('stepTwo.lastName');
 
@@ -99,22 +104,37 @@ export function StepThree() {
     }
   }, [firstName, lastName, setValue]);
 
+  const handleZipCodeBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const zipCode = event.target.value;
+    if (zipCode && shippingZones.length > 0) {
+      const isDeliverable = shippingZones.some(zone => zone.Iranyitoszam === zipCode);
+      setShowDeliveryWarning(!isDeliverable);
+    } else {
+      setShowDeliveryWarning(false);
+    }
+  };
+
   return (
     <>
       <Typography variant="h4" sx={{ mb: 2 }}>
         Szállítási adatok
       </Typography>
       <Stack spacing={2.5}>
+        {showDeliveryWarning && (
+          <Alert severity="warning">Sajnáljuk, erre az irányítószámra jelenleg nem szállítunk. A regisztrációt befejezheted, de csak személyes átvételt tudsz majd választani.</Alert>
+        )}
+
         <RHFTextField name="stepThree.fullName" label="Teljes név" />
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6, }}>
             <RHFTextField
               name="stepThree.zipCode"
               label="Irányítószám"
               inputProps={{ maxLength: 4 }}
+              onBlur={handleZipCodeBlur}
             />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6, }}>
             <RHFTextField name="stepThree.city" label="Település" />
           </Grid>
         </Grid>

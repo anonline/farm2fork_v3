@@ -8,7 +8,6 @@ import { useMemo, useState, useCallback } from 'react';
 import { Box, Stack, Button } from '@mui/material';
 
 import { registerUser } from 'src/actions/auth';
-import { useShipping } from 'src/contexts/shipping-context';
 
 import { Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
@@ -19,7 +18,7 @@ import { StepOne, StepTwo, Stepper, StepThree, StepCompleted } from './form-step
 
 export type RegistrationSchemaType = zod.infer<ReturnType<typeof getRegistrationSchema>>;
 
-const getRegistrationSchema = (shippingZones: any[]) => {
+const getRegistrationSchema = () => {
   const StepOneSchema = zod.object({
     role: zod.enum(['private', 'company'], { required_error: 'Kérjük, válassza ki a szerepkörét!' }),
   });
@@ -40,29 +39,16 @@ const getRegistrationSchema = (shippingZones: any[]) => {
       path: ['passwordConfirm'],
     });
 
-  const StepThreeSchema = zod
-    .object({
-      fullName: zod.string().optional(),
-      zipCode: zod.string().optional(),
-      city: zod.string().optional(),
-      streetAddress: zod.string().optional(),
-      floorDoor: zod.string().optional(),
-      phone: zod.union([zod.string().regex(/^\+36\d{9}$/), zod.string().length(0)]).optional(),
-      comment: zod.string().optional(),
-      source: zod.string().optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (data.zipCode && shippingZones && shippingZones.length > 0) {
-        const isDeliverable = shippingZones.some((zone) => zone.Iranyitoszam === data.zipCode);
-        if (!isDeliverable) {
-          ctx.addIssue({
-            code: zod.ZodIssueCode.custom,
-            message: 'Sajnáljuk, erre az irányítószámra nem szállítunk.',
-            path: ['zipCode'],
-          });
-        }
-      }
-    });
+  const StepThreeSchema = zod.object({
+    fullName: zod.string().optional(),
+    zipCode: zod.string().max(4, { message: 'Az irányítószám maximum 4 karakter lehet.' }).optional(),
+    city: zod.string().optional(),
+    streetAddress: zod.string().optional(),
+    floorDoor: zod.string().optional(),
+    phone: zod.union([zod.string().regex(/^\+36\d{9}$/), zod.string().length(0)]).optional(),
+    comment: zod.string().optional(),
+    source: zod.string().optional(),
+  });
 
   return zod
     .object({
@@ -86,33 +72,18 @@ const STEPS = ['Szerepkör', 'Alapadatok', 'Szállítási adatok'];
 
 export function SignUpWizard() {
   const [activeStep, setActiveStep] = useState(0);
-  const { shippingZones } = useShipping();
 
-  const RegistrationSchema = useMemo(() => getRegistrationSchema(shippingZones), [shippingZones]);
+  const RegistrationSchema = useMemo(() => getRegistrationSchema(), []);
 
   const defaultValues = {
     stepOne: { role: 'private' as const },
-
     stepTwo: {
-      companyName: '',
-      taxNumber: '',
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      newsletter: false,
+      companyName: '', taxNumber: '', firstName: '', lastName: '',
+      email: '', password: '', passwordConfirm: '', newsletter: false,
     },
-
     stepThree: {
-      fullName: '',
-      zipCode: '',
-      city: '',
-      streetAddress: '',
-      floorDoor: '',
-      phone: '',
-      comment: '',
-      source: '',
+      fullName: '', zipCode: '', city: '', streetAddress: '',
+      floorDoor: '', phone: '', comment: '', source: '',
     },
   };
 
@@ -146,10 +117,10 @@ export function SignUpWizard() {
   });
 
   return (
-    <>
+    <Stack sx={{ width: 1 }}>
       <Stepper steps={STEPS} activeStep={activeStep} sx={{ mb: 3 }} />
       <Form methods={methods} onSubmit={onSubmit}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', width: '400px' }}>
+        <Box sx={{ minHeight: { xs: 360, md: 400 } }}>
           {activeStep === 0 && <StepOne />}
           {activeStep === 1 && <StepTwo />}
           {activeStep === 2 && <StepThree />}
@@ -157,26 +128,27 @@ export function SignUpWizard() {
         </Box>
 
         {activeStep < STEPS.length && (
-          <Box sx={{ display: 'flex', mt: 3, justifyContent: activeStep === 0 ? 'flex-end' : 'space-between', gap: 2 }}>
-            <Button onClick={handleBack} disabled={activeStep === 0} sx={{ ...(activeStep === 0 && { display: 'none' }) }}>
+          <Box sx={{ display: 'flex', mt: 3, justifyContent: 'space-between', gap: 2 }}>
+            <Button onClick={handleBack} disabled={activeStep === 0}>
               Vissza
             </Button>
 
             {activeStep === 0 && <Button fullWidth size="large" variant="contained" color="inherit" onClick={() => handleNext('stepOne')}>Tovább</Button>}
             {activeStep === 1 && <Button fullWidth size="large" variant="contained" color="inherit" onClick={() => handleNext('stepTwo')}>Tovább</Button>}
+
             {activeStep === 2 && (
-              <Stack direction="row" spacing={2} sx={{ flexGrow: 1 }}>
-                <Button fullWidth size="large" variant="outlined" color="inherit" type="submit" loading={isSubmitting}>
-                  Később adom meg
-                </Button>
+              <Stack spacing={2} sx={{ flexGrow: 1 }}>
                 <Button fullWidth size="large" variant="contained" color="inherit" type="submit" loading={isSubmitting}>
                   Tovább
+                </Button>
+                <Button fullWidth size="large" variant="outlined" color="inherit" type="submit" loading={isSubmitting}>
+                  Később adom meg
                 </Button>
               </Stack>
             )}
           </Box>
         )}
       </Form>
-    </>
+    </Stack>
   );
 }
