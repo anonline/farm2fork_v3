@@ -537,6 +537,7 @@ export function CheckoutPayment() {
                                                 // TODO: Implement edit functionality later
                                                 console.log('Edit address at index:', index);
                                             }}
+                                            isHomeDelivery={true}
                                         />
                                     </Box>
                                 )}

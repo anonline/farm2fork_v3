@@ -6,3 +6,4 @@ asd.local
 pickup_locations.sql
 shipping_costs_methods_update.sql
 test_customer_data.sql
+shipping_zones.sql
