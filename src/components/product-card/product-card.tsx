@@ -254,15 +254,18 @@ export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ pr
 
 type ProductQuantitySelectorProps = {
     product: IProductItem,
-    onAddToCart: CheckoutContextValue['onAddToCart'],
+    showAddToCart?: boolean,
+    onAddToCart?: CheckoutContextValue['onAddToCart'],
     format?: 'column' | 'row',
     min?: number,
     max?: number,
     step?: number,
     unit?: string
+    onQuantityChange?: (quantity: number) => void;
+    showUnit?: boolean;
 }
 
-export function ProductQuantitySelector({ product, onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag" }: Readonly<ProductQuantitySelectorProps>) {
+export function ProductQuantitySelector({ product, onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag", showAddToCart = true, onQuantityChange, showUnit = true }: Readonly<ProductQuantitySelectorProps>) {
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
         color: themeConfig.textColor.grey,
@@ -310,6 +313,9 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setInputValue("");
             setQuantity(undefined);
             setButtonDisabled(true);
+            if(onQuantityChange){
+                onQuantityChange(1);
+            }
             return;
         }
 
@@ -317,6 +323,9 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setInputValue(printQtyWithUnit(min));
             setQuantity(min);
             setButtonDisabled(false);
+            if(onQuantityChange){
+                onQuantityChange(min);
+            }
             return;
         }
 
@@ -324,6 +333,9 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setInputValue(printQtyWithUnit(max));
             setQuantity(max);
             setButtonDisabled(false);
+            if(onQuantityChange){
+                onQuantityChange(min);
+            }
             return;
         }
 
@@ -331,21 +343,30 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             const roundedValue = parseFloat((Math.round(value / step) * step).toFixed(1));
             setInputValue(printQtyWithUnit(roundedValue));
             setQuantity(roundedValue);
+            if(onQuantityChange){
+                onQuantityChange(roundedValue);
+            }
         } else {
             setInputValue(printQtyWithUnit(value));
             setQuantity(value);
+            if(onQuantityChange){
+                onQuantityChange(value);
+            }
         }
 
         setButtonDisabled(false);
+        
     }
 
     const handlePlusClick = () => {
+        let newQty = quantity;
+
         if (quantity === undefined || isNaN(quantity)) {
             setQuantity(min);
             setInputValue(printQtyWithUnit(min));
             setButtonDisabled(false);
         } else {
-            let newQty = quantity + step;
+            newQty = quantity + step;
             if (newQty > max) {
                 newQty = max;
             }
@@ -353,21 +374,31 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setInputValue(printQtyWithUnit(newQty));
             setButtonDisabled(false);
         }
+
+        if(onQuantityChange){
+            onQuantityChange(newQty ?? min);
+        }
     }
 
     const handleMinusClick = () => {
+        let newQty = quantity;
+
         if (quantity === undefined || isNaN(quantity)) {
             setQuantity(min);
             setInputValue(printQtyWithUnit(min));
             setButtonDisabled(false);
         } else {
-            let newQty = quantity - step;
+            newQty = quantity - step;
             if (newQty < min) {
                 newQty = min;
             }
             setQuantity(newQty);
             setInputValue(printQtyWithUnit(newQty));
             setButtonDisabled(false);
+        }
+
+        if(onQuantityChange){
+            onQuantityChange(newQty ?? min);
         }
     }
 
@@ -376,7 +407,12 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             return "";
         }
         const decimals = qty % 1 === 0 ? 0 : 1;
-        return qty.toFixed(decimals) + " " + unit;
+        if(showUnit){
+            return qty.toFixed(decimals) + " " + unit;
+        }
+        else {
+            return qty.toFixed(decimals);
+        }
     }
 
     return (
@@ -430,21 +466,22 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
                     <F2FIcons name="Add" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
             </Paper>
-            <ProductCardButton product={product} label="Kosár" onAddToCart={onAddToCart} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />
+            {showAddToCart && <ProductCardButton qty={quantity || 1} product={product} label="Kosár" onAddToCart={onAddToCart ? onAddToCart : undefined} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />}
         </Box>
     );
 
 }
 
 type ProductCardButtonProps = {
+    qty: number,
     product: IProductItem,
     label: string,
-    onAddToCart: CheckoutContextValue['onAddToCart'],
+    onAddToCart?: CheckoutContextValue['onAddToCart'],
     isDisabled?: boolean,
     sx?: SxProps
 }
 
-function ProductCardButton({ product, label, onAddToCart, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
+function ProductCardButton({ qty = 1, product, label, onAddToCart, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
     const { openSideCart } = useSideCart();
 
     const baseStyle: SxProps = {
@@ -472,18 +509,24 @@ function ProductCardButton({ product, label, onAddToCart, isDisabled = false, sx
     }
 
     const handleButtonClick = () => {
-         onAddToCart({
-            id: product.id,
-            name: product.name,
-            price: product.netPrice,
-            coverUrl: product.featuredImage,
-            quantity: 1,
-            unit: product.unit,
-            available: product.maximumQuantity,
-            subtotal: product.netPrice,
-        });
-        toast.success("Sikeresen kosárhoz adva.");
-        openSideCart();
+        if (onAddToCart) {
+            onAddToCart({
+                id: product.id,
+                name: product.name,
+                price: product.netPrice,
+                coverUrl: product.featuredImage,
+                quantity: qty,
+                unit: product.unit,
+                available: product.maximumQuantity,
+                subtotal: product.netPrice,
+                minQuantity: product.mininumQuantity,
+                maxQuantity: product.maximumQuantity,
+                stepQuantity: product.stepQuantity,
+            });
+            console.log(product);
+            toast.success("Sikeresen kosárhoz adva.");
+            //openSideCart();
+        }
     }
     return (
         <Button variant={isDisabled ? 'outlined' : 'contained'} disabled={isDisabled} color={isDisabled ? 'inherit' : 'primary'} onClick={handleButtonClick} sx={isDisabled ? disabledButtonStyle : buttonStyle}>

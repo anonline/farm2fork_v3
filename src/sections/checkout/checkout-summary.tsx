@@ -13,7 +13,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
+import { SideCartItem } from 'src/components/sidecart/sidecart';
 
 // ----------------------------------------------------------------------
 
@@ -21,10 +22,11 @@ type Props = {
     onEdit?: () => void;
     checkoutState: CheckoutContextValue['state'];
     onApplyDiscount?: CheckoutContextValue['onApplyDiscount'];
+    activeStep?: CheckoutContextValue['activeStep'];
 };
 
-export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Readonly<Props>) {
-    const { shipping, subtotal, discount, total } = checkoutState;
+export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, activeStep }: Readonly<Props>) {
+    const { shipping, subtotal, discount, surcharge, total } = checkoutState;
 
     const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';
 
@@ -36,18 +38,28 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
         <Card sx={{ mb: 3 }}>
             <CardHeader
                 title="Vásárlás részletei"
-                action={
-                    onEdit && (
-                        <Button
-                            size="small"
-                            onClick={onEdit}
-                            startIcon={<Iconify icon="solar:pen-bold" />}
-                        >
-                            Edit
-                        </Button>
-                    )
-                }
             />
+
+            {activeStep && (
+                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                    <Scrollbar sx={{ height: '100%' }}>
+                        <Stack spacing={0} sx={{ p: 2 }}>
+                            {checkoutState.items.map((item, index) => (
+                                <Box key={item.id}>
+                                    <SideCartItem
+                                    item={item}
+                                    hideControl
+                                />
+                                {index < checkoutState.items.length - 1 && (
+                                    <Divider sx={{ my: 2 }} />
+                                )}
+                            </Box>
+                        ))}
+                    </Stack>
+                </Scrollbar>
+            </Box>
+            )}
+
             <Stack spacing={2} sx={{ p: 3 }}>
                 <Box sx={{ ...rowStyles }}>
                     <Typography
@@ -75,6 +87,36 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
                     </Typography>
                 </Box>
 
+                {surcharge > 0 && (
+                    <Box sx={{ ...rowStyles }}>
+                        <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ flexGrow: 1, color: 'text.secondary' }}
+                        >
+                            Zárolási felár
+                        </Typography>
+                        <Typography component="span" variant="subtitle2">
+                            {fCurrency(surcharge)}
+                        </Typography>
+                    </Box>
+                )}
+
+                {checkoutState.selectedPaymentMethod?.additionalCost != undefined && checkoutState.selectedPaymentMethod.additionalCost > 0 && (
+                    <Box sx={{ ...rowStyles }}>
+                        <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ flexGrow: 1, color: 'text.secondary' }}
+                        >
+                            Fizetési mód felár
+                        </Typography>
+                        <Typography component="span" variant="subtitle2">
+                            {fCurrency(checkoutState.selectedPaymentMethod.additionalCost)}
+                        </Typography>
+                    </Box>
+                )}
+
                 <Box sx={{ ...rowStyles }}>
                     <Typography
                         component="span"
@@ -84,7 +126,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Read
                         Szállítás
                     </Typography>
                     <Typography component="span" variant="subtitle2" sx={{ fontStyle: 'italic', fontWeight: '400', fontSize: '14px', lineHeight: '22px', color: '#979594' }}>
-                        {shipping ? fCurrency(shipping) : displayShipping}
+                        {shipping != undefined ? (shipping == 0 ? 'Ingyenes' : fCurrency(shipping)) : displayShipping}
                     </Typography>
                 </Box>
 

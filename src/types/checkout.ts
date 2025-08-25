@@ -1,4 +1,5 @@
 import type { IAddressItem } from './common';
+import type { IPaymentMethod } from './payment-method';
 
 // ----------------------------------------------------------------------
 
@@ -14,6 +15,10 @@ export type ICheckoutItem = {
     available: number;
     subtotal?: number;
     note?: string;
+    minQuantity?: number;
+    maxQuantity?: number;
+    stepQuantity?: number;
+    custom?: boolean;
 };
 
 export type ICheckoutDeliveryOption = {
@@ -38,9 +43,15 @@ export type ICheckoutState = {
     subtotal: number;
     discount: number;
     shipping: number;
+    surcharge: number;
     totalItems: number;
     items: ICheckoutItem[];
     billing: IAddressItem | null;
+    delivery: IAddressItem | null;
+    notificationEmails: string[];
+    deliveryComment: string;
+    selectedDeliveryDateTime: string | null;
+    selectedPaymentMethod: IPaymentMethod | null;
 };
 
 export type CheckoutContextValue = {
@@ -66,7 +77,14 @@ export type CheckoutContextValue = {
     onDeleteCartItem: (itemId: number) => void;
     onApplyDiscount: (discount: number) => void;
     onApplyShipping: (discount: number) => void;
+    onApplySurcharge: (surcharge: number) => void;
     onCreateBillingAddress: (address: IAddressItem) => void;
+    onCreateDeliveryAddress: (address: IAddressItem) => void;
     onAddNote: (itemId:number, note:string) => void;
     onDeleteNote: (itemId:number) => void;
+    onUpdateNotificationEmails: (emails: string[]) => void;
+    onUpdateDeliveryComment: (comment: string) => void;
+    onUpdateDeliveryDateTime: (dateTime: string | null) => void;
+    onResetDeliveryDateTime: () => void;
+    onUpdatePaymentMethod: (paymentMethod: IPaymentMethod | null) => void;
 };

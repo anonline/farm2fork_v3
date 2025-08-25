@@ -3,24 +3,32 @@ import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import { Alert } from '@mui/material';
 import Button from '@mui/material/Button';
-import CardHeader from '@mui/material/CardHeader';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { CONFIG } from 'src/global-config';
+import { useGetOption } from 'src/actions/options';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
+import { useAuthContext } from 'src/auth/hooks';
+
+import { OptionsEnum } from 'src/types/option';
+
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
 import { CheckoutCartProductList } from './checkout-cart-product-list';
+import { CheckoutCustomProductForm } from './checkout-custom-product-form';
 
 // ----------------------------------------------------------------------
 
 export function CheckoutCart() {
+    const { user, authenticated } = useAuthContext();
     const {
         loading,
         onChangeStep,
@@ -28,10 +36,37 @@ export function CheckoutCart() {
         state: checkoutState,
         onChangeItemQuantity,
         onAddNote,
-        onDeleteNote
+        onDeleteNote,
+        onAddToCart
     } = useCheckoutContext();
 
+    // Determine user type for minimum purchase check
+    const getUserType = () => {
+        if (!authenticated) return 'public';
+        if (user?.user_metadata?.is_admin) return 'public'; // admin treated as public
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    };
+
+    const userType = getUserType();
+    
+    // Get the appropriate minimum purchase option based on user type
+    const getMinimumPurchaseOption = () => {
+        switch (userType) {
+            case 'vip':
+                return OptionsEnum.MinimumPurchaseForVIP;
+            case 'company':
+                return OptionsEnum.MinimumPurchaseForCompany;
+            default:
+                return OptionsEnum.MinimumPurchaseForPublic;
+        }
+    };
+
+    const { option: minimumPurchaseAmount } = useGetOption(getMinimumPurchaseOption());
+
     const isCartEmpty = !checkoutState.items.length;
+    const isUnderMinimum = minimumPurchaseAmount > 0 && checkoutState.subtotal < minimumPurchaseAmount;
 
     const renderLoading = () => (
         <Box
@@ -59,12 +94,7 @@ export function CheckoutCart() {
         <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 7 }}>
                 <Card sx={{ mb: 3 }}>
-                    <CardHeader
-                        title={
-                            <Alert severity="info" sx={{ mb: 2 }}>Hiba üzik </Alert>
-                        }
-                        sx={{ mb: 3 }}
-                    />
+                    
 
                     {loading ? (
                         renderLoading()
@@ -85,6 +115,8 @@ export function CheckoutCart() {
                     )}
                 </Card>
 
+                <CheckoutCustomProductForm onAddCustomProduct={onAddToCart} />
+
                 <Button
                     component={RouterLink}
                     href={paths.product.root}
@@ -98,12 +130,27 @@ export function CheckoutCart() {
             <Grid size={{ xs: 12, md: 5 }} sx={{backgroundColor: '#F8F8F8', padding: '24px'}}>
                 <CheckoutSummary checkoutState={checkoutState} />
 
+                {/* Minimum Purchase Alert */}
+                {!isCartEmpty && typeof(isUnderMinimum) != 'number' && isUnderMinimum && (
+                    <Alert 
+                        severity="warning" 
+                        sx={{ 
+                            mb: 2,
+                            '& .MuiAlert-message': {
+                                fontSize: '14px'
+                            }
+                        }}
+                    >
+                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Adj hozzá több terméket a kosárhoz a folytatáshoz!
+                    </Alert>
+                )}
+
                 <Button
                     fullWidth
                     size="medium"
                     type="submit"
                     variant="contained"
-                    disabled={isCartEmpty}
+                    disabled={isCartEmpty || isUnderMinimum}
                     color='primary'
                     onClick={() => onChangeStep('next')}
                 >

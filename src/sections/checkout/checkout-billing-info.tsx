@@ -4,11 +4,9 @@ import type { CheckoutContextValue } from 'src/types/checkout';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import CardHeader from '@mui/material/CardHeader';
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +17,7 @@ type Props = CardProps & {
 };
 
 export function CheckoutBillingInfo({ checkoutState, onChangeStep, loading, sx, ...other }: Props) {
-    const { billing } = checkoutState;
+    const { billing, delivery, notificationEmails } = checkoutState;
 
     const renderLoading = () => (
         <Box sx={{ height: 104, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -30,38 +28,33 @@ export function CheckoutBillingInfo({ checkoutState, onChangeStep, loading, sx, 
     return (
         <Card sx={[{ mb: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
             <CardHeader
-                title="Address"
-                action={
-                    <Button
-                        size="small"
-                        startIcon={<Iconify icon="solar:pen-bold" />}
-                        onClick={() => onChangeStep('back')}
-                    >
-                        Edit
-                    </Button>
-                }
+                title="Szállítási cím"
             />
-
             <Stack spacing={1} sx={{ p: 3 }}>
                 {loading ? (
                     renderLoading()
                 ) : (
                     <>
                         <Box sx={{ typography: 'subtitle2' }}>
-                            {`${billing?.name} `}
+                            {`${delivery?.name} `}
                             <Box
                                 component="span"
                                 sx={{ color: 'text.secondary', typography: 'body2' }}
-                            >
-                                ({billing?.addressType})
-                            </Box>
+                             />
                         </Box>
 
                         <Box sx={{ color: 'text.secondary', typography: 'body2' }}>
-                            {billing?.fullAddress}
+                            {delivery?.fullAddress}
                         </Box>
                         <Box sx={{ color: 'text.secondary', typography: 'body2' }}>
-                            {billing?.phoneNumber}
+                            {delivery?.phoneNumber}
+                        </Box>
+                        <Box sx={{ color: 'text.secondary', typography: 'body2' }}>
+                            Értesítési e-mail címek: <br />{notificationEmails.map(email => (
+                                <Box key={email} component="span" sx={{ display: 'block', pl:2 }}>
+                                    {email}
+                                </Box>
+                            ))}
                         </Box>
                     </>
                 )}

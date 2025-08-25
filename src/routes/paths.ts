@@ -231,6 +231,9 @@ export const paths = {
         partners: {
             root: `${ROOTS.DASHBOARD}/partners`,
         },
+        settings: {
+            purchase: `${ROOTS.DASHBOARD}/settings/purchase`
+        },
         shipping: {
             root: `${ROOTS.DASHBOARD}/shipping`,
         },
@@ -239,6 +242,9 @@ export const paths = {
         },
         paymentMethod: {
             root: `${ROOTS.DASHBOARD}/payment-method`,
+        },
+        pickup: {
+            root: `${ROOTS.DASHBOARD}/pickup`,
         },
     },
 };

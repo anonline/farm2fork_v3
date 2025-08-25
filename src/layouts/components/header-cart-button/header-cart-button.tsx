@@ -9,13 +9,14 @@ import { useCheckoutContext } from "src/sections/checkout/context";
 
 export default function HeaderCartButton() {
     const { state: checkoutState } = useCheckoutContext();
-    const { openSideCart } = useSideCart();
+    const { openSideCart, isDisabled } = useSideCart();
 
     return (
         <Button
             onClick={openSideCart}
+            disabled={isDisabled}
             startIcon={
-                <Badge badgeContent={checkoutState.totalItems} color='primary' sx={{marginRight: '10px'}}>
+                <Badge badgeContent={checkoutState.items.length} color='primary' sx={{marginRight: '10px'}}>
                     <F2FIcons
                         name="Bag"
                         width={24}
@@ -28,7 +29,7 @@ export default function HeaderCartButton() {
             color={checkoutState.totalItems > 0 ? 'success' : 'primary' }
             sx={{ textTransform: 'none', fontWeight: 500, color: '#262626 !important' }}
         >
-            {checkoutState.totalItems >0 ? fCurrency(checkoutState.subtotal) : 'Kosár'}
+            {checkoutState.totalItems >0 ? fCurrency(checkoutState.total) : 'Kosár'}
         </Button>
     );
 

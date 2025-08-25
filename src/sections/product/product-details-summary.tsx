@@ -75,6 +75,10 @@ export function ProductDetailsSummary({
         colors: colors[0],
         size: sizes[4],
         quantity: available < 1 ? 0 : 1,
+        minQuantity: product.mininumQuantity,
+        maxQuantity: product.maximumQuantity,
+        stepQuantity: product.stepQuantity,
+        unit: product.unit,
     };
 
     const methods = useForm<typeof defaultValues>({

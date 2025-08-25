@@ -4,6 +4,8 @@ import { Box, Stack, Button } from "@mui/material";
 
 import { paths } from "src/routes/paths";
 
+import { SignOutButton } from "src/layouts/components/sign-out-button";
+
 import F2FIcons from "src/components/f2ficons/f2ficons";
 
 export default function ProfilNavigation() {
@@ -48,9 +50,7 @@ export default function ProfilNavigation() {
                         </Button>
                     );
                 })}
-                <Button variant="outlined" sx={{ mt: 4 }}>
-                    Kijelentkezés
-                </Button>
+                <SignOutButton sx={{ mt: 4 }} />
             </Stack>
         </Box>
     );

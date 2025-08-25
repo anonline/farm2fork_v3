@@ -11,5 +11,6 @@ export interface IShippingCostMethod {
   vatPublic: boolean;
   vatVIP: boolean;
   vatCompany: boolean;
-  freeLimit: number;
+  minNetPrice: number;
+  maxNetPrice: number;
 }

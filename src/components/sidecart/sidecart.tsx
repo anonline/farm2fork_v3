@@ -1,15 +1,23 @@
 import { useTheme } from '@mui/material/styles';
-import { Box, Stack, Drawer, Button, Divider, Typography, IconButton, useMediaQuery } from '@mui/material';
+import { Box, Stack, Alert, Drawer, Button, Divider, Typography, IconButton, useMediaQuery } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 
+import { useGetOption } from 'src/actions/options';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { NumberInput } from 'src/components/number-input';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
+
+import { useAuthContext } from 'src/auth/hooks';
+
+import { OptionsEnum } from 'src/types/option';
+
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +29,7 @@ type SideCartProps = {
 export function SideCart({ open, onClose }: SideCartProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { user, authenticated } = useAuthContext();
     
     const { 
         state: checkoutState, 
@@ -30,7 +39,33 @@ export function SideCart({ open, onClose }: SideCartProps) {
         onDeleteNote 
     } = useCheckoutContext();
 
+    // Determine user type for minimum purchase check
+    const getUserType = () => {
+        if (!authenticated) return 'public';
+        if (user?.user_metadata?.is_admin) return 'public'; // admin treated as public
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    };
+
+    const userType = getUserType();
+    
+    // Get the appropriate minimum purchase option based on user type
+    const getMinimumPurchaseOption = () => {
+        switch (userType) {
+            case 'vip':
+                return OptionsEnum.MinimumPurchaseForVIP;
+            case 'company':
+                return OptionsEnum.MinimumPurchaseForCompany;
+            default:
+                return OptionsEnum.MinimumPurchaseForPublic;
+        }
+    };
+
+    const { option: minimumPurchaseAmount } = useGetOption(getMinimumPurchaseOption());
+
     const isCartEmpty = !checkoutState.items.length;
+    const isUnderMinimum = minimumPurchaseAmount && checkoutState.subtotal < minimumPurchaseAmount;
 
     return (
         <Drawer
@@ -39,7 +74,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
             onClose={onClose}
             PaperProps={{
                 sx: {
-                    width: isMobile ? '100vw' : 420,
+                    width: isMobile ? '100vw' : 520,
                     height: '100vh',
                     display: 'flex',
                     flexDirection: 'column',
@@ -56,7 +91,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                 }}
             >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Kosár ({checkoutState.totalItems})
+                    Kosár {(checkoutState.items.length > 0 ? '(' + checkoutState.items.length + ' db)' : '')}
                 </Typography>
                 
                 <IconButton
@@ -70,6 +105,21 @@ export function SideCart({ open, onClose }: SideCartProps) {
                 >
                     <Iconify icon="mingcute:close-line" />
                 </IconButton>
+
+                {/* Minimum Purchase Alert */}
+                {!isCartEmpty && isUnderMinimum && (
+                    <Alert 
+                        severity="warning" 
+                        sx={{ 
+                            mt: 2,
+                            '& .MuiAlert-message': {
+                                fontSize: '14px'
+                            }
+                        }}
+                    >
+                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Módosítsd a kosarad tartalmát itt, vagy adj hozzá termékeket!
+                    </Alert>
+                )}
             </Box>
 
             {/* Cart Items */}
@@ -161,6 +211,17 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                 </Box>
                             )}
 
+                            {checkoutState.surcharge > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Zárolási felár
+                                    </Typography>
+                                    <Typography variant="subtitle2">
+                                        {fCurrency(checkoutState.surcharge)}
+                                    </Typography>
+                                </Box>
+                            )}
+
                             <Divider />
                             
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -175,6 +236,10 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
                         {/* Actions */}
                         <Stack spacing={1.5}>
+                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                                <Iconify icon="solar:info-circle-bold" width={18} sx={{ color: 'text.secondary' }} />
+                                A végleges árat a rendelés feldolgozása után tudjuk pontosítani.
+                            </Typography>
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -184,18 +249,6 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                 onClick={onClose}
                             >
                                 Kosár megtekintése
-                            </Button>
-                            
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                size="medium"
-                                component={RouterLink}
-                                href={paths.product.root}
-                                onClick={onClose}
-                                startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
-                            >
-                                Vásárlás folytatása
                             </Button>
                         </Stack>
                     </Stack>
@@ -209,29 +262,31 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
 type SideCartItemProps = {
     item: any;
-    onDeleteCartItem: (itemId: number) => void;
-    onChangeItemQuantity: (itemId: number, quantity: number) => void;
-    onAddNote: (itemId: number, note: string) => void;
-    onDeleteNote: (itemId: number) => void;
+    onDeleteCartItem?: (itemId: number) => void;
+    onChangeItemQuantity?: (itemId: number, quantity: number) => void;
+    onAddNote?: (itemId: number, note: string) => void;
+    onDeleteNote?: (itemId: number) => void;
+    hideControl?:boolean
 };
 
-function SideCartItem({ 
+export function SideCartItem({ 
     item, 
     onDeleteCartItem, 
     onChangeItemQuantity,
     onAddNote,
-    onDeleteNote 
+    onDeleteNote,
+    hideControl = false
 }: Readonly<SideCartItemProps>) {
     return (
-        <Box sx={{ display: 'flex', gap: 2, p: 1 }}>
+        <Box sx={{ display: 'flex', gap: 2, p: 1, alignItems: 'center' }}>
             {/* Product Image */}
             <Box
                 component="img"
-                src={item.coverUrl ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                 alt={item.name}
                 sx={{
-                    width: 80,
-                    height: 80,
+                    width: 100,
+                    height: 100,
                     borderRadius: 1,
                     objectFit: 'cover',
                     bgcolor: 'background.neutral',
@@ -262,39 +317,32 @@ function SideCartItem({
                 {/* Quantity and Delete */}
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton 
-                            size="small"
-                            onClick={() => onChangeItemQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            disabled={item.quantity <= 1}
-                        >
-                            <Iconify icon='eva:minus-circle-fill' width={16} />
-                        </IconButton>
-                        
-                        <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center' }}>
-                            {item.quantity}
-                        </Typography>
-                        
-                        <IconButton 
-                            size="small"
-                            onClick={() => onChangeItemQuantity(item.id, item.quantity + 1)}
-                            disabled={item.quantity >= item.available}
-                        >
-                            <Iconify icon='solar:add-circle-bold' width={16} />
-                        </IconButton>
+                        <NumberInput
+                            
+                            disabled={hideControl}
+                            value={item.quantity}
+                            onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
+                            min={item.minQuantity || 1}
+                            max={item.maxQuantity || 999}
+                            step={item.stepQuantity || 0.1}
+                            sx={{ width: 96 }}
+                        />
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                             {fCurrency(item.subtotal)}
                         </Typography>
-                        
-                        <IconButton 
-                            size="small" 
-                            color="error"
-                            onClick={() => onDeleteCartItem(item.id)}
-                        >
-                            <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                        </IconButton>
+
+                        {!hideControl && (
+                            <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => onDeleteCartItem?.(item.id)}
+                            >
+                                <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                            </IconButton>
+                        )}
                     </Box>
                 </Stack>
             </Box>
