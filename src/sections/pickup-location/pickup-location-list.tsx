@@ -27,6 +27,7 @@ import {
     useMediaQuery,
     useTheme,
     FormControlLabel,
+    Chip,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -36,7 +37,7 @@ import { createPickupLocation, updatePickupLocation, deletePickupLocation, useGe
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { RHFTextField } from 'src/components/hook-form';
+import { RHFTextField, RHFSwitch } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 
@@ -58,6 +59,7 @@ export default function PickupLocationListView() {
         city: '',
         address: '',
         note: '',
+        enabled: true,
         mondayOpen: null as any,
         mondayClose: null as any,
         mondayClosed: false,
@@ -128,6 +130,7 @@ export default function PickupLocationListView() {
             city: row.city,
             address: row.address,
             note: row.note || '',
+            enabled: row.enabled,
             mondayOpen: mondayTime.open,
             mondayClose: mondayTime.close,
             mondayClosed: mondayTime.closed,
@@ -178,6 +181,7 @@ export default function PickupLocationListView() {
                 city: data.city,
                 address: data.address,
                 note: data.note,
+                enabled: data.enabled,
                 monday: formatTimeRange(data.mondayOpen, data.mondayClose, data.mondayClosed),
                 tuesday: formatTimeRange(data.tuesdayOpen, data.tuesdayClose, data.tuesdayClosed),
                 wednesday: formatTimeRange(data.wednesdayOpen, data.wednesdayClose, data.wednesdayClosed),
@@ -215,14 +219,25 @@ export default function PickupLocationListView() {
 
     const columns: GridColDef<IPickupLocation>[] = useMemo(() => {
         const baseColumns: GridColDef<IPickupLocation>[] = [
+            {
+                field: 'enabled',
+                headerName: 'Aktív',
+                width: 80,
+                align: 'center' as const,
+                headerAlign: 'center' as const,
+                renderCell: (params: any) => <RenderCellBoolean value={params.value} />
+            },
             { field: 'name', headerName: 'Név', flex: 1, minWidth: 180 },
-            { field: 'city', headerName: 'Város', width: 150 },
-            { field: 'address', headerName: 'Cím', flex: 1, minWidth: 200 },
         ];
 
         if (!isMobile) {
             baseColumns.splice(2, 0, { field: 'postcode', headerName: 'Irányítószám', width: 120 });
-            baseColumns.push({ field: 'note', headerName: 'Megjegyzés', width: 200 });
+
+            baseColumns.push(
+                { field: 'city', headerName: 'Város', width: 150 },
+                { field: 'address', headerName: 'Cím', flex: 1, minWidth: 200 },
+                { field: 'note', headerName: 'Megjegyzés', width: 200 },
+            );
         }
 
         baseColumns.push({
@@ -277,6 +292,7 @@ export default function PickupLocationListView() {
                                     </Stack>
                                     <RHFTextField name="address" label="Cím" />
                                     <RHFTextField name="note" label="Megjegyzés" multiline rows={3} />
+                                    <RHFSwitch name="enabled" label="Aktív" />
                                 </Stack>
                             </Grid>
 
@@ -429,6 +445,7 @@ const PickupLocationSchema = zod.object({
     city: zod.string().min(1, { message: 'Város megadása kötelező' }),
     address: zod.string().min(1, { message: 'Cím megadása kötelező' }),
     note: zod.string().optional(),
+    enabled: zod.boolean(),
     mondayOpen: zod.any().optional(),
     mondayClose: zod.any().optional(),
     mondayClosed: zod.boolean(),
@@ -463,3 +480,17 @@ const WEEKDAYS = [
     { field: 'saturday' as const, label: 'Szombat' },
     { field: 'sunday' as const, label: 'Vasárnap' },
 ];
+
+function RenderCellBoolean({ value }: Readonly<{ value: boolean }>) {
+    return <Chip
+        icon={<Iconify icon={value ? 'solar:check-circle-bold' : 'solar:close-circle-bold'} />}
+        color={value ? 'success' : 'error'}
+        size="small"
+        sx={{
+            width: '24px',
+            '& .MuiChip-icon': {
+                ml: 1.5
+            }
+        }}
+    />;
+}

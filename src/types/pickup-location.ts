@@ -5,6 +5,7 @@ export interface IPickupLocation {
   city: string;
   address: string;
   note?: string;
+  enabled: boolean;
   monday?: string;
   tuesday?: string;
   wednesday?: string;
