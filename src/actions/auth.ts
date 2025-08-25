@@ -17,6 +17,20 @@ export async function registerUser(data: RegistrationSchemaType) {
     throw new Error('A felhasználó létrehozása sikertelen, próbáld újra később.');
   }
 
+  const roleData = {
+    uid: authData.user.id,
+    is_admin: false,
+    is_vip: false,
+    is_corp: data.stepOne.role === 'company',
+  };
+
+  const { error: rolesError } = await supabase.from('roles').insert(roleData);
+
+  if (rolesError) {
+    console.error('Supabase Roles Error:', rolesError);
+    throw new Error(`Hiba a felhasználói szerepkör beállítása során: ${rolesError.message}`);
+  }
+
   const customerDataObject = {
     uid: authData.user.id,
     firstname: data.stepTwo.firstName,
