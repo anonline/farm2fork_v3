@@ -29,7 +29,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 import { useGetCustomerData } from 'src/actions/customer';
-import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector } from './components';
+import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector, DeliveryCommentSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
@@ -84,7 +84,6 @@ export function CheckoutPayment() {
     const [selectedShippingMethod, setSelectedShippingMethod] = useState<number | null>(null);
     const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(null);
-    const [notificationEmails, setNotificationEmails] = useState<string[]>([]);
     
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -97,6 +96,8 @@ export function CheckoutPayment() {
         onChangeStep,
         onApplyShipping,
         onCreateDeliveryAddress,
+        onUpdateNotificationEmails,
+        onUpdateDeliveryComment,
         state: checkoutState,
     } = useCheckoutContext();
 
@@ -232,7 +233,7 @@ export function CheckoutPayment() {
         shippingMethod: selectedShippingMethod || 0,
         pickupLocation: selectedPickupLocation || undefined,
         deliveryAddressIndex: selectedDeliveryAddressIndex || undefined,
-        notificationEmails: notificationEmails,
+        notificationEmails: checkoutState.notificationEmails,
     };
 
     const methods = useForm<PaymentSchemaType>({
@@ -325,8 +326,12 @@ export function CheckoutPayment() {
     };
 
     const handleNotificationEmailsChange = (emails: string[]) => {
-        setNotificationEmails(emails);
+        onUpdateNotificationEmails(emails);
         setValue('notificationEmails', emails);
+    };
+
+    const handleDeliveryCommentChange = (comment: string) => {
+        onUpdateDeliveryComment(comment);
     };
 
     // Initialize default shipping method and related selections when data is loaded
@@ -555,8 +560,14 @@ export function CheckoutPayment() {
 
                     {/* Email Notification Section */}
                     <EmailNotificationSelector
-                        emails={notificationEmails}
+                        emails={checkoutState.notificationEmails}
                         onEmailsChange={handleNotificationEmailsChange}
+                    />
+
+                    {/* Delivery Comment Section */}
+                    <DeliveryCommentSelector
+                        comment={checkoutState.deliveryComment}
+                        onCommentChange={handleDeliveryCommentChange}
                     />
 
                     <CheckoutPaymentMethods

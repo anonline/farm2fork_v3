@@ -34,6 +34,8 @@ const initialState: ICheckoutState = {
     billing: null,
     delivery: null,
     totalItems: 0,
+    notificationEmails: [],
+    deliveryComment: '',
 };
 
 // ----------------------------------------------------------------------
@@ -294,6 +296,14 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         // Note: No need to update totals for note changes
     }, [setField, state.items]);
 
+    const onUpdateNotificationEmails = useCallback((emails: string[]) => {
+        setField('notificationEmails', emails);
+    }, [setField]);
+
+    const onUpdateDeliveryComment = useCallback((comment: string) => {
+        setField('deliveryComment', comment);
+    }, [setField]);
+
     const memoizedValue = useMemo(
         () => ({
             state,
@@ -318,7 +328,9 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onCreateBillingAddress,
             onCreateDeliveryAddress,
             onAddNote,
-            onDeleteNote
+            onDeleteNote,
+            onUpdateNotificationEmails,
+            onUpdateDeliveryComment
         }),
         [
             state,
@@ -339,7 +351,9 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onCreateBillingAddress,
             onCreateDeliveryAddress,
             onAddNote,
-            onDeleteNote
+            onDeleteNote,
+            onUpdateNotificationEmails,
+            onUpdateDeliveryComment
         ]
     );
 
