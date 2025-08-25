@@ -40,7 +40,7 @@ export async function registerUser(data: RegistrationSchemaType) {
         fullName: data.stepThree.fullName,
         zipCode: data.stepThree.zipCode,
         city: data.stepThree.city,
-        streetAddress: data.stepThree.streetAddress,  
+        streetAddress: data.stepThree.streetAddress,
         floorDoor: data.stepThree.floorDoor,
         companyName: data.stepTwo.companyName || null,
         taxNumber: data.stepTwo.taxNumber || null,
@@ -48,7 +48,7 @@ export async function registerUser(data: RegistrationSchemaType) {
     ]),
   };
 
-  const { error: dbError } = await supabase.from('customerdata').insert(customerDataObject);
+  const { error: dbError } = await supabase.from('CustomerDatas').insert(customerDataObject);
 
   if (dbError) {
     console.error('Supabase DB Error:', dbError);
