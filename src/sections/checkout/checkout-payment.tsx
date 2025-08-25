@@ -6,6 +6,7 @@ import type {
 import type { IPickupLocation } from 'src/types/pickup-location';
 import type { IShippingCostMethod } from 'src/types/shipping-cost';
 import type { IAddressItem } from 'src/types/common';
+import type { IPaymentMethod } from 'src/types/payment-method';
 
 import { z as zod } from 'zod';
 import { useState, useEffect, useMemo } from 'react';
@@ -22,6 +23,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 
 import { Form } from 'src/components/hook-form';
@@ -31,41 +34,23 @@ import { useAuthContext } from 'src/auth/hooks';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 import { useGetCustomerData } from 'src/actions/customer';
+import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector, DeliveryCommentSelector, DeliveryTimeSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
 import { CheckoutBillingInfo } from './checkout-billing-info';
 import { CheckoutPaymentMethods } from './checkout-payment-methods';
+import { Link } from '@mui/material';
 
 // ----------------------------------------------------------------------
-
-const PAYMENT_OPTIONS: ICheckoutPaymentOption[] = [
-    {
-        value: 'paypal',
-        label: 'Pay with Paypal',
-        description: 'You will be redirected to PayPal website to complete your purchase securely.',
-    },
-    {
-        value: 'creditcard',
-        label: 'Credit / Debit card',
-        description: 'We support Mastercard, Visa, Discover and Stripe.',
-    },
-    { value: 'cash', label: 'Cash', description: 'Pay with cash when your order is delivered.' },
-];
-
-const CARD_OPTIONS: ICheckoutCardOption[] = [
-    { value: 'visa1', label: '**** **** **** 1212 - Jimmy Holland' },
-    { value: 'visa2', label: '**** **** **** 2424 - Shawn Stokes' },
-    { value: 'mastercard', label: '**** **** **** 4545 - Cole Armstrong' },
-];
 
 // ----------------------------------------------------------------------
 
 export type PaymentSchemaType = zod.infer<typeof PaymentSchema>;
 
 export const PaymentSchema = zod.object({
-    payment: zod.string().min(1, { message: 'Payment is required!' }),
+    payment: zod.number().min(1, { message: 'Payment method is required!' }),
     shippingMethod: zod.number().min(1, { message: 'Shipping method is required!' }),
     pickupLocation: zod.number().optional(),
     deliveryAddressIndex: zod.number().optional(),
@@ -94,6 +79,7 @@ export function CheckoutPayment() {
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
     const { methods: shippingMethods } = useGetShippingCostMethods();
+    const { methods: paymentMethods } = useGetPaymentMethods();
     const { customerData } = useGetCustomerData(user?.id);
 
     const {
@@ -154,6 +140,22 @@ export function CheckoutPayment() {
             return true;
         });
     }, [shippingMethods, getUserType, checkoutState.subtotal]);
+
+    // Filter payment methods based on user type
+    const availablePaymentMethods = useMemo(() => {
+        const userType = getUserType;
+        return paymentMethods.filter((method) => {
+            // Check if method is enabled for user type
+            switch (userType) {
+                case 'vip':
+                    return method.enableVIP;
+                case 'company':
+                    return method.enableCompany;
+                default:
+                    return method.enablePublic;
+            }
+        });
+    }, [paymentMethods, getUserType]);
 
     // Get cost for current user type
     const getMethodCost = useMemo(() => {
@@ -256,7 +258,7 @@ export function CheckoutPayment() {
     }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, checkoutState.notificationEmails, isPersonalPickup, isHomeDelivery, hasShippingZoneError]);
 
     const defaultValues: PaymentSchemaType = {
-        payment: '',
+        payment: 0,
         shippingMethod: selectedShippingMethod || 0,
         pickupLocation: selectedPickupLocation || undefined,
         deliveryAddressIndex: selectedDeliveryAddressIndex || undefined,
@@ -780,62 +782,66 @@ export function CheckoutPayment() {
                                 control={control}
                                 render={({ field: { value, onChange }, fieldState: { error } }) => (
                                     <Box sx={{ mb: 3 }}>
-                                        <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                                            Fizetési mód
-                                        </Typography>
-                                        <Box sx={{ gap: 2.5, display: 'flex', flexDirection: 'column' }}>
-                                            {PAYMENT_OPTIONS.map((option) => {
-                                                const isSelected = value === option.value;
-                                                return (
-                                                    <Box
-                                                        key={option.value}
-                                                        onClick={() => onChange(option.value)}
-                                                        sx={{
-                                                            p: 2.5,
-                                                            borderRadius: 1.5,
-                                                            border: '1px solid',
-                                                            borderColor: isSelected ? 'primary.main' : 'grey.300',
-                                                            cursor: 'pointer',
-                                                            display: 'flex',
-                                                            alignItems: 'flex-start',
-                                                            gap: 2,
-                                                            '&:hover': {
-                                                                borderColor: isSelected ? 'primary.main' : 'grey.400',
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Radio
-                                                            checked={isSelected}
-                                                            name="payment-method"
-                                                            onChange={() => {}}
-                                                            sx={{ mt: -0.5 }}
-                                                        />
-                                                        <Box sx={{ flexGrow: 1 }}>
-                                                            <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
-                                                                {option.label}
-                                                            </Typography>
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                {option.description}
-                                                            </Typography>
+                                        <RadioGroup
+                                            value={value || ''}
+                                            onChange={(e) => onChange(parseInt(e.target.value, 10))}
+                                            sx={{ gap: 1 }}
+                                        >
+                                            {availablePaymentMethods.map((method) => (
+                                                <FormControlLabel
+                                                    key={method.id}
+                                                    value={method.id}
+                                                    control={<Radio />}
+                                                    label={
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', p: '3px !important' }}>
+                                                            <Box sx={{ flexGrow: 1, p: '3px !important' }}>
+                                                                <Typography variant="subtitle2">
+                                                                    {method.name}
+                                                                    {method.additionalCost > 0 && (
+                                                                        <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>
+                                                                            (+{method.additionalCost} Ft)
+                                                                        </Typography>
+                                                                    )}
+                                                                </Typography>
+                                                                {/*<Typography variant="body2" color="text.secondary">
+                                                                    {method.type === 'cod' && 'Utánvéttel fizethetsz a kiszállításkor'}
+                                                                    {method.type === 'wire' && 'Banki átutalással fizethetsz előre'}
+                                                                    {method.type === 'online' && 'Online fizetés bankkártyával vagy PayPal-lal'}
+                                                                </Typography>*/}
+                                                            </Box>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                {method.type === 'online' && (
+                                                                    <Link href="https://simplepartner.hu/PaymentService/Fizetesi_tajekoztato.pdf" target="_blank">
+                                                                        <img src="https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/assets/simplepay_bankcard_logos.png" alt="Online Payment" width={260} />
+                                                                    </Link>
+                                                                )}
+                                                                {/*method.type === 'wire' && (
+                                                                    <Iconify icon="solar:card-transfer-bold" width={24} />
+                                                                )*/}
+                                                                {/*method.type === 'cod' && (
+                                                                    <Iconify icon="solar:wad-of-money-bold" width={24} />
+                                                                )*/}
+                                                            </Box>
                                                         </Box>
-                                                        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
-                                                            {option.value === 'creditcard' && (
-                                                                <>
-                                                                    <Iconify icon="payments:mastercard" width={36} height="auto" />
-                                                                    <Iconify icon="payments:visa" width={36} height="auto" />
-                                                                </>
-                                                            )}
-                                                            {option.value === 'paypal' && <Iconify icon="payments:paypal" width={24} />}
-                                                            {option.value === 'cash' && (
-                                                                <Iconify icon="solar:wad-of-money-bold" width={32} />
-                                                            )}
-                                                        </Box>
-                                                    </Box>
-                                                );
-                                            })}
-                                        </Box>
+                                                    }
+                                                    sx={{
+                                                        m: 0,
+                                                        p: 1,
+                                                        border: '1px solid',
+                                                        borderColor: value === method.id ? 'primary.main' : 'grey.300',
+                                                        borderRadius: 1,
+                                                        '&:hover': {
+                                                            borderColor: value === method.id ? 'primary.main' : 'grey.400',
+                                                        },
+                                                        '& .MuiFormControlLabel-label': {
+                                                            width: '100%',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </RadioGroup>
                                         {!!error && (
-                                            <FormHelperText error sx={{ px: 2 }}>
+                                            <FormHelperText error sx={{ px: 2, mt: 1 }}>
                                                 {error.message}
                                             </FormHelperText>
                                         )}
