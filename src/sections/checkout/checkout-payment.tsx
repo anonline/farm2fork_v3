@@ -29,7 +29,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 import { useGetCustomerData } from 'src/actions/customer';
-import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector, DeliveryCommentSelector } from './components';
+import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector, DeliveryCommentSelector, DeliveryTimeSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
@@ -87,6 +87,7 @@ export function CheckoutPayment() {
     const [deliveryAccordionExpanded, setDeliveryAccordionExpanded] = useState(true);
     const [deliveryTimeAccordionExpanded, setDeliveryTimeAccordionExpanded] = useState(false);
     const [hasShippingZoneError, setHasShippingZoneError] = useState(false);
+    const [selectedDeliveryDateTime, setSelectedDeliveryDateTime] = useState<string | null>(null);
 
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -670,9 +671,13 @@ export function CheckoutPayment() {
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Typography variant="body1">
-                                Amennyiben a mai napon leadod a rendelésed vagy legkésőbb vasárnap 12:00-ig, akkor az alábbi időpontban szállítjuk a rendelésed.
-                            </Typography>
+                            <DeliveryTimeSelector
+                                isHomeDelivery={selectedShippingMethod ? isHomeDelivery(selectedShippingMethod) : false}
+                                zipCode={selectedShippingMethod && isHomeDelivery(selectedShippingMethod) && selectedDeliveryAddressIndex !== null ? (customerData?.deliveryAddress?.[selectedDeliveryAddressIndex]?.zipCode || undefined) : undefined}
+                                pickupLocationId={selectedShippingMethod && isPersonalPickup(selectedShippingMethod) ? selectedPickupLocation || undefined : undefined}
+                                selectedDateTime={selectedDeliveryDateTime}
+                                onDateTimeChange={setSelectedDeliveryDateTime}
+                            />
                         </AccordionDetails>
                     </Accordion>
 
