@@ -165,7 +165,7 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/producer`,
             new: `${ROOTS.DASHBOARD}/producer/new`,
             details: (id: string) => `${ROOTS.DASHBOARD}/producer/${id}`,
-            edit: (id: string) => `${ROOTS.DASHBOARD}/producer/${id}/edit`,
+            edit: (slug: string) => `${ROOTS.DASHBOARD}/producer/edit/${slug}`,
         },
         product: {
             root: `${ROOTS.DASHBOARD}/product`,
@@ -233,6 +233,15 @@ export const paths = {
         },
         settings: {
             purchase: `${ROOTS.DASHBOARD}/settings/purchase`
-        }
+        },
+        shipping: {
+            root: `${ROOTS.DASHBOARD}/shipping`,
+        },
+        shippingCost: {
+            root: `${ROOTS.DASHBOARD}/shipping-cost`,
+        },
+        paymentMethod: {
+            root: `${ROOTS.DASHBOARD}/payment-method`,
+        },
     },
 };

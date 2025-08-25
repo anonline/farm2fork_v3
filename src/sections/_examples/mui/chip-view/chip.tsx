@@ -15,7 +15,7 @@ type Props = {
     variant?: 'filled' | 'outlined' | 'soft';
 };
 
-export function Chips({ variant }: Props) {
+export function Chips({ variant }: Readonly<Props>) {
     const handleDelete = () => {
         console.info('You clicked the delete icon.');
     };
