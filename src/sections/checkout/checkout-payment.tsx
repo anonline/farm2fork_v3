@@ -9,7 +9,7 @@ import type { IAddressItem } from 'src/types/common';
 
 import { z as zod } from 'zod';
 import { useState, useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Grid from '@mui/material/Grid';
@@ -21,6 +21,8 @@ import Box from '@mui/material/Box';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Radio from '@mui/material/Radio';
+import FormHelperText from '@mui/material/FormHelperText';
 
 import { Form } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
@@ -86,6 +88,7 @@ export function CheckoutPayment() {
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(null);
     const [deliveryAccordionExpanded, setDeliveryAccordionExpanded] = useState(true);
     const [deliveryTimeAccordionExpanded, setDeliveryTimeAccordionExpanded] = useState(false);
+    const [paymentAccordionExpanded, setPaymentAccordionExpanded] = useState(false);
     const [hasShippingZoneError, setHasShippingZoneError] = useState(false);
 
     const { user, authenticated } = useAuthContext();
@@ -268,6 +271,7 @@ export function CheckoutPayment() {
     const {
         handleSubmit,
         setValue,
+        control,
         formState: { isSubmitting },
         setError,
         clearErrors,
@@ -364,6 +368,13 @@ export function CheckoutPayment() {
     const handleContinueToDeliveryTime = () => {
         setDeliveryAccordionExpanded(false);
         setDeliveryTimeAccordionExpanded(true);
+        setPaymentAccordionExpanded(false);
+    };
+
+    const handleContinueToPayment = () => {
+        setDeliveryAccordionExpanded(false);
+        setDeliveryTimeAccordionExpanded(false);
+        setPaymentAccordionExpanded(true);
     };
 
     // Initialize default shipping method and related selections when data is loaded
@@ -661,8 +672,8 @@ export function CheckoutPayment() {
                                     width: 32,
                                     height: 32,
                                     borderRadius: '8px',
-                                    bgcolor: deliveryTimeAccordionExpanded ? 'primary.main' : 'grey.300',
-                                    color: deliveryTimeAccordionExpanded ? 'white' : 'grey.600',
+                                    bgcolor: deliveryAccordionExpanded ? 'primary.main' : 'primary.main',
+                                    color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -670,9 +681,9 @@ export function CheckoutPayment() {
                                     fontWeight: 'bold'
                                 }}
                             >
-                                2
+                                {deliveryTimeAccordionExpanded ? '2' : '✓'}
                             </Box>
-                            <Typography variant="h6" sx={{ color: deliveryTimeAccordionExpanded ? 'text.primary' : 'grey.600' }}>
+                            <Typography variant="h6" sx={{ color: deliveryTimeAccordionExpanded ? 'text.primary' : 'primary.main' }}>
                                 {selectedShippingMethod && isPersonalPickup(selectedShippingMethod ?? 0) ? 'Átvételi' : 'Kiszállítási'} idő
                             </Typography>
                         </AccordionSummary>
@@ -687,16 +698,163 @@ export function CheckoutPayment() {
                                 selectedDateTime={checkoutState.selectedDeliveryDateTime}
                                 onDateTimeChange={onUpdateDeliveryDateTime}
                             />
+                            
+                            {checkoutState.selectedDeliveryDateTime && (
+                                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleContinueToPayment}
+                                        sx={{ minWidth: 100 }}
+                                        fullWidth
+                                        color='primary'
+                                    >
+                                        Kész
+                                    </Button>
+                                </Box>
+                            )}
                         </AccordionDetails>
                     </Accordion>
 
 
 
-                    <CheckoutPaymentMethods
-                        name="payment"
-                        options={{ cards: CARD_OPTIONS, payments: PAYMENT_OPTIONS }}
-                        sx={{ my: 3 }}
-                    />
+                    {/* Payment Method Accordion */}
+                    <Accordion 
+                        expanded={paymentAccordionExpanded} 
+                        onChange={() => setPaymentAccordionExpanded(!paymentAccordionExpanded)}
+                        disabled={!checkoutState.selectedDeliveryDateTime}
+                        sx={{ 
+                            mb: 3,
+                            boxShadow: 'none !important',
+                            '&:before': {
+                                display: 'none',
+                            },
+                            '& .MuiAccordionSummary-root': {
+                                px: 0,
+                                boxShadow: 'none !important',
+                            },
+                            '& .MuiAccordionDetails-root': {
+                                px: 0,
+                            },
+                            '&.Mui-expanded': {
+                                boxShadow: 'none !important',
+                            }
+                        }}
+                    >
+                        <AccordionSummary
+                            expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                            sx={{ 
+                                '& .MuiAccordionSummary-content': {
+                                    alignItems: 'center',
+                                    gap: 2
+                                },
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: '8px',
+                                    bgcolor: paymentAccordionExpanded ? 'primary.main' : 'grey.300',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {paymentAccordionExpanded ? '3' : '✓'}
+                            </Box>
+                            <Typography variant="h6" sx={{ color: paymentAccordionExpanded ? 'text.primary' : 'grey.600' }}>
+                                Fizetési mód
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography variant="body2" sx={{ mb: 3 }}>
+                                Válaszd ki a fizetési módot és add meg a számlázási adatokat.
+                            </Typography>
+
+                            {/* Payment Methods */}
+                            <Controller
+                                name="payment"
+                                control={control}
+                                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                                    <Box sx={{ mb: 3 }}>
+                                        <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                                            Fizetési mód
+                                        </Typography>
+                                        <Box sx={{ gap: 2.5, display: 'flex', flexDirection: 'column' }}>
+                                            {PAYMENT_OPTIONS.map((option) => {
+                                                const isSelected = value === option.value;
+                                                return (
+                                                    <Box
+                                                        key={option.value}
+                                                        onClick={() => onChange(option.value)}
+                                                        sx={{
+                                                            p: 2.5,
+                                                            borderRadius: 1.5,
+                                                            border: '1px solid',
+                                                            borderColor: isSelected ? 'primary.main' : 'grey.300',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'flex-start',
+                                                            gap: 2,
+                                                            '&:hover': {
+                                                                borderColor: isSelected ? 'primary.main' : 'grey.400',
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Radio
+                                                            checked={isSelected}
+                                                            name="payment-method"
+                                                            onChange={() => {}}
+                                                            sx={{ mt: -0.5 }}
+                                                        />
+                                                        <Box sx={{ flexGrow: 1 }}>
+                                                            <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
+                                                                {option.label}
+                                                            </Typography>
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {option.description}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
+                                                            {option.value === 'creditcard' && (
+                                                                <>
+                                                                    <Iconify icon="payments:mastercard" width={36} height="auto" />
+                                                                    <Iconify icon="payments:visa" width={36} height="auto" />
+                                                                </>
+                                                            )}
+                                                            {option.value === 'paypal' && <Iconify icon="payments:paypal" width={24} />}
+                                                            {option.value === 'cash' && (
+                                                                <Iconify icon="solar:wad-of-money-bold" width={32} />
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                );
+                                            })}
+                                        </Box>
+                                        {!!error && (
+                                            <FormHelperText error sx={{ px: 2 }}>
+                                                {error.message}
+                                            </FormHelperText>
+                                        )}
+                                    </Box>
+                                )}
+                            />
+
+                            {/* Billing Address Section */}
+                            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                                Számlázási cím
+                            </Typography>
+                            <Box sx={{ p: 3, border: '1px solid', borderColor: 'grey.300', borderRadius: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    A számlázási cím adatai fognak megjelenni a számlán. Ezek az adatok a fizetés feldolgozásához szükségesek.
+                                </Typography>
+                                {/* TODO: Add billing address form fields */}
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
 
                     <Button
                         size="small"
