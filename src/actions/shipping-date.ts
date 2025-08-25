@@ -1,4 +1,5 @@
 import type { IShippingZone, IDeniedShippingDate, IAvailableDeliveryDate, IAvailablePickupTime, IPickupLocationSchedule } from 'src/types/shipping-date';
+import type { IPickupLocation } from 'src/types/pickup-location';
 
 import useSWR from 'swr';
 
@@ -183,32 +184,107 @@ export const getAvailableDeliveryDates = async (zipCode: string): Promise<IAvail
 
 // Get available pickup times for personal pickup
 export const getAvailablePickupTimes = async (pickupLocationId: number): Promise<IAvailablePickupTime[]> => {
-  // Mock data for now - you can implement real Supabase query later
-  const mockPickupTimes: IAvailablePickupTime[] = [
-    {
-      date: '2025-08-26',
-      displayDate: '2025.08.26. kedd',
-      timeRange: '10:00-12:00',
-      isAvailable: true,
-      isDenied: false
-    },
-    {
-      date: '2025-08-27',
-      displayDate: '2025.08.27. szerda',
-      timeRange: '14:00-16:00',
-      isAvailable: true,
-      isDenied: false
-    },
-    {
-      date: '2025-08-28',
-      displayDate: '2025.08.28. csütörtök',
-      timeRange: '09:00-11:00',
-      isAvailable: false,
-      isDenied: true
-    }
-  ];
+  console.log('Getting pickup times for location ID:', pickupLocationId);
   
-  return mockPickupTimes;
+  // Get pickup location details
+  const { data: pickupLocation, error: locationError } = await supabase
+    .from('PickupLocations')
+    .select('*')
+    .eq('id', pickupLocationId)
+    .single();
+  
+  if (locationError) {
+    console.error('Error fetching pickup location:', locationError);
+    throw new Error(`Error fetching pickup location: ${locationError.message}`);
+  }
+
+  if (!pickupLocation) {
+    throw new Error(`No pickup location found with ID: ${pickupLocationId}`);
+  }
+
+  console.log('Found pickup location:', pickupLocation);
+
+  // Get all denied dates
+  const { data: deniedDates, error: deniedError } = await supabase
+    .from('DeniedShippingDates')
+    .select('date');
+  
+  if (deniedError) {
+    console.error('Error fetching denied dates:', deniedError);
+  }
+
+  const deniedDatesSet = new Set(deniedDates?.map(d => d.date) || []);
+  const pickupTimes: IAvailablePickupTime[] = [];
+  const today = new Date();
+  
+  console.log('Today:', formatDateDisplay(today), 'Day index:', today.getDay());
+  
+  // Generate pickup times for the next few days until we have 3 available days
+  let dayOffset = 0;
+  let availableDaysFound = 0;
+  const maxDaysToCheck = 14; // Don't check more than 2 weeks ahead
+  
+  while (availableDaysFound < 3 && dayOffset < maxDaysToCheck) {
+    const currentDate = new Date(today);
+    currentDate.setDate(currentDate.getDate() + dayOffset);
+    
+    // Skip past dates (though this shouldn't happen with dayOffset starting from 0)
+    const todayStart = new Date(today);
+    todayStart.setHours(0, 0, 0, 0);
+    if (currentDate < todayStart) {
+      dayOffset++;
+      continue;
+    }
+    
+    const dayIndex = currentDate.getDay(); // 0=Sunday, 1=Monday, etc.
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayName = dayNames[dayIndex];
+    
+    // Check if pickup location is open on this day
+    const timeRange = pickupLocation[dayName as keyof IPickupLocation];
+    
+    console.log(`Checking ${formatDateDisplay(currentDate)} (${dayName}): timeRange = "${timeRange}"`);
+    
+    // Only include days when location is actually open
+    // Closed days have: null, undefined, empty string, 'zárva', '-', or 'closed'
+    const isOpen = timeRange && 
+                   typeof timeRange === 'string' && 
+                   timeRange.trim() !== '' && 
+                   timeRange.trim() !== '-' && 
+                   timeRange.trim().toLowerCase() !== 'closed' &&
+                   timeRange.trim().toLowerCase() !== 'zárva';
+    
+    if (isOpen) {
+      // Location is open on this day
+      const dateStorage = formatDateStorage(currentDate);
+      const isDenied = deniedDatesSet.has(dateStorage);
+      
+      console.log(`✓ Adding ${formatDateDisplay(currentDate)} (${dayName}): ${timeRange}, denied: ${isDenied}`);
+      
+      pickupTimes.push({
+        date: dateStorage,
+        displayDate: formatDateDisplay(currentDate),
+        timeRange: timeRange.trim(),
+        isAvailable: !isDenied,
+        isDenied
+      });
+      
+      // Only count this as an available day if it's not denied
+      if (!isDenied) {
+        availableDaysFound++;
+      }
+    } else {
+      console.log(`✗ Skipping ${formatDateDisplay(currentDate)} (${dayName}): location closed (timeRange: "${timeRange}")`);
+    }
+    
+    dayOffset++;
+  }
+
+  // Sort chronologically (should already be in order, but just to be safe)
+  pickupTimes.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  console.log('Final pickup times:', pickupTimes);
+  return pickupTimes;
 };
 
 // Hook for getting delivery dates
