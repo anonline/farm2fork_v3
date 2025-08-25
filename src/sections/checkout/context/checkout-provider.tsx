@@ -36,6 +36,7 @@ const initialState: ICheckoutState = {
     totalItems: 0,
     notificationEmails: [],
     deliveryComment: '',
+    selectedDeliveryDateTime: null,
 };
 
 // ----------------------------------------------------------------------
@@ -304,6 +305,14 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         setField('deliveryComment', comment);
     }, [setField]);
 
+    const onUpdateDeliveryDateTime = useCallback((dateTime: string | null) => {
+        setField('selectedDeliveryDateTime', dateTime);
+    }, [setField]);
+
+    const onResetDeliveryDateTime = useCallback(() => {
+        setField('selectedDeliveryDateTime', null);
+    }, [setField]);
+
     const memoizedValue = useMemo(
         () => ({
             state,
@@ -330,7 +339,9 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onAddNote,
             onDeleteNote,
             onUpdateNotificationEmails,
-            onUpdateDeliveryComment
+            onUpdateDeliveryComment,
+            onUpdateDeliveryDateTime,
+            onResetDeliveryDateTime
         }),
         [
             state,
@@ -353,7 +364,9 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onAddNote,
             onDeleteNote,
             onUpdateNotificationEmails,
-            onUpdateDeliveryComment
+            onUpdateDeliveryComment,
+            onUpdateDeliveryDateTime,
+            onResetDeliveryDateTime
         ]
     );
 

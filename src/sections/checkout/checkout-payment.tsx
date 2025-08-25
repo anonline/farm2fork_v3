@@ -87,7 +87,6 @@ export function CheckoutPayment() {
     const [deliveryAccordionExpanded, setDeliveryAccordionExpanded] = useState(true);
     const [deliveryTimeAccordionExpanded, setDeliveryTimeAccordionExpanded] = useState(false);
     const [hasShippingZoneError, setHasShippingZoneError] = useState(false);
-    const [selectedDeliveryDateTime, setSelectedDeliveryDateTime] = useState<string | null>(null);
 
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -102,6 +101,8 @@ export function CheckoutPayment() {
         onCreateDeliveryAddress,
         onUpdateNotificationEmails,
         onUpdateDeliveryComment,
+        onUpdateDeliveryDateTime,
+        onResetDeliveryDateTime,
         state: checkoutState,
     } = useCheckoutContext();
 
@@ -451,6 +452,11 @@ export function CheckoutPayment() {
         }
     }, [availableShippingMethods, selectedShippingMethod, shippingMethods, getTotalMethodCost, onApplyShipping, setValue, isPersonalPickup, isHomeDelivery, pickupLocations, customerData?.deliveryAddress]);
 
+    // Reset delivery date/time when shipping method, pickup location, or delivery address changes
+    useEffect(() => {
+        onResetDeliveryDateTime();
+    }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, onResetDeliveryDateTime]);
+
     const onSubmit = handleSubmit(async (data) => {
         try {
             // Validate pickup location for personal pickup
@@ -542,7 +548,7 @@ export function CheckoutPayment() {
                         </AccordionSummary>
                         <AccordionDetails>
                             <Box sx={{ mb: 3 }}>
-                                <Typography variant="body1" sx={{ mb: 2 }}>
+                                <Typography variant="body2" sx={{ mb: 2 }}>
                                     Kérjük add meg a szállítási adatokat
                                 </Typography>
                                 <ToggleButtonGroup
@@ -667,16 +673,19 @@ export function CheckoutPayment() {
                                 2
                             </Box>
                             <Typography variant="h6" sx={{ color: deliveryTimeAccordionExpanded ? 'text.primary' : 'grey.600' }}>
-                                Kiszállítási idő
+                                {selectedShippingMethod && isPersonalPickup(selectedShippingMethod ?? 0) ? 'Átvételi' : 'Kiszállítási'} idő
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
+                            <Typography variant="body2" sx={{ mb: 2 }}>Amennyiben a mai napon leadod a rendelésed vagy legkésőbb vasárnap 12:00-ig, akkor az alábbi időpontban szállítjuk a rendelésed.
+
+                            </Typography>
                             <DeliveryTimeSelector
                                 isHomeDelivery={selectedShippingMethod ? isHomeDelivery(selectedShippingMethod) : false}
                                 zipCode={selectedShippingMethod && isHomeDelivery(selectedShippingMethod) && selectedDeliveryAddressIndex !== null ? (customerData?.deliveryAddress?.[selectedDeliveryAddressIndex]?.zipCode || undefined) : undefined}
                                 pickupLocationId={selectedShippingMethod && isPersonalPickup(selectedShippingMethod) ? selectedPickupLocation || undefined : undefined}
-                                selectedDateTime={selectedDeliveryDateTime}
-                                onDateTimeChange={setSelectedDeliveryDateTime}
+                                selectedDateTime={checkoutState.selectedDeliveryDateTime}
+                                onDateTimeChange={onUpdateDeliveryDateTime}
                             />
                         </AccordionDetails>
                     </Accordion>

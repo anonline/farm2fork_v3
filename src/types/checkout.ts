@@ -49,6 +49,7 @@ export type ICheckoutState = {
     delivery: IAddressItem | null;
     notificationEmails: string[];
     deliveryComment: string;
+    selectedDeliveryDateTime: string | null;
 };
 
 export type CheckoutContextValue = {
@@ -81,4 +82,6 @@ export type CheckoutContextValue = {
     onDeleteNote: (itemId:number) => void;
     onUpdateNotificationEmails: (emails: string[]) => void;
     onUpdateDeliveryComment: (comment: string) => void;
+    onUpdateDeliveryDateTime: (dateTime: string | null) => void;
+    onResetDeliveryDateTime: () => void;
 };

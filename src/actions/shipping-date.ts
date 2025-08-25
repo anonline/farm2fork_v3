@@ -222,8 +222,8 @@ export const getAvailablePickupTimes = async (pickupLocationId: number): Promise
   // Generate pickup times for the next few days until we have 3 available days
   let dayOffset = 0;
   let availableDaysFound = 0;
-  const maxDaysToCheck = 14; // Don't check more than 2 weeks ahead
-  
+  const maxDaysToCheck = 21; // Don't check more than 3 weeks ahead
+
   while (availableDaysFound < 3 && dayOffset < maxDaysToCheck) {
     const currentDate = new Date(today);
     currentDate.setDate(currentDate.getDate() + dayOffset);
