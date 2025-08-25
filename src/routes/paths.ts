@@ -243,5 +243,8 @@ export const paths = {
         paymentMethod: {
             root: `${ROOTS.DASHBOARD}/payment-method`,
         },
+        pickup: {
+            root: `${ROOTS.DASHBOARD}/pickup`,
+        },
     },
 };
