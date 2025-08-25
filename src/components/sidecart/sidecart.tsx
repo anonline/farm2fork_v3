@@ -280,7 +280,7 @@ function SideCartItem({
             {/* Product Image */}
             <Box
                 component="img"
-                src={item.coverUrl ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                 alt={item.name}
                 sx={{
                     width: 100,

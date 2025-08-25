@@ -14,7 +14,8 @@ export enum OptionsEnum {
     MinimumPurchaseForCompany   = "minimum_purchase_for_company",
     SurchargePercentPublic      = "surcharge_percent_public",
     SurchargePercentVIP         = "surcharge_percent_vip",
-    SurchargePercentCompany     = "surcharge_percent_company"
+    SurchargePercentCompany     = "surcharge_percent_company",
+    CustomProductBasePrice      = "custom_product_base_price"
 }
 
 export type Option<T> = {

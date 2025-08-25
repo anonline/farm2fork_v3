@@ -16,6 +16,7 @@ import { OptionsEnum } from "src/types/option";
 
 import { PurchaseLimitCard } from "./purchase-limit-card";
 import { SurchargeCard } from "./surcharge-card";
+import { CustomProductPriceCard } from "./custom-product-price-card";
 
 export function PurchaseListView() {
     const {option:publicLimit, optionMutate: publicMutate} = useGetOption(OptionsEnum.MinimumPurchaseForPublic);
@@ -25,6 +26,8 @@ export function PurchaseListView() {
     const {option:publicSurcharge, optionMutate: publicSurchargeMutate} = useGetOption(OptionsEnum.SurchargePercentPublic);
     const {option:vipSurcharge, optionMutate: vipSurchargeMutate} = useGetOption(OptionsEnum.SurchargePercentVIP);
     const {option:companySurcharge, optionMutate: companySurchargeMutate} = useGetOption(OptionsEnum.SurchargePercentCompany);
+    
+    const {option:customProductBasePrice, optionMutate: customProductBasePriceMutate} = useGetOption(OptionsEnum.CustomProductBasePrice);
 
     const [limits, setLimits] = useState({
         public: 0,
@@ -38,6 +41,8 @@ export function PurchaseListView() {
         company: 0
     });
     
+    const [customProductPrice, setCustomProductPrice] = useState(0);
+    
     const [isSaving, setIsSaving] = useState(false);
 
     const handleLimitsChange = useCallback((newLimits: { public: number; vip: number; company: number }) => {
@@ -46,6 +51,10 @@ export function PurchaseListView() {
 
     const handleSurchargesChange = useCallback((newSurcharges: { public: number; vip: number; company: number }) => {
         setSurcharges(newSurcharges);
+    }, []);
+
+    const handleCustomProductPriceChange = useCallback((newPrice: number) => {
+        setCustomProductPrice(newPrice);
     }, []);
 
     const handleSave = useCallback(async () => {
@@ -59,7 +68,8 @@ export function PurchaseListView() {
                 updateOption(OptionsEnum.MinimumPurchaseForCompany, limits.company),
                 updateOption(OptionsEnum.SurchargePercentPublic, surcharges.public),
                 updateOption(OptionsEnum.SurchargePercentVIP, surcharges.vip),
-                updateOption(OptionsEnum.SurchargePercentCompany, surcharges.company)
+                updateOption(OptionsEnum.SurchargePercentCompany, surcharges.company),
+                updateOption(OptionsEnum.CustomProductBasePrice, customProductPrice)
             ]);
 
             // Mutate SWR cache to refresh data
@@ -69,6 +79,7 @@ export function PurchaseListView() {
             publicSurchargeMutate();
             vipSurchargeMutate();
             companySurchargeMutate();
+            customProductBasePriceMutate();
 
             toast.success('A beállítások sikeresen mentve!');
         } catch (error) {
@@ -77,7 +88,7 @@ export function PurchaseListView() {
         } finally {
             setIsSaving(false);
         }
-    }, [limits, surcharges, publicMutate, vipMutate, companyMutate, publicSurchargeMutate, vipSurchargeMutate, companySurchargeMutate]);
+    }, [limits, surcharges, customProductPrice, publicMutate, vipMutate, companyMutate, publicSurchargeMutate, vipSurchargeMutate, companySurchargeMutate, customProductBasePriceMutate]);
 
     return (
         <DashboardContent>
@@ -113,6 +124,11 @@ export function PurchaseListView() {
                     vipSurcharge={vipSurcharge || 0}
                     companySurcharge={companySurcharge || 0}
                     onSurchargesChange={handleSurchargesChange}
+                />
+
+                <CustomProductPriceCard
+                    customProductBasePrice={customProductBasePrice || 0}
+                    onPriceChange={handleCustomProductPriceChange}
                 />
             </Stack>
 

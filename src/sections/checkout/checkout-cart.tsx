@@ -24,6 +24,7 @@ import { OptionsEnum } from 'src/types/option';
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
 import { CheckoutCartProductList } from './checkout-cart-product-list';
+import { CheckoutCustomProductForm } from './checkout-custom-product-form';
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +37,8 @@ export function CheckoutCart() {
         state: checkoutState,
         onChangeItemQuantity,
         onAddNote,
-        onDeleteNote
+        onDeleteNote,
+        onAddToCart
     } = useCheckoutContext();
 
     // Determine user type for minimum purchase check
@@ -113,6 +115,8 @@ export function CheckoutCart() {
                         </>
                     )}
                 </Card>
+
+                <CheckoutCustomProductForm onAddCustomProduct={onAddToCart} />
 
                 <Button
                     component={RouterLink}

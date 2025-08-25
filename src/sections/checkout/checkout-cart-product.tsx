@@ -67,7 +67,7 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                     <Avatar
                         variant="rounded"
                         alt={row.name}
-                        src={row.coverUrl}
+                        src={row.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                         sx={{ width: 100, height: 100 }}
                     />
 

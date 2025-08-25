@@ -101,7 +101,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
     const updateTotals = useCallback(() => {
         const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
-        const subtotal = state.items.reduce((total, item) => total + item.quantity * item.price, 0);
+        const subtotal = state.items.reduce((total, item) => total + (item.custom == true ? 1 : item.quantity) * item.price, 0);
         
         // Calculate surcharge based on subtotal and user type
         const surchargePercent = getSurchargePercent();
@@ -205,7 +205,13 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
                         quantity = item.maxQuantity ?? 100;
                     }
                     
-                    item.subtotal = item.price * quantity;
+                    //If we are modifying custom item, we do not know the price so keep the base price
+                    if(item.custom === true){
+                        item.subtotal = item.price;
+                    }
+                    else {
+                        item.subtotal = item.price * quantity;
+                    }
 
                     return { ...item, quantity };
                 }
