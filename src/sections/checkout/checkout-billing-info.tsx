@@ -4,11 +4,9 @@ import type { CheckoutContextValue } from 'src/types/checkout';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import CardHeader from '@mui/material/CardHeader';
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -42,8 +40,7 @@ export function CheckoutBillingInfo({ checkoutState, onChangeStep, loading, sx, 
                             <Box
                                 component="span"
                                 sx={{ color: 'text.secondary', typography: 'body2' }}
-                            >
-                            </Box>
+                             />
                         </Box>
 
                         <Box sx={{ color: 'text.secondary', typography: 'body2' }}>

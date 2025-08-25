@@ -10,7 +10,6 @@ import { CheckoutCart } from '../checkout-cart';
 import { useCheckoutContext } from '../context';
 import { CheckoutPayment } from '../checkout-payment';
 import { CheckoutOrderComplete } from '../checkout-order-complete';
-import { CheckoutBillingAddress } from '../checkout-billing-address';
 
 // ----------------------------------------------------------------------
 

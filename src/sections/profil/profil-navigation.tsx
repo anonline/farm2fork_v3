@@ -4,8 +4,9 @@ import { Box, Stack, Button } from "@mui/material";
 
 import { paths } from "src/routes/paths";
 
-import F2FIcons from "src/components/f2ficons/f2ficons";
 import { SignOutButton } from "src/layouts/components/sign-out-button";
+
+import F2FIcons from "src/components/f2ficons/f2ficons";
 
 export default function ProfilNavigation() {
     const router = useRouter();

@@ -1,10 +1,12 @@
 import type { IDeliveryAddress } from 'src/types/customer';
 
 import { useState, useEffect } from 'react';
-import { Card, CardActionArea, Radio, Typography, Box, IconButton, Tooltip, Alert } from '@mui/material';
+
+import { Box, Card, Radio, Alert, Tooltip, Typography, IconButton, CardActionArea } from '@mui/material';
+
+import { checkShippingZoneAvailable } from 'src/actions/shipping-zone';
 
 import { Iconify } from 'src/components/iconify';
-import { checkShippingZoneAvailable } from 'src/actions/shipping-zone';
 
 // ----------------------------------------------------------------------
 
@@ -138,7 +140,7 @@ export function DeliveryAddressSelector({
                 </Typography>
                 
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, flexWrap: 'wrap', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                   {address.comment && <Tooltip title={address.comment}><Iconify icon={'eva:info-outline'} height={16} /></Tooltip>}
+                   {address.comment && <Tooltip title={address.comment}><Iconify icon="eva:info-outline" height={16} /></Tooltip>}
                    {address.zipCode} {address.city} {address.streetAddress}
                   {address.floorDoor && `, ${address.floorDoor}`}
                 </Typography>

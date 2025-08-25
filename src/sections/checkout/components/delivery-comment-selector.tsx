@@ -18,15 +18,15 @@ export function DeliveryCommentSelector({
   const [inputValue, setInputValue] = useState(comment);
 
   // Sanitize input to prevent XSS and HTML injection
-  const sanitizeInput = (input: string): string => {
+  const sanitizeInput = (input: string): string => 
     // Remove HTML tags and potentially dangerous characters
-    return input
+     input
       .replace(/<[^>]*>/g, '') // Remove HTML tags
       .replace(/[<>]/g, '') // Remove remaining < and > characters
       .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
-      .trim();
-  };
+      .trim()
+  ;
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const rawValue = event.target.value;

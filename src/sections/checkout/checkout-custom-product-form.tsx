@@ -1,12 +1,15 @@
+import type { ICheckoutItem } from 'src/types/checkout';
+
 import React, { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
+import { alpha } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
-import { alpha } from '@mui/material/styles';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -15,7 +18,6 @@ import { useGetOption } from 'src/actions/options';
 import { Iconify } from 'src/components/iconify';
 
 import { OptionsEnum } from 'src/types/option';
-import type { ICheckoutItem } from 'src/types/checkout';
 
 // ----------------------------------------------------------------------
 

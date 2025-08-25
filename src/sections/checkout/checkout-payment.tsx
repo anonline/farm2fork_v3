@@ -1,49 +1,41 @@
-import type {
-    ICheckoutCardOption,
-    ICheckoutPaymentOption,
-    ICheckoutDeliveryOption,
-} from 'src/types/checkout';
-import type { IPickupLocation } from 'src/types/pickup-location';
-import type { IShippingCostMethod } from 'src/types/shipping-cost';
 import type { IAddressItem } from 'src/types/common';
-import type { IPaymentMethod } from 'src/types/payment-method';
+import type { IShippingCostMethod } from 'src/types/shipping-cost';
 
 import { z as zod } from 'zod';
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { Link } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import Radio from '@mui/material/Radio';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import Accordion from '@mui/material/Accordion';
+import Typography from '@mui/material/Typography';
+import RadioGroup from '@mui/material/RadioGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import FormHelperText from '@mui/material/FormHelperText';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormHelperText from '@mui/material/FormHelperText';
-import Checkbox from '@mui/material/Checkbox';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+
+import { useGetCustomerData } from 'src/actions/customer';
+import { useGetPaymentMethods } from 'src/actions/payment-method';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
+import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 
 import { Form } from 'src/components/hook-form';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { useGetPickupLocations } from 'src/actions/pickup-location';
-import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
-import { useGetCustomerData } from 'src/actions/customer';
-import { useGetPaymentMethods } from 'src/actions/payment-method';
-import { PickupLocationSelector, DeliveryAddressSelector, EmailNotificationSelector, DeliveryCommentSelector, DeliveryTimeSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
-import { CheckoutBillingInfo } from './checkout-billing-info';
-import { CheckoutPaymentMethods } from './checkout-payment-methods';
-import { Link } from '@mui/material';
-import { toast } from 'src/components/snackbar';
+import { DeliveryTimeSelector, PickupLocationSelector, DeliveryAddressSelector, DeliveryCommentSelector, EmailNotificationSelector } from './components';
 
 // ----------------------------------------------------------------------
 
@@ -57,12 +49,12 @@ export const PaymentSchema = zod.object({
     pickupLocation: zod.number().optional(),
     deliveryAddressIndex: zod.number().optional(),
     notificationEmails: zod.array(zod.string().email()).optional(),
-}).refine((data) => {
+}).refine((data) => 
     // If delivery type is personal pickup, pickup location is required
     // We need to check if the shipping method is "Személyes átvétel" (personal pickup)
     // This will be validated in the component where we have access to shipping methods
-    return true;
-}, {
+     true
+, {
     message: 'Pickup location is required for personal pickup!',
     path: ['pickupLocation'],
 });
@@ -164,8 +156,7 @@ export function CheckoutPayment() {
     }, [paymentMethods, getUserType]);
 
     // Get cost for current user type
-    const getMethodCost = useMemo(() => {
-        return (method: IShippingCostMethod) => {
+    const getMethodCost = useMemo(() => (method: IShippingCostMethod) => {
             const userType = getUserType;
             switch (userType) {
                 case 'vip':
@@ -175,12 +166,10 @@ export function CheckoutPayment() {
                 default:
                     return method.netCostPublic;
             }
-        };
-    }, [getUserType]);
+        }, [getUserType]);
 
     // Check if VAT should be applied for current user type
-    const shouldApplyVAT = useMemo(() => {
-        return (method: IShippingCostMethod) => {
+    const shouldApplyVAT = useMemo(() => (method: IShippingCostMethod) => {
             const userType = getUserType;
             switch (userType) {
                 case 'vip':
@@ -190,12 +179,10 @@ export function CheckoutPayment() {
                 default:
                     return method.vatPublic;
             }
-        };
-    }, [getUserType]);
+        }, [getUserType]);
 
     // Get total cost including VAT if applicable
-    const getTotalMethodCost = useMemo(() => {
-        return (method: IShippingCostMethod) => {
+    const getTotalMethodCost = useMemo(() => (method: IShippingCostMethod) => {
             const netCost = getMethodCost(method);
             const applyVAT = shouldApplyVAT(method);
 
@@ -205,12 +192,10 @@ export function CheckoutPayment() {
             }
 
             return netCost;
-        };
-    }, [getMethodCost, shouldApplyVAT]);
+        }, [getMethodCost, shouldApplyVAT]);
 
     // Format method display name with total cost (including VAT)
-    const formatMethodLabel = useMemo(() => {
-        return (method: IShippingCostMethod) => {
+    const formatMethodLabel = useMemo(() => (method: IShippingCostMethod) => {
             const totalCost = getTotalMethodCost(method);
 
             // Add range information if min/max limits are set
@@ -225,24 +210,19 @@ export function CheckoutPayment() {
 
             const costLabel = totalCost === 0 ? 'Ingyenes' : `${Math.round(totalCost)} Ft`;
             return `${method.name} - ${costLabel}`;
-        };
-    }, [getTotalMethodCost]);
+        }, [getTotalMethodCost]);
 
     // Check if method is personal pickup
-    const isPersonalPickup = useMemo(() => {
-        return (methodId: number) => {
+    const isPersonalPickup = useMemo(() => (methodId: number) => {
             const method = shippingMethods.find(m => m.id === methodId);
             return method?.name === 'Személyes átvétel';
-        };
-    }, [shippingMethods]);
+        }, [shippingMethods]);
 
     // Check if method is home delivery
-    const isHomeDelivery = useMemo(() => {
-        return (methodId: number) => {
+    const isHomeDelivery = useMemo(() => (methodId: number) => {
             const method = shippingMethods.find(m => m.id === methodId);
             return method?.name === 'Házhozszállítás';
-        };
-    }, [shippingMethods]);
+        }, [shippingMethods]);
 
     // Check if delivery details are complete
     const isDeliveryDetailsComplete = useMemo(() => {
@@ -659,7 +639,7 @@ export function CheckoutPayment() {
                                                 console.log('Edit address at index:', index);
                                             }}
                                             onShippingZoneError={handleShippingZoneError}
-                                            isHomeDelivery={true}
+                                            isHomeDelivery
                                         />
                                     </Box>
                                 )}

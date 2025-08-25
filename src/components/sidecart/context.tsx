@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useState, useContext, createContext, useEffect } from 'react';
+import { useState, useEffect, useContext, createContext } from 'react';
 
 import { usePathname } from 'src/routes/hooks';
 

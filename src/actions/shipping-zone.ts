@@ -1,6 +1,6 @@
 import type { IShippingZone, IShippingZoneFilters } from 'src/types/shipping-zone';
 
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 
 import { supabase } from 'src/lib/supabase';
 

@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 
-import { UserAuthGuard } from 'src/auth/guard';
 import { CheckoutView } from 'src/sections/checkout/view';
+
+import { UserAuthGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 

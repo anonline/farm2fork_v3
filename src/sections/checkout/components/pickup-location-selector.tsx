@@ -1,12 +1,11 @@
-import type { IPickupLocation } from 'src/types/pickup-location';
 
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Collapse from '@mui/material/Collapse';
 import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
-import Collapse from '@mui/material/Collapse';
 
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 
@@ -64,7 +63,7 @@ export function PickupLocationSelector({
                 {displayedLocation && (
                     <PickupLocationCard
                         location={displayedLocation}
-                        isSelected={true}
+                        isSelected
                         value={displayedLocation.id}
                     />
                 )}

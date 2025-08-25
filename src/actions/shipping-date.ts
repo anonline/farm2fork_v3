@@ -1,5 +1,5 @@
-import type { IShippingZone, IDeniedShippingDate, IAvailableDeliveryDate, IAvailablePickupTime, IPickupLocationSchedule } from 'src/types/shipping-date';
 import type { IPickupLocation } from 'src/types/pickup-location';
+import type { IShippingZone, IAvailablePickupTime, IAvailableDeliveryDate } from 'src/types/shipping-date';
 
 import useSWR from 'swr';
 
@@ -109,7 +109,7 @@ export const getAvailableDeliveryDates = async (zipCode: string): Promise<IAvail
     console.log(`Processing zone ${zone.ID}: Order until day ${zone.RendelesiNap} (${getDayName(zone.RendelesiNap)}), deliver on day ${zone.SzallitasiNap} (${getDayName(zone.SzallitasiNap)}), cutoff: ${zone.CutoffIdo}`);
     
     // Look for delivery opportunities over the next 4 weeks
-    let weekStartDate = new Date(today);
+    const weekStartDate = new Date(today);
     weekStartDate.setDate(weekStartDate.getDate() - weekStartDate.getDay()); // Start of current week (Sunday)
     
     for (let week = 0; week < 4; week++) {

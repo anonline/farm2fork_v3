@@ -10,24 +10,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller, FormProvider } from 'react-hook-form';
 
 import { LoadingButton } from '@mui/lab';
-import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import {
     Box,
     Card,
     Grid,
+    Chip,
     Stack,
     Button,
     Dialog,
     Switch,
+    useTheme,
     Typography,
     DialogTitle,
     DialogContent,
     DialogActions,
     useMediaQuery,
-    useTheme,
     FormControlLabel,
-    Chip,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -37,7 +37,7 @@ import { createPickupLocation, updatePickupLocation, deletePickupLocation, useGe
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { RHFTextField, RHFSwitch } from 'src/components/hook-form';
+import { RHFSwitch, RHFTextField } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 

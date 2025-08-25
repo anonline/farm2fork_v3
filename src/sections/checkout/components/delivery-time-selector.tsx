@@ -1,19 +1,19 @@
-import type { IAvailableDeliveryDate, IAvailablePickupTime } from 'src/types/shipping-date';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import {
     Box,
     Card,
-    CardActionArea,
     Radio,
-    Typography,
     Alert,
-    CircularProgress,
     Stack,
-    Button
+    Button,
+    Typography,
+    CardActionArea,
+    CircularProgress
 } from '@mui/material';
 
-import { useGetDeliveryDates, useGetPickupTimes } from 'src/actions/shipping-date';
+import { useGetPickupTimes, useGetDeliveryDates } from 'src/actions/shipping-date';
 
 // ----------------------------------------------------------------------
 

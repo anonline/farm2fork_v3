@@ -1,10 +1,12 @@
-import { useState, useRef, KeyboardEvent, useEffect } from 'react';
+import type { KeyboardEvent} from 'react';
+
+import { useRef, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import Alert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
 
@@ -34,9 +36,7 @@ export function EmailNotificationSelector({
   // Email validation regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const isValidEmail = (email: string): boolean => {
-    return emailRegex.test(email.trim());
-  };
+  const isValidEmail = (email: string): boolean => emailRegex.test(email.trim());
 
   const addEmail = (email: string) => {
     const trimmedEmail = email.trim();

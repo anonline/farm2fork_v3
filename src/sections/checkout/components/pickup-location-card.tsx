@@ -2,12 +2,12 @@ import type { IPickupLocation } from 'src/types/pickup-location';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Radio from '@mui/material/Radio';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import CardContent from '@mui/material/CardContent';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { Iconify } from 'src/components/iconify';
 

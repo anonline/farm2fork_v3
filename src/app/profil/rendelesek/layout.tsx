@@ -1,6 +1,7 @@
 import { Container } from '@mui/material';
 
 import { MainLayout } from 'src/layouts/main';
+
 import { ProfileGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
