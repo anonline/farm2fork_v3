@@ -5,11 +5,19 @@ import type {
 } from 'src/types/checkout';
 
 import { z as zod } from 'zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 
 import { Form } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
@@ -54,6 +62,7 @@ export type PaymentSchemaType = zod.infer<typeof PaymentSchema>;
 
 export const PaymentSchema = zod.object({
     payment: zod.string().min(1, { message: 'Payment is required!' }),
+    deliveryType: zod.string().min(1, { message: 'Delivery type is required!' }),
     // Not required
     delivery: zod.number(),
 });
@@ -61,6 +70,8 @@ export const PaymentSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function CheckoutPayment() {
+    const [deliveryType, setDeliveryType] = useState<string>('hazhozszallitas');
+    
     const {
         loading,
         onResetCart,
@@ -72,6 +83,7 @@ export function CheckoutPayment() {
     const defaultValues: PaymentSchemaType = {
         delivery: checkoutState.shipping,
         payment: '',
+        deliveryType: deliveryType,
     };
 
     const methods = useForm<PaymentSchemaType>({
@@ -81,8 +93,16 @@ export function CheckoutPayment() {
 
     const {
         handleSubmit,
+        setValue,
         formState: { isSubmitting },
     } = methods;
+
+    const handleDeliveryTypeChange = (event: React.MouseEvent<HTMLElement>, newDeliveryType: string | null) => {
+        if (newDeliveryType !== null) {
+            setDeliveryType(newDeliveryType);
+            setValue('deliveryType', newDeliveryType);
+        }
+    };
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -98,6 +118,80 @@ export function CheckoutPayment() {
         <Form methods={methods} onSubmit={onSubmit}>
             <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 8 }}>
+                    {/* Delivery Type Selection */}
+                    <Accordion 
+                        defaultExpanded 
+                        elevation={0}
+                        sx={{ 
+                            mb: 3,
+                            boxShadow: 'none !important',
+                            '&:before': {
+                                display: 'none',
+                            },
+                            '& .MuiAccordionSummary-root': {
+                                px: 0,
+                                boxShadow: 'none !important',
+                            },
+                            '& .MuiAccordionDetails-root': {
+                                px: 0,
+                            },
+                            '&.Mui-expanded': {
+                                boxShadow: 'none !important',
+                            }
+                        }}
+                    >
+                        <AccordionSummary 
+                            expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                            sx={{ 
+                                '& .MuiAccordionSummary-content': { 
+                                    alignItems: 'center',
+                                    gap: 2
+                                },
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: '8px',
+                                    bgcolor: 'primary.main',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                1
+                            </Box>
+                            <Typography variant="h6">
+                                Szállítás részletei
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="body1" sx={{ mb: 2 }}>
+                                    Kérjük add meg a szállítási adatokat
+                                </Typography>
+                                <ToggleButtonGroup 
+                                    value={deliveryType} 
+                                    exclusive 
+                                    fullWidth
+                                    onChange={handleDeliveryTypeChange}
+                                    sx={{ mb: 2 }}
+                                >
+                                    <ToggleButton value="hazhozszallitas">
+                                        Házhozszállítás
+                                    </ToggleButton>
+                                    <ToggleButton value="szemelyes_atvetel">
+                                        Személyes átvétel
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
+
                     <CheckoutDelivery
                         name="delivery"
                         onApplyShipping={onApplyShipping}

@@ -36,9 +36,9 @@ export function CheckoutView() {
             <>
                 {(activeStep === 0 || activeStep === undefined) && <CheckoutCart />}
 
-                {activeStep === 1 && <CheckoutBillingAddress />}
+                {/*activeStep === 1 && <CheckoutBillingAddress />*/}
 
-                {activeStep === 2 && <CheckoutPayment />}
+                {activeStep === 1 && <CheckoutPayment />}
 
                 {completed && (
                     <CheckoutOrderComplete
