@@ -562,6 +562,7 @@ export function CheckoutPayment() {
                     <EmailNotificationSelector
                         emails={checkoutState.notificationEmails}
                         onEmailsChange={handleNotificationEmailsChange}
+                        userEmail={user?.email}
                     />
 
                     {/* Delivery Comment Section */}

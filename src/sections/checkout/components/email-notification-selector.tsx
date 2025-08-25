@@ -1,23 +1,35 @@
-import { useState, useRef, KeyboardEvent } from 'react';
+import { useState, useRef, KeyboardEvent, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
 
 interface EmailNotificationSelectorProps {
   emails: string[];
   onEmailsChange: (emails: string[]) => void;
+  userEmail?: string; // Add optional user email prop
 }
 
 export function EmailNotificationSelector({
   emails,
   onEmailsChange,
+  userEmail,
 }: EmailNotificationSelectorProps) {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasInitialized = useRef(false);
+
+  // Add user email on component mount if emails array is empty
+  useEffect(() => {
+    if (!hasInitialized.current && emails.length === 0 && userEmail && isValidEmail(userEmail)) {
+      onEmailsChange([userEmail]);
+      hasInitialized.current = true;
+    }
+  }, [userEmail, emails.length, onEmailsChange]);
 
   // Email validation regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -137,6 +149,15 @@ export function EmailNotificationSelector({
           }}
         />
       </Box>
+      
+      {/* Warning when no emails are present */}
+      {emails.length === 0 && (
+        <Alert severity="warning" sx={{ mt: 2 }}>
+          <Typography variant="body2">
+            <strong>Figyelem!</strong> Legalább egy e-mail címet meg kell adnod az értesítések fogadásához.
+          </Typography>
+        </Alert>
+      )}
       
       {inputValue && !isValidEmail(inputValue) && (
         <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
