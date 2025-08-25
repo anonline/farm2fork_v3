@@ -84,12 +84,14 @@ export function CheckoutPayment() {
     const [selectedShippingMethod, setSelectedShippingMethod] = useState<number | null>(null);
     const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(null);
-    
+    const [deliveryAccordionExpanded, setDeliveryAccordionExpanded] = useState(true);
+    const [deliveryTimeAccordionExpanded, setDeliveryTimeAccordionExpanded] = useState(false);
+
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
     const { methods: shippingMethods } = useGetShippingCostMethods();
     const { customerData } = useGetCustomerData(user?.id);
-    
+
     const {
         loading,
         onResetCart,
@@ -127,22 +129,22 @@ export function CheckoutPayment() {
                     enabled = method.enabledPublic;
                     break;
             }
-            
+
             if (!enabled) return false;
-            
+
             // Check if cart subtotal is within min/max range
             const subtotal = checkoutState.subtotal + checkoutState.surcharge;
-            
+
             // If minNetPrice is set and subtotal is below minimum, exclude this method
             if (method.minNetPrice > 0 && subtotal < method.minNetPrice) {
                 return false;
             }
-            
+
             // If maxNetPrice is set and subtotal is above maximum, exclude this method
             if (method.maxNetPrice > 0 && subtotal > method.maxNetPrice) {
                 return false;
             }
-            
+
             return true;
         });
     }, [shippingMethods, getUserType, checkoutState.subtotal]);
@@ -182,12 +184,12 @@ export function CheckoutPayment() {
         return (method: IShippingCostMethod) => {
             const netCost = getMethodCost(method);
             const applyVAT = shouldApplyVAT(method);
-            
+
             if (applyVAT && netCost > 0) {
                 const vatAmount = (netCost * method.vat) / 100;
                 return netCost + vatAmount;
             }
-            
+
             return netCost;
         };
     }, [getMethodCost, shouldApplyVAT]);
@@ -196,7 +198,7 @@ export function CheckoutPayment() {
     const formatMethodLabel = useMemo(() => {
         return (method: IShippingCostMethod) => {
             const totalCost = getTotalMethodCost(method);
-            
+
             // Add range information if min/max limits are set
             let rangeInfo = '';
             if (method.minNetPrice > 0 && method.maxNetPrice > 0) {
@@ -206,7 +208,7 @@ export function CheckoutPayment() {
             } else if (method.maxNetPrice > 0) {
                 rangeInfo = ` (${method.maxNetPrice} Ft alatt)`;
             }
-            
+
             const costLabel = totalCost === 0 ? 'Ingyenes' : `${Math.round(totalCost)} Ft`;
             return `${method.name} - ${costLabel}`;
         };
@@ -227,6 +229,24 @@ export function CheckoutPayment() {
             return method?.name === 'Házhozszállítás';
         };
     }, [shippingMethods]);
+
+    // Check if delivery details are complete
+    const isDeliveryDetailsComplete = useMemo(() => {
+        if (!selectedShippingMethod) return false;
+        
+        const hasNotificationEmail = checkoutState.notificationEmails && checkoutState.notificationEmails.length > 0;
+        if (!hasNotificationEmail) return false;
+
+        if (isPersonalPickup(selectedShippingMethod)) {
+            return selectedPickupLocation !== null;
+        }
+        
+        if (isHomeDelivery(selectedShippingMethod)) {
+            return selectedDeliveryAddressIndex !== null;
+        }
+        
+        return false;
+    }, [selectedShippingMethod, selectedPickupLocation, selectedDeliveryAddressIndex, checkoutState.notificationEmails, isPersonalPickup, isHomeDelivery]);
 
     const defaultValues: PaymentSchemaType = {
         payment: '',
@@ -253,35 +273,35 @@ export function CheckoutPayment() {
         if (newMethodId !== null) {
             const methodId = parseInt(newMethodId, 10);
             const selectedMethod = shippingMethods.find(m => m.id === methodId);
-            
+
             if (selectedMethod) {
                 setSelectedShippingMethod(methodId);
                 setValue('shippingMethod', methodId);
-                
+
                 // Apply shipping cost including VAT
                 const totalCost = getTotalMethodCost(selectedMethod);
                 onApplyShipping(totalCost);
-                
+
                 // Reset selections when switching between different method types
                 if (selectedShippingMethod) {
                     const wasPersonalPickup = isPersonalPickup(selectedShippingMethod);
                     const wasHomeDelivery = isHomeDelivery(selectedShippingMethod);
                     const isNowPersonalPickup = isPersonalPickup(methodId);
                     const isNowHomeDelivery = isHomeDelivery(methodId);
-                    
+
                     // Reset pickup location when switching from personal pickup
                     if (wasPersonalPickup && !isNowPersonalPickup) {
                         setSelectedPickupLocation(null);
                         setValue('pickupLocation', undefined);
                     }
-                    
+
                     // Reset delivery address when switching from home delivery
                     if (wasHomeDelivery && !isNowHomeDelivery) {
                         setSelectedDeliveryAddressIndex(null);
                         setValue('deliveryAddressIndex', undefined);
                     }
                 }
-                
+
                 // Set defaults for new method type
                 if (isPersonalPickup(methodId)) {
                     // Set default pickup location (Farm2Fork raktár) when switching to pickup
@@ -309,9 +329,8 @@ export function CheckoutPayment() {
             const selectedAddress = customerData.deliveryAddress[index];
             const addressItem: IAddressItem = {
                 name: selectedAddress.fullName,
-                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.streetAddress}${
-                    selectedAddress.floorDoor ? `, ${selectedAddress.floorDoor}` : ''
-                }`,
+                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.streetAddress}${selectedAddress.floorDoor ? `, ${selectedAddress.floorDoor}` : ''
+                    }`,
                 phoneNumber: selectedAddress.phone,
                 addressType: 'delivery',
             };
@@ -334,6 +353,11 @@ export function CheckoutPayment() {
         onUpdateDeliveryComment(comment);
     };
 
+    const handleContinueToDeliveryTime = () => {
+        setDeliveryAccordionExpanded(false);
+        setDeliveryTimeAccordionExpanded(true);
+    };
+
     // Initialize default shipping method and related selections when data is loaded
     useEffect(() => {
         if (availableShippingMethods.length > 0 && !selectedShippingMethod) {
@@ -341,11 +365,11 @@ export function CheckoutPayment() {
             const defaultMethod = availableShippingMethods[0];
             setSelectedShippingMethod(defaultMethod.id);
             setValue('shippingMethod', defaultMethod.id);
-            
+
             // Apply shipping cost for default method including VAT
             const totalCost = getTotalMethodCost(defaultMethod);
             onApplyShipping(totalCost);
-            
+
             // If it's personal pickup, set default pickup location
             if (isPersonalPickup(defaultMethod.id)) {
                 const defaultPickup = pickupLocations.find(loc => loc.enabled && loc.name.includes('Farm2Fork'));
@@ -372,10 +396,10 @@ export function CheckoutPayment() {
                 const newMethod = availableShippingMethods[0];
                 setSelectedShippingMethod(newMethod.id);
                 setValue('shippingMethod', newMethod.id);
-                
+
                 const totalCost = getTotalMethodCost(newMethod);
                 onApplyShipping(totalCost);
-                
+
                 // Handle pickup location for new method
                 if (isPersonalPickup(newMethod.id)) {
                     const defaultPickup = pickupLocations.find(loc => loc.enabled && loc.name.includes('Farm2Fork'));
@@ -432,7 +456,7 @@ export function CheckoutPayment() {
                     return;
                 }
             }
-            
+
             // Validate delivery address for home delivery
             if (data.shippingMethod && isHomeDelivery(data.shippingMethod)) {
                 if (data.deliveryAddressIndex === undefined || data.deliveryAddressIndex === null) {
@@ -443,7 +467,7 @@ export function CheckoutPayment() {
                     return;
                 }
             }
-            
+
             clearErrors(['pickupLocation', 'deliveryAddressIndex']);
             onResetCart();
             onChangeStep('next');
@@ -458,10 +482,11 @@ export function CheckoutPayment() {
             <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 8 }}>
                     {/* Delivery Type Selection */}
-                    <Accordion 
-                        defaultExpanded 
+                    <Accordion
+                        expanded={deliveryAccordionExpanded}
+                        onChange={(event, isExpanded) => setDeliveryAccordionExpanded(isExpanded)}
                         elevation={0}
-                        sx={{ 
+                        sx={{
                             mb: 3,
                             boxShadow: 'none !important',
                             '&:before': {
@@ -479,10 +504,10 @@ export function CheckoutPayment() {
                             }
                         }}
                     >
-                        <AccordionSummary 
+                        <AccordionSummary
                             expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-                            sx={{ 
-                                '& .MuiAccordionSummary-content': { 
+                            sx={{
+                                '& .MuiAccordionSummary-content': {
                                     alignItems: 'center',
                                     gap: 2
                                 },
@@ -493,7 +518,7 @@ export function CheckoutPayment() {
                                     width: 32,
                                     height: 32,
                                     borderRadius: '8px',
-                                    bgcolor: 'primary.main',
+                                    bgcolor: deliveryAccordionExpanded ? 'primary.main' : 'primary.main',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -502,9 +527,9 @@ export function CheckoutPayment() {
                                     fontWeight: 'bold'
                                 }}
                             >
-                                1
+                                {deliveryAccordionExpanded ? '1' : '✓'}
                             </Box>
-                            <Typography variant="h6">
+                            <Typography variant="h6" sx={{ color: deliveryAccordionExpanded ? 'text.primary' : 'primary.main' }}>
                                 Szállítás részletei
                             </Typography>
                         </AccordionSummary>
@@ -513,16 +538,16 @@ export function CheckoutPayment() {
                                 <Typography variant="body1" sx={{ mb: 2 }}>
                                     Kérjük add meg a szállítási adatokat
                                 </Typography>
-                                <ToggleButtonGroup 
-                                    value={selectedShippingMethod?.toString() || ''} 
-                                    exclusive 
+                                <ToggleButtonGroup
+                                    value={selectedShippingMethod?.toString() || ''}
+                                    exclusive
                                     fullWidth
                                     onChange={handleShippingMethodChange}
                                     sx={{}}
                                 >
                                     {availableShippingMethods.map((method) => (
-                                        <ToggleButton 
-                                            key={method.id} 
+                                        <ToggleButton
+                                            key={method.id}
                                             value={method.id.toString()}
                                             sx={{ py: 1.5 }}
                                         >
@@ -555,21 +580,96 @@ export function CheckoutPayment() {
                                     </Box>
                                 )}
                             </Box>
+
+                            {/* Email Notification Section */}
+                            <EmailNotificationSelector
+                                emails={checkoutState.notificationEmails}
+                                onEmailsChange={handleNotificationEmailsChange}
+                                userEmail={user?.email}
+                            />
+
+                            {/* Delivery Comment Section */}
+                            <DeliveryCommentSelector
+                                comment={checkoutState.deliveryComment}
+                                onCommentChange={handleDeliveryCommentChange}
+                            />
+
+                            {/* Continue Button */}
+                            <Box sx={{ mt: 3 }}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    size="large"
+                                    disabled={!isDeliveryDetailsComplete}
+                                    onClick={handleContinueToDeliveryTime}
+                                    sx={{ py: 1.5 }}
+                                >
+                                    Kész
+                                </Button>
+                            </Box>
                         </AccordionDetails>
                     </Accordion>
 
-                    {/* Email Notification Section */}
-                    <EmailNotificationSelector
-                        emails={checkoutState.notificationEmails}
-                        onEmailsChange={handleNotificationEmailsChange}
-                        userEmail={user?.email}
-                    />
+                    {/* Delivery Time Selection */}
+                    <Accordion
+                        expanded={deliveryTimeAccordionExpanded}
+                        onChange={(event, isExpanded) => setDeliveryTimeAccordionExpanded(isExpanded)}
+                        elevation={0}
+                        sx={{
+                            mb: 3,
+                            boxShadow: 'none !important',
+                            '&:before': {
+                                display: 'none',
+                            },
+                            '& .MuiAccordionSummary-root': {
+                                px: 0,
+                                boxShadow: 'none !important',
+                            },
+                            '& .MuiAccordionDetails-root': {
+                                px: 0,
+                            },
+                            '&.Mui-expanded': {
+                                boxShadow: 'none !important',
+                            }
+                        }}
+                    >
+                        <AccordionSummary
+                            expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                            sx={{
+                                '& .MuiAccordionSummary-content': {
+                                    alignItems: 'center',
+                                    gap: 2
+                                },
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: '8px',
+                                    bgcolor: deliveryTimeAccordionExpanded ? 'primary.main' : 'grey.300',
+                                    color: deliveryTimeAccordionExpanded ? 'white' : 'grey.600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                2
+                            </Box>
+                            <Typography variant="h6" sx={{ color: deliveryTimeAccordionExpanded ? 'text.primary' : 'grey.600' }}>
+                                Kiszállítási idő
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography variant="body1">
+                                Amennyiben a mai napon leadod a rendelésed vagy legkésőbb vasárnap 12:00-ig, akkor az alábbi időpontban szállítjuk a rendelésed.
+                            </Typography>
+                        </AccordionDetails>
+                    </Accordion>
 
-                    {/* Delivery Comment Section */}
-                    <DeliveryCommentSelector
-                        comment={checkoutState.deliveryComment}
-                        onCommentChange={handleDeliveryCommentChange}
-                    />
+
 
                     <CheckoutPaymentMethods
                         name="payment"
