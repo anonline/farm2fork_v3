@@ -58,7 +58,8 @@ export default function ShippingCostList() {
         vatPublic: true,
         vatVIP: true,
         vatCompany: true,
-        freeLimit: 0,
+        minNetPrice: 0,
+        maxNetPrice: 0,
     }), []);
 
     const rhfMethods = useForm<ShippingCostSchemaType>({
@@ -184,8 +185,17 @@ export default function ShippingCostList() {
         },
 
         {
-            field: 'freeLimit',
-            headerName: 'Ingyenes határ',
+            field: 'minNetPrice',
+            headerName: 'Min. nettó ár',
+            width: 150,
+            align: 'right',
+            headerAlign: 'right',
+            renderCell: (params) => fCurrency(params.value)
+        },
+
+        {
+            field: 'maxNetPrice',
+            headerName: 'Max. nettó ár',
             width: 150,
             align: 'right',
             headerAlign: 'right',
@@ -243,10 +253,25 @@ export default function ShippingCostList() {
                                     <RHFTextField name="netCostVIP" label="Nettó ár (VIP)" type="number" />
                                     <RHFTextField name="netCostCompany" label="Nettó ár (Céges)" type="number" />
                                 </Box>
-                                <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: 'repeat(2, 1fr)' }} gap={2}>
+                                <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: 'repeat(3, 1fr)' }} gap={2}>
                                     <RHFTextField name="vat" label="ÁFA (%)" type="number" />
-                                    <RHFTextField name="freeLimit" label="Ingyenes szállítási határ (nettó)" type="number" />
+                                    <RHFTextField 
+                                        name="minNetPrice" 
+                                        label="Minimum nettó ár (Ft)" 
+                                        type="number" 
+                                        helperText="0 = nincs alsó határ"
+                                    />
+                                    <RHFTextField 
+                                        name="maxNetPrice" 
+                                        label="Maximum nettó ár (Ft)" 
+                                        type="number" 
+                                        helperText="0 = nincs felső határ"
+                                    />
                                 </Box>
+                                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                    A szállítási módszer csak a megadott árkategóriában lesz elérhető. 
+                                    Ha mindkét érték 0, akkor minden rendelésnél elérhető lesz.
+                                </Typography>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-around" sx={{ p: 1, borderRadius: 1, border: '1px dashed', borderColor: 'divider' }}>
                                     <RHFSwitch name="enabledPublic" label="Publikus engedélyezve" />
                                     <RHFSwitch name="enabledVIP" label="VIP engedélyezve" />
@@ -307,7 +332,16 @@ const ShippingCostSchema = zod.object({
     vatPublic: zod.boolean(),
     vatVIP: zod.boolean(),
     vatCompany: zod.boolean(),
-    freeLimit: zod.coerce.number().min(0, { message: 'A limit nem lehet negatív' }),
+    minNetPrice: zod.coerce.number().min(0, { message: 'A minimum ár nem lehet negatív' }),
+    maxNetPrice: zod.coerce.number().min(0, { message: 'A maximum ár nem lehet negatív' }),
+}).refine((data) => {
+    if (data.maxNetPrice > 0 && data.minNetPrice > data.maxNetPrice) {
+        return false;
+    }
+    return true;
+}, {
+    message: 'A maximum ár nem lehet kisebb a minimum árnál',
+    path: ['maxNetPrice'],
 });
 
 type ShippingCostSchemaType = zod.infer<typeof ShippingCostSchema>;

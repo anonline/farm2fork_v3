@@ -4,3 +4,4 @@ node_modules
 .next
 asd.local
 pickup_locations.sql
+shipping_costs_methods_update.sql
