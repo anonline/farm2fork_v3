@@ -3,9 +3,10 @@ import type {
     ICheckoutPaymentOption,
     ICheckoutDeliveryOption,
 } from 'src/types/checkout';
+import type { IPickupLocation } from 'src/types/pickup-location';
 
 import { z as zod } from 'zod';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -21,6 +22,9 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 
 import { Form } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
+
+import { useGetPickupLocations } from 'src/actions/pickup-location';
+import { PickupLocationSelector } from './components';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
@@ -63,14 +67,27 @@ export type PaymentSchemaType = zod.infer<typeof PaymentSchema>;
 export const PaymentSchema = zod.object({
     payment: zod.string().min(1, { message: 'Payment is required!' }),
     deliveryType: zod.string().min(1, { message: 'Delivery type is required!' }),
+    pickupLocation: zod.number().optional(),
     // Not required
     delivery: zod.number(),
+}).refine((data) => {
+    // If delivery type is personal pickup, pickup location is required
+    if (data.deliveryType === 'szemelyes_atvetel') {
+        return data.pickupLocation !== undefined;
+    }
+    return true;
+}, {
+    message: 'Pickup location is required for personal pickup!',
+    path: ['pickupLocation'],
 });
 
 // ----------------------------------------------------------------------
 
 export function CheckoutPayment() {
     const [deliveryType, setDeliveryType] = useState<string>('hazhozszallitas');
+    const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
+    
+    const { locations: pickupLocations } = useGetPickupLocations();
     
     const {
         loading,
@@ -84,6 +101,7 @@ export function CheckoutPayment() {
         delivery: checkoutState.shipping,
         payment: '',
         deliveryType: deliveryType,
+        pickupLocation: selectedPickupLocation || undefined,
     };
 
     const methods = useForm<PaymentSchemaType>({
@@ -101,8 +119,37 @@ export function CheckoutPayment() {
         if (newDeliveryType !== null) {
             setDeliveryType(newDeliveryType);
             setValue('deliveryType', newDeliveryType);
+            
+            // Reset pickup location when switching to home delivery
+            if (newDeliveryType === 'hazhozszallitas') {
+                setSelectedPickupLocation(null);
+                setValue('pickupLocation', undefined);
+            } else {
+                // Set default pickup location (Farm2Fork raktár) when switching to pickup
+                const defaultPickup = pickupLocations.find(loc => loc.enabled && loc.name.includes('Farm2Fork'));
+                if (defaultPickup) {
+                    setSelectedPickupLocation(defaultPickup.id);
+                    setValue('pickupLocation', defaultPickup.id);
+                }
+            }
         }
     };
+
+    const handlePickupLocationChange = (locationId: number) => {
+        setSelectedPickupLocation(locationId);
+        setValue('pickupLocation', locationId);
+    };
+
+    // Initialize default pickup location when locations are loaded
+    useEffect(() => {
+        if (pickupLocations.length > 0 && deliveryType === 'szemelyes_atvetel' && !selectedPickupLocation) {
+            const defaultPickup = pickupLocations.find(loc => loc.enabled && loc.name.includes('Farm2Fork'));
+            if (defaultPickup) {
+                setSelectedPickupLocation(defaultPickup.id);
+                setValue('pickupLocation', defaultPickup.id);
+            }
+        }
+    }, [pickupLocations, deliveryType, selectedPickupLocation, setValue]);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -188,6 +235,14 @@ export function CheckoutPayment() {
                                         Személyes átvétel
                                     </ToggleButton>
                                 </ToggleButtonGroup>
+
+                                {/* Pickup Locations Selection */}
+                                {deliveryType === 'szemelyes_atvetel' && (
+                                    <PickupLocationSelector
+                                        selectedPickupLocation={selectedPickupLocation}
+                                        onLocationChange={handlePickupLocationChange}
+                                    />
+                                )}
                             </Box>
                         </AccordionDetails>
                     </Accordion>
