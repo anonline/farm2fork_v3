@@ -1,11 +1,14 @@
 import type { ReactNode } from 'react';
 
-import { useState, useContext, createContext } from 'react';
+import { useState, useContext, createContext, useEffect } from 'react';
+
+import { usePathname } from 'src/routes/hooks';
 
 // ----------------------------------------------------------------------
 
 type SideCartContextType = {
     isOpen: boolean;
+    isDisabled: boolean;
     openSideCart: () => void;
     closeSideCart: () => void;
     toggleSideCart: () => void;
@@ -31,15 +34,38 @@ type SideCartProviderProps = {
 
 export function SideCartProvider({ children }: SideCartProviderProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
 
-    const openSideCart = () => setIsOpen(true);
+    // Check if we're on the checkout page
+    const isOnCheckoutPage = pathname === '/product/checkout/';
+
+    const openSideCart = () => {
+        
+        if (!isOnCheckoutPage) {
+            setIsOpen(true);
+        }
+    };
+
     const closeSideCart = () => setIsOpen(false);
-    const toggleSideCart = () => setIsOpen(prev => !prev);
+
+    const toggleSideCart = () => {
+        if (!isOnCheckoutPage) {
+            setIsOpen(prev => !prev);
+        }
+    };
+
+    // Close sidecart if navigating to checkout page
+    useEffect(() => {
+        if (isOnCheckoutPage && isOpen) {
+            setIsOpen(false);
+        }
+    }, [isOnCheckoutPage, isOpen]);
 
     return (
         <SideCartContext.Provider
             value={{
                 isOpen,
+                isDisabled: isOnCheckoutPage,
                 openSideCart,
                 closeSideCart,
                 toggleSideCart,
