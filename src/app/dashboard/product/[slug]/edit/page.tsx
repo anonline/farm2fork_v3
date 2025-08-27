@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import { ProductProvider } from 'src/contexts/product-context';
+import { CategoryProvider } from 'src/contexts/category-context';
+import { ProducersProvider } from 'src/contexts/producers-context';
 
 import { ProductEditView } from 'src/sections/product/view';
 
@@ -18,7 +20,11 @@ export default async function Page({ params }: Readonly<Props>) {
 
   return (
     <ProductProvider slug={slug}>
-      <ProductEditView />
+      <ProducersProvider>
+        <CategoryProvider>
+          <ProductEditView />
+        </CategoryProvider>
+      </ProducersProvider>
     </ProductProvider>
   );
 }

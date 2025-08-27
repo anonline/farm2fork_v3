@@ -1,201 +1,234 @@
-import type { IProductItem } from 'src/types/product';
+'use client';
+
+import type { MonthKeys, IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
-import { useCallback } from 'react';
-import { useForm } from 'react-hook-form';
 import { useBoolean } from 'minimal-shared/hooks';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import { Box, Card, Chip, Stack, Button, Divider, Collapse, Checkbox, MenuItem, TextField, FormGroup, IconButton, CardHeader, Typography, Autocomplete, FormHelperText, FormControlLabel, CircularProgress } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { fetchGetProductBySlug } from 'src/actions/product';
-import {
-    PRODUCT_SIZE_OPTIONS,
-    PRODUCT_GENDER_OPTIONS,
-    PRODUCT_COLOR_NAME_OPTIONS,
-    PRODUCT_CATEGORY_GROUP_OPTIONS,
-} from 'src/_mock';
+import { uploadFile } from 'src/lib/blob/blobClient';
+import { useCategories } from 'src/contexts/category-context';
+import { useProducers } from 'src/contexts/producers-context';
+import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCategoryRelations } from 'src/actions/product';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field, RHFSwitch, schemaHelper, RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
+const UNIT_OPTIONS = [
+    { value: 'kg', label: 'kg' }, { value: 'db', label: 'db' }, { value: 'csomag', label: 'csomag' },
+    { value: 'üveg', label: 'üveg' }, { value: 'csokor', label: 'csokor' }, { value: 'doboz', label: 'doboz' },
+];
+
+const MONTH_OPTIONS: { value: MonthKeys, label: string }[] = [
+    { value: 'January', label: 'Január' }, { value: 'February', label: 'Február' }, { value: 'March', label: 'Március' },
+    { value: 'April', label: 'Április' }, { value: 'May', label: 'Május' }, { value: 'June', label: 'Június' },
+    { value: 'July', label: 'Július' }, { value: 'August', label: 'Augusztus' }, { value: 'September', label: 'Szeptember' },
+    { value: 'October', label: 'Október' }, { value: 'November', label: 'November' }, { value: 'December', label: 'December' },
+];
+
+const monthValues: [MonthKeys, ...MonthKeys[]] = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
 
 export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
-    shortDescription: schemaHelper
-        .editor({ message: 'Leírás megadása kötelező!' })
-        .max(1000, { message: 'A leírásnak kevesebb mint 1000 karakternek kell lennie' }),
+    shortDescription: schemaHelper.editor({ message: 'Leírás megadása kötelező!' }),
     images: schemaHelper.files({ message: 'Képek megadása kötelező!' }),
-    code: zod.string().min(1, { message: 'Termék kód megadása kötelező!' }),
-    sku: zod.string().min(1, { message: 'Termék SKU megadása kötelező!' }),
-    quantity: schemaHelper.nullableInput(
-        zod.number({ coerce: true }).min(1, { message: 'Mennyiség megadása kötelező!' }),
-        {
-            message: 'Mennyiség megadása kötelező!',
-        }
+    featuredImage: zod.any().optional(),
+    categoryIds: zod.array(zod.number()).min(1, { message: 'Legalább egy kategória választása kötelező.' }),
+    tags: zod.array(zod.string()).optional(),
+    seasonality: zod.array(zod.enum(monthValues)).optional(),
+    unit: zod.string().min(1, { message: 'Mértékegység választása kötelező.' }),
+    producerId: zod.preprocess(
+        (value) => (value === '' ? null : value),
+        zod.number().nullable().optional()
     ),
-    colors: zod.string().array().min(1, { message: 'Válassz ki legalább egy lehetőséget!' }),
-    sizes: zod.string().array().min(1, { message: 'Válassz ki legalább egy lehetőséget!' }),
-    tags: zod.string().array().min(2, { message: 'Legalább 2 elem megadása kötelező!' }),
-    gender: zod.array(zod.string()).min(1, { message: 'Válassz ki legalább egy lehetőséget!' }),
-    price: schemaHelper.nullableInput(
-        zod.number({ coerce: true }).min(1, { message: 'Ár megadása kötelező!' }),
-        {
-            // message for null value
-            message: 'Ár megadása kötelező!',
-        }
-    ),
-    // Not required
-    category: zod.string(),
-    cardText: zod.string().optional(),
-    star: zod.boolean(),
+    mininumQuantity: zod.number({ coerce: true }).min(0, 'Minimum 0 lehet.').nullable(),
+    maximumQuantity: zod.number({ coerce: true }).min(0, 'Minimum 0 lehet.').nullable(),
+    stepQuantity: zod.number({ coerce: true }).min(0.1, 'Minimum 0.1 lehet.').nullable(),
+    netPrice: zod.number({ coerce: true }).min(0),
+    grossPrice: zod.number({ coerce: true }).min(0),
+    vat: zod.number({ coerce: true }).min(0).max(100),
+    netPriceVIP: zod.number({ coerce: true }).min(0).nullable().optional(),
+    netPriceCompany: zod.number({ coerce: true }).min(0).nullable().optional(),
+    stock: zod.number({ coerce: true }).nullable(),
+    backorder: zod.boolean(),
     featured: zod.boolean(),
+    star: zod.boolean(),
     bio: zod.boolean(),
-    priceSale: zod.number({ coerce: true }).nullable(),
-    saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
-    netPrice: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes nettó árat!" })
-        .min(0, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
-        .max(999999, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' }),
-    grossPrice: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes bruttó árat!" })
-        .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
-        .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' }),
-    salegrossPrice: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes bruttó árat!" })
-        .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
-        .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
-        .nullable(),
-    netPriceVIP: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes VIP nettó árat!" })
-        .min(0, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' })
-        .max(999999, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' }),
-    netPriceCompany: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes Céges nettó árat!" })
-        .min(0, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' })
-        .max(999999, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' }),
-    vat: zod.number({ coerce: true })
-        .int({ message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
-        .min(0, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
-        .max(100, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
-        .default(27),
-});
+})
+    .refine((data) => {
+        if (!data.backorder && data.stock !== null) {
+            return data.stock >= 0;
+        }
+        return true;
+    }, {
+        message: 'Előrendelés nélkül a készlet nem lehet negatív értékű!',
+        path: ['stock'],
+    });
+
+export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 
 // ----------------------------------------------------------------------
 
-type ProductNewEditFormProps = {
-    currentProduct: IProductItem | null;
-};
-export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFormProps>) {
+export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct: IProductItem | null }>) {
     const router = useRouter();
+
+    const { categories, loading: categoriesLoading } = useCategories();
+    const { producers } = useProducers();
 
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
     const openPricing = useBoolean(true);
     const openFeatured = useBoolean(true);
+    const openSeasonality = useBoolean(true);
 
-    const defaultValues: NewProductSchemaType = {
-        name: '',
-        shortDescription: '',
-        cardText: '',
-        url: '',
-        images: [],
-        /********/
-        code: '',
-        sku: '',
-        price: null,
-        featured: false,
-        star: false,
-        bio: false,
-        priceSale: null,
-        quantity: null,
-        tags: [],
-        gender: [],
-        category: PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
-        colors: [],
-        sizes: [],
-        saleLabel: { enabled: false, content: '' },
-        vat: 0,
-        netPrice: 0,
-        grossPrice: 0,
-        salegrossPrice: null,
-        netPriceVIP: 0,
-        netPriceCompany: 0,
-    };
+    const defaultValues = useMemo<NewProductSchemaType>(() => ({
+        name: currentProduct?.name || '',
+        url: currentProduct?.url || '',
+        shortDescription: currentProduct?.shortDescription || '',
+        images: currentProduct?.images || [],
+        featuredImage: currentProduct?.featuredImage || null,
+        categoryIds: (currentProduct as any)?.ProductCategories_Products?.map(
+            (relation: any) => relation.ProductCategories.id
+        ).filter((id: number | null): id is number => id !== null) || [],
+        tags: currentProduct?.tags || [],
+        seasonality: currentProduct?.seasonality || [],
+        unit: currentProduct?.unit || '',
+        producerId: currentProduct?.producerId ?? null,
+        mininumQuantity: currentProduct?.mininumQuantity || 1,
+        maximumQuantity: currentProduct?.maximumQuantity || 10,
+        stepQuantity: currentProduct?.stepQuantity || 1,
+        netPrice: currentProduct?.netPrice || 0,
+        grossPrice: currentProduct?.grossPrice || 0,
+        vat: currentProduct?.vat || 27,
+        netPriceVIP: currentProduct?.netPriceVIP ?? null,
+        netPriceCompany: currentProduct?.netPriceCompany ?? null,
+        stock: currentProduct?.stock ?? null,
+        backorder: currentProduct?.backorder || false,
+        featured: currentProduct?.featured || false,
+        star: currentProduct?.star || false,
+        bio: currentProduct?.bio || false,
+    }), [currentProduct]);
 
     const methods = useForm<NewProductSchemaType>({
         resolver: zodResolver(NewProductSchema),
-        defaultValues,
-        values: currentProduct
-            ? {
-                ...currentProduct,
-                category:
-                    Array.isArray(currentProduct.category) && currentProduct.category.length > 0
-                        ? currentProduct.category[0].name || ''
-                        : '',
-            }
-            : undefined,
+        values: defaultValues,
     });
 
-    const {
-        reset,
-        watch,
-        setValue,
-        handleSubmit,
-        formState: { isSubmitting },
-    } = methods;
+    const { reset, watch, setValue, handleSubmit, control, formState: { isSubmitting } } = methods;
 
-    //const values = watch();
+    const [isUnlimitedStock, setIsUnlimitedStock] = useState(defaultValues.stock === null);
 
-    //const [netPrice, grossPrice, vat] = watch(['netPrice','grossPrice','vat']);
+    useEffect(() => {
+        setIsUnlimitedStock(watch('stock') === null);
+    }, [watch('stock')]);
+
+    useEffect(() => {
+        if (isUnlimitedStock) {
+            setValue('stock', null);
+        } else if (watch('stock') === null) {
+            setValue('stock', 0);
+        }
+    }, [isUnlimitedStock, setValue, watch]);
+
+    const [netPrice, grossPrice, vat] = watch(['netPrice', 'grossPrice', 'vat']);
+    useEffect(() => {
+        if (netPrice && vat) {
+            const newGross = Math.round(netPrice * (1 + vat / 100));
+            if (newGross !== grossPrice) {
+                setValue('grossPrice', newGross, { shouldValidate: true });
+            }
+        }
+    }, [netPrice, vat, grossPrice, setValue]);
+
+    const handleGrossPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newGross = Number(e.target.value);
+        if (vat) {
+            const newNet = Math.round(newGross / (1 + vat / 100));
+            setValue('netPrice', newNet, { shouldValidate: true });
+        }
+    };
+
+    const generateSlug = (name: string) => {
+        const hungarianMap: Record<string, string> = { 'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o', 'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O' };
+        return name.split('').map(char => hungarianMap[char] || char).join('').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+    };
+
+    const handleURLGenerate = useCallback(async (e: { target: { value: string } }) => {
+        const name = e.target.value;
+        const slug = generateSlug(name);
+        let suffix = 2;
+        let uniqueSlug = slug;
+        let exists = false;
+        do {
+            const { product } = await fetchGetProductBySlug(uniqueSlug);
+            exists = !!(product && product.id !== currentProduct?.id);
+            if (exists) {
+                uniqueSlug = `${slug}-${suffix}`;
+                suffix++;
+            }
+        } while (exists);
+        setValue('url', uniqueSlug, { shouldValidate: true });
+    }, [currentProduct, setValue]);
 
     const onSubmit = handleSubmit(async (data) => {
-        const updatedData = {
-            ...data,
-            //taxes: includeTaxes ? defaultValues.taxes : data.taxes,
-        };
-
         try {
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            let finalFeaturedImageUrl = data.featuredImage;
+
+            if (finalFeaturedImageUrl instanceof File) {
+                const response = await uploadFile(finalFeaturedImageUrl, 'products', 0);
+                if (!response.url) throw new Error('A kiemelt kép feltöltése sikertelen.');
+                finalFeaturedImageUrl = response.url;
+            }
+
+            const productData: any = {
+                ...data,
+                featuredImage: finalFeaturedImageUrl ?? undefined,
+                mininumQuantity: data.mininumQuantity ?? undefined,
+                maximumQuantity: data.maximumQuantity ?? undefined,
+                stepQuantity: data.stepQuantity ?? undefined,
+                netPriceVIP: data.netPriceVIP ?? undefined,
+                netPriceCompany: data.netPriceCompany ?? undefined,
+            };
+            delete productData.categoryIds;
+
+            let productId = currentProduct?.id;
+
+            if (currentProduct) {
+                await updateProduct(currentProduct.id, productData);
+            } else {
+                const newProduct = await createProduct(productData);
+                productId = newProduct.id;
+            }
+
+            if (!productId) {
+                throw new Error('A termék azonosítója nem jött létre, a kategóriák nem menthetők.');
+            }
+
+            await updateProductCategoryRelations(productId, data.categoryIds);
+
             reset();
-            toast.success(currentProduct ? 'Update success!' : 'Create success!');
+            toast.success(currentProduct ? 'Sikeres frissítés!' : 'Sikeres létrehozás!');
             router.push(paths.dashboard.product.root);
-            console.info('DATA', updatedData);
-        } catch (error) {
+
+        } catch (error: any) {
             console.error(error);
+            toast.error(error.message || 'Hiba történt a mentés során.');
         }
     });
-
-    /*const handleRemoveFile = useCallback(
-        (inputFile: File | string) => {
-            //const filtered = values.images?.filter((file) => file !== inputFile);
-            //setValue('images', filtered);
-        },
-        [setValue, values.images]
-    );*/
-
-    const handleRemoveAllFiles = useCallback(() => {
-        setValue('images', [], { shouldValidate: true });
-    }, [setValue]);
 
     const renderCollapseButton = (value: boolean, onToggle: () => void) => (
         <IconButton onClick={onToggle}>
@@ -203,224 +236,122 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
         </IconButton>
     );
 
-    const handleURLGenerate = async (e: { target: { value: string } }) => {
-        const name = e.target.value.toString();
-        const slug = generateSlug(name);
-
-        let suffix = 2;
-        let uniqueSlug = slug;
-        let exists = false;
-
-        // Ellenőrizd, hogy van-e már ilyen slug
-        do {
-            const { product } = await fetchGetProductBySlug(uniqueSlug);
-            exists = product && product.id !== currentProduct?.id;
-            if (exists) {
-                uniqueSlug = `${slug}-${suffix}`;
-                suffix++;
-            }
-        } while (exists);
-
-        setValue('url', uniqueSlug, { shouldValidate: true });
-    };
-
-    const generateSlug = (name: string) => {
-        const hungarianMap: Record<string, string> = {
-            'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o',
-            'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O'
-        };
-        const slug = name
-            .split('')
-            .map((char: string) => hungarianMap[char] || char)
-            .join('')
-            .replace(/\s+/g, '-')
-            .replace(/[^a-zA-Z0-9-]/g, '')
-            .toLowerCase();
-        return slug;
-    }
-
-
     const renderDetails = () => (
         <Card>
-            <CardHeader
-                title="Alapadatok"
-                subheader="Cím, rövid leírás, kép..."
-                action={renderCollapseButton(openDetails.value, openDetails.onToggle)}
-                sx={{ mb: 3 }}
-            />
-
+            <CardHeader title="Alapadatok" action={renderCollapseButton(openDetails.value, openDetails.onToggle)} />
             <Collapse in={openDetails.value}>
-                <Divider />
-
                 <Stack spacing={3} sx={{ p: 3 }}>
-                    <Field.Text name="name" label="Termék név" onBlur={handleURLGenerate} />
-
-                    <Field.Text name="url" label="Termék URL" slotProps={{ input: { readOnly: true } }} variant='filled' />
-
-                    <Field.Text name="cardText" label="Kártyán megjelenő rövid leírás" />
-
-                    <Stack spacing={1.5}>
-                        <Typography variant="subtitle2">Leírás</Typography>
-                        <Field.Editor name="shortDescription" sx={{ maxHeight: 580 }} placeholder='Írja be a termék leírását...' />
-                    </Stack>
-
-                    <Stack spacing={1.5}>
-                        <Typography variant="subtitle2">Galéria</Typography>
-                        <Field.Upload
-                            multiple
-
-                            thumbnail
-                            name="images"
-                            maxSize={10 * 1024 * 1024}
-                            //onRemove={/*handleRemoveFile*/}
-                            onRemoveAll={handleRemoveAllFiles}
-                            onUpload={() => console.info('ON UPLOAD')}
-                        />
-                    </Stack>
+                    <RHFTextField name="name" label="Termék név" onBlur={handleURLGenerate} />
+                    <RHFTextField name="url" label="Termék URL" disabled />
+                    <Field.Editor name="shortDescription" />
+                    <Field.Upload multiple thumbnail name="images" />
                 </Stack>
             </Collapse>
         </Card>
     );
 
-    const renderProperties = () => (
-        <Card>
-            <CardHeader
-                title="Tulajdonságok"
-                subheader="További funkciók és attribútumok..."
-                action={renderCollapseButton(openProperties.value, openProperties.onToggle)}
-                sx={{ mb: 3 }}
-            />
+    function renderTagChips(value: string[], getTagProps: any) {
+        if (!Array.isArray(value)) return null;
+        return value.map((option, index) => (
+            <Chip {...getTagProps({ index })} key={option} size="small" label={option} />
+        ));
+    }
 
-            <Collapse in={openProperties.value}>
-                <Divider />
+    const renderProperties = () => {
+        const categoryOptions = categories.filter(cat => cat.id != null).map(cat => ({ value: cat.id as number, label: cat.name }));
 
-                <Stack spacing={3} sx={{ p: 3 }}>
-                    <Box
-                        sx={{
-                            rowGap: 3,
-                            columnGap: 2,
-                            display: 'grid',
-                            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-                        }}
-                    >
-                        <Field.Editor name="usageInformation" placeholder="Felhasználási információk" />
-                        <Field.Editor name="storingInformation" placeholder="Tárolási információk" />
-
-                        <Field.NumberInput
-                            name="mininumQuantity"
-                            min={0.1}
-                            step={0.1}
-                            max={999}
-                            helperText="Korárba tétel minimuma"
-                            digits={2}
-                            slotProps={{
-                                inputWrapper: {
-                                    sx: { width: '100%' }
-                                }
-                            }}
+        return (
+            <Card>
+                <CardHeader title="Tulajdonságok" action={renderCollapseButton(openProperties.value, openProperties.onToggle)} />
+                <Collapse in={openProperties.value}>
+                    <Stack spacing={3} sx={{ p: 3 }}>
+                        <Controller
+                            name="categoryIds"
+                            control={control}
+                            render={({ field, fieldState: { error } }) => (
+                                <Box>
+                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Kategóriák</Typography>
+                                    {categoriesLoading ? <CircularProgress size={20} /> : (
+                                        <FormGroup sx={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                            {categoryOptions.map((option) => (
+                                                <FormControlLabel
+                                                    key={option.value}
+                                                    control={
+                                                        <Checkbox
+                                                            checked={(field.value || []).includes(option.value)}
+                                                            onChange={() => {
+                                                                const currentValue = field.value || [];
+                                                                const newValues = currentValue.includes(option.value)
+                                                                    ? currentValue.filter((v) => v !== option.value)
+                                                                    : [...currentValue, option.value];
+                                                                field.onChange(newValues);
+                                                            }}
+                                                        />
+                                                    }
+                                                    label={option.label}
+                                                />
+                                            ))}
+                                        </FormGroup>
+                                    )}
+                                    {!!error && <FormHelperText error sx={{ ml: 2 }}>{error.message}</FormHelperText>}
+                                </Box>
+                            )}
                         />
 
-                        <Field.NumberInput
-                            name="maximumQuantity"
-                            min={0.1}
-                            step={0.1}
-                            max={999}
-                            helperText="Korárba tétel maximuma"
-                            digits={2}
-                            slotProps={{
-                                inputWrapper: {
-                                    sx: { width: '100%' }
-                                }
-                            }}
-                        />
-
-                        <Field.NumberInput
-                            name="stepQuantity"
-                            min={0.1}
-                            step={0.1}
-                            max={999}
-                            helperText="Korárba tétel léptéke"
-                            digits={2}
-                            slotProps={{
-                                inputWrapper: {
-                                    sx: { width: '100%' }
-                                }
-                            }}
-                        />
-
-                        <Field.Select
-                            name="category"
-                            label="Category"
-                            slotProps={{
-                                select: { native: true },
-                                inputLabel: { shrink: true },
-                            }}
-                        >
-                            {PRODUCT_CATEGORY_GROUP_OPTIONS.map((category) => (
-                                <optgroup key={category.group} label={category.group}>
-                                    {category.classify.map((classify) => (
-                                        <option key={classify} value={classify}>
-                                            {classify}
-                                        </option>
-                                    ))}
-                                </optgroup>
-                            ))}
-                        </Field.Select>
-
-                        <Field.MultiSelect
-                            checkbox
-                            name="colors"
-                            label="Colors"
-                            options={PRODUCT_COLOR_NAME_OPTIONS}
-                        />
-
-                        <Field.MultiSelect
-                            checkbox
-                            name="sizes"
-                            label="Sizes"
-                            options={PRODUCT_SIZE_OPTIONS}
-                        />
-                    </Box>
-
-                    {/*<Field.Autocomplete
-                        name="tags"
-                        label="Címkék"
-                        placeholder="+ Címke"
-                        multiple
-                        freeSolo
-                        disableCloseOnSelect
-                        options={_tags.map((option) => option)}
-                        getOptionLabel={(option) => option}
-                        renderOption={(props, option) => (
-                            <li {...props} key={option}>
-                                {option}
-                            </li>
-                        )}
-                        renderTags={(selected, getTagProps) =>
-                            isArray(selected) && selected.map((option, index) => (
-                                <Chip
-                                    {...getTagProps({ index })}
-                                    key={option}
-                                    label={option}
-                                    size="small"
-                                    color="info"
-                                    variant="soft"
+                        <Controller
+                            name="tags"
+                            control={control}
+                            render={({ field }) => (
+                                <Autocomplete
+                                    multiple
+                                    freeSolo
+                                    options={[]}
+                                    value={field.value || []}
+                                    onChange={(event, newValue) => field.onChange(newValue)}
+                                    renderTags={renderTagChips}
+                                    renderInput={(params) => <TextField label="Címkék" placeholder='A címkéket "," jellek válaszd el' {...params} />}
                                 />
-                            ))
-                        }
-                    />*/}
-
-                    <Stack spacing={1}>
-                        <Typography variant="subtitle2">Gender</Typography>
-                        <Field.MultiCheckbox
-                            row
-                            name="gender"
-                            options={PRODUCT_GENDER_OPTIONS}
-                            sx={{ gap: 2 }}
+                            )}
                         />
+
+                        <RHFTextField
+                            select
+                            name="producerId"
+                            label="Termelő"
+                            InputLabelProps={{ shrink: true }}
+                        >
+                            <MenuItem value="">Nincs</MenuItem>
+                            {producers.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
+                        </RHFTextField>
+
+                        <RHFTextField select name="unit" label="Mértékegység">
+                            {UNIT_OPTIONS.map(opt => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
+                        </RHFTextField>
+
+                        <RHFTextField name="mininumQuantity" label="Kosárba tétel minimuma" type="number" />
+                        <RHFTextField name="maximumQuantity" label="Kosárba tétel maximuma" type="number" />
+                        <RHFTextField name="stepQuantity" label="Kosárba tétel léptéke" type="number" />
                     </Stack>
+                </Collapse>
+            </Card>
+        )
+    };
 
-
+    const renderPricing = () => (
+        <Card>
+            <CardHeader title="Árak és Készlet" action={renderCollapseButton(openPricing.value, openPricing.onToggle)} />
+            <Collapse in={openPricing.value}>
+                <Stack spacing={3} sx={{ p: 3 }}>
+                    <RHFTextField name="netPrice" label="Nettó alapár (Ft)" type="number" />
+                    <RHFTextField name="vat" label="ÁFA (%)" type="number" />
+                    <RHFTextField name="grossPrice" label="Bruttó alapár (Ft)" type="number" onChange={handleGrossPriceChange} />
+                    <Divider sx={{ my: 2 }} />
+                    <RHFTextField name="netPriceVIP" label="VIP Nettó Ár (Ft)" type="number" />
+                    <RHFTextField name="netPriceCompany" label="Céges Nettó Ár (Ft)" type="number" />
+                    <Divider sx={{ my: 2 }} />
+                    <FormControlLabel control={<Checkbox checked={isUnlimitedStock} onChange={(e) => setIsUnlimitedStock(e.target.checked)} />} label="Korlátlan készlet" />
+                    <RHFTextField name="stock" label="Készlet" type="number" disabled={isUnlimitedStock} />
+                    <RHFSwitch name="backorder" label="Előrendelhető" />
                 </Stack>
             </Collapse>
         </Card>
@@ -428,229 +359,89 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
 
     const renderFeatured = () => (
         <Card>
-            <CardHeader
-                title="Kiemelt termék"
-                subheader="Kiemelt termék beállítások"
-                action={renderCollapseButton(openFeatured.value, openFeatured.onToggle)}
-                sx={{ mb: 3 }}
-            />
-
+            <CardHeader title="Kiemelt termék" action={renderCollapseButton(openFeatured.value, openFeatured.onToggle)} />
             <Collapse in={openFeatured.value}>
-                <Divider />
-
-                <Stack spacing={1.5} sx={{ p: 3 }}>
-                    <Typography variant="subtitle2">Kiemelt kép</Typography>
-                    <Field.Upload
-                        thumbnail
-                        name="featuredImage"
-                        maxSize={10 * 1024 * 1024}
-                        //onRemove={/*handleRemoveFile*/}
-                        onRemoveAll={handleRemoveAllFiles}
-                        onUpload={() => console.info('ON UPLOAD')}
-                    />
-                </Stack>
-
-                <Divider />
-
                 <Stack spacing={3} sx={{ p: 3 }}>
-                    <Field.Switch name="featured" label="Főoldalon kiemelt termék" />
-                    <Field.Switch name="star" label="Szezonális sztár termék" />
-                    <Field.Switch name="bio" label="Bio termék" />
+                    <Stack spacing={1.5}>
+                        <Typography variant="subtitle2">Kiemelt kép</Typography>
+                        <Field.Upload name="featuredImage" thumbnail />
+                    </Stack>
+                    <Divider />
+                    <RHFSwitch name="featured" label="Főoldalon kiemelt termék" />
+                    <RHFSwitch name="star" label="Szezonális sztár termék" />
+                    <RHFSwitch name="bio" label="Bio termék" />
                 </Stack>
             </Collapse>
         </Card>
     );
 
-    const renderPricing = () => (
+    
+
+    const renderSeasonality = () => (
         <Card>
-            <CardHeader
-                title="Árak"
-                subheader="Árakkal kapcsolatos beviteli mezők"
-                action={renderCollapseButton(openPricing.value, openPricing.onToggle)}
-                sx={{ mb: 3 }}
-            />
-
-            <Collapse in={openPricing.value}>
-                <Divider />
-
+            <CardHeader title="Szezonalitás" action={renderCollapseButton(openSeasonality.value, openSeasonality.onToggle)} />
+            <Collapse in={openSeasonality.value}>
                 <Stack spacing={3} sx={{ p: 3 }}>
-                    <Field.Text
-                        name="netPrice"
-                        label="Nettó alapár"
-                        placeholder="0.00"
-                        type="number"
-                        onBlur={(e) => {
-                            const net = Number(e.target.value);
-                            const gross = Math.round(net * (1 + (watch('vat') ?? 0) / 100));
-                            setValue('grossPrice', gross, { shouldValidate: true });
-                        }}
-                        slotProps={{
-                            inputLabel: { shrink: true },
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                        <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            Ft
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
+                    <Controller
+                        name="seasonality"
+                        control={control}
+                        render={({ field }) => <SeasonalityCheckboxGroup field={field} />}
                     />
-
-                    <Field.Text
-                        name="vat"
-                        label="Áfa (%)"
-                        placeholder="0"
-                        type="number"
-                        slotProps={{
-                            inputLabel: { shrink: true },
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                        <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            %
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                                inputProps: { min: 0, max: 100, step: 1 },
-                            },
-                        }}
-                    />
-
-                    <Field.Text
-                        name="grossPrice"
-                        label="Bruttó alapár"
-                        placeholder="0.00"
-                        type="number"
-                        onBlur={(e) => {
-                            const gross = Number(e.target.value);
-                            const net = Math.round(gross / (1 + (watch('vat') ?? 0) / 100));
-                            setValue('netPrice', net, { shouldValidate: true });
-                        }}
-                        slotProps={{
-                            inputLabel: { shrink: true },
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                        <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            Ft
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-
-                    <Field.Text
-                        name="netPriceVIP"
-                        label="VIP alapár (nettó)"
-                        placeholder="0.00"
-                        type="number"
-                        slotProps={{
-                            inputLabel: { shrink: true },
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                        <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            Ft
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-
-                    <Field.Text
-                        name="netPriceCompany"
-                        label="Céges alapár (nettó)"
-                        placeholder="0.00"
-                        type="number"
-                        slotProps={{
-                            inputLabel: { shrink: true },
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                        <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            Ft
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-
-                    <Field.Text
-                        name="salegrossPrice"
-                        label="Akciós ár (bruttó)"
-                        placeholder="0.00"
-                        type="number"
-                        slotProps={{
-                            inputLabel: { shrink: true },
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                                        <Box component="span" sx={{ color: 'text.disabled' }}>
-                                            Ft
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-
-
                 </Stack>
             </Collapse>
         </Card>
-    );
-
-    const renderActions = () => (
-        <Box
-            sx={{
-                gap: 3,
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-            }}
-        >
-            <FormControlLabel
-                label="Közzétéve"
-                control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
-                sx={{ pl: 3, flexGrow: 1 }}
-            />
-
-            <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
-                {!currentProduct ? 'Termék létrehozása' : 'Változtatások mentése'}
-            </Button>
-        </Box>
     );
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
             <Box
                 sx={{
-                    mx: 'auto',
-                    maxWidth: { xs: 720, xl: '100%' },
                     display: 'grid',
-                    gridTemplateColumns: {
-                        xs: '1fr',
-                        md: '1fr',
-                        lg: '7fr 3fr',
-                    },
-                    gap: { xs: 3, md: 5 },
+                    gap: 3,
+                    gridTemplateColumns: { xs: '1fr', lg: '8fr 4fr' },
                 }}
             >
-                <Stack spacing={{ xs: 3, md: 5 }}>
+                <Stack spacing={3}>
                     {renderDetails()}
                     {renderProperties()}
                 </Stack>
-                <Stack spacing={{ xs: 3, md: 5 }}>
-                    {renderFeatured()}
+                <Stack spacing={3}>
+                    {renderSeasonality()}
                     {renderPricing()}
-                    {renderActions()}
+                    {renderFeatured()}
+                    <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
+                        {currentProduct ? 'Változtatások mentése' : 'Termék létrehozása'}
+                    </Button>
                 </Stack>
             </Box>
         </Form>
     );
 }
+
+
+function handleSeasonalityChange(field: any, optionValue: MonthKeys) {
+        const currentValue = field.value || [];
+        const newValues = currentValue.includes(optionValue)
+            ? currentValue.filter((v: MonthKeys) => v !== optionValue)
+            : [...currentValue, optionValue];
+        field.onChange(newValues);
+    }
+
+    function SeasonalityCheckboxGroup({ field }: Readonly<{ field: any }>) {
+        return (
+            <FormGroup>
+                {MONTH_OPTIONS.map((option) => (
+                    <FormControlLabel
+                        key={option.value}
+                        control={
+                            <Checkbox
+                                checked={(field.value || []).includes(option.value)}
+                                onChange={() => handleSeasonalityChange(field, option.value)}
+                            />
+                        }
+                        label={option.label}
+                    />
+                ))}
+            </FormGroup>
+        );
+    }

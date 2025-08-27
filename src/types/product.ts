@@ -44,7 +44,7 @@ export const Months = {
     November: "November",
     December: "December",
 } as const;
-type MonthKeys = keyof typeof Months;
+export type MonthKeys = keyof typeof Months;
 
 export type IProductItem = {
     storingInformation: any;
@@ -60,9 +60,9 @@ export type IProductItem = {
     maximumQuantity: number;
     url: string;
     slug: string;
-    unit:string;
+    unit: string;
     bio: boolean;
-    grossPrice:number;
+    grossPrice: number;
     salegrossPrice: number | null;
     netPrice: number;
     netPriceVIP: number;
@@ -93,7 +93,7 @@ export type IProductItem = {
     subDescription: string;
     priceSale: number | null;
     reviews: IProductReview[];
-    producerId :number;
+    producerId: number;
     producer?: IProducerItem;
     newLabel: {
         content: string;
@@ -108,16 +108,18 @@ export type IProductItem = {
         starCount: number;
         reviewCount: number;
     }[];
+    stock: number | null;
+    backorder: boolean;
 };
 
 export type IProductCategory = {
-    id:number;
-    name:string;
-    slug:string;
-    description:string;
-    created_at:Date;
-    parentId:number | null | undefined;
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    created_at: Date;
+    parentId: number | null | undefined;
     coverUrl: string;
-    enabled:boolean;
+    enabled: boolean;
     order: number;
 };
