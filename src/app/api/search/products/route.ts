@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     .from('Products')
     .select('*')
     .eq('publish', true)
-    .or(`name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`)
+    .or(`tags.ilike.%${q}%,name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`)
     .limit(limit);
 
 
