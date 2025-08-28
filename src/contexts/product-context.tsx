@@ -25,21 +25,21 @@ export interface ProductProviderProps {
     children: ReactNode;
     slug: string;
 }
-export function ProductProvider({ children, slug }: ProductProviderProps) {
+export function ProductProvider({ children, slug }: Readonly<ProductProviderProps>) {
     const [product, setProduct] = useState<IProductItem | null>(null);
     const [loading, setLoading] = useState(true);
-    const [loaderror, setError] = useState<string | null>(null);
+    const [loaderror, setLoaderror] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
             const { data, error } = await supabase.from("Products").select("*").eq('url', slug).maybeSingle();
             if (error) {
-                setError(error.message);
+                setLoaderror(error.message);
                 setProduct(null);
             } else {
                 setProduct(data ?? null);
-                setError(null);
+                setLoaderror(null);
             }
             console.log(data);
             setLoading(false);

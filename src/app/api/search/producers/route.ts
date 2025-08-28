@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
     .from('Products')
     .select('producerId')
     .eq('publish', true)
-    .ilike('name', searchTerm);
+    .or(`tags.ilike.%${q}%,name.ilike.${searchTerm}`);
+    
 
   const matchingProducerIds = matchingProducts?.map(p => p.producerId) ?? [];
 
