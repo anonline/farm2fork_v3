@@ -4,6 +4,7 @@ import { CONFIG } from 'src/global-config';
 import { ProductProvider } from 'src/contexts/product-context';
 import { CategoryProvider } from 'src/contexts/category-context';
 import { ProducersProvider } from 'src/contexts/producers-context';
+import { ProductCategoryConnectionProvider } from 'src/contexts/product-category-connection-context';
 
 import { ProductEditView } from 'src/sections/product/view';
 
@@ -22,7 +23,9 @@ export default async function Page({ params }: Readonly<Props>) {
     <ProductProvider slug={slug}>
       <ProducersProvider>
         <CategoryProvider>
-          <ProductEditView />
+          <ProductCategoryConnectionProvider>
+            <ProductEditView />
+          </ProductCategoryConnectionProvider>
         </CategoryProvider>
       </ProducersProvider>
     </ProductProvider>

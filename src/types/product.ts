@@ -123,3 +123,8 @@ export type IProductCategory = {
     enabled: boolean;
     order: number;
 };
+
+export type IProductCategoryConnection = {
+    productId: number;
+    categoryId: number;
+};

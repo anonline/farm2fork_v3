@@ -16,6 +16,7 @@ import { useRouter } from 'src/routes/hooks';
 import { uploadFile } from 'src/lib/blob/blobClient';
 import { useCategories } from 'src/contexts/category-context';
 import { useProducers } from 'src/contexts/producers-context';
+import { useProductCategoryConnection } from 'src/contexts/product-category-connection-context';
 import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCategoryRelations } from 'src/actions/product';
 
 import { toast } from 'src/components/snackbar';
@@ -88,6 +89,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
     const { categories, loading: categoriesLoading } = useCategories();
     const { producers } = useProducers();
+    const { connection } = useProductCategoryConnection();
 
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
@@ -95,33 +97,47 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     const openFeatured = useBoolean(true);
     const openSeasonality = useBoolean(true);
 
-    const defaultValues = useMemo<NewProductSchemaType>(() => ({
-        name: currentProduct?.name || '',
-        url: currentProduct?.url || '',
-        shortDescription: currentProduct?.shortDescription || '',
-        images: currentProduct?.images || [],
-        featuredImage: currentProduct?.featuredImage || null,
-        categoryIds: (currentProduct as any)?.ProductCategories_Products?.map(
-            (relation: any) => relation.ProductCategories.id
-        ).filter((id: number | null): id is number => id !== null) || [],
-        tags: currentProduct?.tags || [],
-        seasonality: currentProduct?.seasonality || [],
-        unit: currentProduct?.unit || '',
-        producerId: currentProduct?.producerId ?? null,
-        mininumQuantity: currentProduct?.mininumQuantity || 1,
-        maximumQuantity: currentProduct?.maximumQuantity || 10,
-        stepQuantity: currentProduct?.stepQuantity || 1,
-        netPrice: currentProduct?.netPrice || 0,
-        grossPrice: currentProduct?.grossPrice || 0,
-        vat: currentProduct?.vat || 27,
-        netPriceVIP: currentProduct?.netPriceVIP ?? null,
-        netPriceCompany: currentProduct?.netPriceCompany ?? null,
-        stock: currentProduct?.stock ?? null,
-        backorder: currentProduct?.backorder || false,
-        featured: currentProduct?.featured || false,
-        star: currentProduct?.star || false,
-        bio: currentProduct?.bio || false,
-    }), [currentProduct]);
+    const defaultValues = useMemo<NewProductSchemaType>(() => {
+        const assignedCategoryIds = currentProduct
+            ? connection
+                .filter(c => c.productId === currentProduct.id)
+                .map(c => c.categoryId)
+            : [];
+
+        let tags: string[] = [];
+        if (Array.isArray(currentProduct?.tags)) {
+            tags = currentProduct.tags;
+        } else if (currentProduct?.tags) {
+            tags = [currentProduct.tags];
+        }
+
+        return {
+            name: currentProduct?.name || '',
+            url: currentProduct?.url || '',
+            sku: currentProduct?.sku || '',
+            shortDescription: currentProduct?.shortDescription || '',
+            images: currentProduct?.images || [],
+            featuredImage: currentProduct?.featuredImage || null,
+            categoryIds: assignedCategoryIds,
+            tags,
+            seasonality: currentProduct?.seasonality || [],
+            unit: currentProduct?.unit || '',
+            producerId: currentProduct?.producerId ?? null,
+            mininumQuantity: currentProduct?.mininumQuantity || 1,
+            maximumQuantity: currentProduct?.maximumQuantity || 10,
+            stepQuantity: currentProduct?.stepQuantity || 1,
+            netPrice: currentProduct?.netPrice || 0,
+            grossPrice: currentProduct?.grossPrice || 0,
+            vat: currentProduct?.vat || 27,
+            netPriceVIP: currentProduct?.netPriceVIP ?? null,
+            netPriceCompany: currentProduct?.netPriceCompany ?? null,
+            stock: currentProduct?.stock ?? null,
+            backorder: currentProduct?.backorder || false,
+            featured: currentProduct?.featured || false,
+            star: currentProduct?.star || false,
+            bio: currentProduct?.bio || false,
+        }
+    }, [currentProduct, connection]);
 
     const methods = useForm<NewProductSchemaType>({
         resolver: zodResolver(NewProductSchema),
@@ -243,6 +259,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 <Stack spacing={3} sx={{ p: 3 }}>
                     <RHFTextField name="name" label="Termék név" onBlur={handleURLGenerate} />
                     <RHFTextField name="url" label="Termék URL" disabled />
+                    <RHFTextField name="sku" label="SKU (Azonosító)" />
                     <Field.Editor name="shortDescription" />
                     <Field.Upload multiple thumbnail name="images" />
                 </Stack>
@@ -309,7 +326,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                                     value={field.value || []}
                                     onChange={(event, newValue) => field.onChange(newValue)}
                                     renderTags={renderTagChips}
-                                    renderInput={(params) => <TextField label="Címkék" placeholder='A címkéket "," jellek válaszd el' {...params} />}
+                                    renderInput={(params) => <TextField label="Címkék" placeholder='A címkéket enter leütésével add hozzá' {...params} />}
                                 />
                             )}
                         />
@@ -375,7 +392,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         </Card>
     );
 
-    
+
 
     const renderSeasonality = () => (
         <Card>
@@ -420,28 +437,28 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
 
 function handleSeasonalityChange(field: any, optionValue: MonthKeys) {
-        const currentValue = field.value || [];
-        const newValues = currentValue.includes(optionValue)
-            ? currentValue.filter((v: MonthKeys) => v !== optionValue)
-            : [...currentValue, optionValue];
-        field.onChange(newValues);
-    }
+    const currentValue = field.value || [];
+    const newValues = currentValue.includes(optionValue)
+        ? currentValue.filter((v: MonthKeys) => v !== optionValue)
+        : [...currentValue, optionValue];
+    field.onChange(newValues);
+}
 
-    function SeasonalityCheckboxGroup({ field }: Readonly<{ field: any }>) {
-        return (
-            <FormGroup>
-                {MONTH_OPTIONS.map((option) => (
-                    <FormControlLabel
-                        key={option.value}
-                        control={
-                            <Checkbox
-                                checked={(field.value || []).includes(option.value)}
-                                onChange={() => handleSeasonalityChange(field, option.value)}
-                            />
-                        }
-                        label={option.label}
-                    />
-                ))}
-            </FormGroup>
-        );
-    }
+function SeasonalityCheckboxGroup({ field }: Readonly<{ field: any }>) {
+    return (
+        <FormGroup>
+            {MONTH_OPTIONS.map((option) => (
+                <FormControlLabel
+                    key={option.value}
+                    control={
+                        <Checkbox
+                            checked={(field.value || []).includes(option.value)}
+                            onChange={() => handleSeasonalityChange(field, option.value)}
+                        />
+                    }
+                    label={option.label}
+                />
+            ))}
+        </FormGroup>
+    );
+}
