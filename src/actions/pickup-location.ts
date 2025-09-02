@@ -5,27 +5,28 @@ import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
 
-
 export function useGetPickupLocations() {
-  const SWR_KEY = 'pickupLocations';
-  const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
-    const { data: locations, error: dbError } = await supabase
-      .from('PickupLocations')
-      .select('*')
-      .order('name', { ascending: true });
-    
-    if (dbError) throw new Error(dbError.message);
-    return locations as IPickupLocation[];
-  });
+    const SWR_KEY = 'pickupLocations';
+    const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
+        const { data: locations, error: dbError } = await supabase
+            .from('PickupLocations')
+            .select('*')
+            .order('name', { ascending: true });
 
-  return useMemo(() => ({
-      locations: data || [],
-      locationsLoading: isLoading,
-      locationsError: error,
-      locationsMutate: mutate,
-    }), [data, error, isLoading, mutate]);
+        if (dbError) throw new Error(dbError.message);
+        return locations as IPickupLocation[];
+    });
+
+    return useMemo(
+        () => ({
+            locations: data || [],
+            locationsLoading: isLoading,
+            locationsError: error,
+            locationsMutate: mutate,
+        }),
+        [data, error, isLoading, mutate]
+    );
 }
-
 
 export async function createPickupLocation(newData: Omit<IPickupLocation, 'id'>) {
     const { data, error } = await supabase
@@ -37,7 +38,10 @@ export async function createPickupLocation(newData: Omit<IPickupLocation, 'id'>)
     return data;
 }
 
-export async function updatePickupLocation(id: number, updatedData: Partial<Omit<IPickupLocation, 'id'>>) {
+export async function updatePickupLocation(
+    id: number,
+    updatedData: Partial<Omit<IPickupLocation, 'id'>>
+) {
     const { data, error } = await supabase
         .from('PickupLocations')
         .update(updatedData)
@@ -49,9 +53,6 @@ export async function updatePickupLocation(id: number, updatedData: Partial<Omit
 }
 
 export async function deletePickupLocation(id: number) {
-    const { error } = await supabase
-        .from('PickupLocations')
-        .delete()
-        .eq('id', id);
+    const { error } = await supabase.from('PickupLocations').delete().eq('id', id);
     if (error) throw new Error(error.message);
 }

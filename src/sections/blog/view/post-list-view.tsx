@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import type { IPostFilters } from 'src/types/blog';
 import type { IArticleItem } from 'src/types/article';
@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useArticles } from "src/contexts/articles-context";
+import { useArticles } from 'src/contexts/articles-context';
 import { POST_SORT_OPTIONS, POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
@@ -28,9 +28,15 @@ import { PostSort } from '../post-sort';
 import NewPostForm from './new-post-form';
 import PostListHorizontal from '../post-list-horizontal';
 
-
 export default function PostListView() {
-    const { articles = [], loading, createArticle, updateArticle, deleteArticle, refetchArticles } = useArticles();
+    const {
+        articles = [],
+        loading,
+        createArticle,
+        updateArticle,
+        deleteArticle,
+        refetchArticles,
+    } = useArticles();
 
     const [sortBy, setSortBy] = useState('latest');
     const { state: filters, setState: setFilters } = useSetState<IPostFilters>({ publish: 'all' });
@@ -40,7 +46,9 @@ export default function PostListView() {
     const dataFiltered = applyFilter({ inputData: articles, filters, sortBy });
 
     const handleFilterPublish = useCallback(
-        (event: React.SyntheticEvent, newValue: string) => { setFilters({ publish: newValue }); },
+        (event: React.SyntheticEvent, newValue: string) => {
+            setFilters({ publish: newValue });
+        },
         [setFilters]
     );
 
@@ -71,7 +79,7 @@ export default function PostListView() {
             handleCloseModal();
             toast.success(`A(z) ${data.title} bejegyzés sikeresen mentve.`);
         } catch (err) {
-            console.error("Mentési hiba:", err);
+            console.error('Mentési hiba:', err);
             if (err instanceof Error) {
                 toast.error(`Hiba történt a mentés során: ${err.message}`);
             } else {
@@ -86,7 +94,7 @@ export default function PostListView() {
             await refetchArticles();
             toast.warning(`A(z) ${postToDelete.title} bejegyzés sikeresen törölve.`);
         } catch (err) {
-            console.error("Törlési hiba:", err);
+            console.error('Törlési hiba:', err);
             if (err instanceof Error) {
                 alert(`Hiba történt a törlés során: ${err.message}`);
             } else {
@@ -105,32 +113,58 @@ export default function PostListView() {
                     { name: 'Összes hír' },
                 ]}
                 action={
-                    <Button onClick={handleOpenCreateModal} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
+                    <Button
+                        onClick={handleOpenCreateModal}
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                    >
                         Új hír
                     </Button>
                 }
-                
             />
 
-            <Box sx={{ gap: 3, display: 'flex', justifyContent: 'end', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-end', sm: 'center' } }}>
-                <PostSort sort={sortBy} onSort={(newValue: string) => setSortBy(newValue)} sortOptions={POST_SORT_OPTIONS} />
+            <Box
+                sx={{
+                    gap: 3,
+                    display: 'flex',
+                    justifyContent: 'end',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'flex-end', sm: 'center' },
+                }}
+            >
+                <PostSort
+                    sort={sortBy}
+                    onSort={(newValue: string) => setSortBy(newValue)}
+                    sortOptions={POST_SORT_OPTIONS}
+                />
             </Box>
 
-            <Tabs value={filters.publish} onChange={handleFilterPublish} sx={{ mb: { xs: 3, md: 3 } }}>
+            <Tabs
+                value={filters.publish}
+                onChange={handleFilterPublish}
+                sx={{ mb: { xs: 3, md: 3 } }}
+            >
                 {['all', 'published', 'draft'].map((tab) => (
                     <Tab
                         key={tab}
                         iconPosition="end"
                         value={tab}
-                        label={POST_PUBLISH_OPTIONS_LABELS.find(label => label.value === tab)?.label}
+                        label={
+                            POST_PUBLISH_OPTIONS_LABELS.find((label) => label.value === tab)?.label
+                        }
                         icon={
                             <Label
-                                variant={((tab === 'all' || tab === filters.publish) && 'filled') || 'soft'}
+                                variant={
+                                    ((tab === 'all' || tab === filters.publish) && 'filled') ||
+                                    'soft'
+                                }
                                 color={(tab === 'published' && 'info') || 'default'}
                             >
                                 {tab === 'all' && articles.length}
-                                {tab === 'published' && articles.filter((post) => post.publish === 'published').length}
-                                {tab === 'draft' && articles.filter((post) => post.publish === 'draft').length}
+                                {tab === 'published' &&
+                                    articles.filter((post) => post.publish === 'published').length}
+                                {tab === 'draft' &&
+                                    articles.filter((post) => post.publish === 'draft').length}
                             </Label>
                         }
                         sx={{ textTransform: 'capitalize' }}
@@ -139,7 +173,13 @@ export default function PostListView() {
             </Tabs>
 
             {loading && <p>Betöltés...</p>}
-            {!loading && <PostListHorizontal posts={dataFiltered} onEditPost={handleOpenEditModal} onDeletePost={handleDeletePost} />}
+            {!loading && (
+                <PostListHorizontal
+                    posts={dataFiltered}
+                    onEditPost={handleOpenEditModal}
+                    onDeletePost={handleDeletePost}
+                />
+            )}
 
             <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="sm">
                 <NewPostForm
@@ -151,7 +191,6 @@ export default function PostListView() {
         </DashboardContent>
     );
 }
-
 
 type ApplyFilterProps = {
     inputData: IArticleItem[];

@@ -45,7 +45,7 @@ const LINKS = [
             { name: 'Adatkezelési tájékoztató', href: '#' },
             { name: 'Kapcsolat', href: '#' },
         ],
-    }
+    },
 ];
 
 // ----------------------------------------------------------------------
@@ -54,7 +54,7 @@ const FooterRoot = styled('footer')(({ theme }) => ({
     position: 'relative',
     //backgroundColor: theme.vars.palette.background.default,
     backgroundColor: theme.vars.palette.primary.main,
-    color: theme.vars.palette.common.white
+    color: theme.vars.palette.common.white,
 }));
 
 export type FooterProps = React.ComponentProps<typeof FooterRoot>;
@@ -64,24 +64,61 @@ export function Footer({
     layoutQuery = 'md',
     ...other
 }: FooterProps & { layoutQuery?: Breakpoint }) {
-        return (
+    return (
         <FooterRoot sx={sx} {...other}>
-            <Container sx={{ mt: 3, mb: 6, display: 'flex', gap:{xs:3,md:1}, flexDirection: { xs:'column', md:'row'}, justifyContent: 'space-between', alignItems: 'start' }}>
-                <Box sx={{ width: "60%" }}>
-                    <Typography variant='h3' sx={{ textTransform: 'uppercase', mb: 1 }}>Iratkozz fel a hírlevelünkre!</Typography>
-                    <Typography variant='body2'>Minden héten értesítünk az újdonságokról</Typography>
+            <Container
+                sx={{
+                    mt: 3,
+                    mb: 6,
+                    display: 'flex',
+                    gap: { xs: 3, md: 1 },
+                    flexDirection: { xs: 'column', md: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: 'start',
+                }}
+            >
+                <Box sx={{ width: '60%' }}>
+                    <Typography variant="h3" sx={{ textTransform: 'uppercase', mb: 1 }}>
+                        Iratkozz fel a hírlevelünkre!
+                    </Typography>
+                    <Typography variant="body2">
+                        Minden héten értesítünk az újdonságokról
+                    </Typography>
                 </Box>
                 <Box>
-                    <Box sx={{gap:{xs:3,md:0}, display:'flex', alignItems:'flex-start', flexDirection:{xs:'column', md:'row'}}}>
-                    <TextField type='email' variant='filled' label="E-mail cím" placeholder="E-mail cím" sx={{
-                        mr: 2, mb:2, backgroundColor: 'white', borderRadius: "8px", Height: "25px", width: "300px"
-                    }} />
-                    <Button variant='outlined' sx={{ border: 1, color: 'white', padding: "8px 24px" }}>Feliratkozom</Button>
+                    <Box
+                        sx={{
+                            gap: { xs: 3, md: 0 },
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            flexDirection: { xs: 'column', md: 'row' },
+                        }}
+                    >
+                        <TextField
+                            type="email"
+                            variant="filled"
+                            label="E-mail cím"
+                            placeholder="E-mail cím"
+                            sx={{
+                                mr: 2,
+                                mb: 2,
+                                backgroundColor: 'white',
+                                borderRadius: '8px',
+                                Height: '25px',
+                                width: '300px',
+                            }}
+                        />
+                        <Button
+                            variant="outlined"
+                            sx={{ border: 1, color: 'white', padding: '8px 24px' }}
+                        >
+                            Feliratkozom
+                        </Button>
                     </Box>
                     <FormControlLabel
-                        value='mailchimp'
-                        label='Elfogadom az adatkezelési tájékoztatót'
-                        labelPlacement='end'
+                        value="mailchimp"
+                        label="Elfogadom az adatkezelési tájékoztatót"
+                        labelPlacement="end"
                         control={
                             <Checkbox
                                 size="medium"
@@ -106,8 +143,15 @@ export function Footer({
                     [theme.breakpoints.up(layoutQuery)]: { textAlign: 'unset' },
                 })}
             >
-
-                <Divider variant='middle' sx={{ mx: 'auto', width: "100%", borderBottomWidth: "1px", borderColor: '#F7F5EF80' }} />
+                <Divider
+                    variant="middle"
+                    sx={{
+                        mx: 'auto',
+                        width: '100%',
+                        borderBottomWidth: '1px',
+                        borderColor: '#F7F5EF80',
+                    }}
+                />
 
                 <Grid
                     container
@@ -121,13 +165,23 @@ export function Footer({
                         }),
                     ]}
                 >
-                    <Grid size={{ xs: 12, [layoutQuery]: 3 }} sx={{placeItems:{sx:'self-start', md:'center'}}}>
-                        <Logo isLight sx={{ width: {sx:"100%", md:"250px"}, height: "50px", textAlign:'left' }} />
+                    <Grid
+                        size={{ xs: 12, [layoutQuery]: 3 }}
+                        sx={{ placeItems: { sx: 'self-start', md: 'center' } }}
+                    >
+                        <Logo
+                            isLight
+                            sx={{
+                                width: { sx: '100%', md: '250px' },
+                                height: '50px',
+                                textAlign: 'left',
+                            }}
+                        />
 
                         <Typography
                             variant="body2"
                             sx={(theme) => ({
-                                mx: {sx:'left', md:'auto'},
+                                mx: { sx: 'left', md: 'auto' },
                                 mt: 3,
                                 maxWidth: 280,
                                 [theme.breakpoints.up(layoutQuery)]: { mx: 'unset' },
@@ -152,29 +206,48 @@ export function Footer({
                             })}
                         >
                             {_socials.map((social) => (
-                                <IconButton key={social.label} href={social.path}
+                                <IconButton
+                                    key={social.label}
+                                    href={social.path}
                                     sx={(theme) => ({
                                         color: theme.vars.palette.common.white,
                                         fontSize: theme.typography.fontSize,
-                                        justifyContent: "flex-start"
+                                        justifyContent: 'flex-start',
                                     })}
                                 >
                                     {social.value === 'email' && (
-                                        <><Iconify icon="solar:letter-bold" sx={{ mr: 2 }} /> {social.label} </>
+                                        <>
+                                            <Iconify icon="solar:letter-bold" sx={{ mr: 2 }} />{' '}
+                                            {social.label}{' '}
+                                        </>
                                     )}
                                     {social.value === 'phone' && (
-                                        <><Iconify icon="solar:phone-bold" sx={{ mr: 2 }} /> {social.label} </>
+                                        <>
+                                            <Iconify icon="solar:phone-bold" sx={{ mr: 2 }} />{' '}
+                                            {social.label}{' '}
+                                        </>
                                     )}
                                 </IconButton>
                             ))}
                         </Box>
 
-                        <Box sx={{ p: 1, background: 'white', borderRadius: 4, width: '80%', mt: 3, maxWidth:"250px" }}>
-                            <Image src={`${CONFIG.assetsDir}/assets/images/footer/simplepay-logos.webp`}/>
+                        <Box
+                            sx={{
+                                p: 1,
+                                background: 'white',
+                                borderRadius: 4,
+                                width: '80%',
+                                mt: 3,
+                                maxWidth: '250px',
+                            }}
+                        >
+                            <Image
+                                src={`${CONFIG.assetsDir}/assets/images/footer/simplepay-logos.webp`}
+                            />
                         </Box>
                     </Grid>
 
-                    <Grid size={{ xs: 12, [layoutQuery]: 6 }} sx={{mt:{xs:4,md:0}}}>
+                    <Grid size={{ xs: 12, [layoutQuery]: 6 }} sx={{ mt: { xs: 4, md: 0 } }}>
                         <Box
                             sx={(theme) => ({
                                 gap: 5,
@@ -190,7 +263,7 @@ export function Footer({
                                         gap: 2,
                                         width: 1,
                                         display: 'flex',
-                                        alignItems: {xs:'flex-start', md:'center'},
+                                        alignItems: { xs: 'flex-start', md: 'center' },
                                         flexDirection: 'column',
                                         [theme.breakpoints.up(layoutQuery)]: {
                                             alignItems: 'flex-start',
@@ -218,27 +291,46 @@ export function Footer({
                     </Grid>
                 </Grid>
 
-                <Divider variant='middle' sx={{ mx: 'auto', width: "100%", borderBottomWidth: "1px", borderColor: '#F7F5EF80' }} />
+                <Divider
+                    variant="middle"
+                    sx={{
+                        mx: 'auto',
+                        width: '100%',
+                        borderBottomWidth: '1px',
+                        borderColor: '#F7F5EF80',
+                    }}
+                />
 
-                <Container sx={{ mt: 3, mx: 0, padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', justifyItems: 'center', flexDirection: {xs:'column', md:'row'} }}>
-                    <Typography variant="body2" >
-                        2025 | Farm2Fork - All rights reserved.
-                    </Typography>
+                <Container
+                    sx={{
+                        mt: 3,
+                        mx: 0,
+                        padding: 0,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        justifyItems: 'center',
+                        flexDirection: { xs: 'column', md: 'row' },
+                    }}
+                >
+                    <Typography variant="body2">2025 | Farm2Fork - All rights reserved.</Typography>
                     <Box>
-                        <IconButton href="#"
+                        <IconButton
+                            href="#"
                             sx={(theme) => ({
                                 color: theme.vars.palette.common.white,
                                 fontSize: theme.typography.fontSize,
-                                justifyContent: "flex-start"
+                                justifyContent: 'flex-start',
                             })}
                         >
                             <Iconify icon="socials:instagram" sx={{ mr: 2 }} />
                         </IconButton>
-                        <IconButton href="#"
+                        <IconButton
+                            href="#"
                             sx={(theme) => ({
                                 color: theme.vars.palette.common.white,
                                 fontSize: theme.typography.fontSize,
-                                justifyContent: "flex-start"
+                                justifyContent: 'flex-start',
                             })}
                         >
                             <Iconify icon="socials:facebook" sx={{ mr: 2 }} />

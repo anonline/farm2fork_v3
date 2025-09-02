@@ -7,7 +7,5 @@ import ProfilRendelesekView from 'src/sections/profil/profil-rendelesek/view/pro
 export const metadata: Metadata = { title: `Profil - ${CONFIG.appName}` };
 
 export default function Page() {
-    return (
-        <ProfilRendelesekView/>    
-    );
-};
+    return <ProfilRendelesekView />;
+}

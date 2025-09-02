@@ -11,9 +11,9 @@ import { FaqsCategory } from '../faqs-category';
 type FaqsViewProps = {
     faqs: IFaqItem[];
     faqCategories: IFaqCategoryItem[];
-}
+};
 
-export function FaqsView({faqs, faqCategories}:Readonly<FaqsViewProps>) {
+export function FaqsView({ faqs, faqCategories }: Readonly<FaqsViewProps>) {
     return (
         <>
             <FaqsHero />
@@ -21,7 +21,7 @@ export function FaqsView({faqs, faqCategories}:Readonly<FaqsViewProps>) {
                 component="section"
                 sx={{ pb: 10, position: 'relative', pt: { xs: 10, md: 5 } }}
             >
-                <FaqsCategory faqCategories={faqCategories} faqs={faqs}/>
+                <FaqsCategory faqCategories={faqCategories} faqs={faqs} />
             </Container>
         </>
     );

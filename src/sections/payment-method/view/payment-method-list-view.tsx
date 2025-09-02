@@ -1,5 +1,5 @@
-import PaymentMethodList from "../payment-method-list";
+import PaymentMethodList from '../payment-method-list';
 
 export default function PaymentMethodListView() {
-    return <PaymentMethodList/>
+    return <PaymentMethodList />;
 }

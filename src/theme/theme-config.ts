@@ -13,9 +13,7 @@ type ThemeConfig = {
     defaultMode: ThemeColorScheme;
     cssVariables: ThemeCssVariables;
     fontFamily: Record<'primary' | 'secondary', string>;
-    textColor: Record<
-        'default' | 'muted' | 'grey',
-        string>,
+    textColor: Record<'default' | 'muted' | 'grey', string>;
     palette: Record<
         'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error',
         PaletteColorNoChannels
@@ -47,7 +45,7 @@ export const themeConfig: ThemeConfig = {
     textColor: {
         default: '#262626',
         muted: '#26262666',
-        grey: '#4d4d4d'
+        grey: '#4d4d4d',
     },
     /** **************************************
      * Palette

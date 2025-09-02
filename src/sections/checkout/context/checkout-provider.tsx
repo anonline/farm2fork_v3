@@ -93,9 +93,11 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
     // Get the appropriate surcharge percentage based on user type
     const getSurchargePercent = useCallback(() => {
-
-        if(state.selectedPaymentMethod != undefined 
-            && (state.selectedPaymentMethod?.slug == 'utanvet' || state.selectedPaymentMethod?.slug == 'utalas')){
+        if (
+            state.selectedPaymentMethod != undefined &&
+            (state.selectedPaymentMethod?.slug == 'utanvet' ||
+                state.selectedPaymentMethod?.slug == 'utalas')
+        ) {
             return 0;
         }
 
@@ -115,8 +117,11 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
     const updateTotals = useCallback(() => {
         const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
-        const subtotal = state.items.reduce((total, item) => total + (item.custom == true ? 1 : item.quantity) * item.price, 0);
-        
+        const subtotal = state.items.reduce(
+            (total, item) => total + (item.custom == true ? 1 : item.quantity) * item.price,
+            0
+        );
+
         // Calculate surcharge based on subtotal and user type
         const surchargePercent = getSurchargePercent();
         const surcharge = (subtotal * surchargePercent) / 100;
@@ -124,12 +129,22 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         setField('subtotal', subtotal);
         setField('totalItems', totalItems);
         setField('surcharge', surcharge);
-        
+
         // Calculate payment method additional cost
         const paymentAdditionalCost = state.selectedPaymentMethod?.additionalCost || 0;
-        
-        setField('total', subtotal + surcharge - state.discount + state.shipping + paymentAdditionalCost);
-    }, [setField, state.discount, state.items, state.shipping, state.selectedPaymentMethod, getSurchargePercent]);
+
+        setField(
+            'total',
+            subtotal + surcharge - state.discount + state.shipping + paymentAdditionalCost
+        );
+    }, [
+        setField,
+        state.discount,
+        state.items,
+        state.shipping,
+        state.selectedPaymentMethod,
+        getSurchargePercent,
+    ]);
 
     useEffect(() => {
         const initializeCheckout = async () => {
@@ -152,7 +167,18 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         if (!loading) {
             updateTotals();
         }
-    }, [state.items, surchargePublic, surchargeVIP, surchargeCompany, authenticated, user?.user_metadata?.is_vip, user?.user_metadata?.is_corp, user?.user_metadata?.is_admin, updateTotals, loading]);
+    }, [
+        state.items,
+        surchargePublic,
+        surchargeVIP,
+        surchargeCompany,
+        authenticated,
+        user?.user_metadata?.is_vip,
+        user?.user_metadata?.is_corp,
+        user?.user_metadata?.is_admin,
+        updateTotals,
+        loading,
+    ]);
 
     const onChangeStep = useCallback(
         (type: 'back' | 'next' | 'go', step?: number) => {
@@ -216,18 +242,19 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
                     }
 
                     if (quantity % (item.stepQuantity ?? 1) != 0) {
-                        quantity = Math.round(quantity / (item.stepQuantity ?? 1)) * (item.stepQuantity ?? 1);
+                        quantity =
+                            Math.round(quantity / (item.stepQuantity ?? 1)) *
+                            (item.stepQuantity ?? 1);
                     }
 
                     if (quantity > (item.maxQuantity ?? 100)) {
                         quantity = item.maxQuantity ?? 100;
                     }
-                    
+
                     //If we are modifying custom item, we do not know the price so keep the base price
-                    if(item.custom === true){
+                    if (item.custom === true) {
                         item.subtotal = item.price;
-                    }
-                    else {
+                    } else {
                         item.subtotal = item.price * quantity;
                     }
 
@@ -283,11 +310,29 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         }
     }, [completed, resetState]);
 
-    const onAddNote = useCallback((itemId: number, note: string) => {
-        if (note.trim().length > 0) {
+    const onAddNote = useCallback(
+        (itemId: number, note: string) => {
+            if (note.trim().length > 0) {
+                const updatedItems = state.items.map((item) => {
+                    if (item.id === itemId) {
+                        item.note = note.trim();
+                        return { ...item };
+                    }
+                    return item;
+                });
+
+                setField('items', updatedItems);
+                // Note: No need to update totals for note changes
+            }
+        },
+        [setField, state.items]
+    );
+
+    const onDeleteNote = useCallback(
+        (itemId: number) => {
             const updatedItems = state.items.map((item) => {
                 if (item.id === itemId) {
-                    item.note = note.trim();
+                    item.note = undefined;
                     return { ...item };
                 }
                 return item;
@@ -295,41 +340,41 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
             setField('items', updatedItems);
             // Note: No need to update totals for note changes
-        }
-    }, [setField, state.items]);
+        },
+        [setField, state.items]
+    );
 
-    const onDeleteNote = useCallback((itemId: number) => {
-        const updatedItems = state.items.map((item) => {
-            if (item.id === itemId) {
-                item.note = undefined;
-                return { ...item };
-            }
-            return item;
-        });
+    const onUpdateNotificationEmails = useCallback(
+        (emails: string[]) => {
+            setField('notificationEmails', emails);
+        },
+        [setField]
+    );
 
-        setField('items', updatedItems);
-        // Note: No need to update totals for note changes
-    }, [setField, state.items]);
+    const onUpdateDeliveryComment = useCallback(
+        (comment: string) => {
+            setField('deliveryComment', comment);
+        },
+        [setField]
+    );
 
-    const onUpdateNotificationEmails = useCallback((emails: string[]) => {
-        setField('notificationEmails', emails);
-    }, [setField]);
-
-    const onUpdateDeliveryComment = useCallback((comment: string) => {
-        setField('deliveryComment', comment);
-    }, [setField]);
-
-    const onUpdateDeliveryDateTime = useCallback((dateTime: string | null) => {
-        setField('selectedDeliveryDateTime', dateTime);
-    }, [setField]);
+    const onUpdateDeliveryDateTime = useCallback(
+        (dateTime: string | null) => {
+            setField('selectedDeliveryDateTime', dateTime);
+        },
+        [setField]
+    );
 
     const onResetDeliveryDateTime = useCallback(() => {
         setField('selectedDeliveryDateTime', null);
     }, [setField]);
 
-    const onUpdatePaymentMethod = useCallback((paymentMethod: IPaymentMethod | null) => {
-        setField('selectedPaymentMethod', paymentMethod);
-    }, [setField]);
+    const onUpdatePaymentMethod = useCallback(
+        (paymentMethod: IPaymentMethod | null) => {
+            setField('selectedPaymentMethod', paymentMethod);
+        },
+        [setField]
+    );
 
     const memoizedValue = useMemo(
         () => ({
@@ -360,7 +405,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onUpdateDeliveryComment,
             onUpdateDeliveryDateTime,
             onResetDeliveryDateTime,
-            onUpdatePaymentMethod
+            onUpdatePaymentMethod,
         }),
         [
             state,
@@ -386,7 +431,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             onUpdateDeliveryComment,
             onUpdateDeliveryDateTime,
             onResetDeliveryDateTime,
-            onUpdatePaymentMethod
+            onUpdatePaymentMethod,
         ]
     );
 

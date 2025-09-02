@@ -7,7 +7,5 @@ import ProfilEditAddressView from 'src/sections/profil/profil-edit-address/view/
 export const metadata: Metadata = { title: `Profil - ${CONFIG.appName}` };
 
 export default function Page() {
-    return (
-        <ProfilEditAddressView/>    
-    );
-};
+    return <ProfilEditAddressView />;
+}

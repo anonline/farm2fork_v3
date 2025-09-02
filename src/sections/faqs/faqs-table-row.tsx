@@ -1,4 +1,4 @@
-import type { IFaqItem } from 'src/types/faq'
+import type { IFaqItem } from 'src/types/faq';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
@@ -59,12 +59,11 @@ export function FaqTableRow({ row, selected, onSelectRow, onDeleteRow, detailsHr
             </TableCell>*/}
             <TableCell>
                 <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-
                     <Label variant="soft">
-                            {row.faqCategory ? row.faqCategory.name : 'Ismeretlen'}
+                        {row.faqCategory ? row.faqCategory.name : 'Ismeretlen'}
                     </Label>
                 </Box>
-                </TableCell>
+            </TableCell>
             <TableCell>
                 <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
                     <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
@@ -102,13 +101,11 @@ export function FaqTableRow({ row, selected, onSelectRow, onDeleteRow, detailsHr
                     sx={{ bgcolor: 'background.neutral' }}
                 >
                     <Paper sx={{ m: 1.5 }}>
-                        
                         <Editor
                             fullItem={false}
                             value={row.answer}
                             onChange={(value) => null}
                             sx={{ maxHeight: 750 }}
-                            
                         />
                     </Paper>
                 </Collapse>

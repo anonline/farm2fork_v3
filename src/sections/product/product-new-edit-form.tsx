@@ -72,28 +72,34 @@ export const NewProductSchema = zod.object({
     bio: zod.boolean(),
     priceSale: zod.number({ coerce: true }).nullable(),
     saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
-    netPrice: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes nettó árat!" })
+    netPrice: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' }),
-    grossPrice: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes bruttó árat!" })
+    grossPrice: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' }),
-    salegrossPrice: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes bruttó árat!" })
+    salegrossPrice: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
         .nullable(),
-    netPriceVIP: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes VIP nettó árat!" })
+    netPriceVIP: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' }),
-    netPriceCompany: zod.number({ coerce: true })
-        .int({ message: "Kérjük, adjon meg egy érvényes Céges nettó árat!" })
+    netPriceCompany: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' }),
-    vat: zod.number({ coerce: true })
+    vat: zod
+        .number({ coerce: true })
         .int({ message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
         .max(100, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
@@ -147,12 +153,12 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
         defaultValues,
         values: currentProduct
             ? {
-                ...currentProduct,
-                category:
-                    Array.isArray(currentProduct.category) && currentProduct.category.length > 0
-                        ? currentProduct.category[0].name || ''
-                        : '',
-            }
+                  ...currentProduct,
+                  category:
+                      Array.isArray(currentProduct.category) && currentProduct.category.length > 0
+                          ? currentProduct.category[0].name || ''
+                          : '',
+              }
             : undefined,
     });
 
@@ -226,8 +232,22 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
 
     const generateSlug = (name: string) => {
         const hungarianMap: Record<string, string> = {
-            'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o',
-            'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O'
+            á: 'a',
+            é: 'e',
+            ő: 'o',
+            ú: 'u',
+            ű: 'u',
+            ó: 'o',
+            ü: 'u',
+            ö: 'o',
+            Á: 'A',
+            É: 'E',
+            Ő: 'O',
+            Ú: 'U',
+            Ű: 'U',
+            Ó: 'O',
+            Ü: 'U',
+            Ö: 'O',
         };
         const slug = name
             .split('')
@@ -237,8 +257,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
             .replace(/[^a-zA-Z0-9-]/g, '')
             .toLowerCase();
         return slug;
-    }
-
+    };
 
     const renderDetails = () => (
         <Card>
@@ -255,20 +274,28 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                 <Stack spacing={3} sx={{ p: 3 }}>
                     <Field.Text name="name" label="Termék név" onBlur={handleURLGenerate} />
 
-                    <Field.Text name="url" label="Termék URL" slotProps={{ input: { readOnly: true } }} variant='filled' />
+                    <Field.Text
+                        name="url"
+                        label="Termék URL"
+                        slotProps={{ input: { readOnly: true } }}
+                        variant="filled"
+                    />
 
                     <Field.Text name="cardText" label="Kártyán megjelenő rövid leírás" />
 
                     <Stack spacing={1.5}>
                         <Typography variant="subtitle2">Leírás</Typography>
-                        <Field.Editor name="shortDescription" sx={{ maxHeight: 580 }} placeholder='Írja be a termék leírását...' />
+                        <Field.Editor
+                            name="shortDescription"
+                            sx={{ maxHeight: 580 }}
+                            placeholder="Írja be a termék leírását..."
+                        />
                     </Stack>
 
                     <Stack spacing={1.5}>
                         <Typography variant="subtitle2">Galéria</Typography>
                         <Field.Upload
                             multiple
-
                             thumbnail
                             name="images"
                             maxSize={10 * 1024 * 1024}
@@ -303,8 +330,14 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
                         }}
                     >
-                        <Field.Editor name="usageInformation" placeholder="Felhasználási információk" />
-                        <Field.Editor name="storingInformation" placeholder="Tárolási információk" />
+                        <Field.Editor
+                            name="usageInformation"
+                            placeholder="Felhasználási információk"
+                        />
+                        <Field.Editor
+                            name="storingInformation"
+                            placeholder="Tárolási információk"
+                        />
 
                         <Field.NumberInput
                             name="mininumQuantity"
@@ -315,8 +348,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             digits={2}
                             slotProps={{
                                 inputWrapper: {
-                                    sx: { width: '100%' }
-                                }
+                                    sx: { width: '100%' },
+                                },
                             }}
                         />
 
@@ -329,8 +362,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             digits={2}
                             slotProps={{
                                 inputWrapper: {
-                                    sx: { width: '100%' }
-                                }
+                                    sx: { width: '100%' },
+                                },
                             }}
                         />
 
@@ -343,8 +376,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             digits={2}
                             slotProps={{
                                 inputWrapper: {
-                                    sx: { width: '100%' }
-                                }
+                                    sx: { width: '100%' },
+                                },
                             }}
                         />
 
@@ -419,8 +452,6 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             sx={{ gap: 2 }}
                         />
                     </Stack>
-
-
                 </Stack>
             </Collapse>
         </Card>
@@ -598,8 +629,6 @@ export function ProductNewEditForm({ currentProduct }: Readonly<ProductNewEditFo
                             },
                         }}
                     />
-
-
                 </Stack>
             </Collapse>
         </Card>

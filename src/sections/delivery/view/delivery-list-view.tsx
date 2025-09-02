@@ -1,7 +1,11 @@
 'use client';
 
 import type { IDeliveryPerson } from 'src/types/delivery';
-import type { GridColDef, GridRowSelectionModel, GridColumnVisibilityModel } from '@mui/x-data-grid';
+import type {
+    GridColDef,
+    GridRowSelectionModel,
+    GridColumnVisibilityModel,
+} from '@mui/x-data-grid';
 
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/navigation';
@@ -38,9 +42,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-
 // ----------------------------------------------------------------------
-
 
 export default function DeliveryListView() {
     const router = useRouter();
@@ -55,7 +57,9 @@ export default function DeliveryListView() {
     const [openSingleDeleteConfirm, setOpenSingleDeleteConfirm] = useState(false);
     const [deliveryToDelete, setDeliveryToDelete] = useState<IDeliveryPerson | null>(null);
 
-    const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({});
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>(
+        {}
+    );
 
     useEffect(() => {
         setColumnVisibilityModel({
@@ -168,16 +172,14 @@ export default function DeliveryListView() {
             <Container maxWidth={false}>
                 <CustomBreadcrumbs
                     heading="Futárok"
-                    links={[
-                        { name: 'Dashboard', href: paths.dashboard.root },
-                        { name: 'Futárok' },
-                    ]}
+                    links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Futárok' }]}
                     action={
                         <Button
                             component={RouterLink}
                             href={paths.dashboard.delivery.new}
                             variant="contained"
-                            startIcon={<Iconify icon="mingcute:add-line" />}>
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                        >
                             Új futár
                         </Button>
                     }
@@ -199,27 +201,39 @@ export default function DeliveryListView() {
                         slots={{
                             toolbar: MemoizedToolbar,
                         }}
-                        onRowSelectionModelChange={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
+                        onRowSelectionModelChange={(newSelectionModel) =>
+                            setSelectedRowIds(newSelectionModel)
+                        }
                         rowSelectionModel={selectedRowIds}
                         columnVisibilityModel={columnVisibilityModel}
-                        onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+                        onColumnVisibilityModelChange={(newModel) =>
+                            setColumnVisibilityModel(newModel)
+                        }
                     />
                 </Card>
             </Container>
 
-            <Dialog open={openSingleDeleteConfirm} onClose={() => setOpenSingleDeleteConfirm(false)}>
+            <Dialog
+                open={openSingleDeleteConfirm}
+                onClose={() => setOpenSingleDeleteConfirm(false)}
+            >
                 <DialogTitle>Törlés Megerősítése</DialogTitle>
 
                 <DialogContent>
                     <Typography>
-                        Biztosan törölni szeretnéd a(z) <strong>{deliveryToDelete?.name}</strong> nevű futárt?
+                        Biztosan törölni szeretnéd a(z) <strong>{deliveryToDelete?.name}</strong>{' '}
+                        nevű futárt?
                     </Typography>
                 </DialogContent>
 
                 <DialogActions>
-                    <Button onClick={() => setOpenSingleDeleteConfirm(false)} color="inherit">Mégse</Button>
+                    <Button onClick={() => setOpenSingleDeleteConfirm(false)} color="inherit">
+                        Mégse
+                    </Button>
 
-                    <Button onClick={confirmSingleDelete} color="error" variant="contained">Törlés</Button>
+                    <Button onClick={confirmSingleDelete} color="error" variant="contained">
+                        Törlés
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -228,20 +242,24 @@ export default function DeliveryListView() {
 
                 <DialogContent>
                     <Typography>
-                        Biztosan törölni szeretnéd a kiválasztott <strong>{selectedRowIds.length}</strong> elemet?
+                        Biztosan törölni szeretnéd a kiválasztott{' '}
+                        <strong>{selectedRowIds.length}</strong> elemet?
                     </Typography>
                 </DialogContent>
 
                 <DialogActions>
-                    <Button onClick={() => setOpenBulkDeleteConfirm(false)} color="inherit">Mégse</Button>
+                    <Button onClick={() => setOpenBulkDeleteConfirm(false)} color="inherit">
+                        Mégse
+                    </Button>
 
-                    <Button onClick={confirmBulkDelete} color="error" variant="contained">Törlés</Button>
+                    <Button onClick={confirmBulkDelete} color="error" variant="contained">
+                        Törlés
+                    </Button>
                 </DialogActions>
             </Dialog>
         </>
     );
-};
-
+}
 
 export const formatPhoneNumber = (value: string | number | null | undefined) => {
     if (!value) return '';
@@ -259,8 +277,10 @@ export const formatPhoneNumber = (value: string | number | null | undefined) => 
     return formatted;
 };
 
-
-function CustomToolbar({ selectedRowCount, onBulkDeleteClick }: Readonly<{ selectedRowCount: number, onBulkDeleteClick: () => void }>) {
+function CustomToolbar({
+    selectedRowCount,
+    onBulkDeleteClick,
+}: Readonly<{ selectedRowCount: number; onBulkDeleteClick: () => void }>) {
     return (
         <GridToolbarContainer>
             <GridToolbarQuickFilter placeholder="Keresés..." />
@@ -280,10 +300,9 @@ function CustomToolbar({ selectedRowCount, onBulkDeleteClick }: Readonly<{ selec
             <GridToolbarFilterButton />
         </GridToolbarContainer>
     );
-};
+}
 
-
-function RenderCellName({ row, href }: Readonly<{ row: { name: string }, href: string }>) {
+function RenderCellName({ row, href }: Readonly<{ row: { name: string }; href: string }>) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
             <ListItemText
@@ -303,4 +322,4 @@ function RenderCellName({ row, href }: Readonly<{ row: { name: string }, href: s
             />
         </Box>
     );
-};
+}

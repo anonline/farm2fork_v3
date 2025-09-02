@@ -96,7 +96,7 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
             ]}
             {...other}
         >
-            <NavUl sx={{ gap: 2, }}>
+            <NavUl sx={{ gap: 2 }}>
                 {/*<NavLi
                     sx={(theme) => ({
                         mb: 0.75,

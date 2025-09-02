@@ -9,18 +9,18 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import ProducerNewEditForm from '../producer-new-edit-form';
 
 export default function ProducerCreateView() {
-  return (
-    <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Új termelő"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Termelők', href: paths.dashboard.producer.root },
-          { name: 'Új termelő' },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-      <ProducerNewEditForm />
-    </DashboardContent>
-  );
+    return (
+        <DashboardContent>
+            <CustomBreadcrumbs
+                heading="Új termelő"
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Termelők', href: paths.dashboard.producer.root },
+                    { name: 'Új termelő' },
+                ]}
+                sx={{ mb: { xs: 3, md: 5 } }}
+            />
+            <ProducerNewEditForm />
+        </DashboardContent>
+    );
 }

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import type { SubmitHandler } from 'react-hook-form';
 import type { IArticleItem } from 'src/types/article';
@@ -13,9 +13,12 @@ import { Switch, Container, FormControlLabel } from '@mui/material';
 
 const PostSchema = zod.object({
     title: zod.string().min(3, { message: 'A címnek legalább 3 karakter hosszúnak kell lennie!' }),
-    year: zod.string()
+    year: zod
+        .string()
         .length(4, { message: 'Az évszámnak pontosan 4 karakterből kell állnia!' })
-        .refine((val) => !isNaN(parseInt(val, 10)), { message: 'Az évszám csak számjegyeket tartalmazhat!' }),
+        .refine((val) => !isNaN(parseInt(val, 10)), {
+            message: 'Az évszám csak számjegyeket tartalmazhat!',
+        }),
     medium: zod.string().min(1, { message: 'A médium megadása kötelező!' }),
     link: zod.string().url({ message: 'Érvénytelen URL formátum!' }).or(zod.literal('')),
     image: zod.string().url({ message: 'Érvénytelen kép URL formátum!' }).or(zod.literal('')),
@@ -61,37 +64,43 @@ export function PostEditView({ post }: Readonly<Props>) {
         <Container maxWidth="lg">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Stack spacing={3}>
-                    <TextField {...register('title')}
+                    <TextField
+                        {...register('title')}
                         label="Title"
                         error={!!errors.title}
                         helperText={errors.title?.message}
                     />
 
-                    <TextField {...register('year')}
+                    <TextField
+                        {...register('year')}
                         label="Year"
                         error={!!errors.year}
                         helperText={errors.year?.message}
                     />
 
-                    <TextField {...register('medium')}
+                    <TextField
+                        {...register('medium')}
                         label="Medium"
                         error={!!errors.medium}
                         helperText={errors.medium?.message}
                     />
 
-                    <TextField {...register('link')}
+                    <TextField
+                        {...register('link')}
                         label="Link"
                         error={!!errors.link}
                         helperText={errors.link?.message}
                     />
 
-                    <TextField {...register('image')}
+                    <TextField
+                        {...register('image')}
                         label="Image URL"
                         error={!!errors.image}
                         helperText={errors.image?.message}
                     />
 
-                    <TextField {...register('publish_date')}
+                    <TextField
+                        {...register('publish_date')}
                         label="Publish Date"
                         type="date"
                         InputLabelProps={{ shrink: true }}
@@ -101,7 +110,12 @@ export function PostEditView({ post }: Readonly<Props>) {
 
                     <FormControlLabel
                         label="Publish"
-                        control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
+                        control={
+                            <Switch
+                                defaultChecked
+                                slotProps={{ input: { id: 'publish-switch' } }}
+                            />
+                        }
                         sx={{ pl: 3, flexGrow: 1 }}
                     />
                 </Stack>

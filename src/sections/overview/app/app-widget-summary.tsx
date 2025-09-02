@@ -28,7 +28,17 @@ type Props = CardProps & {
     suffix?: string;
 };
 
-export function AppWidgetSummary({ title, percent, total, chart, sx, subtitle = 'az elmúlt 30 napban', link, suffix, ...other }: Props) {
+export function AppWidgetSummary({
+    title,
+    percent,
+    total,
+    chart,
+    sx,
+    subtitle = 'az elmúlt 30 napban',
+    link,
+    suffix,
+    ...other
+}: Props) {
     const theme = useTheme();
 
     const chartColors = chart.colors ?? [theme.palette.primary.main];
@@ -41,7 +51,7 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, subtitle = 
         tooltip: {
             y: {
                 formatter: (value: number) => `${fNumber(value)}${suffix ?? ''}`,
-                title: { formatter: () => '' }
+                title: { formatter: () => '' },
             },
         },
         plotOptions: { bar: { borderRadius: 1.5, columnWidth: '64%' } },
@@ -93,9 +103,10 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, subtitle = 
                 {link ? (
                     <Link href={link}>
                         <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
-                    </Link>) : (
-                        <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
-                    )}
+                    </Link>
+                ) : (
+                    <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
+                )}
                 <Box sx={{ mt: 1.5, mb: 1, typography: 'h3' }}>{fNumber(total)}</Box>
 
                 {renderTrending()}

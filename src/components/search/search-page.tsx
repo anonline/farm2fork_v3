@@ -63,18 +63,21 @@ export default function SearchPage() {
     );
 }
 
-function SearchPageProductGrid({ products, isLoading }: Readonly<{ products: IProductItem[], isLoading: boolean }>) {
+function SearchPageProductGrid({
+    products,
+    isLoading,
+}: Readonly<{ products: IProductItem[]; isLoading: boolean }>) {
     let content;
 
     if (isLoading) {
         content = Array.from({ length: 5 }).map((_, index) => (
-            <Grid size={{xs:6, sm:4, lg:2.4}} key={'prod_skeleton_' + index}>
+            <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={'prod_skeleton_' + index}>
                 <Skeleton variant="rectangular" height={320} />
             </Grid>
         ));
     } else if (products.length > 0) {
         content = products.map((product) => (
-            <Grid size={{xs:6, sm:4, lg:2.4}} key={product.id}>
+            <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={product.id}>
                 <ProductCard product={product} />
             </Grid>
         ));
@@ -88,9 +91,7 @@ function SearchPageProductGrid({ products, isLoading }: Readonly<{ products: IPr
 
     return (
         <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '30px' }}>
-                Termékek
-            </h2>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '30px' }}>Termékek</h2>
             <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>
                 {content}
             </Grid>
@@ -98,18 +99,21 @@ function SearchPageProductGrid({ products, isLoading }: Readonly<{ products: IPr
     );
 }
 
-function SearchPageProducerGrid({ producers, isLoading }: Readonly<{ producers: IProducerItem[], isLoading: boolean }>) {
+function SearchPageProducerGrid({
+    producers,
+    isLoading,
+}: Readonly<{ producers: IProducerItem[]; isLoading: boolean }>) {
     let content;
 
     if (isLoading) {
         content = Array.from({ length: 5 }).map((_, index) => (
-            <Grid size={{xs:6, sm:4, lg:2.4}} key={'producer_skeleton_' + index}>
+            <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={'producer_skeleton_' + index}>
                 <Skeleton variant="rectangular" height={320} />
             </Grid>
         ));
     } else if (producers.length > 0) {
         content = producers.map((producer) => (
-            <Grid size={{xs:6, sm:4, lg:2.4}} key={producer.id}>
+            <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={producer.id}>
                 <ProducerCard producer={producer} />
             </Grid>
         ));
@@ -123,7 +127,9 @@ function SearchPageProducerGrid({ producers, isLoading }: Readonly<{ producers: 
 
     return (
         <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '30px', marginTop: '40px' }}>
+            <h2
+                style={{ fontSize: '20px', fontWeight: 700, lineHeight: '30px', marginTop: '40px' }}
+            >
                 Termelők
             </h2>
             <Grid container spacing="9px" justifyContent="start" style={{ marginTop: '20px' }}>

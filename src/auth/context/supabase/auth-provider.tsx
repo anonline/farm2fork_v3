@@ -23,7 +23,7 @@ type Props = {
 };
 
 export function AuthProvider({ children }: Readonly<Props>) {
-    const { state, setState } = useSetState<AuthState>({ user: null, loading: true});
+    const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
 
     const checkUserSession = useCallback(async () => {
         try {
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
                 console.error(error);
                 throw error;
             }
-            
+
             if (session) {
                 const accessToken = session?.access_token;
                 const payload = JSON.parse(atob(accessToken.split('.')[1]));
@@ -50,7 +50,6 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
                 setState({ user: { ...session, ...session?.user }, loading: false });
                 axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-
             } else {
                 setState({ user: null, loading: false });
                 delete axios.defaults.headers.common.Authorization;

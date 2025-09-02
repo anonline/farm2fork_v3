@@ -1,5 +1,5 @@
-import ShippingList from "../shipping-list";
+import ShippingList from '../shipping-list';
 
- export default function ShippingListView(){
-    return <ShippingList/>
- }
+export default function ShippingListView() {
+    return <ShippingList />;
+}

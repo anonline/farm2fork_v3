@@ -25,7 +25,12 @@ type Props = {
     activeStep?: CheckoutContextValue['activeStep'];
 };
 
-export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, activeStep }: Readonly<Props>) {
+export function CheckoutSummary({
+    onEdit,
+    checkoutState,
+    onApplyDiscount,
+    activeStep,
+}: Readonly<Props>) {
     const { shipping, subtotal, discount, surcharge, total } = checkoutState;
 
     const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';
@@ -36,9 +41,7 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, active
 
     return (
         <Card sx={{ mb: 3 }}>
-            <CardHeader
-                title="Vásárlás részletei"
-            />
+            <CardHeader title="Vásárlás részletei" />
 
             {activeStep && (
                 <Box sx={{ flex: 1, overflow: 'hidden' }}>
@@ -46,18 +49,15 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, active
                         <Stack spacing={0} sx={{ p: 2 }}>
                             {checkoutState.items.map((item, index) => (
                                 <Box key={item.id}>
-                                    <SideCartItem
-                                    item={item}
-                                    hideControl
-                                />
-                                {index < checkoutState.items.length - 1 && (
-                                    <Divider sx={{ my: 2 }} />
-                                )}
-                            </Box>
-                        ))}
-                    </Stack>
-                </Scrollbar>
-            </Box>
+                                    <SideCartItem item={item} hideControl />
+                                    {index < checkoutState.items.length - 1 && (
+                                        <Divider sx={{ my: 2 }} />
+                                    )}
+                                </Box>
+                            ))}
+                        </Stack>
+                    </Scrollbar>
+                </Box>
             )}
 
             <Stack spacing={2} sx={{ p: 3 }}>
@@ -102,20 +102,21 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, active
                     </Box>
                 )}
 
-                {checkoutState.selectedPaymentMethod?.additionalCost != undefined && checkoutState.selectedPaymentMethod.additionalCost > 0 && (
-                    <Box sx={{ ...rowStyles }}>
-                        <Typography
-                            component="span"
-                            variant="body2"
-                            sx={{ flexGrow: 1, color: 'text.secondary' }}
-                        >
-                            Fizetési mód felár
-                        </Typography>
-                        <Typography component="span" variant="subtitle2">
-                            {fCurrency(checkoutState.selectedPaymentMethod.additionalCost)}
-                        </Typography>
-                    </Box>
-                )}
+                {checkoutState.selectedPaymentMethod?.additionalCost != undefined &&
+                    checkoutState.selectedPaymentMethod.additionalCost > 0 && (
+                        <Box sx={{ ...rowStyles }}>
+                            <Typography
+                                component="span"
+                                variant="body2"
+                                sx={{ flexGrow: 1, color: 'text.secondary' }}
+                            >
+                                Fizetési mód felár
+                            </Typography>
+                            <Typography component="span" variant="subtitle2">
+                                {fCurrency(checkoutState.selectedPaymentMethod.additionalCost)}
+                            </Typography>
+                        </Box>
+                    )}
 
                 <Box sx={{ ...rowStyles }}>
                     <Typography
@@ -125,8 +126,22 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, active
                     >
                         Szállítás
                     </Typography>
-                    <Typography component="span" variant="subtitle2" sx={{ fontStyle: 'italic', fontWeight: '400', fontSize: '14px', lineHeight: '22px', color: '#979594' }}>
-                        {shipping != undefined ? (shipping == 0 ? 'Ingyenes' : fCurrency(shipping)) : displayShipping}
+                    <Typography
+                        component="span"
+                        variant="subtitle2"
+                        sx={{
+                            fontStyle: 'italic',
+                            fontWeight: '400',
+                            fontSize: '14px',
+                            lineHeight: '22px',
+                            color: '#979594',
+                        }}
+                    >
+                        {shipping != undefined
+                            ? shipping == 0
+                                ? 'Ingyenes'
+                                : fCurrency(shipping)
+                            : displayShipping}
                     </Typography>
                 </Box>
 
@@ -141,7 +156,12 @@ export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount, active
                         <Typography
                             component="span"
                             variant="subtitle1"
-                            sx={{ display: 'block', fontWeight: '600', fontSize: '28px', lineHeight: '40px' }}
+                            sx={{
+                                display: 'block',
+                                fontWeight: '600',
+                                fontSize: '28px',
+                                lineHeight: '40px',
+                            }}
                         >
                             kb. {fCurrency(total)}
                         </Typography>

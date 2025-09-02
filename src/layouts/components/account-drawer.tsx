@@ -211,8 +211,6 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                     </Box>
 
                     {renderList()}
-
-                    
                 </Scrollbar>
 
                 <Box sx={{ p: 2.5 }}>

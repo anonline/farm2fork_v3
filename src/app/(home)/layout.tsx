@@ -17,5 +17,5 @@ export default function Layout({ children }: Readonly<Props>) {
                 </PartnersProvider>
             </StarProductsProvider>
         </FeaturedProductsProvider>
-    )
+    );
 }

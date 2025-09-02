@@ -21,8 +21,11 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
 
-export function OverviewAppView({totalUsers,usersByMonthAtLastYear,newUsersPercent}:Readonly<{totalUsers: number, usersByMonthAtLastYear: number[], newUsersPercent: number}>) {
-
+export function OverviewAppView({
+    totalUsers,
+    usersByMonthAtLastYear,
+    newUsersPercent,
+}: Readonly<{ totalUsers: number; usersByMonthAtLastYear: number[]; newUsersPercent: number }>) {
     const theme = useTheme();
 
     return (
@@ -70,9 +73,13 @@ export function OverviewAppView({totalUsers,usersByMonthAtLastYear,newUsersPerce
                     />
                 </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
-          <AllUserWidget total={totalUsers} series={usersByMonthAtLastYear} percent={newUsersPercent} />
-        </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <AllUserWidget
+                        total={totalUsers}
+                        series={usersByMonthAtLastYear}
+                        percent={newUsersPercent}
+                    />
+                </Grid>
 
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                     <AppCurrentDownload

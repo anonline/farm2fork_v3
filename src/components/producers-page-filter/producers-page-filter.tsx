@@ -1,16 +1,16 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent } from 'react';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import { Box, TextField, InputAdornment } from "@mui/material";
+import { Box, TextField, InputAdornment } from '@mui/material';
 
-import { SortingOrder } from "src/types/search";
+import { SortingOrder } from 'src/types/search';
 
-import F2FIcons from "../f2ficons/f2ficons";
+import F2FIcons from '../f2ficons/f2ficons';
 
 type Props = {
-    onChange: (filters: { keyword: string; direction: SortingOrder }) => void
-}
+    onChange: (filters: { keyword: string; direction: SortingOrder }) => void;
+};
 
 export default function ProducersPageFilter({ onChange }: Props) {
     const orderBys = [
@@ -21,9 +21,9 @@ export default function ProducersPageFilter({ onChange }: Props) {
 
     const handleChangeSorting = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setCurrentSorting(event.target.value);
-    }
+    };
 
-    const [currentSorting, setCurrentSorting] = useState(orderBys[0].value)
+    const [currentSorting, setCurrentSorting] = useState(orderBys[0].value);
     const [keyword, setKeyword] = useState('');
 
     useEffect(() => {
@@ -32,13 +32,20 @@ export default function ProducersPageFilter({ onChange }: Props) {
             direction = SortingOrder.Descending;
         }
         onChange({ keyword, direction });
-    }, [keyword, currentSorting])
+    }, [keyword, currentSorting]);
 
     return (
-        <Box sx={{ border: '1px solid #bababa', backgroundColor: '#f5f5f5', padding: '16px 16px', borderRadius: '8px' }}>
+        <Box
+            sx={{
+                border: '1px solid #bababa',
+                backgroundColor: '#f5f5f5',
+                padding: '16px 16px',
+                borderRadius: '8px',
+            }}
+        >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <TextField
-                    variant='outlined'
+                    variant="outlined"
                     fullWidth
                     size="small"
                     placeholder="Keress rá a termelő nevére"
@@ -56,9 +63,8 @@ export default function ProducersPageFilter({ onChange }: Props) {
                     }}
                 />
                 <TextField
-                    variant='outlined'
+                    variant="outlined"
                     select
-
                     size="small"
                     value={currentSorting}
                     style={{ backgroundColor: '#fff', width: '300px' }}

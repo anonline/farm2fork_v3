@@ -1,5 +1,5 @@
 export interface IDeliveryPerson {
-  id: number;
-  name: string;
-  phone: string;
+    id: number;
+    name: string;
+    phone: string;
 }

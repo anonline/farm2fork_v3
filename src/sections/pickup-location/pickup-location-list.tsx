@@ -33,16 +33,19 @@ import {
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { createPickupLocation, updatePickupLocation, deletePickupLocation, useGetPickupLocations } from 'src/actions/pickup-location';
+import {
+    createPickupLocation,
+    updatePickupLocation,
+    deletePickupLocation,
+    useGetPickupLocations,
+} from 'src/actions/pickup-location';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { RHFSwitch, RHFTextField } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-
 // ----------------------------------------------------------------------
-
 
 export default function PickupLocationListView() {
     const theme = useTheme();
@@ -50,45 +53,56 @@ export default function PickupLocationListView() {
 
     const { locations, locationsLoading, locationsMutate } = useGetPickupLocations();
 
-    const [dialogState, setDialogState] = useState({ open: false, view: 'form' as 'form' | 'confirmDelete' });
+    const [dialogState, setDialogState] = useState({
+        open: false,
+        view: 'form' as 'form' | 'confirmDelete',
+    });
     const [editingLocation, setEditingLocation] = useState<IPickupLocation | null>(null);
 
-    const defaultValues = useMemo(() => ({
-        name: '',
-        postcode: '',
-        city: '',
-        address: '',
-        note: '',
-        enabled: true,
-        mondayOpen: null as any,
-        mondayClose: null as any,
-        mondayClosed: false,
-        tuesdayOpen: null as any,
-        tuesdayClose: null as any,
-        tuesdayClosed: false,
-        wednesdayOpen: null as any,
-        wednesdayClose: null as any,
-        wednesdayClosed: false,
-        thursdayOpen: null as any,
-        thursdayClose: null as any,
-        thursdayClosed: false,
-        fridayOpen: null as any,
-        fridayClose: null as any,
-        fridayClosed: false,
-        saturdayOpen: null as any,
-        saturdayClose: null as any,
-        saturdayClosed: false,
-        sundayOpen: null as any,
-        sundayClose: null as any,
-        sundayClosed: false,
-    }), []);
+    const defaultValues = useMemo(
+        () => ({
+            name: '',
+            postcode: '',
+            city: '',
+            address: '',
+            note: '',
+            enabled: true,
+            mondayOpen: null as any,
+            mondayClose: null as any,
+            mondayClosed: false,
+            tuesdayOpen: null as any,
+            tuesdayClose: null as any,
+            tuesdayClosed: false,
+            wednesdayOpen: null as any,
+            wednesdayClose: null as any,
+            wednesdayClosed: false,
+            thursdayOpen: null as any,
+            thursdayClose: null as any,
+            thursdayClosed: false,
+            fridayOpen: null as any,
+            fridayClose: null as any,
+            fridayClosed: false,
+            saturdayOpen: null as any,
+            saturdayClose: null as any,
+            saturdayClosed: false,
+            sundayOpen: null as any,
+            sundayClose: null as any,
+            sundayClosed: false,
+        }),
+        []
+    );
 
     const rhfMethods = useForm<PickupLocationSchemaType>({
         resolver: zodResolver(PickupLocationSchema),
         defaultValues,
     });
 
-    const { reset, control, handleSubmit, formState: { isSubmitting } } = rhfMethods;
+    const {
+        reset,
+        control,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = rhfMethods;
 
     const handleOpenNew = () => {
         reset(defaultValues);
@@ -108,7 +122,7 @@ export default function PickupLocationListView() {
             return {
                 open: openTime.isValid() ? openTime : null,
                 close: closeTime.isValid() ? closeTime : null,
-                closed: false
+                closed: false,
             };
         }
 
@@ -184,10 +198,22 @@ export default function PickupLocationListView() {
                 enabled: data.enabled,
                 monday: formatTimeRange(data.mondayOpen, data.mondayClose, data.mondayClosed),
                 tuesday: formatTimeRange(data.tuesdayOpen, data.tuesdayClose, data.tuesdayClosed),
-                wednesday: formatTimeRange(data.wednesdayOpen, data.wednesdayClose, data.wednesdayClosed),
-                thursday: formatTimeRange(data.thursdayOpen, data.thursdayClose, data.thursdayClosed),
+                wednesday: formatTimeRange(
+                    data.wednesdayOpen,
+                    data.wednesdayClose,
+                    data.wednesdayClosed
+                ),
+                thursday: formatTimeRange(
+                    data.thursdayOpen,
+                    data.thursdayClose,
+                    data.thursdayClosed
+                ),
                 friday: formatTimeRange(data.fridayOpen, data.fridayClose, data.fridayClosed),
-                saturday: formatTimeRange(data.saturdayOpen, data.saturdayClose, data.saturdayClosed),
+                saturday: formatTimeRange(
+                    data.saturdayOpen,
+                    data.saturdayClose,
+                    data.saturdayClosed
+                ),
                 sunday: formatTimeRange(data.sundayOpen, data.sundayClose, data.sundayClosed),
             };
 
@@ -225,7 +251,7 @@ export default function PickupLocationListView() {
                 width: 80,
                 align: 'center' as const,
                 headerAlign: 'center' as const,
-                renderCell: (params: any) => <RenderCellBoolean value={params.value} />
+                renderCell: (params: any) => <RenderCellBoolean value={params.value} />,
             },
             { field: 'name', headerName: 'Név', flex: 1, minWidth: 180 },
         ];
@@ -236,7 +262,7 @@ export default function PickupLocationListView() {
             baseColumns.push(
                 { field: 'city', headerName: 'Város', width: 150 },
                 { field: 'address', headerName: 'Cím', flex: 1, minWidth: 200 },
-                { field: 'note', headerName: 'Megjegyzés', width: 200 },
+                { field: 'note', headerName: 'Megjegyzés', width: 200 }
             );
         }
 
@@ -252,7 +278,7 @@ export default function PickupLocationListView() {
                     icon={<Iconify icon="solar:pen-bold" />}
                     label="Szerkesztés"
                     onClick={() => handleOpenEdit(row)}
-                />
+                />,
             ],
         });
 
@@ -265,11 +291,21 @@ export default function PickupLocationListView() {
                 <>
                     <DialogTitle>Törlés Megerősítése</DialogTitle>
                     <DialogContent>
-                        <Typography>Biztosan törölni szeretnéd a(z) <strong>{editingLocation?.name}</strong> átvételi pontot?</Typography>
+                        <Typography>
+                            Biztosan törölni szeretnéd a(z) <strong>{editingLocation?.name}</strong>{' '}
+                            átvételi pontot?
+                        </Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setDialogState({ ...dialogState, view: 'form' })} color="inherit">Vissza</Button>
-                        <Button onClick={handleDelete} color="error">Törlés</Button>
+                        <Button
+                            onClick={() => setDialogState({ ...dialogState, view: 'form' })}
+                            color="inherit"
+                        >
+                            Vissza
+                        </Button>
+                        <Button onClick={handleDelete} color="error">
+                            Törlés
+                        </Button>
                     </DialogActions>
                 </>
             );
@@ -278,7 +314,11 @@ export default function PickupLocationListView() {
         return (
             <FormProvider {...rhfMethods}>
                 <form onSubmit={onSubmit}>
-                    <DialogTitle>{editingLocation ? `"${editingLocation.name}" szerkesztése` : 'Új átvételi pont'}</DialogTitle>
+                    <DialogTitle>
+                        {editingLocation
+                            ? `"${editingLocation.name}" szerkesztése`
+                            : 'Új átvételi pont'}
+                    </DialogTitle>
                     <DialogContent>
                         <Grid container spacing={3} sx={{ pt: 1 }}>
                             {/* Left Column - Basic Data */}
@@ -287,18 +327,26 @@ export default function PickupLocationListView() {
                                     <Typography variant="h6">Alapadatok</Typography>
                                     <RHFTextField name="name" label="Név" />
                                     <Stack direction="row" spacing={2}>
-                                        <RHFTextField name="postcode" label="Irányítószám" sx={{ maxWidth: 150 }} />
+                                        <RHFTextField
+                                            name="postcode"
+                                            label="Irányítószám"
+                                            sx={{ maxWidth: 150 }}
+                                        />
                                         <RHFTextField name="city" label="Város" />
                                     </Stack>
                                     <RHFTextField name="address" label="Cím" />
-                                    <RHFTextField name="note" label="Megjegyzés" multiline rows={3} />
+                                    <RHFTextField
+                                        name="note"
+                                        label="Megjegyzés"
+                                        multiline
+                                        rows={3}
+                                    />
                                     <RHFSwitch name="enabled" label="Aktív" />
                                 </Stack>
                             </Grid>
 
                             {/* Right Column - Opening Hours */}
                             <Grid size={{ xs: 12, md: 6 }}>
-
                                 <Stack spacing={3}>
                                     <Typography variant="h6">Nyitvatartás</Typography>
 
@@ -309,7 +357,12 @@ export default function PickupLocationListView() {
                                                 control={control}
                                                 render={({ field }) => (
                                                     <FormControlLabel
-                                                        control={<Switch {...field} checked={field.value} />}
+                                                        control={
+                                                            <Switch
+                                                                {...field}
+                                                                checked={field.value}
+                                                            />
+                                                        }
                                                         label={`${day.label} - Zárva`}
                                                         sx={{ mb: 1 }}
                                                     />
@@ -320,7 +373,11 @@ export default function PickupLocationListView() {
                                                 name={`${day.field}Closed` as any}
                                                 control={control}
                                                 render={({ field: { value: isClosed } }) => (
-                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Stack
+                                                        direction="row"
+                                                        spacing={1}
+                                                        alignItems="center"
+                                                    >
                                                         <Controller
                                                             name={`${day.field}Open` as any}
                                                             control={control}
@@ -334,8 +391,10 @@ export default function PickupLocationListView() {
                                                                     slotProps={{
                                                                         textField: {
                                                                             fullWidth: true,
-                                                                            variant: isClosed ? 'filled' : 'outlined'
-                                                                        }
+                                                                            variant: isClosed
+                                                                                ? 'filled'
+                                                                                : 'outlined',
+                                                                        },
                                                                     }}
                                                                 />
                                                             )}
@@ -354,8 +413,10 @@ export default function PickupLocationListView() {
                                                                     slotProps={{
                                                                         textField: {
                                                                             fullWidth: true,
-                                                                            variant: isClosed ? 'filled' : 'outlined'
-                                                                        }
+                                                                            variant: isClosed
+                                                                                ? 'filled'
+                                                                                : 'outlined',
+                                                                        },
                                                                     }}
                                                                 />
                                                             )}
@@ -372,7 +433,9 @@ export default function PickupLocationListView() {
                     <DialogActions>
                         {editingLocation && (
                             <Button
-                                onClick={() => setDialogState({ ...dialogState, view: 'confirmDelete' })}
+                                onClick={() =>
+                                    setDialogState({ ...dialogState, view: 'confirmDelete' })
+                                }
                                 color="error"
                                 variant="outlined"
                             >
@@ -380,7 +443,9 @@ export default function PickupLocationListView() {
                             </Button>
                         )}
                         <Box sx={{ flexGrow: 1 }} />
-                        <Button onClick={handleCloseDialog} color="inherit">Mégse</Button>
+                        <Button onClick={handleCloseDialog} color="inherit">
+                            Mégse
+                        </Button>
                         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                             {editingLocation ? 'Mentés' : 'Létrehozás'}
                         </LoadingButton>
@@ -397,7 +462,7 @@ export default function PickupLocationListView() {
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
                     { name: 'Beállítások' },
-                    { name: 'Átvételi Pontok' }
+                    { name: 'Átvételi Pontok' },
                 ]}
                 action={
                     <Button
@@ -426,7 +491,7 @@ export default function PickupLocationListView() {
                 fullWidth
                 maxWidth="lg"
                 PaperProps={{
-                    sx: { minHeight: '600px' }
+                    sx: { minHeight: '600px' },
                 }}
             >
                 {renderDialogContent()}
@@ -435,9 +500,7 @@ export default function PickupLocationListView() {
     );
 }
 
-
 // ----------------------------------------------------------------------
-
 
 const PickupLocationSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező' }),
@@ -482,15 +545,17 @@ const WEEKDAYS = [
 ];
 
 function RenderCellBoolean({ value }: Readonly<{ value: boolean }>) {
-    return <Chip
-        icon={<Iconify icon={value ? 'solar:check-circle-bold' : 'solar:close-circle-bold'} />}
-        color={value ? 'success' : 'error'}
-        size="small"
-        sx={{
-            width: '24px',
-            '& .MuiChip-icon': {
-                ml: 1.5
-            }
-        }}
-    />;
+    return (
+        <Chip
+            icon={<Iconify icon={value ? 'solar:check-circle-bold' : 'solar:close-circle-bold'} />}
+            color={value ? 'success' : 'error'}
+            size="small"
+            sx={{
+                width: '24px',
+                '& .MuiChip-icon': {
+                    ml: 1.5,
+                },
+            }}
+        />
+    );
 }

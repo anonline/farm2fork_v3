@@ -7,7 +7,6 @@ import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 import LinearProgress from '@mui/material/LinearProgress';
 
-
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
@@ -27,9 +26,7 @@ export function CheckoutBillingInfo({ checkoutState, onChangeStep, loading, sx, 
 
     return (
         <Card sx={[{ mb: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
-            <CardHeader
-                title="Szállítási cím"
-            />
+            <CardHeader title="Szállítási cím" />
             <Stack spacing={1} sx={{ p: 3 }}>
                 {loading ? (
                     renderLoading()
@@ -40,7 +37,7 @@ export function CheckoutBillingInfo({ checkoutState, onChangeStep, loading, sx, 
                             <Box
                                 component="span"
                                 sx={{ color: 'text.secondary', typography: 'body2' }}
-                             />
+                            />
                         </Box>
 
                         <Box sx={{ color: 'text.secondary', typography: 'body2' }}>
@@ -50,8 +47,9 @@ export function CheckoutBillingInfo({ checkoutState, onChangeStep, loading, sx, 
                             {delivery?.phoneNumber}
                         </Box>
                         <Box sx={{ color: 'text.secondary', typography: 'body2' }}>
-                            Értesítési e-mail címek: <br />{notificationEmails.map(email => (
-                                <Box key={email} component="span" sx={{ display: 'block', pl:2 }}>
+                            Értesítési e-mail címek: <br />
+                            {notificationEmails.map((email) => (
+                                <Box key={email} component="span" sx={{ display: 'block', pl: 2 }}>
                                     {email}
                                 </Box>
                             ))}

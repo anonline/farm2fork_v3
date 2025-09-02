@@ -1,1 +1,1 @@
-export * from './termelok-view'
+export * from './termelok-view';

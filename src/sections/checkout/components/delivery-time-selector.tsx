@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 import {
@@ -10,7 +9,7 @@ import {
     Button,
     Typography,
     CardActionArea,
-    CircularProgress
+    CircularProgress,
 } from '@mui/material';
 
 import { useGetPickupTimes, useGetDeliveryDates } from 'src/actions/shipping-date';
@@ -34,13 +33,17 @@ export function DeliveryTimeSelector({
 }: DeliveryTimeSelectorProps) {
     const [showAll, setShowAll] = useState(false);
 
-    const { deliveryDates, loading: deliveryLoading, error: deliveryError } = useGetDeliveryDates(
-        isHomeDelivery ? zipCode || null : null
-    );
+    const {
+        deliveryDates,
+        loading: deliveryLoading,
+        error: deliveryError,
+    } = useGetDeliveryDates(isHomeDelivery ? zipCode || null : null);
 
-    const { pickupTimes, loading: pickupLoading, error: pickupError } = useGetPickupTimes(
-        !isHomeDelivery ? pickupLocationId || null : null
-    );
+    const {
+        pickupTimes,
+        loading: pickupLoading,
+        error: pickupError,
+    } = useGetPickupTimes(!isHomeDelivery ? pickupLocationId || null : null);
 
     const loading = isHomeDelivery ? deliveryLoading : pickupLoading;
     const error = isHomeDelivery ? deliveryError : pickupError;
@@ -50,23 +53,39 @@ export function DeliveryTimeSelector({
         if (!loading && !error) {
             if (isHomeDelivery && deliveryDates.length > 0) {
                 // For home delivery: auto-select first available if none selected or current selection not available
-                const firstAvailable = deliveryDates.find(date => date.isAvailable);
-                const currentSelectionValid = selectedDateTime && deliveryDates.find(date => date.date === selectedDateTime && date.isAvailable);
+                const firstAvailable = deliveryDates.find((date) => date.isAvailable);
+                const currentSelectionValid =
+                    selectedDateTime &&
+                    deliveryDates.find(
+                        (date) => date.date === selectedDateTime && date.isAvailable
+                    );
 
                 if (firstAvailable && !currentSelectionValid) {
                     onDateTimeChange(firstAvailable.date);
                 }
             } else if (!isHomeDelivery && pickupTimes.length > 0) {
                 // For pickup: auto-select first available if none selected or current selection not available
-                const firstAvailable = pickupTimes.find(time => time.isAvailable);
-                const currentSelectionValid = selectedDateTime && pickupTimes.find(time => time.date === selectedDateTime && time.isAvailable);
+                const firstAvailable = pickupTimes.find((time) => time.isAvailable);
+                const currentSelectionValid =
+                    selectedDateTime &&
+                    pickupTimes.find((time) => time.date === selectedDateTime && time.isAvailable);
 
                 if (firstAvailable && !currentSelectionValid) {
                     onDateTimeChange(firstAvailable.date);
                 }
             }
         }
-    }, [loading, error, isHomeDelivery, deliveryDates, pickupTimes, selectedDateTime, onDateTimeChange, zipCode, pickupLocationId]);
+    }, [
+        loading,
+        error,
+        isHomeDelivery,
+        deliveryDates,
+        pickupTimes,
+        selectedDateTime,
+        onDateTimeChange,
+        zipCode,
+        pickupLocationId,
+    ]);
 
     // Handler for date/time selection
     const handleDateTimeChange = (dateTime: string) => {
@@ -98,8 +117,12 @@ export function DeliveryTimeSelector({
 
     if (isHomeDelivery) {
         // Determine which dates to show
-        const datesToShow = showAll ? deliveryDates : (selectedDateTime ? deliveryDates.filter(date => date.date === selectedDateTime) : []);
-        const availableDatesCount = deliveryDates.filter(date => date.isAvailable).length;
+        const datesToShow = showAll
+            ? deliveryDates
+            : selectedDateTime
+              ? deliveryDates.filter((date) => date.date === selectedDateTime)
+              : [];
+        const availableDatesCount = deliveryDates.filter((date) => date.isAvailable).length;
 
         return (
             <Box>
@@ -112,10 +135,12 @@ export function DeliveryTimeSelector({
                                 cursor: date.isAvailable ? 'pointer' : 'not-allowed',
                                 opacity: date.isAvailable ? 1 : 0.6,
                                 transition: 'all 0.2s',
-                                '&:hover': date.isAvailable ? {
-                                    borderColor: 'primary.main',
-                                    bgcolor: 'background.paper',
-                                } : {},
+                                '&:hover': date.isAvailable
+                                    ? {
+                                          borderColor: 'primary.main',
+                                          bgcolor: 'background.paper',
+                                      }
+                                    : {},
                                 ...(selectedDateTime === date.date && {
                                     borderColor: 'primary.main',
                                     //bgcolor: 'primary.lighter',
@@ -135,7 +160,7 @@ export function DeliveryTimeSelector({
                                         checked={selectedDateTime === date.date}
                                         disabled={!date.isAvailable}
                                         color="primary"
-                                        onChange={() => { }} // Prevent default radio behavior
+                                        onChange={() => {}} // Prevent default radio behavior
                                     />
 
                                     <Box sx={{ flex: 1 }}>
@@ -144,7 +169,9 @@ export function DeliveryTimeSelector({
                                             sx={{
                                                 fontWeight: 500,
                                                 fontSize: '16px',
-                                                color: date.isAvailable ? 'text.primary' : 'text.disabled'
+                                                color: date.isAvailable
+                                                    ? 'text.primary'
+                                                    : 'text.disabled',
                                             }}
                                         >
                                             {date.displayDate}
@@ -177,8 +204,12 @@ export function DeliveryTimeSelector({
     }
 
     // Personal pickup times
-    const timesToShow = showAll ? pickupTimes : (selectedDateTime ? pickupTimes.filter(time => time.date === selectedDateTime) : []);
-    const availableTimesCount = pickupTimes.filter(time => time.isAvailable).length;
+    const timesToShow = showAll
+        ? pickupTimes
+        : selectedDateTime
+          ? pickupTimes.filter((time) => time.date === selectedDateTime)
+          : [];
+    const availableTimesCount = pickupTimes.filter((time) => time.isAvailable).length;
 
     return (
         <Box>
@@ -191,10 +222,12 @@ export function DeliveryTimeSelector({
                             cursor: time.isAvailable ? 'pointer' : 'not-allowed',
                             opacity: time.isAvailable ? 1 : 0.6,
                             transition: 'all 0.2s',
-                            '&:hover': time.isAvailable ? {
-                                borderColor: 'primary.main',
-                                bgcolor: 'background.paper',
-                            } : {},
+                            '&:hover': time.isAvailable
+                                ? {
+                                      borderColor: 'primary.main',
+                                      bgcolor: 'background.paper',
+                                  }
+                                : {},
                             ...(selectedDateTime === time.date && {
                                 borderColor: 'primary.main',
                                 //bgcolor: 'primary.lighter',
@@ -214,7 +247,7 @@ export function DeliveryTimeSelector({
                                     checked={selectedDateTime === time.date}
                                     disabled={!time.isAvailable}
                                     color="primary"
-                                    onChange={() => { }} // Prevent default radio behavior
+                                    onChange={() => {}} // Prevent default radio behavior
                                 />
 
                                 <Box sx={{ flex: 1 }}>
@@ -223,7 +256,9 @@ export function DeliveryTimeSelector({
                                         sx={{
                                             fontWeight: 500,
                                             fontSize: '16px',
-                                            color: time.isAvailable ? 'text.primary' : 'text.disabled'
+                                            color: time.isAvailable
+                                                ? 'text.primary'
+                                                : 'text.disabled',
                                         }}
                                     >
                                         {time.displayDate} {time.timeRange}
@@ -242,11 +277,7 @@ export function DeliveryTimeSelector({
 
                 {/* Show/Hide button */}
                 {selectedDateTime && availableTimesCount > 1 && (
-                    <Button
-                        variant="outlined"
-                        onClick={() => setShowAll(!showAll)}
-                        sx={{ mt: 1 }}
-                    >
+                    <Button variant="outlined" onClick={() => setShowAll(!showAll)} sx={{ mt: 1 }}>
                         {showAll ? 'Kevesebb mutatása' : `Összes időpont mutatása`}
                     </Button>
                 )}

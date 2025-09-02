@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import type { CardProps } from '@mui/material/Card';
 import type { IArticleItem } from 'src/types/article';
@@ -59,8 +59,7 @@ export function PostItemHorizontal({ sx, post, onEdit, onDelete, ...other }: Pro
             <DialogContent>
                 <Typography>
                     Biztosan törölni szeretnéd a(z) <strong>{post.title}</strong> című bejegyzést?
-                    <br />
-                    A művelet nem vonható vissza.
+                    <br />A művelet nem vonható vissza.
                 </Typography>
             </DialogContent>
             <DialogActions>
@@ -82,11 +81,22 @@ export function PostItemHorizontal({ sx, post, onEdit, onDelete, ...other }: Pro
             slotProps={{ arrow: { placement: 'bottom-center' } }}
         >
             <MenuList>
-                <MenuItem component="a" href={post.link} target="_blank" rel="noopener noreferrer" onClick={() => menuActions.onClose()}>
+                <MenuItem
+                    component="a"
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => menuActions.onClose()}
+                >
                     <Iconify icon="solar:eye-bold" />
                     Megnyitás
                 </MenuItem>
-                <MenuItem onClick={() => { onEdit(); menuActions.onClose(); }}>
+                <MenuItem
+                    onClick={() => {
+                        onEdit();
+                        menuActions.onClose();
+                    }}
+                >
                     <Iconify icon="solar:pen-bold" />
                     Szerkesztés
                 </MenuItem>
@@ -102,11 +112,28 @@ export function PostItemHorizontal({ sx, post, onEdit, onDelete, ...other }: Pro
         <>
             <Card sx={[{ display: 'flex' }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
                 <Stack spacing={1} sx={{ flexGrow: 1, p: 3 }}>
-                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Label variant="soft" color={(post.publish === 'published' && 'info') || 'default'}>
-                            {POST_PUBLISH_OPTIONS_LABELS.find(label => label.value === post.publish)?.label}
+                    <Box
+                        sx={{
+                            mb: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Label
+                            variant="soft"
+                            color={(post.publish === 'published' && 'info') || 'default'}
+                        >
+                            {
+                                POST_PUBLISH_OPTIONS_LABELS.find(
+                                    (label) => label.value === post.publish
+                                )?.label
+                            }
                         </Label>
-                        <Box component="span" sx={{ typography: 'caption', color: 'text.disabled' }}>
+                        <Box
+                            component="span"
+                            sx={{ typography: 'caption', color: 'text.disabled' }}
+                        >
                             {fDate(post.publish_date)}
                         </Box>
                     </Box>
@@ -118,21 +145,52 @@ export function PostItemHorizontal({ sx, post, onEdit, onDelete, ...other }: Pro
                             {post.medium}
                         </Typography>
                     </Stack>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', gap: 1 }}>
-                            {post.categories.length > 0 ? post.categories.map(cat => (
-                                <Label variant="soft" color="default" key={cat.id}>
-                                    {cat.title}
-                                </Label>
-                            )) : 'Nincs kategória'}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'start',
+                                gap: 1,
+                            }}
+                        >
+                            {post.categories.length > 0
+                                ? post.categories.map((cat) => (
+                                      <Label variant="soft" color="default" key={cat.id}>
+                                          {cat.title}
+                                      </Label>
+                                  ))
+                                : 'Nincs kategória'}
                         </Box>
-                        <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
+                        <IconButton
+                            color={menuActions.open ? 'inherit' : 'default'}
+                            onClick={menuActions.onOpen}
+                        >
                             <Iconify icon="eva:more-horizontal-fill" />
                         </IconButton>
                     </Box>
                 </Stack>
-                <Box sx={{ p: 1, width: 240, height: 240, flexShrink: 0, position: 'relative', display: { xs: 'none', sm: 'block' } }}>
-                    <Image alt={post.title} src={post.image} sx={{ height: 1, borderRadius: 1.5 }} />
+                <Box
+                    sx={{
+                        p: 1,
+                        width: 240,
+                        height: 240,
+                        flexShrink: 0,
+                        position: 'relative',
+                        display: { xs: 'none', sm: 'block' },
+                    }}
+                >
+                    <Image
+                        alt={post.title}
+                        src={post.image}
+                        sx={{ height: 1, borderRadius: 1.5 }}
+                    />
                 </Box>
             </Card>
             {renderMenuActions()}

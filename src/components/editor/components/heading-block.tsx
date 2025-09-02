@@ -14,14 +14,7 @@ import type { EditorToolbarProps } from '../types';
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
-const HEADING_OPTIONS = [
-    'Címsor 1',
-    'Címsor 2',
-    'Címsor 3',
-    'Címsor 4',
-    'Címsor 5',
-    'Címsor 6',
-];
+const HEADING_OPTIONS = ['Címsor 1', 'Címsor 2', 'Címsor 3', 'Címsor 4', 'Címsor 5', 'Címsor 6'];
 
 export function HeadingBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

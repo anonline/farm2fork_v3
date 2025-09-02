@@ -5,32 +5,30 @@ import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
 
-
-
 export function useGetDeliveries() {
-  const SWR_KEY = 'deliveries';
+    const SWR_KEY = 'deliveries';
 
-  const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
-    const { data: deliveries, error: dbError } = await supabase
-      .from('Delivery')
-      .select('*')
-      .order('name', { ascending: true });
-    
-    if (dbError) throw new Error(dbError.message);
-    return deliveries;
-  });
+    const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
+        const { data: deliveries, error: dbError } = await supabase
+            .from('Delivery')
+            .select('*')
+            .order('name', { ascending: true });
 
-  const memoizedValue = useMemo(
-    () => ({
-      deliveries: (data as IDeliveryPerson[]) || [],
-      deliveriesLoading: isLoading,
-      deliveriesError: error,
-      deliveriesMutate: mutate,
-    }),
-    [data, error, isLoading, mutate]
-  );
+        if (dbError) throw new Error(dbError.message);
+        return deliveries;
+    });
 
-  return memoizedValue;
+    const memoizedValue = useMemo(
+        () => ({
+            deliveries: (data as IDeliveryPerson[]) || [],
+            deliveriesLoading: isLoading,
+            deliveriesError: error,
+            deliveriesMutate: mutate,
+        }),
+        [data, error, isLoading, mutate]
+    );
+
+    return memoizedValue;
 }
 
 export function useGetDelivery(id: string) {
@@ -54,12 +52,15 @@ export function useGetDelivery(id: string) {
     };
 }
 
-
 export async function createDelivery(deliveryData: Omit<IDeliveryPerson, 'id'>) {
     if (!deliveryData.name || !deliveryData.phone) {
         throw new Error('A név és a telefonszám megadása kötelező.');
     }
-    const { data, error } = await supabase.from('Delivery').insert([deliveryData]).select().single();
+    const { data, error } = await supabase
+        .from('Delivery')
+        .insert([deliveryData])
+        .select()
+        .single();
     if (error) throw new Error(error.message);
     return data;
 }
@@ -68,7 +69,12 @@ export async function updateDelivery(id: number, deliveryData: Omit<IDeliveryPer
     if (!deliveryData.name || !deliveryData.phone) {
         throw new Error('A név és a telefonszám megadása kötelező.');
     }
-    const { data, error } = await supabase.from('Delivery').update(deliveryData).eq('id', id).select().single();
+    const { data, error } = await supabase
+        .from('Delivery')
+        .update(deliveryData)
+        .eq('id', id)
+        .select()
+        .single();
     if (error) throw new Error(error.message);
     return data;
 }

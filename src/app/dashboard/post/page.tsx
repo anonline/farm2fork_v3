@@ -5,7 +5,6 @@ import { ArticlesProvider } from 'src/contexts/articles-context';
 
 import PostListView from 'src/sections/blog/view/post-list-view';
 
-
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = { title: `Hírek kezelése | Dashboard - ${CONFIG.appName}` };
@@ -15,5 +14,5 @@ export default function Page() {
         <ArticlesProvider>
             <PostListView />
         </ArticlesProvider>
-    )
+    );
 }

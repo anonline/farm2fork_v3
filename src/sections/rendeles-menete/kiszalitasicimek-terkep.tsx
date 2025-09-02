@@ -6,26 +6,25 @@ import { Box, Alert, TextField, InputAdornment } from '@mui/material';
 
 import { useEnabledPostcodes } from 'src/contexts/postcode-context';
 
-import F2FIcons from "src/components/f2ficons/f2ficons";
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 export default function KiszallitasiCimekTerkep() {
     const searchSuccessStyle = {
-        fontSize: "14px",
+        fontSize: '14px',
         fontWeight: 500,
-        lineHeight: "22px",
-        color: "rgb(60, 86, 56)",
-
-    }
+        lineHeight: '22px',
+        color: 'rgb(60, 86, 56)',
+    };
 
     const searchErrorStyle = {
-        fontSize: "14px",
+        fontSize: '14px',
         fontWeight: 500,
-        lineHeight: "22px",
-        color: "rgb(136, 44, 51)",
+        lineHeight: '22px',
+        color: 'rgb(136, 44, 51)',
+    };
 
-    }
-
-    const mapEmbedUrl = "https://www.google.com/maps/d/embed?mid=1Wpj3OxUVcJZ5Ohw-6iZ894PP-rrcyHB-&amp;ehbc=2E312F"
+    const mapEmbedUrl =
+        'https://www.google.com/maps/d/embed?mid=1Wpj3OxUVcJZ5Ohw-6iZ894PP-rrcyHB-&amp;ehbc=2E312F';
 
     const [found, setFound] = useState<boolean | null>(null);
 
@@ -39,13 +38,12 @@ export default function KiszallitasiCimekTerkep() {
             return;
         }
 
-        if (postcodes.filter(x => x.postcode == newValue).length > 0) {
+        if (postcodes.filter((x) => x.postcode == newValue).length > 0) {
             setFound(true);
-        }
-        else {
+        } else {
             setFound(false);
         }
-    }
+    };
     return (
         <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
             <TextField
@@ -58,28 +56,30 @@ export default function KiszallitasiCimekTerkep() {
                     input: {
                         startAdornment: (
                             <InputAdornment position="start">
-                                <F2FIcons name='Search2' height={22} width={22} />
+                                <F2FIcons name="Search2" height={22} width={22} />
                             </InputAdornment>
                         ),
-                    }
+                    },
                 }}
             />
 
-            {found !== null && (
-                found === true ? (
-                    <Alert variant='standard' severity='success' sx={searchSuccessStyle} >Az adott címre szállítunk</Alert>
-                ) : (
-                    <Alert variant='standard' severity='error' sx={searchErrorStyle}>
-                        Az adott irányítószámra jelenleg sajnos nem szállítunk ki. Kérjük, hogy nézz szét az átvételi pontok között!
+            {found !== null &&
+                (found === true ? (
+                    <Alert variant="standard" severity="success" sx={searchSuccessStyle}>
+                        Az adott címre szállítunk
                     </Alert>
-                )
-            )}
+                ) : (
+                    <Alert variant="standard" severity="error" sx={searchErrorStyle}>
+                        Az adott irányítószámra jelenleg sajnos nem szállítunk ki. Kérjük, hogy nézz
+                        szét az átvételi pontok között!
+                    </Alert>
+                ))}
 
             <Box
                 sx={{
-                    aspectRatio: {xs: 'initial', lg: '16/9'},
+                    aspectRatio: { xs: 'initial', lg: '16/9' },
                     width: '100%',
-                    height: {xs: '400px', md: '400px', lg: 'auto' },
+                    height: { xs: '400px', md: '400px', lg: 'auto' },
                 }}
             >
                 <Box
@@ -89,8 +89,8 @@ export default function KiszallitasiCimekTerkep() {
                     sx={{
                         width: '100%',
                         height: '100%',
-                        borderRadius: "8px",
-                        border: "none"
+                        borderRadius: '8px',
+                        border: 'none',
                     }}
                     allowFullScreen
                     loading="lazy"

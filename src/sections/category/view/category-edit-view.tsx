@@ -10,8 +10,6 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { CategoryNewEditForm } from '../category-new-edit-form';
 
-
-
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -21,7 +19,6 @@ type Props = {
 };
 
 export default function CategoryEditView({ category, maxFileSize = 5, allCategories }: Props) {
-    
     return (
         <DashboardContent>
             <CustomBreadcrumbs
@@ -35,7 +32,11 @@ export default function CategoryEditView({ category, maxFileSize = 5, allCategor
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 
-            <CategoryNewEditForm currentCategory={category} maxFileSize={maxFileSize} allCategories={allCategories} />
+            <CategoryNewEditForm
+                currentCategory={category}
+                maxFileSize={maxFileSize}
+                allCategories={allCategories}
+            />
         </DashboardContent>
     );
 }

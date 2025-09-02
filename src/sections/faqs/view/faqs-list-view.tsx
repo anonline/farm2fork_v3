@@ -63,11 +63,11 @@ type FaqListViewProps = {
     faqCategories: IFaqCategoryItem[] | undefined;
 };
 
-export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>) {
+export function FaqListView({ faqList, faqCategories }: Readonly<FaqListViewProps>) {
     const table = useTable({ defaultOrderBy: 'id' });
 
     const confirmDialog = useBoolean();
-    
+
     const [tableData, setTableData] = useState<IFaqItem[]>(faqList);
 
     const filters = useSetState<IFaqTableFilters>({
@@ -76,12 +76,12 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
     });
     const { state: currentFilters, setState: updateFilters } = filters;
 
-   const dataFiltered = applyFilter({
+    const dataFiltered = applyFilter({
         inputData: tableData,
         comparator: getComparator(table.order, table.orderBy),
-        filters: currentFilters
+        filters: currentFilters,
     });
-    
+
     const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
     const canReset = !!currentFilters.question;
@@ -154,25 +154,26 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                         { name: 'Gyakran feltett kérdések', href: paths.dashboard.order.root },
                         { name: 'Összes' },
                     ]}
-                    action={<>
-                        <Button
-                            component={RouterLink}
-                            href={paths.dashboard.faqs.new}
-                            variant="contained"
-                            startIcon={<Iconify icon="mingcute:add-line" />}
-                        >
-                            Új kérdés
-                        </Button>
-                        <Button
-                            component={RouterLink}
-                            href={paths.faqs}
-                            target='_blank'
-                            variant="contained"
-                            color='primary'
-                            startIcon={<Iconify icon="eva:external-link-fill" />}
-                        >
-                            Oldal megtekintése
-                        </Button>
+                    action={
+                        <>
+                            <Button
+                                component={RouterLink}
+                                href={paths.dashboard.faqs.new}
+                                variant="contained"
+                                startIcon={<Iconify icon="mingcute:add-line" />}
+                            >
+                                Új kérdés
+                            </Button>
+                            <Button
+                                component={RouterLink}
+                                href={paths.faqs}
+                                target="_blank"
+                                variant="contained"
+                                color="primary"
+                                startIcon={<Iconify icon="eva:external-link-fill" />}
+                            >
+                                Oldal megtekintése
+                            </Button>
                         </>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
@@ -198,28 +199,26 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                                 icon={
                                     <Label
                                         variant={
-                                            ((tab.id === currentFilters.categoryId) &&
-                                                'filled') ||
+                                            (tab.id === currentFilters.categoryId && 'filled') ||
                                             'soft'
                                         }
                                         color="default"
                                     >
-                                        {
-                                        faqCategories.map((category)=> category.id.toString())
+                                        {faqCategories
+                                            .map((category) => category.id.toString())
                                             .includes(tab.id.toString())
-                                                ? tableData.filter((faq) => faq.faqCategoryId === tab.id || tab.id === -1).length
-                                                : tableData.length
-                                        }
+                                            ? tableData.filter(
+                                                  (faq) =>
+                                                      faq.faqCategoryId === tab.id || tab.id === -1
+                                              ).length
+                                            : tableData.length}
                                     </Label>
                                 }
                             />
                         ))}
                     </Tabs>
 
-                    <FaqTableToolbar
-                        filters={filters}
-                        onResetPage={table.onResetPage}
-                    />
+                    <FaqTableToolbar filters={filters} onResetPage={table.onResetPage} />
 
                     {/*canReset && (
                         <OrderTableFiltersResult
@@ -277,8 +276,12 @@ export function FaqListView({faqList, faqCategories}: Readonly<FaqListViewProps>
                                             <FaqTableRow
                                                 key={row.id}
                                                 row={row}
-                                                selected={table.selected.includes(row.id.toString())}
-                                                onSelectRow={() => table.onSelectRow(row.id.toString())}
+                                                selected={table.selected.includes(
+                                                    row.id.toString()
+                                                )}
+                                                onSelectRow={() =>
+                                                    table.onSelectRow(row.id.toString())
+                                                }
                                                 onDeleteRow={() => handleDeleteRow(row.id)}
                                                 detailsHref={paths.dashboard.faqs.edit(row.id)}
                                             />
@@ -328,7 +331,7 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
     const { question, categoryId: category } = filters;
 
     if (category && category !== -1) {
-        inputData = inputData.filter((faq) => faq.faqCategoryId  === category);
+        inputData = inputData.filter((faq) => faq.faqCategoryId === category);
     }
 
     if (question) {

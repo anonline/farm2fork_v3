@@ -8,7 +8,7 @@ export type IProducerItem = {
     coverImage: number;
     galleryIds: number[];
     companyName: string;
-    slug:string;
+    slug: string;
     location: string;
 };
 
