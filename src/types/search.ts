@@ -1,6 +1,6 @@
 export enum SortingOrder {
     Ascending = 'asc',
-    Descending = 'desc'
+    Descending = 'desc',
 }
 
 export enum ProducerSortingParams {

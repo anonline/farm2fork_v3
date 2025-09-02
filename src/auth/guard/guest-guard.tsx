@@ -31,7 +31,7 @@ export function GuestGuard({ children }: Readonly<GuestGuardProps>) {
             return;
         }
 
-        if (authenticated){
+        if (authenticated) {
             router.replace(returnTo);
             return;
         }

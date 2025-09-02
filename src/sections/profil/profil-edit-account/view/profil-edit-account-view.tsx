@@ -1,12 +1,11 @@
-'use client'
+'use client';
 
-import { Box, Grid, Container } from "@mui/material";
+import { Box, Grid, Container } from '@mui/material';
 
-import ProfilEditAccount from "../profil-edit-account";
-import ProfilNavigation from "../../profil-navigation";
+import ProfilEditAccount from '../profil-edit-account';
+import ProfilNavigation from '../../profil-navigation';
 
-
-export default function ProfilEditAccountView(){
+export default function ProfilEditAccountView() {
     return (
         <Container maxWidth="lg">
             <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>

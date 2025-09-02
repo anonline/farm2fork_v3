@@ -27,5 +27,3 @@ export async function getCategories(): Promise<ICategoryItem[]> {
     if (responseError) throw new Error(responseError.message);
     return data as ICategoryItem[] | [];
 }
-
-

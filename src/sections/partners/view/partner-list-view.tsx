@@ -6,33 +6,59 @@ import type { DropAnimation, UniqueIdentifier } from '@dnd-kit/core';
 import { z as zod } from 'zod';
 import { useState, useEffect } from 'react';
 import {
-    arrayMove, useSortable, SortableContext, rectSortingStrategy, sortableKeyboardCoordinates,
+    arrayMove,
+    useSortable,
+    SortableContext,
+    rectSortingStrategy,
+    sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import {
-    useSensor, DndContext, useSensors, DragOverlay, MouseSensor,
-    TouchSensor, closestCenter, KeyboardSensor,
-    defaultDropAnimationSideEffects
+    useSensor,
+    DndContext,
+    useSensors,
+    DragOverlay,
+    MouseSensor,
+    TouchSensor,
+    closestCenter,
+    KeyboardSensor,
+    defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 
 import { LoadingButton } from '@mui/lab';
 import {
-    Box, Card, Stack, Button, Dialog, Portal, Tooltip, TextField, IconButton, Typography, DialogTitle, DialogActions, DialogContent
+    Box,
+    Card,
+    Stack,
+    Button,
+    Dialog,
+    Portal,
+    Tooltip,
+    TextField,
+    IconButton,
+    Typography,
+    DialogTitle,
+    DialogActions,
+    DialogContent,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { uploadFile } from 'src/lib/blob/blobClient';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { createPartner, updatePartner, deletePartner, useGetPartners, updatePartnerOrder } from 'src/actions/partner';
+import {
+    createPartner,
+    updatePartner,
+    deletePartner,
+    useGetPartners,
+    updatePartnerOrder,
+} from 'src/actions/partner';
 
 import { Upload } from 'src/components/upload';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-
 // ----------------------------------------------------------------------
-
 
 const PartnerSchema = zod.object({
     name: zod.string().min(1, { message: 'A név megadása kötelező!' }),
@@ -53,7 +79,11 @@ export default function PartnerListView() {
 
     const [openFormDialog, setOpenFormDialog] = useState(false);
     const [editingPartner, setEditingPartner] = useState<IPartner | null>(null);
-    const [formData, setFormData] = useState<{ name: string; imageUrl: string | File | null; link: string }>({ name: '', imageUrl: '', link: '' });
+    const [formData, setFormData] = useState<{
+        name: string;
+        imageUrl: string | File | null;
+        link: string;
+    }>({ name: '', imageUrl: '', link: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
@@ -111,12 +141,11 @@ export default function PartnerListView() {
     };
 
     const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
+        setFormData((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
     const handleSubmit = async () => {
-
-        if (isSubmitting){
+        if (isSubmitting) {
             return;
         }
 
@@ -132,7 +161,7 @@ export default function PartnerListView() {
             ...formData,
             imageUrl,
         });
-        
+
         if (!validationResult.success) {
             console.error(validationResult.error);
             setIsSubmitting(false);
@@ -146,13 +175,19 @@ export default function PartnerListView() {
             if (editingPartner) {
                 await updatePartner(editingPartner.id, {
                     ...validationResult.data,
-                    imageUrl: typeof validationResult.data.imageUrl === 'string' ? validationResult.data.imageUrl : ''
+                    imageUrl:
+                        typeof validationResult.data.imageUrl === 'string'
+                            ? validationResult.data.imageUrl
+                            : '',
                 });
                 toast.success('Sikeres mentés!');
             } else {
                 await createPartner({
                     ...validationResult.data,
-                    imageUrl: typeof validationResult.data.imageUrl === 'string' ? validationResult.data.imageUrl : ''
+                    imageUrl:
+                        typeof validationResult.data.imageUrl === 'string'
+                            ? validationResult.data.imageUrl
+                            : '',
                 });
                 toast.success('Partner sikeresen létrehozva!');
             }
@@ -180,7 +215,7 @@ export default function PartnerListView() {
     };
 
     const handleRemovePartnerImage = () => {
-        setFormData(prev => ({ ...prev, imageUrl: '' }));
+        setFormData((prev) => ({ ...prev, imageUrl: '' }));
     };
 
     const handlePartnerImageUpload = async (file: File) => {
@@ -201,17 +236,42 @@ export default function PartnerListView() {
                 heading="Partnerek"
                 links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Partnerek' }]}
                 action={
-                    <Button variant="contained" startIcon={<Iconify icon="mingcute:add-line" />} onClick={handleOpenNewDialog}>
+                    <Button
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                        onClick={handleOpenNewDialog}
+                    >
                         Új Partner
                     </Button>
                 }
             />
 
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={({ active }) => setActiveId(active.id)} onDragEnd={handleDragEnd}>
-                <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
-                    <Box component="ul" sx={{ p: 3, gap: 3, display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(6, 1fr)', lg: 'repeat(8, 1fr)' } }}>
-                        {items.map(item => (
-                            <SortablePartnerItem key={item.id} item={item} onEdit={() => handleOpenEditDialog(item)} />
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={({ active }) => setActiveId(active.id)}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext items={items.map((i) => i.id)} strategy={rectSortingStrategy}>
+                    <Box
+                        component="ul"
+                        sx={{
+                            p: 3,
+                            gap: 3,
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xs: 'repeat(3, 1fr)',
+                                md: 'repeat(6, 1fr)',
+                                lg: 'repeat(8, 1fr)',
+                            },
+                        }}
+                    >
+                        {items.map((item) => (
+                            <SortablePartnerItem
+                                key={item.id}
+                                item={item}
+                                onEdit={() => handleOpenEditDialog(item)}
+                            />
                         ))}
                     </Box>
                 </SortableContext>
@@ -226,25 +286,46 @@ export default function PartnerListView() {
                 <DialogTitle>{editingPartner ? 'Partner szerkesztése' : 'Új Partner'}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ pt: 1 }}>
-                        <TextField name="name" label="Név" value={formData.name} onChange={handleFormChange} required />
-                        <TextField name="link" label="Weboldal Link" value={formData.link} onChange={handleFormChange} />
+                        <TextField
+                            name="name"
+                            label="Név"
+                            value={formData.name}
+                            onChange={handleFormChange}
+                            required
+                        />
+                        <TextField
+                            name="link"
+                            label="Weboldal Link"
+                            value={formData.link}
+                            onChange={handleFormChange}
+                        />
 
                         <Upload
                             thumbnail
                             maxSize={10 * 1024 * 1024}
                             value={formData.imageUrl}
                             onRemove={handleRemovePartnerImage}
-                            onDropAccepted={(files) => setFormData(prev => ({ ...prev, imageUrl: files[0] }))}
+                            onDropAccepted={(files) =>
+                                setFormData((prev) => ({ ...prev, imageUrl: files[0] }))
+                            }
                         />
                     </Stack>
                 </DialogContent>
                 <DialogActions>
                     {editingPartner && (
-                        <Button onClick={() => setOpenDeleteConfirm(true)} color="error">Törlés</Button>
+                        <Button onClick={() => setOpenDeleteConfirm(true)} color="error">
+                            Törlés
+                        </Button>
                     )}
                     <Box sx={{ flexGrow: 1 }} />
-                    <Button onClick={handleCloseFormDialog} color="inherit">Mégse</Button>
-                    <LoadingButton onClick={handleSubmit} variant="contained" loading={isSubmitting}>
+                    <Button onClick={handleCloseFormDialog} color="inherit">
+                        Mégse
+                    </Button>
+                    <LoadingButton
+                        onClick={handleSubmit}
+                        variant="contained"
+                        loading={isSubmitting}
+                    >
                         {editingPartner ? 'Mentés' : 'Létrehozás'}
                     </LoadingButton>
                 </DialogActions>
@@ -253,43 +334,73 @@ export default function PartnerListView() {
             <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
                 <DialogTitle>Törlés Megerősítése</DialogTitle>
                 <DialogContent>
-                    <Typography>Biztosan törölni szeretnéd a(z) <strong>{editingPartner?.name}</strong> nevű partnert?</Typography>
+                    <Typography>
+                        Biztosan törölni szeretnéd a(z) <strong>{editingPartner?.name}</strong> nevű
+                        partnert?
+                    </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDeleteConfirm(false)} color="inherit">Mégse</Button>
-                    <Button onClick={handleDelete} color="error">Törlés</Button>
+                    <Button onClick={() => setOpenDeleteConfirm(false)} color="inherit">
+                        Mégse
+                    </Button>
+                    <Button onClick={handleDelete} color="error">
+                        Törlés
+                    </Button>
                 </DialogActions>
             </Dialog>
         </DashboardContent>
     );
 }
 
-
-function SortablePartnerItem({ item, onEdit }: Readonly<{ item: IPartner, onEdit: () => void }>) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+function SortablePartnerItem({ item, onEdit }: Readonly<{ item: IPartner; onEdit: () => void }>) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: item.id,
+    });
     const style = {
         transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
         transition,
     };
     return (
-        <PartnerItemBase ref={setNodeRef} style={style} item={item} onEdit={onEdit} isDragging={isDragging} attributes={attributes} listeners={listeners} />
+        <PartnerItemBase
+            ref={setNodeRef}
+            style={style}
+            item={item}
+            onEdit={onEdit}
+            isDragging={isDragging}
+            attributes={attributes}
+            listeners={listeners}
+        />
     );
 }
 
-function PartnerItemBase({ item, onEdit, isDragging, isOverlay, ...props }: Readonly<{ item: IPartner, onEdit?: () => void, isDragging?: boolean, isOverlay?: boolean, [key: string]: any }>) {
+function PartnerItemBase({
+    item,
+    onEdit,
+    isDragging,
+    isOverlay,
+    ...props
+}: Readonly<{
+    item: IPartner;
+    onEdit?: () => void;
+    isDragging?: boolean;
+    isOverlay?: boolean;
+    [key: string]: any;
+}>) {
     return (
         <Box component="li" sx={{ listStyle: 'none' }} {...props}>
             <Tooltip title={item.name} arrow>
-                <Card sx={{
-                    p: 2,
-                    aspectRatio: '1 / 1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'relative',
-                    boxShadow: isOverlay ? '0px 8px 16px 0px rgba(0,0,0,0.24)' : undefined,
-                    opacity: isDragging ? 0.48 : 1, '&:hover .actions': { opacity: 1 }
-                }}
+                <Card
+                    sx={{
+                        p: 2,
+                        aspectRatio: '1 / 1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
+                        boxShadow: isOverlay ? '0px 8px 16px 0px rgba(0,0,0,0.24)' : undefined,
+                        opacity: isDragging ? 0.48 : 1,
+                        '&:hover .actions': { opacity: 1 },
+                    }}
                 >
                     <Box
                         component="img"
@@ -298,7 +409,7 @@ function PartnerItemBase({ item, onEdit, isDragging, isOverlay, ...props }: Read
                         sx={{
                             width: '80%',
                             height: '80%',
-                            objectFit: 'contain'
+                            objectFit: 'contain',
                         }}
                     />
 
@@ -312,11 +423,17 @@ function PartnerItemBase({ item, onEdit, isDragging, isOverlay, ...props }: Read
                             opacity: 0,
                             transition: 'opacity 0.2s',
                             bgcolor: 'background.paper',
-                            borderRadius: '50%'
+                            borderRadius: '50%',
                         }}
                     >
-                        {onEdit && <IconButton size="small" onClick={onEdit}><Iconify icon="solar:pen-bold" /></IconButton>}
-                        <IconButton size="small" {...props.listeners}><Iconify icon="custom:drag-dots-fill" /></IconButton>
+                        {onEdit && (
+                            <IconButton size="small" onClick={onEdit}>
+                                <Iconify icon="solar:pen-bold" />
+                            </IconButton>
+                        )}
+                        <IconButton size="small" {...props.listeners}>
+                            <Iconify icon="custom:drag-dots-fill" />
+                        </IconButton>
                     </Stack>
                 </Card>
             </Tooltip>

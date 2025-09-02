@@ -2,9 +2,17 @@ import { useState } from 'react';
 
 import { IconButton, InputLabel, FormControl, OutlinedInput, InputAdornment } from '@mui/material';
 
-import F2FIcons from 'src/components/f2ficons/f2ficons'; 
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
-export default function EditAccountPassword({ label, value, onChange }: Readonly<{ label: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }>) {
+export default function EditAccountPassword({
+    label,
+    value,
+    onChange,
+}: Readonly<{
+    label: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}>) {
     const [showPassword, setShowPassword] = useState(false);
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -17,7 +25,7 @@ export default function EditAccountPassword({ label, value, onChange }: Readonly
             fontSize: '14px',
             fontWeight: 500,
             lineHeight: '28px',
-        }
+        },
     };
 
     return (
@@ -35,7 +43,11 @@ export default function EditAccountPassword({ label, value, onChange }: Readonly
                             onClick={handleClickShowPassword}
                             onMouseDown={handleMouseDownPassword}
                         >
-                            {showPassword ? <F2FIcons name="Hide" width={14} height={14} /> : <F2FIcons name="Show" width={14} height={14} />}
+                            {showPassword ? (
+                                <F2FIcons name="Hide" width={14} height={14} />
+                            ) : (
+                                <F2FIcons name="Show" width={14} height={14} />
+                            )}
                         </IconButton>
                     </InputAdornment>
                 }

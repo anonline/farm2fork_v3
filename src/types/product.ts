@@ -32,17 +32,17 @@ export type IProductReview = {
 
 export const Months = {
     January: 'Január',
-    February: "Február",
-    March: "Március",
-    April: "April",
-    May: "May",
-    June: "Június",
-    July: "Július",
-    August: "Augusztus",
-    September: "Szeptember",
-    October: "October",
-    November: "November",
-    December: "December",
+    February: 'Február',
+    March: 'Március',
+    April: 'April',
+    May: 'May',
+    June: 'Június',
+    July: 'Július',
+    August: 'Augusztus',
+    September: 'Szeptember',
+    October: 'October',
+    November: 'November',
+    December: 'December',
 } as const;
 type MonthKeys = keyof typeof Months;
 
@@ -60,17 +60,17 @@ export type IProductItem = {
     maximumQuantity: number;
     url: string;
     slug: string;
-    unit:string;
+    unit: string;
     bio: boolean;
-    grossPrice:number;
+    grossPrice: number;
     salegrossPrice: number | null;
     netPrice: number;
     netPriceVIP: number;
     netPriceCompany: number;
     vat: number;
-    seasonality: MonthKeys[],
-    featured: boolean,
-    star: boolean,
+    seasonality: MonthKeys[];
+    featured: boolean;
+    star: boolean;
     code: string;
     price: number;
     taxes: number;
@@ -93,7 +93,7 @@ export type IProductItem = {
     subDescription: string;
     priceSale: number | null;
     reviews: IProductReview[];
-    producerId :number;
+    producerId: number;
     producer?: IProducerItem;
     newLabel: {
         content: string;
@@ -111,13 +111,13 @@ export type IProductItem = {
 };
 
 export type IProductCategory = {
-    id:number;
-    name:string;
-    slug:string;
-    description:string;
-    created_at:Date;
-    parentId:number | null | undefined;
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    created_at: Date;
+    parentId: number | null | undefined;
     coverUrl: string;
-    enabled:boolean;
+    enabled: boolean;
     order: number;
 };

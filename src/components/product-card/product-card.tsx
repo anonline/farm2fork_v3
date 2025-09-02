@@ -27,35 +27,32 @@ interface ProductCardProps {
 }
 
 export default function ProductCard(props: Readonly<ProductCardProps>) {
-    const {
-        onAddToCart,
-        state: checkoutState,
-    } = useCheckoutContext();
+    const { onAddToCart, state: checkoutState } = useCheckoutContext();
 
     const { product } = props;
     const router = useRouter();
 
     const openProductPage = () => {
         router.push(paths.product.details(product.url));
-    }
+    };
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
         borderRadius: '8px',
-        boxShadow: "0px 2px 12px 0px #DFDBD14D",
+        boxShadow: '0px 2px 12px 0px #DFDBD14D',
         maxWidth: {
             xs: '100%',
             sm: '100%',
             md: '100%',
             lg: 249,
-            xl: 249
+            xl: 249,
         },
         p: 0,
         backgroundColor: themeConfig.palette.common.white,
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-    }
+    };
 
     const productImageStyle: React.CSSProperties = {
         width: '100%',
@@ -64,7 +61,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         borderTopLeftRadius: 8,
         borderTopRightRadius: 8,
         cursor: 'pointer',
-    }
+    };
 
     const productCardDetailsUpperContainterStyle: React.CSSProperties = {
         padding: '32px 16px 16px 16px',
@@ -79,7 +76,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         flexDirection: 'column',
         gap: 4,
         height: 52,
-    }
+    };
 
     const productCardNameStyle: React.CSSProperties = {
         fontSize: 18,
@@ -90,27 +87,27 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         letterSpacing: '0em',
         margin: 0,
         cursor: 'pointer',
-    }
+    };
 
     const productCardPriceContentStyle: React.CSSProperties = {
         padding: '16px',
         display: 'flex',
-        gap: 16
-    }
+        gap: 16,
+    };
 
     const productCardPriceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'column',
         gap: 8,
         width: '100%',
-    }
+    };
 
     return (
         <Paper className="product-card" sx={productCardStyle}>
             <Box
                 component="button"
                 onClick={openProductPage}
-                onKeyDown={e => {
+                onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         openProductPage();
@@ -136,27 +133,34 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                 aria-label={product.name}
             >
                 <img
-                    src={product.featuredImage || "https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp"}
+                    src={
+                        product.featuredImage ||
+                        'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                    }
                     alt={product.name}
                     style={productImageStyle}
                 />
             </Box>
 
-            {product.bio && (
-                <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />
-            )}
+            {product.bio && <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />}
 
             <div style={productCardDetailsUpperContainterStyle}>
-                {checkoutState.items.filter(x=>x.id == product.id).length > 0 && (
-                    <F2FIcons name='Check' width={40} height={40} style={
-                        {
-                            position: 'absolute', top: -20, right: 16, color: themeConfig.palette.primary.dark,
+                {checkoutState.items.filter((x) => x.id == product.id).length > 0 && (
+                    <F2FIcons
+                        name="Check"
+                        width={40}
+                        height={40}
+                        style={{
+                            position: 'absolute',
+                            top: -20,
+                            right: 16,
+                            color: themeConfig.palette.primary.dark,
                             backgroundColor: themeConfig.palette.primary.light,
                             borderRadius: '50%',
                             padding: 4,
-                            border: '3px solid #ffffff'
-                        }
-                    } />
+                            border: '3px solid #ffffff',
+                        }}
+                    />
                 )}
                 <div style={productCardDetailsUpperLabelContainerStyle}>
                     <button
@@ -168,10 +172,10 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                             padding: 0,
                             textAlign: 'left',
                             width: '100%',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
                         }}
                         onClick={openProductPage}
-                        onKeyDown={e => {
+                        onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault();
                                 openProductPage();
@@ -183,24 +187,34 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         {product.name}
                     </button>
                     <ProducerAvatar
-                        avatarUrl={product.producer?.featuredImage ?? "https://placehold.co/48"}
+                        avatarUrl={product.producer?.featuredImage ?? 'https://placehold.co/48'}
                         avatarAlt="Termelő"
                         style={{ position: 'absolute', top: -24, left: 16 }}
                     />
                 </div>
             </div>
             <div style={productCardPriceContentStyle}>
-                <div className='productCardPriceDetails' style={productCardPriceDetailsStyle}>
+                <div className="productCardPriceDetails" style={productCardPriceDetailsStyle}>
                     <ProductPriceDetails price={product.netPrice} unit={product.unit} />
-                    <ProductQuantitySelector product={product} onAddToCart={onAddToCart} unit={product.unit} min={product.mininumQuantity} max={product.maximumQuantity} step={product.stepQuantity} />
+                    <ProductQuantitySelector
+                        product={product}
+                        onAddToCart={onAddToCart}
+                        unit={product.unit}
+                        min={product.mininumQuantity}
+                        max={product.maximumQuantity}
+                        step={product.stepQuantity}
+                    />
                 </div>
             </div>
-
         </Paper>
     );
 }
 
-function ProducerAvatar({ avatarUrl, avatarAlt, style }: Readonly<{ avatarUrl: string, avatarAlt?: string, style?: React.CSSProperties }>) {
+function ProducerAvatar({
+    avatarUrl,
+    avatarAlt,
+    style,
+}: Readonly<{ avatarUrl: string; avatarAlt?: string; style?: React.CSSProperties }>) {
     const avatarStyle: React.CSSProperties = {
         width: 48,
         height: 48,
@@ -208,23 +222,20 @@ function ProducerAvatar({ avatarUrl, avatarAlt, style }: Readonly<{ avatarUrl: s
         objectFit: 'cover',
         border: '3px solid #ffffff',
         ...style,
-    }
-    return (
-        <img
-            src={avatarUrl}
-            alt={avatarAlt ?? 'Termelő'}
-            style={avatarStyle}
-        />
-    );
+    };
+    return <img src={avatarUrl} alt={avatarAlt ?? 'Termelő'} style={avatarStyle} />;
 }
 
-export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ price?: number, unit?: string }>) {
+export function ProductPriceDetails({
+    price = 2000,
+    unit = 'db',
+}: Readonly<{ price?: number; unit?: string }>) {
     const priceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'row',
         gap: 4,
         justifyContent: 'space-between',
-    }
+    };
 
     const priceStyle: React.CSSProperties = {
         fontFamily: themeConfig.fontFamily.primary,
@@ -232,7 +243,7 @@ export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ pr
         lineHeight: '18px',
         fontWeight: 700,
         color: themeConfig.textColor.default,
-    }
+    };
 
     const unitStyle: React.CSSProperties = {
         fontFamily: themeConfig.fontFamily.primary,
@@ -240,7 +251,7 @@ export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ pr
         lineHeight: '18px',
         fontWeight: 400,
         color: themeConfig.textColor.muted,
-    }
+    };
 
     return (
         <div style={priceDetailsStyle}>
@@ -253,30 +264,41 @@ export function ProductPriceDetails({ price = 2000, unit = "db" }: Readonly<{ pr
 }
 
 type ProductQuantitySelectorProps = {
-    product: IProductItem,
-    showAddToCart?: boolean,
-    onAddToCart?: CheckoutContextValue['onAddToCart'],
-    format?: 'column' | 'row',
-    min?: number,
-    max?: number,
-    step?: number,
-    unit?: string
+    product: IProductItem;
+    showAddToCart?: boolean;
+    onAddToCart?: CheckoutContextValue['onAddToCart'];
+    format?: 'column' | 'row';
+    min?: number;
+    max?: number;
+    step?: number;
+    unit?: string;
     onQuantityChange?: (quantity: number) => void;
     showUnit?: boolean;
-}
+};
 
-export function ProductQuantitySelector({ product, onAddToCart, format = "column", min = 1, max = 999, step = 0.2, unit = "csomag", showAddToCart = true, onQuantityChange, showUnit = true }: Readonly<ProductQuantitySelectorProps>) {
+export function ProductQuantitySelector({
+    product,
+    onAddToCart,
+    format = 'column',
+    min = 1,
+    max = 999,
+    step = 0.2,
+    unit = 'csomag',
+    showAddToCart = true,
+    onQuantityChange,
+    showUnit = true,
+}: Readonly<ProductQuantitySelectorProps>) {
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
         color: themeConfig.textColor.grey,
         fontFamily: themeConfig.fontFamily.primary,
         fontWeight: 500,
         fontSize: 16,
-        lineHeight: '22px'
-    }
+        lineHeight: '22px',
+    };
 
     const [quantity, setQuantity] = useState<number>();
-    const [inputValue, setInputValue] = useState<string>("");
+    const [inputValue, setInputValue] = useState<string>('');
     const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
 
     const plusminusButtonBaseStyle: SxProps<Theme> = {
@@ -290,30 +312,32 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
         },
         '&:hover svg': {
             color: themeConfig.palette.common.white,
-        }
-    }
+        },
+    };
 
     const minusButtonStyle: SxProps<Theme> = {
         ...plusminusButtonBaseStyle,
         borderTopRightRadius: 0,
         borderBottomRightRadius: 0,
-    }
+    };
 
     const plusButtonStyle: SxProps<Theme> = {
         ...plusminusButtonBaseStyle,
         borderTopLeftRadius: 0,
         borderBottomLeftRadius: 0,
-    }
+    };
 
-    const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const inputChangeHandler = (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         const decimals = 0;
 
         const value = parseFloat(event.target.value.replace(',', '.'));
         if (value === 0 || isNaN(value)) {
-            setInputValue("");
+            setInputValue('');
             setQuantity(undefined);
             setButtonDisabled(true);
-            if(onQuantityChange){
+            if (onQuantityChange) {
                 onQuantityChange(1);
             }
             return;
@@ -323,7 +347,7 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setInputValue(printQtyWithUnit(min));
             setQuantity(min);
             setButtonDisabled(false);
-            if(onQuantityChange){
+            if (onQuantityChange) {
                 onQuantityChange(min);
             }
             return;
@@ -333,7 +357,7 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setInputValue(printQtyWithUnit(max));
             setQuantity(max);
             setButtonDisabled(false);
-            if(onQuantityChange){
+            if (onQuantityChange) {
                 onQuantityChange(min);
             }
             return;
@@ -343,20 +367,19 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             const roundedValue = parseFloat((Math.round(value / step) * step).toFixed(1));
             setInputValue(printQtyWithUnit(roundedValue));
             setQuantity(roundedValue);
-            if(onQuantityChange){
+            if (onQuantityChange) {
                 onQuantityChange(roundedValue);
             }
         } else {
             setInputValue(printQtyWithUnit(value));
             setQuantity(value);
-            if(onQuantityChange){
+            if (onQuantityChange) {
                 onQuantityChange(value);
             }
         }
 
         setButtonDisabled(false);
-        
-    }
+    };
 
     const handlePlusClick = () => {
         let newQty = quantity;
@@ -375,10 +398,10 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setButtonDisabled(false);
         }
 
-        if(onQuantityChange){
+        if (onQuantityChange) {
             onQuantityChange(newQty ?? min);
         }
-    }
+    };
 
     const handleMinusClick = () => {
         let newQty = quantity;
@@ -397,28 +420,36 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
             setButtonDisabled(false);
         }
 
-        if(onQuantityChange){
+        if (onQuantityChange) {
             onQuantityChange(newQty ?? min);
         }
-    }
+    };
 
     const printQtyWithUnit = (qty: number) => {
         if (qty === undefined || isNaN(qty)) {
-            return "";
+            return '';
         }
         const decimals = qty % 1 === 0 ? 0 : 1;
-        if(showUnit){
-            return qty.toFixed(decimals) + " " + unit;
-        }
-        else {
+        if (showUnit) {
+            return qty.toFixed(decimals) + ' ' + unit;
+        } else {
             return qty.toFixed(decimals);
         }
-    }
+    };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: format, gap: 2 }}>
-            <Paper sx={{ border: '1px solid #A4A3A1', borderRadius: '8px', p: '0px 0px', display: 'flex', alignItems: 'center', width: ((format == 'column') ? '100%' : '50%') }}>
-                <IconButton sx={minusButtonStyle} onClick={handleMinusClick} >
+            <Paper
+                sx={{
+                    border: '1px solid #A4A3A1',
+                    borderRadius: '8px',
+                    p: '0px 0px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: format == 'column' ? '100%' : '50%',
+                }}
+            >
+                <IconButton sx={minusButtonStyle} onClick={handleMinusClick}>
                     <F2FIcons name="Minus" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
                 <InputBase
@@ -433,19 +464,16 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
                                 fontWeight: 400,
                                 fontFamily: themeConfig.fontFamily.primary,
                                 letterSpacing: '0.02em',
-                            }
-                        }
+                            },
+                        },
                     }}
-                    placeholder={"min. " + min + " " + unit}
-                    inputProps={
-                        {
-                            'inputMode': 'text',
-                            'style': inputTextStyle,
-
-                        }
-                    }
+                    placeholder={'min. ' + min + ' ' + unit}
+                    inputProps={{
+                        inputMode: 'text',
+                        style: inputTextStyle,
+                    }}
                     value={inputValue}
-                    onFocus={e => {
+                    onFocus={(e) => {
                         let floatValueToDisplay = parseFloat(inputValue);
                         if (isNaN(floatValueToDisplay)) {
                             floatValueToDisplay = min;
@@ -460,28 +488,45 @@ export function ProductQuantitySelector({ product, onAddToCart, format = "column
                     onChange={(e) => {
                         setInputValue(e.target.value);
                     }}
-                    onBlur={(e) => { inputChangeHandler(e) }}
+                    onBlur={(e) => {
+                        inputChangeHandler(e);
+                    }}
                 />
                 <IconButton sx={plusButtonStyle} onClick={handlePlusClick}>
                     <F2FIcons name="Add" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
             </Paper>
-            {showAddToCart && <ProductCardButton qty={quantity || 1} product={product} label="Kosár" onAddToCart={onAddToCart ? onAddToCart : undefined} isDisabled={buttonDisabled} sx={{ width: ((format == 'column') ? '100%' : '50%') }} />}
+            {showAddToCart && (
+                <ProductCardButton
+                    qty={quantity || 1}
+                    product={product}
+                    label="Kosár"
+                    onAddToCart={onAddToCart ? onAddToCart : undefined}
+                    isDisabled={buttonDisabled}
+                    sx={{ width: format == 'column' ? '100%' : '50%' }}
+                />
+            )}
         </Box>
     );
-
 }
 
 type ProductCardButtonProps = {
-    qty: number,
-    product: IProductItem,
-    label: string,
-    onAddToCart?: CheckoutContextValue['onAddToCart'],
-    isDisabled?: boolean,
-    sx?: SxProps
-}
+    qty: number;
+    product: IProductItem;
+    label: string;
+    onAddToCart?: CheckoutContextValue['onAddToCart'];
+    isDisabled?: boolean;
+    sx?: SxProps;
+};
 
-function ProductCardButton({ qty = 1, product, label, onAddToCart, isDisabled = false, sx }: Readonly<ProductCardButtonProps>) {
+function ProductCardButton({
+    qty = 1,
+    product,
+    label,
+    onAddToCart,
+    isDisabled = false,
+    sx,
+}: Readonly<ProductCardButtonProps>) {
     const { openSideCart } = useSideCart();
 
     const baseStyle: SxProps = {
@@ -492,8 +537,8 @@ function ProductCardButton({ qty = 1, product, label, onAddToCart, isDisabled = 
         fontWeight: 600,
         fontSize: 16,
         fontFamily: themeConfig.fontFamily.primary,
-        height: 44
-    }
+        height: 44,
+    };
 
     const buttonStyle: SxProps = {
         ...baseStyle,
@@ -506,7 +551,7 @@ function ProductCardButton({ qty = 1, product, label, onAddToCart, isDisabled = 
         borderColor: '#dfdcd1',
         color: '#dfdcd1',
         cursor: 'not-allowed',
-    }
+    };
 
     const handleButtonClick = () => {
         if (onAddToCart) {
@@ -524,12 +569,18 @@ function ProductCardButton({ qty = 1, product, label, onAddToCart, isDisabled = 
                 stepQuantity: product.stepQuantity,
             });
             console.log(product);
-            toast.success("Sikeresen kosárhoz adva.");
+            toast.success('Sikeresen kosárhoz adva.');
             //openSideCart();
         }
-    }
+    };
     return (
-        <Button variant={isDisabled ? 'outlined' : 'contained'} disabled={isDisabled} color={isDisabled ? 'inherit' : 'primary'} onClick={handleButtonClick} sx={isDisabled ? disabledButtonStyle : buttonStyle}>
+        <Button
+            variant={isDisabled ? 'outlined' : 'contained'}
+            disabled={isDisabled}
+            color={isDisabled ? 'inherit' : 'primary'}
+            onClick={handleButtonClick}
+            sx={isDisabled ? disabledButtonStyle : buttonStyle}
+        >
             {label}
         </Button>
     );

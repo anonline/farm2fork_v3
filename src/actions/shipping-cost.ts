@@ -6,23 +6,26 @@ import { useMemo } from 'react';
 import { supabase } from 'src/lib/supabase';
 
 export function useGetShippingCostMethods() {
-  const SWR_KEY = 'shippingCostMethods';
-  const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
-    const { data: methods, error: dbError } = await supabase
-      .from('ShippingCostsMethods')
-      .select('*')
-      .order('name', { ascending: true });
-    
-    if (dbError) throw new Error(dbError.message);
-    return methods as IShippingCostMethod[];
-  });
+    const SWR_KEY = 'shippingCostMethods';
+    const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
+        const { data: methods, error: dbError } = await supabase
+            .from('ShippingCostsMethods')
+            .select('*')
+            .order('name', { ascending: true });
 
-  return useMemo(() => ({
-      methods: data || [],
-      methodsLoading: isLoading,
-      methodsError: error,
-      methodsMutate: mutate,
-    }), [data, error, isLoading, mutate]);
+        if (dbError) throw new Error(dbError.message);
+        return methods as IShippingCostMethod[];
+    });
+
+    return useMemo(
+        () => ({
+            methods: data || [],
+            methodsLoading: isLoading,
+            methodsError: error,
+            methodsMutate: mutate,
+        }),
+        [data, error, isLoading, mutate]
+    );
 }
 
 export async function createShippingCostMethod(newData: Omit<IShippingCostMethod, 'id'>) {
@@ -35,7 +38,10 @@ export async function createShippingCostMethod(newData: Omit<IShippingCostMethod
     return data;
 }
 
-export async function updateShippingCostMethod(id: number, updatedData: Partial<Omit<IShippingCostMethod, 'id'>>) {
+export async function updateShippingCostMethod(
+    id: number,
+    updatedData: Partial<Omit<IShippingCostMethod, 'id'>>
+) {
     const { data, error } = await supabase
         .from('ShippingCostsMethods')
         .update(updatedData)

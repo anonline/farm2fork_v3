@@ -10,7 +10,6 @@ import { CategoryListView } from 'src/sections/category/view/category-list-view'
 export const metadata: Metadata = { title: `Termék kategóriák | Dashboard - ${CONFIG.appName}` };
 
 export default async function Page() {
-
     return (
         <CategoryProvider>
             <CategoryListView />

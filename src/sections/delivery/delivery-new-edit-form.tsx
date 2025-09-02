@@ -19,9 +19,7 @@ import { toast } from 'src/components/snackbar';
 
 import { formatPhoneNumber } from './view/delivery-list-view';
 
-
 // ----------------------------------------------------------------------
-
 
 type Props = {
     currentDelivery?: IDeliveryPerson;
@@ -47,9 +45,9 @@ export default function DeliveryNewEditForm({ currentDelivery }: Readonly<Props>
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         if (name === 'phone') {
-            setFormData(prev => ({ ...prev, phone: formatPhoneNumber(value) }));
+            setFormData((prev) => ({ ...prev, phone: formatPhoneNumber(value) }));
         } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+            setFormData((prev) => ({ ...prev, [name]: value }));
         }
     };
 

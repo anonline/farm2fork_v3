@@ -37,7 +37,7 @@ export function CheckoutCart() {
         onChangeItemQuantity,
         onAddNote,
         onDeleteNote,
-        onAddToCart
+        onAddToCart,
     } = useCheckoutContext();
 
     // Determine user type for minimum purchase check
@@ -50,7 +50,7 @@ export function CheckoutCart() {
     };
 
     const userType = getUserType();
-    
+
     // Get the appropriate minimum purchase option based on user type
     const getMinimumPurchaseOption = () => {
         switch (userType) {
@@ -66,7 +66,8 @@ export function CheckoutCart() {
     const { option: minimumPurchaseAmount } = useGetOption(getMinimumPurchaseOption());
 
     const isCartEmpty = !checkoutState.items.length;
-    const isUnderMinimum = minimumPurchaseAmount > 0 && checkoutState.subtotal < minimumPurchaseAmount;
+    const isUnderMinimum =
+        minimumPurchaseAmount > 0 && checkoutState.subtotal < minimumPurchaseAmount;
 
     const renderLoading = () => (
         <Box
@@ -94,8 +95,6 @@ export function CheckoutCart() {
         <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 7 }}>
                 <Card sx={{ mb: 3 }}>
-                    
-
                     {loading ? (
                         renderLoading()
                     ) : (
@@ -127,21 +126,22 @@ export function CheckoutCart() {
                 </Button>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 5 }} sx={{backgroundColor: '#F8F8F8', padding: '24px'}}>
+            <Grid size={{ xs: 12, md: 5 }} sx={{ backgroundColor: '#F8F8F8', padding: '24px' }}>
                 <CheckoutSummary checkoutState={checkoutState} />
 
                 {/* Minimum Purchase Alert */}
-                {!isCartEmpty && typeof(isUnderMinimum) != 'number' && isUnderMinimum && (
-                    <Alert 
-                        severity="warning" 
-                        sx={{ 
+                {!isCartEmpty && typeof isUnderMinimum != 'number' && isUnderMinimum && (
+                    <Alert
+                        severity="warning"
+                        sx={{
                             mb: 2,
                             '& .MuiAlert-message': {
-                                fontSize: '14px'
-                            }
+                                fontSize: '14px',
+                            },
                         }}
                     >
-                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Adj hozzá több terméket a kosárhoz a folytatáshoz!
+                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Adj hozzá
+                        több terméket a kosárhoz a folytatáshoz!
                     </Alert>
                 )}
 
@@ -151,7 +151,7 @@ export function CheckoutCart() {
                     type="submit"
                     variant="contained"
                     disabled={isCartEmpty || isUnderMinimum}
-                    color='primary'
+                    color="primary"
                     onClick={() => onChangeStep('next')}
                 >
                     Tovább a megrendeléshez

@@ -1,8 +1,16 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import { Card, Stack, TextField, CardHeader, Typography, CardContent, InputAdornment } from "@mui/material";
+import {
+    Card,
+    Stack,
+    TextField,
+    CardHeader,
+    Typography,
+    CardContent,
+    InputAdornment,
+} from '@mui/material';
 
 type SurchargeCardProps = {
     publicSurcharge?: number;
@@ -11,16 +19,16 @@ type SurchargeCardProps = {
     onSurchargesChange?: (surcharges: { public: number; vip: number; company: number }) => void;
 };
 
-export function SurchargeCard({ 
-    publicSurcharge = 0, 
-    vipSurcharge = 0, 
+export function SurchargeCard({
+    publicSurcharge = 0,
+    vipSurcharge = 0,
     companySurcharge = 0,
-    onSurchargesChange 
+    onSurchargesChange,
 }: SurchargeCardProps) {
     const [surcharges, setSurcharges] = useState({
         public: publicSurcharge,
         vip: vipSurcharge,
-        company: companySurcharge
+        company: companySurcharge,
     });
 
     // Update local state when props change
@@ -28,7 +36,7 @@ export function SurchargeCard({
         setSurcharges({
             public: publicSurcharge,
             vip: vipSurcharge,
-            company: companySurcharge
+            company: companySurcharge,
         });
     }, [publicSurcharge, vipSurcharge, companySurcharge]);
 
@@ -38,10 +46,10 @@ export function SurchargeCard({
         normalizedValue = Math.max(0, isNaN(normalizedValue) ? 0 : normalizedValue);
         // Limit to reasonable percentage (max 100%)
         normalizedValue = Math.min(100, normalizedValue);
-        
+
         const newSurcharges = { ...surcharges, [type]: normalizedValue };
         setSurcharges(newSurcharges);
-        
+
         // Notify parent component of changes
         onSurchargesChange?.(newSurcharges);
     };
@@ -51,54 +59,82 @@ export function SurchargeCard({
             <CardHeader title="Zárolási felár" />
             <CardContent>
                 <Stack spacing={3}>
-                    <Stack direction="row" spacing={6} sx={{width: '100%', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Stack
+                        direction="row"
+                        spacing={6}
+                        sx={{
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
                         <Typography>Publikus</Typography>
                         <TextField
                             type="number"
                             sx={{ minWidth: '30%' }}
                             value={surcharges.public}
-                            onChange={e => handleSurchargeChange('public', Number(e.target.value))}
+                            onChange={(e) =>
+                                handleSurchargeChange('public', Number(e.target.value))
+                            }
                             InputProps={{
-                                endAdornment: <InputAdornment position="end">%</InputAdornment>
+                                endAdornment: <InputAdornment position="end">%</InputAdornment>,
                             }}
                             inputProps={{
                                 min: 0,
                                 max: 100,
-                                step: 0.1
+                                step: 0.1,
                             }}
                         />
                     </Stack>
-                    <Stack direction="row" spacing={6} sx={{width: '100%', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Stack
+                        direction="row"
+                        spacing={6}
+                        sx={{
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
                         <Typography>VIP</Typography>
                         <TextField
                             type="number"
                             sx={{ minWidth: '30%' }}
                             value={surcharges.vip}
-                            onChange={e => handleSurchargeChange('vip', Number(e.target.value))}
+                            onChange={(e) => handleSurchargeChange('vip', Number(e.target.value))}
                             InputProps={{
-                                endAdornment: <InputAdornment position="end">%</InputAdornment>
+                                endAdornment: <InputAdornment position="end">%</InputAdornment>,
                             }}
                             inputProps={{
                                 min: 0,
                                 max: 100,
-                                step: 0.1
+                                step: 0.1,
                             }}
                         />
                     </Stack>
-                    <Stack direction="row" spacing={6} sx={{width: '100%', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Stack
+                        direction="row"
+                        spacing={6}
+                        sx={{
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
                         <Typography>Cég</Typography>
                         <TextField
                             type="number"
                             sx={{ minWidth: '30%' }}
                             value={surcharges.company}
-                            onChange={e => handleSurchargeChange('company', Number(e.target.value))}
+                            onChange={(e) =>
+                                handleSurchargeChange('company', Number(e.target.value))
+                            }
                             InputProps={{
-                                endAdornment: <InputAdornment position="end">%</InputAdornment>
+                                endAdornment: <InputAdornment position="end">%</InputAdornment>,
                             }}
                             inputProps={{
                                 min: 0,
                                 max: 100,
-                                step: 0.1
+                                step: 0.1,
                             }}
                         />
                     </Stack>

@@ -1,13 +1,12 @@
 'use client';
 
-
 import React from 'react';
 
 import { Box, Grid, Typography, CircularProgress } from '@mui/material';
 
-import { useProducts } from 'src/contexts/products-context'; 
+import { useProducts } from 'src/contexts/products-context';
 
-import ProductCard from 'src/components/product-card/product-card'; 
+import ProductCard from 'src/components/product-card/product-card';
 
 interface ProducerProductsProps {
     producerId: number;
@@ -24,7 +23,7 @@ export default function ProducerProducts({ producerId }: Readonly<ProducerProduc
         );
     }
 
-    const producerProducts = products.filter(product => product.producerId === producerId);
+    const producerProducts = products.filter((product) => product.producerId === producerId);
 
     if (error) {
         return <Typography color="error">Hiba a termékek betöltésekor: {error}</Typography>;
@@ -36,20 +35,20 @@ export default function ProducerProducts({ producerId }: Readonly<ProducerProduc
 
     return (
         <Box sx={{ my: 5 }}>
-            <Typography 
-                sx={{ 
-                    textTransform: 'uppercase', 
-                    fontWeight: 700, 
-                    mb: 3, 
-                    fontSize:{sm:"16px", md:"24px"}
+            <Typography
+                sx={{
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                    mb: 3,
+                    fontSize: { sm: '16px', md: '24px' },
                 }}
             >
                 További termékek
             </Typography>
             <Grid container spacing={2}>
                 {producerProducts.map((product) => (
-                    <Grid  key={product.id}  size={{xs:6, sm:6, md:3, lg:2.4}}>
-                        <ProductCard product={product}/>
+                    <Grid key={product.id} size={{ xs: 6, sm: 6, md: 3, lg: 2.4 }}>
+                        <ProductCard product={product} />
                     </Grid>
                 ))}
             </Grid>

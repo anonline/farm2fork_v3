@@ -1,1 +1,1 @@
-export * from './szezonalitas-view'
+export * from './szezonalitas-view';

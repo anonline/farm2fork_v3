@@ -9,81 +9,85 @@ import { supabase } from 'src/lib/supabase';
 // ----------------------------------------------------------------------
 
 const swrOptions: SWRConfiguration = {
-  revalidateOnMount: true,
-  revalidateIfStale: false,
-  revalidateOnFocus: true,
-  revalidateOnReconnect: false,
+    revalidateOnMount: true,
+    revalidateIfStale: false,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: false,
 };
 
 // ----------------------------------------------------------------------
 
 type ProducersData = {
-  producers: IProducerItem[];
+    producers: IProducerItem[];
 };
 
 export function useGetProducers() {
-  const { data, isLoading, error, isValidating, mutate } = useSWR<ProducersData>(
-    'producers',
-    async () => {
-      const response = await supabase.from('Producers').select('*');
-      const { data: producers, error: responseError } = response;
-      if (responseError) throw responseError.message;
-      return { producers };
-    },
-    swrOptions
-  );
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ProducersData>(
+        'producers',
+        async () => {
+            const response = await supabase.from('Producers').select('*');
+            const { data: producers, error: responseError } = response;
+            if (responseError) throw responseError.message;
+            return { producers };
+        },
+        swrOptions
+    );
 
-  const memoizedValue = useMemo(
-    () => ({
-      producers: data?.producers ?? [],
-      producersLoading: isLoading,
-      producersError: error,
-      producersValidating: isValidating,
-      producersEmpty: !isLoading && !isValidating && !data?.producers.length,
-      producersMutate: mutate,
-    }),
-    [data?.producers, error, isLoading, isValidating, mutate]
-  );
+    const memoizedValue = useMemo(
+        () => ({
+            producers: data?.producers ?? [],
+            producersLoading: isLoading,
+            producersError: error,
+            producersValidating: isValidating,
+            producersEmpty: !isLoading && !isValidating && !data?.producers.length,
+            producersMutate: mutate,
+        }),
+        [data?.producers, error, isLoading, isValidating, mutate]
+    );
 
-  return memoizedValue;
+    return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
 
 export function useGetProducerBySlug(slug: string) {
-  const swrKey = slug ? ['producer', slug] : null;
+    const swrKey = slug ? ['producer', slug] : null;
 
-  const { data, isLoading, error, isValidating } = useSWR(swrKey, async () => {
-    const response = await supabase.from('Producers').select('*').eq('slug', slug).single();
-    const { data: producer, error: responseError } = response;
-    if (responseError) throw responseError;
-    return producer;
-  });
+    const { data, isLoading, error, isValidating } = useSWR(swrKey, async () => {
+        const response = await supabase.from('Producers').select('*').eq('slug', slug).single();
+        const { data: producer, error: responseError } = response;
+        if (responseError) throw responseError;
+        return producer;
+    });
 
-  const memoizedValue = useMemo(
-    () => ({
-      producer: data,
-      producerLoading: isLoading,
-      producerError: error,
-      producerValidating: isValidating,
-    }),
-    [data, error, isLoading, isValidating]
-  );
+    const memoizedValue = useMemo(
+        () => ({
+            producer: data,
+            producerLoading: isLoading,
+            producerError: error,
+            producerValidating: isValidating,
+        }),
+        [data, error, isLoading, isValidating]
+    );
 
-  return memoizedValue;
+    return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
 
 export async function fetchGetProducerBySlug(slug: string) {
-  const { data, error } = await supabase.from('Producers').select('id').eq('slug', slug).maybeSingle();
+    const { data, error } = await supabase
+        .from('Producers')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
 
-  if (error) {
-    console.error('Hiba a producer lekérdezése közben (slug alapján):', error.message);
-    throw new Error(error.message);
-  }
+    if (error) {
+        console.error('Hiba a producer lekérdezése közben (slug alapján):', error.message);
+        throw new Error(error.message);
+    }
 
-  return { producer: data as { id: number } | null };
+    return { producer: data as { id: number } | null };
 }
 
 // ----------------------------------------------------------------------
@@ -91,56 +95,62 @@ export async function fetchGetProducerBySlug(slug: string) {
 // src/actions/producer.ts
 
 export async function createProducer(producerData: Partial<IProducerItem>) {
-  const { data, error } = await supabase.from('Producers').insert([producerData]).select().single();
-  if (error) throw new Error(error.message);
-  return data;
+    const { data, error } = await supabase
+        .from('Producers')
+        .insert([producerData])
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    return data;
 }
 
 export async function updateProducer(id: number, producerData: Partial<IProducerItem>) {
-  const { error } = await supabase.from('Producers').update(producerData).eq('id', id);
-  if (error) throw new Error(error.message);
-  return { success: true };
+    const { error } = await supabase.from('Producers').update(producerData).eq('id', id);
+    if (error) throw new Error(error.message);
+    return { success: true };
 }
 
 export async function deleteProducer(id: number) {
-  const { error } = await supabase.from('Producers').delete().eq('id', id);
-  if (error) throw new Error(error.message);
-  return { success: true };
+    const { error } = await supabase.from('Producers').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return { success: true };
 }
 
 export async function updateProductAssignments(producerId: number, newProductIds: number[]) {
-  const { data: currentProducts, error: fetchError } = await supabase
-    .from('Products')
-    .select('id')
-    .eq('producerId', producerId);
+    const { data: currentProducts, error: fetchError } = await supabase
+        .from('Products')
+        .select('id')
+        .eq('producerId', producerId);
 
-  if (fetchError) throw new Error('A meglévő termékek lekérdezése sikertelen.');
+    if (fetchError) throw new Error('A meglévő termékek lekérdezése sikertelen.');
 
-  const currentProductIds = currentProducts.map(p => p.id);
+    const currentProductIds = currentProducts.map((p) => p.id);
 
-  const productsToAssign = newProductIds.filter(id => !currentProductIds.includes(id));
-  const productsToUnassign = currentProductIds.filter(id => !newProductIds.includes(id));
+    const productsToAssign = newProductIds.filter((id) => !currentProductIds.includes(id));
+    const productsToUnassign = currentProductIds.filter((id) => !newProductIds.includes(id));
 
-  const operations = [];
+    const operations = [];
 
-  if (productsToAssign.length > 0) {
-    operations.push(
-      supabase.from('Products').update({ producer_id: producerId }).in('id', productsToAssign)
-    );
-  }
+    if (productsToAssign.length > 0) {
+        operations.push(
+            supabase.from('Products').update({ producer_id: producerId }).in('id', productsToAssign)
+        );
+    }
 
-  if (productsToUnassign.length > 0) {
-    operations.push(
-      supabase.from('Products').update({ producer_id: null }).in('id', productsToUnassign)
-    );
-  }
+    if (productsToUnassign.length > 0) {
+        operations.push(
+            supabase.from('Products').update({ producer_id: null }).in('id', productsToUnassign)
+        );
+    }
 
-  const results = await Promise.all(operations);
-  
-  const failedOp = results.find(res => res.error);
-  if (failedOp) {
-    throw new Error(`Hiba a termék-hozzárendelések frissítése során: ${failedOp.error?.message}`);
-  }
+    const results = await Promise.all(operations);
 
-  return { success: true };
+    const failedOp = results.find((res) => res.error);
+    if (failedOp) {
+        throw new Error(
+            `Hiba a termék-hozzárendelések frissítése során: ${failedOp.error?.message}`
+        );
+    }
+
+    return { success: true };
 }

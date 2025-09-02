@@ -14,9 +14,7 @@ export default function Layout({ children }: Readonly<Props>) {
     return (
         <GuestGuard>
             <MainLayout>
-                <Container>
-                    {children}
-                </Container>
+                <Container>{children}</Container>
             </MainLayout>
         </GuestGuard>
     );

@@ -14,8 +14,8 @@ type Props = {
 };
 
 export default async function Page({ params }: Readonly<Props>) {
-  const { id } = await params;
-  const currentUser = await getUserById(id);
+    const { id } = await params;
+    const currentUser = await getUserById(id);
 
     return <UserEditView user={currentUser} />;
 }

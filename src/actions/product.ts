@@ -22,24 +22,24 @@ type ProductsData = {
 };
 
 export function useGetProducts() {
-  const { data, isLoading, error, isValidating } = useSWR<ProductsData>("products", async () =>  {
-    const response = await supabase.from("Products").select("*");
-    const { data: products, error: responseError } = response;
-    
-    if (responseError) throw responseError.message;
-    return { products };
-  });
-  
-  const memoizedValue = useMemo(
-    () => ({
-      products: data?.products || [],
-      productsLoading: isLoading,
-      productsError: error,
-      productsValidating: isValidating,
-      productsEmpty: !isLoading && !isValidating && !data?.products.length,
-    }),
-    [data?.products, error, isLoading, isValidating]
-  );
+    const { data, isLoading, error, isValidating } = useSWR<ProductsData>('products', async () => {
+        const response = await supabase.from('Products').select('*');
+        const { data: products, error: responseError } = response;
+
+        if (responseError) throw responseError.message;
+        return { products };
+    });
+
+    const memoizedValue = useMemo(
+        () => ({
+            products: data?.products || [],
+            productsLoading: isLoading,
+            productsError: error,
+            productsValidating: isValidating,
+            productsEmpty: !isLoading && !isValidating && !data?.products.length,
+        }),
+        [data?.products, error, isLoading, isValidating]
+    );
 
     return memoizedValue;
 }
@@ -69,12 +69,12 @@ export function useGetProduct(productId: string) {
 }
 
 export async function fetchGetProductBySlug(slug: string) {
-    const response = await supabase.from("Products").select("*").eq('url',slug).maybeSingle();
+    const response = await supabase.from('Products').select('*').eq('url', slug).maybeSingle();
     const { data, error: responseError } = response;
-    
+
     if (responseError) throw responseError.message;
     return { product: data as IProductItem };
-  }
+}
 
 // ----------------------------------------------------------------------
 

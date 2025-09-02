@@ -1,13 +1,12 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import { Avatar, Tooltip } from "@mui/material";
+import { Avatar, Tooltip } from '@mui/material';
 
-import { Iconify } from "src/components/iconify";
+import { Iconify } from 'src/components/iconify';
 
-export default function LoggedInHeaderAvatar({name}: Readonly<{ name?: string }>) {
-
+export default function LoggedInHeaderAvatar({ name }: Readonly<{ name?: string }>) {
     const initialsFallback = <Iconify icon="solar:user-rounded-bold" />;
-    const tooltipFallback = "Profil megtekintése";
+    const tooltipFallback = 'Profil megtekintése';
     const profileUrl = '/profil/rendelesek'; //TODO: Use paths.profil.rendelesek when available
 
     const hasName = !!name && name.trim().length > 0;
@@ -15,9 +14,9 @@ export default function LoggedInHeaderAvatar({name}: Readonly<{ name?: string }>
     const tooltipText = hasName ? name : tooltipFallback;
     const initialsContent = hasName
         ? name
-                .split(' ')
-                .map((n) => n[0]?.toUpperCase())
-                .join('')
+              .split(' ')
+              .map((n) => n[0]?.toUpperCase())
+              .join('')
         : initialsFallback;
 
     return (

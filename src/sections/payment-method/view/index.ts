@@ -1,1 +1,1 @@
-export * from './payment-method-list-view'
+export * from './payment-method-list-view';

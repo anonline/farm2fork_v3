@@ -12,27 +12,24 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import ProducerNewEditForm from '../producer-new-edit-form';
 
 export default function ProducerEditView() {
-  const params = useParams();
-  const slug = params.slug as string;
-  
-  const { producer, producerLoading } = useGetProducerBySlug(slug);
+    const params = useParams();
+    const slug = params.slug as string;
 
-  return (
-    <DashboardContent>
-      <CustomBreadcrumbs
-        heading="Termelő szerkesztése"
-        links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Termelők', href: paths.dashboard.producer.root },
-          { name: producer?.name || '...' },
-        ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-      
-      {!producerLoading && producer && (
-        <ProducerNewEditForm currentProducer={producer} />
-      )}
+    const { producer, producerLoading } = useGetProducerBySlug(slug);
 
-    </DashboardContent>
-  );
+    return (
+        <DashboardContent>
+            <CustomBreadcrumbs
+                heading="Termelő szerkesztése"
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Termelők', href: paths.dashboard.producer.root },
+                    { name: producer?.name || '...' },
+                ]}
+                sx={{ mb: { xs: 3, md: 5 } }}
+            />
+
+            {!producerLoading && producer && <ProducerNewEditForm currentProducer={producer} />}
+        </DashboardContent>
+    );
 }

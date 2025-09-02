@@ -5,29 +5,28 @@ import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
 
-
-
 export function useGetPartners() {
-  const SWR_KEY = 'partners';
-  const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
-    const { data: partners, error: dbError } = await supabase
-      .from('Partners')
-      .select('*')
-      .order('order', { ascending: true });
-    
-    if (dbError) throw new Error(dbError.message);
-    return partners as IPartner[];
-  });
+    const SWR_KEY = 'partners';
+    const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
+        const { data: partners, error: dbError } = await supabase
+            .from('Partners')
+            .select('*')
+            .order('order', { ascending: true });
 
-  return useMemo(() => ({
-      partners: data || [],
-      partnersLoading: isLoading,
-      partnersError: error,
-      partnersMutate: mutate,
-    }), [data, error, isLoading, mutate]);
+        if (dbError) throw new Error(dbError.message);
+        return partners as IPartner[];
+    });
+
+    return useMemo(
+        () => ({
+            partners: data || [],
+            partnersLoading: isLoading,
+            partnersError: error,
+            partnersMutate: mutate,
+        }),
+        [data, error, isLoading, mutate]
+    );
 }
-
-
 
 export async function createPartner(partnerData: Omit<IPartner, 'id' | 'order'>) {
     const { data: maxOrderData, error: maxOrderError } = await supabase
@@ -40,21 +39,23 @@ export async function createPartner(partnerData: Omit<IPartner, 'id' | 'order'>)
     if (maxOrderError && maxOrderError.code !== 'PGRST116') {
         throw new Error(maxOrderError.message);
     }
-    
+
     const newOrder = maxOrderData ? maxOrderData.order + 1 : 0;
-    
+
     const { data, error } = await supabase
         .from('Partners')
         .insert([{ ...partnerData, order: newOrder }])
         .select()
         .single();
-        
+
     if (error) throw new Error(error.message);
     return data;
 }
 
-
-export async function updatePartner(id: number, partnerData: Pick<IPartner, 'name' | 'imageUrl' | 'link'>) {
+export async function updatePartner(
+    id: number,
+    partnerData: Pick<IPartner, 'name' | 'imageUrl' | 'link'>
+) {
     const { data, error } = await supabase
         .from('Partners')
         .update(partnerData)
@@ -74,17 +75,17 @@ export async function deletePartner(id: number) {
         .from('Partners')
         .select('*')
         .order('order', { ascending: true });
-    
+
     if (fetchError) throw new Error(fetchError.message);
 
     const updatedOrderPartners = remainingPartners.map((partner, index) => ({
         ...partner,
         order: index,
     }));
-    
+
     const { error: updateError } = await supabase.from('Partners').upsert(updatedOrderPartners);
     if (updateError) throw new Error(updateError.message);
-    
+
     return { success: true };
 }
 

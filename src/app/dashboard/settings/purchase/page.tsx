@@ -6,7 +6,9 @@ import { PurchaseListView } from 'src/sections/dashboard/settings/purchase/purch
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Vásárlási beállítások | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = {
+    title: `Vásárlási beállítások | Dashboard - ${CONFIG.appName}`,
+};
 
 export default function Page() {
     return <PurchaseListView />;

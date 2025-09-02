@@ -199,7 +199,7 @@ export const navData: NavSectionProps['data'] = [
                 title: 'GYIK',
                 path: paths.dashboard.faqs.root,
                 icon: ICONS.menuItem,
-                caption: 'Gyakran Ismételt Kérdések'
+                caption: 'Gyakran Ismételt Kérdések',
             },
             /*{
                 /**
@@ -228,13 +228,33 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.parameter,
                 children: [
                     { title: 'Kezdőképernyő beállításai', path: '#/dashboard/settings/home' },
-                    { title: 'Vásárlás', path: paths.dashboard.settings.purchase, icon: ICONS.order },
-                    { title:'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
-                    { title:'Partnerek', path: paths.dashboard.partners.root, icon: ICONS.kanban },
-                    { title:'Szállítási Zónák', path: paths.dashboard.shipping.root, icon: ICONS.tour },
-                    { title:'Szállítási díjak és metódusok', path: paths.dashboard.shippingCost.root, icon: ICONS.banking },
-                    { title:'Fizetésimódok', path: paths.dashboard.paymentMethod.root, icon: ICONS.external },
-                    { title:'Átvételi pontok', path: paths.dashboard.pickup.root, icon: ICONS.folder },
+                    {
+                        title: 'Vásárlás',
+                        path: paths.dashboard.settings.purchase,
+                        icon: ICONS.order,
+                    },
+                    { title: 'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
+                    { title: 'Partnerek', path: paths.dashboard.partners.root, icon: ICONS.kanban },
+                    {
+                        title: 'Szállítási Zónák',
+                        path: paths.dashboard.shipping.root,
+                        icon: ICONS.tour,
+                    },
+                    {
+                        title: 'Szállítási díjak és metódusok',
+                        path: paths.dashboard.shippingCost.root,
+                        icon: ICONS.banking,
+                    },
+                    {
+                        title: 'Fizetésimódok',
+                        path: paths.dashboard.paymentMethod.root,
+                        icon: ICONS.external,
+                    },
+                    {
+                        title: 'Átvételi pontok',
+                        path: paths.dashboard.pickup.root,
+                        icon: ICONS.folder,
+                    },
                     {
                         title: 'Level 1a',
                         path: '#/dashboard/menu_level/menu_level_1a',
@@ -294,10 +314,6 @@ export const navData: NavSectionProps['data'] = [
                 info: <Iconify width={18} icon="eva:external-link-fill" />,
             },
             { title: 'Blank', path: paths.dashboard.blank, icon: ICONS.blank },*/
-            
-                
-        
         ],
-
     },
 ];

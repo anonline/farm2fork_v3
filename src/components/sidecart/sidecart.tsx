@@ -1,5 +1,15 @@
 import { useTheme } from '@mui/material/styles';
-import { Box, Stack, Alert, Drawer, Button, Divider, Typography, IconButton, useMediaQuery } from '@mui/material';
+import {
+    Box,
+    Stack,
+    Alert,
+    Drawer,
+    Button,
+    Divider,
+    Typography,
+    IconButton,
+    useMediaQuery,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -18,7 +28,6 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import { OptionsEnum } from 'src/types/option';
 
-
 // ----------------------------------------------------------------------
 
 type SideCartProps = {
@@ -30,13 +39,13 @@ export function SideCart({ open, onClose }: SideCartProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const { user, authenticated } = useAuthContext();
-    
-    const { 
-        state: checkoutState, 
-        onDeleteCartItem, 
-        onChangeItemQuantity, 
-        onAddNote, 
-        onDeleteNote 
+
+    const {
+        state: checkoutState,
+        onDeleteCartItem,
+        onChangeItemQuantity,
+        onAddNote,
+        onDeleteNote,
     } = useCheckoutContext();
 
     // Determine user type for minimum purchase check
@@ -49,7 +58,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
     };
 
     const userType = getUserType();
-    
+
     // Get the appropriate minimum purchase option based on user type
     const getMinimumPurchaseOption = () => {
         switch (userType) {
@@ -82,18 +91,21 @@ export function SideCart({ open, onClose }: SideCartProps) {
             }}
         >
             {/* Header */}
-            <Box 
-                sx={{ 
-                    p: 3, 
-                    position: 'relative', 
+            <Box
+                sx={{
+                    p: 3,
+                    position: 'relative',
                     borderBottom: `1px solid ${theme.palette.divider}`,
-                    bgcolor: 'background.paper'
+                    bgcolor: 'background.paper',
                 }}
             >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Kosár {(checkoutState.items.length > 0 ? '(' + checkoutState.items.length + ' db)' : '')}
+                    Kosár{' '}
+                    {checkoutState.items.length > 0
+                        ? '(' + checkoutState.items.length + ' db)'
+                        : ''}
                 </Typography>
-                
+
                 <IconButton
                     onClick={onClose}
                     sx={{
@@ -108,16 +120,17 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
                 {/* Minimum Purchase Alert */}
                 {!isCartEmpty && isUnderMinimum && (
-                    <Alert 
-                        severity="warning" 
-                        sx={{ 
+                    <Alert
+                        severity="warning"
+                        sx={{
                             mt: 2,
                             '& .MuiAlert-message': {
-                                fontSize: '14px'
-                            }
+                                fontSize: '14px',
+                            },
                         }}
                     >
-                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Módosítsd a kosarad tartalmát itt, vagy adj hozzá termékeket!
+                        A minimum rendelési összeg {fCurrency(minimumPurchaseAmount)}. Módosítsd a
+                        kosarad tartalmát itt, vagy adj hozzá termékeket!
                     </Alert>
                 )}
             </Box>
@@ -125,21 +138,21 @@ export function SideCart({ open, onClose }: SideCartProps) {
             {/* Cart Items */}
             <Box sx={{ flex: 1, overflow: 'hidden' }}>
                 {isCartEmpty ? (
-                    <Box 
-                        sx={{ 
-                            p: 3, 
+                    <Box
+                        sx={{
+                            p: 3,
                             textAlign: 'center',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            height: '100%'
+                            height: '100%',
                         }}
                     >
-                        <Iconify 
-                            icon="solar:cart-3-bold" 
-                            width={64} 
-                            sx={{ color: 'text.disabled', mb: 2 }} 
+                        <Iconify
+                            icon="solar:cart-3-bold"
+                            width={64}
+                            sx={{ color: 'text.disabled', mb: 2 }}
                         />
                         <Typography variant="subtitle1" sx={{ mb: 1 }}>
                             A kosár üres
@@ -181,11 +194,11 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
             {/* Footer - Only show if cart has items */}
             {!isCartEmpty && (
-                <Box 
-                    sx={{ 
-                        p: 3, 
+                <Box
+                    sx={{
+                        p: 3,
                         borderTop: `1px solid ${theme.palette.divider}`,
-                        bgcolor: 'background.paper'
+                        bgcolor: 'background.paper',
                     }}
                 >
                     <Stack spacing={2}>
@@ -199,7 +212,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                     {fCurrency(checkoutState.subtotal)}
                                 </Typography>
                             </Box>
-                            
+
                             {checkoutState.discount > 0 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <Typography variant="body2" color="text.secondary">
@@ -223,7 +236,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                             )}
 
                             <Divider />
-                            
+
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                                     Összesen
@@ -236,8 +249,22 @@ export function SideCart({ open, onClose }: SideCartProps) {
 
                         {/* Actions */}
                         <Stack spacing={1.5}>
-                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                                <Iconify icon="solar:info-circle-bold" width={18} sx={{ color: 'text.secondary' }} />
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    textAlign: 'center',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <Iconify
+                                    icon="solar:info-circle-bold"
+                                    width={18}
+                                    sx={{ color: 'text.secondary' }}
+                                />
                                 A végleges árat a rendelés feldolgozása után tudjuk pontosítani.
                             </Typography>
                             <Button
@@ -266,23 +293,26 @@ type SideCartItemProps = {
     onChangeItemQuantity?: (itemId: number, quantity: number) => void;
     onAddNote?: (itemId: number, note: string) => void;
     onDeleteNote?: (itemId: number) => void;
-    hideControl?:boolean
+    hideControl?: boolean;
 };
 
-export function SideCartItem({ 
-    item, 
-    onDeleteCartItem, 
+export function SideCartItem({
+    item,
+    onDeleteCartItem,
     onChangeItemQuantity,
     onAddNote,
     onDeleteNote,
-    hideControl = false
+    hideControl = false,
 }: Readonly<SideCartItemProps>) {
     return (
         <Box sx={{ display: 'flex', gap: 2, p: 1, alignItems: 'center' }}>
             {/* Product Image */}
             <Box
                 component="img"
-                src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                src={
+                    item.coverUrl ||
+                    'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                }
                 alt={item.name}
                 sx={{
                     width: 100,
@@ -296,9 +326,9 @@ export function SideCartItem({
 
             {/* Product Info */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography 
-                    variant="subtitle2" 
-                    sx={{ 
+                <Typography
+                    variant="subtitle2"
+                    sx={{
                         fontWeight: 600,
                         mb: 0.5,
                         display: '-webkit-box',
@@ -309,7 +339,7 @@ export function SideCartItem({
                 >
                     {item.name}
                 </Typography>
-                
+
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                     {fCurrency(item.price)}/{item.unit || 'db'}
                 </Typography>
@@ -318,7 +348,6 @@ export function SideCartItem({
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <NumberInput
-                            
                             disabled={hideControl}
                             value={item.quantity}
                             onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}

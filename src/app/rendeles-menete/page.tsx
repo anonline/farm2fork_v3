@@ -7,7 +7,5 @@ import RendelesMeneteView from 'src/sections/rendeles-menete/view/rendeles-menet
 export const metadata: Metadata = { title: `Rendelés menete - ${CONFIG.appName}` };
 
 export default function Page() {
-    return (
-        <RendelesMeneteView />
-    );
+    return <RendelesMeneteView />;
 }

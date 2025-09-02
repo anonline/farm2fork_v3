@@ -76,10 +76,14 @@ type FaqsData = {
 };
 
 export function useGetFaqs() {
-    const { data, isLoading, error, isValidating } = useSWR<FaqsData>('faqs', async () => {
-        const faqs = await fetchFaqs();
-        return { faqs };
-    },{ ...swrOptions });
+    const { data, isLoading, error, isValidating } = useSWR<FaqsData>(
+        'faqs',
+        async () => {
+            const faqs = await fetchFaqs();
+            return { faqs };
+        },
+        { ...swrOptions }
+    );
 
     const memoizedValue = useMemo(
         () => ({
@@ -102,10 +106,14 @@ type FaqData = {
 };
 
 export function useGetFaq(faqId: number) {
-    const { data, isLoading, error, isValidating } = useSWR<FaqData>('faq', async () => {
-        const faq = await fetchFaq(faqId);
-        return { faq };
-    },{ ...swrOptions });
+    const { data, isLoading, error, isValidating } = useSWR<FaqData>(
+        'faq',
+        async () => {
+            const faq = await fetchFaq(faqId);
+            return { faq };
+        },
+        { ...swrOptions }
+    );
 
     const memoizedValue = useMemo(
         () => ({
@@ -127,10 +135,14 @@ type ChildFaqData = {
 };
 
 export function useGetChildFaqs(faqCategoryId: number) {
-    const { data, isLoading, error, isValidating } = useSWR<ChildFaqData>('childFaqs', async () => {
-        const faqs = await fetchFaqsByCategoryId(faqCategoryId);
-        return { faqs };
-    },{ ...swrOptions });
+    const { data, isLoading, error, isValidating } = useSWR<ChildFaqData>(
+        'childFaqs',
+        async () => {
+            const faqs = await fetchFaqsByCategoryId(faqCategoryId);
+            return { faqs };
+        },
+        { ...swrOptions }
+    );
 
     const memoizedValue = useMemo(
         () => ({
@@ -152,10 +164,14 @@ type FaqCategoryData = {
 };
 
 export function useGetFaqCategory(faqId: number) {
-    const { data, isLoading, error, isValidating } = useSWR<FaqCategoryData>('faqCategory', async () => {
+    const { data, isLoading, error, isValidating } = useSWR<FaqCategoryData>(
+        'faqCategory',
+        async () => {
             const faqCategory = await fetchFaqCategory(faqId);
             return { faqCategory };
-        },{ ...swrOptions });
+        },
+        { ...swrOptions }
+    );
 
     const memoizedValue = useMemo(
         () => ({
@@ -191,8 +207,9 @@ export function useGetFaqCategories() {
 
             if (responseError) throw responseError.message;
             return { faqsCategories };
-        
-    },{ ...swrOptions });
+        },
+        { ...swrOptions }
+    );
 
     const memoizedValue = useMemo(
         () => ({

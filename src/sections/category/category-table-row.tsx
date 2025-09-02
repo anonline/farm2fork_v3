@@ -37,47 +37,48 @@ export function RenderCellCreatedAt({ params }: ParamsProps) {
 }
 
 export function RenderCellCategory({ params, href }: ParamsProps & { href: string }) {
-    
     function stripHtml(description: any) {
         if (typeof description !== 'string') return '';
         return description.replace(/<[^>]*>/g, '').trim();
     }
-    
+
     return (
         <Box
             sx={{
-            py: 2,
-            gap: 2,
-            width: 1,
-            display: 'flex',
-            alignItems: 'center',
+                py: 2,
+                gap: 2,
+                width: 1,
+                display: 'flex',
+                alignItems: 'center',
             }}
         >
             <Avatar
-            alt={params.row.name}
-            src={params.row.coverUrl}
-            variant="rounded"
-            sx={{ width: 64, height: 64, ml: { sx: 0, md: params.row.parentId ? `${params.row.level * 64}px` : 0 } }}
+                alt={params.row.name}
+                src={params.row.coverUrl}
+                variant="rounded"
+                sx={{
+                    width: 64,
+                    height: 64,
+                    ml: { sx: 0, md: params.row.parentId ? `${params.row.level * 64}px` : 0 },
+                }}
             />
 
             <ListItemText
-            primary={
-                <Link component={RouterLink} href={href} color="inherit">
-                {params.row.name}
-                </Link>
-            }
-            secondary={
-                params.row.description &&
-                params.row.description !== 'null' &&
-                (
-                (stripHtml(params.row.description).slice(0, 50)) +
-                (stripHtml(params.row.description).length > 50 ? '...' : '')
-                )
-            }
-            slotProps={{
-                primary: { noWrap: true },
-                secondary: { sx: { color: 'text.disabled' } },
-            }}
+                primary={
+                    <Link component={RouterLink} href={href} color="inherit">
+                        {params.row.name}
+                    </Link>
+                }
+                secondary={
+                    params.row.description &&
+                    params.row.description !== 'null' &&
+                    stripHtml(params.row.description).slice(0, 50) +
+                        (stripHtml(params.row.description).length > 50 ? '...' : '')
+                }
+                slotProps={{
+                    primary: { noWrap: true },
+                    secondary: { sx: { color: 'text.disabled' } },
+                }}
             />
         </Box>
     );

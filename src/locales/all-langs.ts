@@ -6,7 +6,7 @@ import {
     viVN as viVNCore,
     zhCN as zhCNCore,
     arSA as arSACore,
-    huHU as huHUCore
+    huHU as huHUCore,
 } from '@mui/material/locale';
 // date pickers (MUI)
 import {
@@ -101,7 +101,7 @@ export const allLangs = [
             components: {
                 ...huHUCore.components,
                 ...huHUDate.components,
-                ...huHUDataGrid.components
+                ...huHUDataGrid.components,
             },
         },
     },

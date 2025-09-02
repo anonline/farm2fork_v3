@@ -1,39 +1,36 @@
 'use client';
 
-
 import { Box, Stack, Container } from '@mui/material';
 
 import { SignUpWizard } from 'src/auth/components/sign-up-wizard';
 
-
 // ----------------------------------------------------------------------
 
-
 export default function SupabaseSignUpView() {
-  return (
-    <Container sx={{ marginRight: 'auto', paddingY: 5 }}>
-      <Box 
-        display="flex"
-        sx={{ 
-          gap: { xs: 4, md: 8 }, 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}
-      >
-        <Stack
-          sx={{
-            width: 1,
-            mx: 'auto',
-            maxWidth: 480,
-          }}
-        >
-          <SignUpWizard />
-        </Stack>
-        
-        <Illustration />
-      </Box>
-    </Container>
-  );
+    return (
+        <Container sx={{ marginRight: 'auto', paddingY: 5 }}>
+            <Box
+                display="flex"
+                sx={{
+                    gap: { xs: 4, md: 8 },
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Stack
+                    sx={{
+                        width: 1,
+                        mx: 'auto',
+                        maxWidth: 480,
+                    }}
+                >
+                    <SignUpWizard />
+                </Stack>
+
+                <Illustration />
+            </Box>
+        </Container>
+    );
 }
 
 export function Illustration() {

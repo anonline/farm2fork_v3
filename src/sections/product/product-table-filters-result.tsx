@@ -75,7 +75,9 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
                     <Chip
                         {...chipProps}
                         key={item}
-                        label={upperFirst(PUBLISH_OPTIONS.find((option) => option.value === item)?.label || item)}
+                        label={upperFirst(
+                            PUBLISH_OPTIONS.find((option) => option.value === item)?.label || item
+                        )}
                         onDelete={() => handleRemovePublish(item)}
                     />
                 ))}
@@ -86,7 +88,9 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
                     <Chip
                         {...chipProps}
                         key={item}
-                        label={upperFirst(BIO_OPTIONS.find((option) => option.value === item)?.label || item)}
+                        label={upperFirst(
+                            BIO_OPTIONS.find((option) => option.value === item)?.label || item
+                        )}
                         onDelete={() => handleRemoveBio(item)}
                     />
                 ))}

@@ -21,12 +21,17 @@ export default async function Page() {
         OptionsEnum.HomeHeroTitle,
         OptionsEnum.HomeHeroPrimaryBtnText,
         OptionsEnum.HomeHeroSecondaryBtnText,
-        OptionsEnum.HomeHeroOverlay
+        OptionsEnum.HomeHeroOverlay,
     ];
 
-    const [heroImg, heroHeight, heroTitle, heroPrimaryBtnText, heroSecondaryBtnText, heroImgOverlay] = await Promise.all(
-        optionKeys.map(getOption)
-    );
+    const [
+        heroImg,
+        heroHeight,
+        heroTitle,
+        heroPrimaryBtnText,
+        heroSecondaryBtnText,
+        heroImgOverlay,
+    ] = await Promise.all(optionKeys.map(getOption));
 
     const HomeViewProps = {
         heroImg: heroImg?.value,
@@ -34,7 +39,7 @@ export default async function Page() {
         heroTitle: heroTitle?.value,
         heroPrimaryBtnText: heroPrimaryBtnText?.value,
         heroSecondaryBtnText: heroSecondaryBtnText?.value,
-        heroImgOverlay: heroImgOverlay?.value
+        heroImgOverlay: heroImgOverlay?.value,
     };
 
     return <HomeView {...HomeViewProps} />;

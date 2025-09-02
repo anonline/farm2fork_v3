@@ -14,13 +14,15 @@ export default function RendelesMeneteView() {
     return (
         <PostcodeProvider>
             <Container maxWidth="md">
-                <Box sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "widht 0.3s ease-in-out",
-                    gap: { xs: "40px", md: '20px'},
-                    paddingTop: "50px",
-                }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'widht 0.3s ease-in-out',
+                        gap: { xs: '40px', md: '20px' },
+                        paddingTop: '50px',
+                    }}
+                >
                     <RendelesMeneteHero />
                     <RendelesMeneteRegisztracio />
                     <RendelesMeneteTermekKivalasztas />

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
@@ -18,12 +17,12 @@ type PickupLocationSelectorProps = {
     onLocationChange: (locationId: number) => void;
 };
 
-export function PickupLocationSelector({ 
-    selectedPickupLocation, 
-    onLocationChange 
+export function PickupLocationSelector({
+    selectedPickupLocation,
+    onLocationChange,
 }: PickupLocationSelectorProps) {
     const [showAllPickupLocations, setShowAllPickupLocations] = useState<boolean>(false);
-    
+
     const { locations: pickupLocations, locationsLoading } = useGetPickupLocations();
 
     const handleLocationChange = (locationId: number) => {
@@ -42,9 +41,9 @@ export function PickupLocationSelector({
     // Get the currently selected location or default to Farm2Fork
     const getDisplayedLocation = () => {
         if (selectedPickupLocation) {
-            return pickupLocations.find(loc => loc.id === selectedPickupLocation);
+            return pickupLocations.find((loc) => loc.id === selectedPickupLocation);
         }
-        return pickupLocations.find(loc => loc.enabled && loc.name.includes('Farm2Fork'));
+        return pickupLocations.find((loc) => loc.enabled && loc.name.includes('Farm2Fork'));
     };
 
     const displayedLocation = getDisplayedLocation();
@@ -76,15 +75,12 @@ export function PickupLocationSelector({
                         sx={{ mb: 2 }}
                         fullWidth
                     >
-                        {selectedPickupLocation ? 'Átvételi pont módosítása' : 'Összes átvételi pont betöltése'}
+                        {selectedPickupLocation
+                            ? 'Átvételi pont módosítása'
+                            : 'Összes átvételi pont betöltése'}
                     </Button>
                 ) : (
-                    <Button
-                        variant="text"
-                        onClick={handleCloseSelection}
-                        sx={{ mb: 2 }}
-                        fullWidth
-                    >
+                    <Button variant="text" onClick={handleCloseSelection} sx={{ mb: 2 }} fullWidth>
                         Kiválasztás bezárása
                     </Button>
                 )}
@@ -92,7 +88,9 @@ export function PickupLocationSelector({
                 {/* All pickup locations */}
                 <Collapse in={showAllPickupLocations}>
                     {pickupLocations
-                        .filter(location => location.enabled && location.id !== selectedPickupLocation)
+                        .filter(
+                            (location) => location.enabled && location.id !== selectedPickupLocation
+                        )
                         .map((location) => (
                             <PickupLocationCard
                                 key={location.id}
@@ -101,8 +99,7 @@ export function PickupLocationSelector({
                                 value={location.id}
                                 onChange={handleLocationChange}
                             />
-                        ))
-                    }
+                        ))}
                 </Collapse>
             </RadioGroup>
         </Box>

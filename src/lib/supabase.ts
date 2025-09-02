@@ -12,8 +12,5 @@ const supabaseUrl = CONFIG.supabase.url;
 const supabaseKey = CONFIG.supabase.key;
 
 export const supabase = isSupabase
-  ? createBrowserClient(supabaseUrl, supabaseKey)
-  : ({} as SupabaseClient<any, 'public', any>);
-
-
-
+    ? createBrowserClient(supabaseUrl, supabaseKey)
+    : ({} as SupabaseClient<any, 'public', any>);

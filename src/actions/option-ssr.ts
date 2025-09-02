@@ -22,19 +22,18 @@ export async function getOption(option: OptionsEnum) {
     const now = Date.now();
     if (optionCache.has(option)) {
         const cachedOption = optionCache.get(option);
-        if (cachedOption && cachedOption.expiresAt > now)
-        {
+        if (cachedOption && cachedOption.expiresAt > now) {
             return cachedOption;
         }
         optionCache.delete(option);
     }
     const value = await fetchOption(option);
 
-    optionCache.set(option, {value, expiresAt: now + CACHE_TTL_MS} );
+    optionCache.set(option, { value, expiresAt: now + CACHE_TTL_MS });
     return value;
 }
 
-export async function fetchOption(option:OptionsEnum) {
+export async function fetchOption(option: OptionsEnum) {
     const cookieStore = await cookies();
     const supabase = await supabaseSSR(cookieStore);
 

@@ -5,5 +5,5 @@ import PaymentMethodListView from 'src/sections/payment-method/view/payment-meth
 export const metadata: Metadata = { title: 'Fizetési Módok' };
 
 export default function Page() {
-  return <PaymentMethodListView />;
+    return <PaymentMethodListView />;
 }

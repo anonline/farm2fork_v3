@@ -50,7 +50,7 @@ const CATEGORIES = [
 type FaqsCategoryViewProps = {
     faqs: IFaqItem[];
     faqCategories: IFaqCategoryItem[];
-}
+};
 
 export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewProps>) {
     const navOpen = useBoolean();
@@ -59,7 +59,9 @@ export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewP
     const [filteredFaqs, setFilteredFaqs] = useState(faqs ?? []);
 
     useEffect(() => {
-        const filteredFaqsByCategoryId = faqs.filter((faq) => faq.faqCategoryId.toString() == customTabs.value || customTabs.value == '-1');
+        const filteredFaqsByCategoryId = faqs.filter(
+            (faq) => faq.faqCategoryId.toString() == customTabs.value || customTabs.value == '-1'
+        );
         setFilteredFaqs(filteredFaqsByCategoryId);
     }, [faqs, customTabs.value]);
 
@@ -130,14 +132,14 @@ export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewP
                 </CustomTabs>
             </Box>
 
-            {filteredFaqs.length > 0 ? 
+            {filteredFaqs.length > 0 ? (
                 <F2FFaqsList data={filteredFaqs} />
-            :
+            ) : (
                 <Alert severity="info" sx={{}}>
-                    Sajnos nincs elérhető kérdés a kategóriában. Kérjük vegye fel a kapcsolatot velünk elérhetőségeink bármelyikén.
+                    Sajnos nincs elérhető kérdés a kategóriában. Kérjük vegye fel a kapcsolatot
+                    velünk elérhetőségeink bármelyikén.
                 </Alert>
-            }
-
+            )}
         </Box>
     );
 

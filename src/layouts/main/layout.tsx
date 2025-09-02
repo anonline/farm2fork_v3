@@ -124,7 +124,7 @@ function MainLayoutContent({
                 {announcement}
             </Box>
         );
-    }
+    };
 
     const renderHeader = () => {
         const headerSlots: HeaderSectionProps['slots'] = {
@@ -146,8 +146,15 @@ function MainLayoutContent({
                     />
                     <NavMobile data={navData} open={open} onClose={onClose} />
 
-                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: { sm: 0, md: 0, lg: 0, xl: 0 } }}>
-                        <Logo sx={{ marginRight: "30px", marginTop: '-8px' }} />
+                    <Container
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-start',
+                            paddingLeft: { sm: 0, md: 0, lg: 0, xl: 0 },
+                        }}
+                    >
+                        <Logo sx={{ marginRight: '30px', marginTop: '-8px' }} />
                         <NavDesktop
                             data={navData}
                             sx={(theme) => ({
@@ -164,59 +171,46 @@ function MainLayoutContent({
 
                     <HeaderCartButton />
 
-                    {
-                        !authContext.loading && authContext.authenticated ? (
-                            <>
-                                <LoggedInHeaderAvatar name={authContext.displayName} />
-                                {authContext.user?.user_metadata?.is_admin && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip
-                                            variant="soft"
-                                            label="Admin"
-                                            color="primary"
-                                        />
-                                    </Link>
-                                )}
-                                {authContext.user?.user_metadata?.is_corp && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip
-                                            variant="soft"
-                                            label="Céges"
-                                            color="info"
-                                        />
-                                    </Link>
-                                )}
-                                {authContext.user?.user_metadata?.is_vip && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip
-                                            variant="soft"
-                                            label="VIP"
-                                            color="warning"
-                                        />
-                                    </Link>
-                                )}
-                            </>
-                        ) : (
-                            <SignInButton sx={
-                                {
-                                    backgroundColor: themeConfig.palette.common.black,
-                                    borderRadius: '8px',
-                                    fontFamily: themeConfig.fontFamily.primary,
-                                    padding: '8px 20px',
+                    {!authContext.loading && authContext.authenticated ? (
+                        <>
+                            <LoggedInHeaderAvatar name={authContext.displayName} />
+                            {authContext.user?.user_metadata?.is_admin && (
+                                <Link href={paths.dashboard.root}>
+                                    <Chip variant="soft" label="Admin" color="primary" />
+                                </Link>
+                            )}
+                            {authContext.user?.user_metadata?.is_corp && (
+                                <Link href={paths.dashboard.root}>
+                                    <Chip variant="soft" label="Céges" color="info" />
+                                </Link>
+                            )}
+                            {authContext.user?.user_metadata?.is_vip && (
+                                <Link href={paths.dashboard.root}>
+                                    <Chip variant="soft" label="VIP" color="warning" />
+                                </Link>
+                            )}
+                        </>
+                    ) : (
+                        <SignInButton
+                            sx={{
+                                backgroundColor: themeConfig.palette.common.black,
+                                borderRadius: '8px',
+                                fontFamily: themeConfig.fontFamily.primary,
+                                padding: '8px 20px',
 
-                                    textTransform: 'uppercase',
-                                    fontWeight: 600,
+                                textTransform: 'uppercase',
+                                fontWeight: 600,
+                                color: themeConfig.palette.common.white,
+                                fontSize: '14px',
+                                lineHeight: '30px',
+                                letterSpacing: '0.01em',
+                                '&:hover': {
+                                    backgroundColor: themeConfig.palette.primary.main,
                                     color: themeConfig.palette.common.white,
-                                    fontSize: '14px',
-                                    lineHeight: '30px',
-                                    letterSpacing: '0.01em',
-                                    '&:hover': {
-                                        backgroundColor: themeConfig.palette.primary.main,
-                                        color: themeConfig.palette.common.white,
-                                    },
-                                }
-                            } />
-                        )}
+                                },
+                            }}
+                        />
+                    )}
                 </Box>
             ),
         };
@@ -232,11 +226,12 @@ function MainLayoutContent({
         );
     };
 
-    const renderFooter = () =>
+    const renderFooter = () => (
         /*isHomePage ? (
             <HomeFooter sx={slotProps?.footer?.sx} />
         ) : (*/
         <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
+    );
 
     //);
 
@@ -260,10 +255,7 @@ function MainLayoutContent({
             sx={sx}
         >
             {renderMain()}
-            <SideCart
-                open={isSideCartOpen}
-                onClose={closeSideCart}
-            />
+            <SideCart open={isSideCartOpen} onClose={closeSideCart} />
         </LayoutSection>
     );
 }

@@ -94,7 +94,10 @@ export function ProductListView() {
         }
     }, [products]);
 
-    const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0 || currentFilters.bio.length > 0;
+    const canReset =
+        currentFilters.publish.length > 0 ||
+        currentFilters.stock.length > 0 ||
+        currentFilters.bio.length > 0;
 
     const dataFiltered = applyFilter({
         inputData: tableData,
@@ -218,7 +221,7 @@ export function ProductListView() {
                     key={`view-${params.row.id}`}
                     icon={<Iconify icon="solar:eye-bold" />}
                     label="Megtekintés"
-                    target='_blank'
+                    target="_blank"
                     href={paths.product.details(params.row.url)}
                 />,
                 <GridActionsLinkItem
@@ -252,7 +255,8 @@ export function ProductListView() {
             title="Törlés"
             content={
                 <>
-                    Biztosan törölni szeretné a kijelölt <strong> {selectedRowIds.length} </strong> elemet?
+                    Biztosan törölni szeretné a kijelölt <strong> {selectedRowIds.length} </strong>{' '}
+                    elemet?
                 </>
             }
             action={
@@ -428,7 +432,14 @@ type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' 
     target?: string;
 };
 
-export function GridActionsLinkItem({ ref, href, label, icon, sx, target }: GridActionsLinkItemProps) {
+export function GridActionsLinkItem({
+    ref,
+    href,
+    label,
+    icon,
+    sx,
+    target,
+}: GridActionsLinkItemProps) {
     return (
         <MenuItem ref={ref} sx={sx}>
             <Link
@@ -461,7 +472,9 @@ function applyFilter({ inputData, filters }: ApplyFilterProps) {
     }
 
     if (publish.length) {
-        inputData = inputData.filter((product) => publish.includes(product.publish ? 'true' : 'false'));
+        inputData = inputData.filter((product) =>
+            publish.includes(product.publish ? 'true' : 'false')
+        );
     }
 
     if (bio.length) {

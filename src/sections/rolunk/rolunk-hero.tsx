@@ -1,4 +1,4 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Container, Typography } from '@mui/material';
 
 export default function RolunkHero() {
     return (
@@ -24,7 +24,7 @@ export default function RolunkHero() {
                         zIndex: 0,
                         borderRadius: '8px',
                         padding: '30px',
-                        display: { xs: 'none', md: 'block' }
+                        display: { xs: 'none', md: 'block' },
                     }}
                 >
                     <Box
@@ -44,10 +44,7 @@ export default function RolunkHero() {
                         }}
                     />
                 </Box>
-                <Box
-                    sx={{
-                    }}>
-
+                <Box sx={{}}>
                     <Box
                         component="img"
                         src="https://farm2fork.hu/wp-content/uploads/2024/11/Video.jpg"
@@ -57,26 +54,28 @@ export default function RolunkHero() {
                             objectFit: 'cover',
                             border: 0,
                             pointerEvents: 'none',
-                            borderRadius: "8px",
-                            width:"100%"
+                            borderRadius: '8px',
+                            width: '100%',
                         }}
                     />
 
-                    <Box sx={{
-                        position: 'absolute',
-                        bottom: '16px',
-                        left: '24px',
-                    }}>
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            bottom: '16px',
+                            left: '24px',
+                        }}
+                    >
                         <Typography
                             variant="h1"
                             sx={{
                                 fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
-                                color: "white",
-                                fontWeight: "600",
-                                textAlign: "start",
+                                color: 'white',
+                                fontWeight: '600',
+                                textAlign: 'start',
                                 lineHeight: 1.1,
-                                textTransform: "uppercase",
-                                letterSpacing: "-0.01em",
+                                textTransform: 'uppercase',
+                                letterSpacing: '-0.01em',
                                 position: 'relative',
                                 zIndex: 1,
                             }}
@@ -85,7 +84,6 @@ export default function RolunkHero() {
                         </Typography>
                     </Box>
                 </Box>
-
             </Box>
 
             <Box
@@ -96,8 +94,14 @@ export default function RolunkHero() {
                     },
                 }}
             >
-                <Typography sx={{ fontFamily: "Inter, sans-serif" }}>
-                    A Farm2Fork mindennapi működtetése során nagy hangsúlyt fektetünk a környezetbarát megoldásokra és a bio alapanyagok beszerzésére. A farm-to-table elvnek megfelelően célunk, hogy a szállított zöldségek és gyümölcsök minél kevesebbet utazzanak a termelés helyétől a felhasználást jelentő konyháig. Emellett kulcsfontosságú a szoros személyes kapcsolat is, hiszen összekötő szerepet töltünk be a séfek és a termelők között, ezáltal segítve mindkét fél munkáját és a közös fejlődést.
+                <Typography sx={{ fontFamily: 'Inter, sans-serif' }}>
+                    A Farm2Fork mindennapi működtetése során nagy hangsúlyt fektetünk a
+                    környezetbarát megoldásokra és a bio alapanyagok beszerzésére. A farm-to-table
+                    elvnek megfelelően célunk, hogy a szállított zöldségek és gyümölcsök minél
+                    kevesebbet utazzanak a termelés helyétől a felhasználást jelentő konyháig.
+                    Emellett kulcsfontosságú a szoros személyes kapcsolat is, hiszen összekötő
+                    szerepet töltünk be a séfek és a termelők között, ezáltal segítve mindkét fél
+                    munkáját és a közös fejlődést.
                 </Typography>
             </Box>
         </Container>

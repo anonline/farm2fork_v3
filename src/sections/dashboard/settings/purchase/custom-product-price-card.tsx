@@ -1,19 +1,27 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import { Card, Stack, TextField, CardHeader, Typography, CardContent, InputAdornment } from "@mui/material";
+import {
+    Card,
+    Stack,
+    TextField,
+    CardHeader,
+    Typography,
+    CardContent,
+    InputAdornment,
+} from '@mui/material';
 
-import { fCurrency } from "src/utils/format-number";
+import { fCurrency } from 'src/utils/format-number';
 
 type CustomProductPriceCardProps = {
     customProductBasePrice?: number;
     onPriceChange?: (price: number) => void;
 };
 
-export function CustomProductPriceCard({ 
+export function CustomProductPriceCard({
     customProductBasePrice = 0,
-    onPriceChange 
+    onPriceChange,
 }: CustomProductPriceCardProps) {
     const [price, setPrice] = useState(customProductBasePrice);
 
@@ -28,21 +36,25 @@ export function CustomProductPriceCard({
         normalizedValue = Math.max(0, isNaN(normalizedValue) ? 0 : normalizedValue);
         // Limit to reasonable price (max 1,000,000 HUF)
         normalizedValue = Math.min(1000000, normalizedValue);
-        
+
         setPrice(normalizedValue);
-        
+
         // Notify parent component of changes
         onPriceChange?.(normalizedValue);
     };
 
     return (
         <Card>
-            <CardHeader 
-                title="Egyedi termék alapár" 
+            <CardHeader
+                title="Egyedi termék alapár"
                 subheader="Az egyedi termékekhez használt fix alapár beállítása"
             />
             <CardContent>
-                <Stack direction="row" spacing={6} sx={{width: '100%', justifyContent: 'space-between', alignItems: 'center'}}>
+                <Stack
+                    direction="row"
+                    spacing={6}
+                    sx={{ width: '100%', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                     <Stack spacing={1}>
                         <Typography variant="body1">Alapár</Typography>
                         <Typography variant="caption" color="text.secondary">
@@ -53,16 +65,20 @@ export function CustomProductPriceCard({
                         type="number"
                         sx={{ minWidth: '40%' }}
                         value={price}
-                        onChange={e => handlePriceChange(Number(e.target.value))}
+                        onChange={(e) => handlePriceChange(Number(e.target.value))}
                         InputProps={{
-                            endAdornment: <InputAdornment position="end">Ft</InputAdornment>
+                            endAdornment: <InputAdornment position="end">Ft</InputAdornment>,
                         }}
                         inputProps={{
                             min: 0,
                             max: 1000000,
-                            step: 1
+                            step: 1,
                         }}
-                        helperText={price > 0 ? `Jelenlegi érték: ${fCurrency(price)}` : 'Adjon meg egy alapárat'}
+                        helperText={
+                            price > 0
+                                ? `Jelenlegi érték: ${fCurrency(price)}`
+                                : 'Adjon meg egy alapárat'
+                        }
                     />
                 </Stack>
             </CardContent>

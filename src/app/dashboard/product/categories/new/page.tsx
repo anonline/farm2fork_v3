@@ -15,5 +15,10 @@ export const metadata: Metadata = { title: `Új kategória | Dashboard - ${CONFI
 export default async function Page() {
     const maxFileSize = await getOption(OptionsEnum.MaxFileUploadSizeMB);
     const categories = await getCategories();
-    return <CategoryCreateView maxFileSize={Number(maxFileSize?.value ?? 3)} allCategories={categories} />;
+    return (
+        <CategoryCreateView
+            maxFileSize={Number(maxFileSize?.value ?? 3)}
+            allCategories={categories}
+        />
+    );
 }

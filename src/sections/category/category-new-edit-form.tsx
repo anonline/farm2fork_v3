@@ -48,7 +48,11 @@ type Props = {
     allCategories?: ICategoryItem[];
 };
 
-export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategories }: Readonly<Props>) {
+export function CategoryNewEditForm({
+    currentCategory,
+    maxFileSize,
+    allCategories,
+}: Readonly<Props>) {
     const router = useRouter();
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
@@ -67,13 +71,13 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
         defaultValues,
         values: currentCategory
             ? {
-                name: currentCategory.name,
-                parentId: currentCategory.parentId ?? 8,
-                images: currentCategory.coverUrl || undefined,
-                description: currentCategory.description ?? '',
-                enabled: currentCategory.enabled ?? true,
-                id: currentCategory.id ?? undefined,
-            }
+                  name: currentCategory.name,
+                  parentId: currentCategory.parentId ?? 8,
+                  images: currentCategory.coverUrl || undefined,
+                  description: currentCategory.description ?? '',
+                  enabled: currentCategory.enabled ?? true,
+                  id: currentCategory.id ?? undefined,
+              }
             : undefined,
     });
 
@@ -88,16 +92,16 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
     const values = watch();
 
     const doSave = async (data: Partial<ICategoryItem>) => {
-        if(data.id) {
+        if (data.id) {
             return await updateCategory(data);
         }
         return await insertCategory(data);
-    }
+    };
 
     const onSubmit = handleSubmit(async (data) => {
         console.log(data.images);
 
-        if(data.images instanceof File) {
+        if (data.images instanceof File) {
             const uploadedImageUrl = await handleUpload(data.images as File);
             data.images = uploadedImageUrl;
         }
@@ -119,19 +123,17 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
             reset();
             toast.success(currentCategory ? 'Frissítés sikeres!' : 'Létrehozás sikeres!');
             router.push(paths.dashboard.product.categories.root);
-
         } catch (error) {
             console.error(error);
         }
     });
 
-    
     const handleUpload = async (file: File): Promise<string> => {
         const response = await fetch('/api/img/upload?folder=category&filename=' + file.name, {
             method: 'POST',
             body: file,
         });
-        
+
         if (!response.ok) {
             throw new Error('Feltöltési hiba');
         }
@@ -139,12 +141,9 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
         return data.url;
     };
 
-    const handleRemoveFile = useCallback(
-        () => {
-            setValue('images', undefined, { shouldValidate: true, shouldDirty: true });
-        },
-        [setValue]
-    );
+    const handleRemoveFile = useCallback(() => {
+        setValue('images', undefined, { shouldValidate: true, shouldDirty: true });
+    }, [setValue]);
 
     const handleRemoveAllFiles = useCallback(() => {
         setValue('images', undefined, { shouldValidate: true });
@@ -173,7 +172,11 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
 
                     <Stack spacing={1.5}>
                         <Typography variant="subtitle2">Leírás</Typography>
-                        <Field.Editor name="description" sx={{ maxHeight: 480 }} placeholder='Írd be a leírást...' />
+                        <Field.Editor
+                            name="description"
+                            sx={{ maxHeight: 480 }}
+                            placeholder="Írd be a leírást..."
+                        />
                     </Stack>
 
                     <Stack spacing={1.5}>
@@ -204,18 +207,20 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
                 <Divider />
 
                 <Stack spacing={3} sx={{ p: 3 }}>
-
                     <Field.Select
                         name="parentId"
                         label="Szülő kategória"
                         fullWidth
                         value={values.parentId ?? ''}
                     >
-                        {allCategories?.map((category) => (
-                            category.id !== currentCategory?.id && <MenuItem key={category.id ?? ''} value={category.id ?? ''}>
-                                {category.name}
-                            </MenuItem>
-                        ))}
+                        {allCategories?.map(
+                            (category) =>
+                                category.id !== currentCategory?.id && (
+                                    <MenuItem key={category.id ?? ''} value={category.id ?? ''}>
+                                        {category.name}
+                                    </MenuItem>
+                                )
+                        )}
                     </Field.Select>
 
                     <Field.Switch
@@ -245,7 +250,7 @@ export function CategoryNewEditForm({ currentCategory, maxFileSize, allCategorie
             </Button>
         </Box>
     );
-    
+
     return (
         <Form methods={methods} onSubmit={onSubmit}>
             <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>

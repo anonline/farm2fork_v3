@@ -14,7 +14,7 @@ import {
     DataGrid,
     GridActionsCellItem,
     GridToolbarContainer,
-    GridToolbarQuickFilter
+    GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
 import {
     Box,
@@ -37,17 +37,27 @@ import {
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useGetShippingZones, createShippingZoneRules, deleteShippingZoneRules } from 'src/actions/shipping';
+import {
+    useGetShippingZones,
+    createShippingZoneRules,
+    deleteShippingZoneRules,
+} from 'src/actions/shipping';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-
 // ----------------------------------------------------------------------
 
-
-const dayMap: { [key: number]: string } = { 1: 'Hétfő', 2: 'Kedd', 3: 'Szerda', 4: 'Csütörtök', 5: 'Péntek', 6: 'Szombat', 0: 'Vasárnap' };
+const dayMap: { [key: number]: string } = {
+    1: 'Hétfő',
+    2: 'Kedd',
+    3: 'Szerda',
+    4: 'Csütörtök',
+    5: 'Péntek',
+    6: 'Szombat',
+    0: 'Vasárnap',
+};
 
 function CustomToolbar() {
     return (
@@ -69,12 +79,17 @@ export default function ShippingListView() {
     const [newDeliveryDay, setNewDeliveryDay] = useState<number | ''>('');
 
     const groupedZones = useMemo(() => {
-        const groups: { [key: string]: IShippingZone[] } = shippingZones.reduce((acc, zone) => {
-            const zip = zone.Iranyitoszam;
-            if (!acc[zip]) { acc[zip] = []; }
-            acc[zip].push(zone);
-            return acc;
-        }, {} as { [key: string]: IShippingZone[] });
+        const groups: { [key: string]: IShippingZone[] } = shippingZones.reduce(
+            (acc, zone) => {
+                const zip = zone.Iranyitoszam;
+                if (!acc[zip]) {
+                    acc[zip] = [];
+                }
+                acc[zip].push(zone);
+                return acc;
+            },
+            {} as { [key: string]: IShippingZone[] }
+        );
         return Object.entries(groups).map(([zip, rules]) => ({ id: zip, zipCode: zip, rules }));
     }, [shippingZones]);
 
@@ -89,7 +104,7 @@ export default function ShippingListView() {
         setOpenFormDialog(true);
     };
 
-    const handleOpenEditDialog = (zone: { zipCode: string, rules: IShippingZone[] }) => {
+    const handleOpenEditDialog = (zone: { zipCode: string; rules: IShippingZone[] }) => {
         setIsEditMode(true);
         setZipCode(zone.zipCode);
         setCurrentRules([...zone.rules]);
@@ -108,14 +123,14 @@ export default function ShippingListView() {
             CutoffIdo: newCutoffTime.format('HH:mm:ss'),
             SzallitasiNap: newDeliveryDay,
         };
-        setRulesInDialog(prev => [...prev, newRule]);
+        setRulesInDialog((prev) => [...prev, newRule]);
         setNewOrderDay('');
         setNewCutoffTime(null);
         setNewDeliveryDay('');
     };
 
     const handleDeleteRuleFromDialog = (index: number) => {
-        setRulesInDialog(prev => prev.filter((_, i) => i !== index));
+        setRulesInDialog((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleSaveChanges = async () => {
@@ -125,12 +140,14 @@ export default function ShippingListView() {
         }
         try {
             if (isEditMode) {
-                const idsToDelete = currentRules.map(r => r.ID).filter((id): id is number => !!id);
+                const idsToDelete = currentRules
+                    .map((r) => r.ID)
+                    .filter((id): id is number => !!id);
                 if (idsToDelete.length > 0) {
                     await deleteShippingZoneRules(idsToDelete);
                 }
             }
-            const rulesToInsert = rulesInDialog.map(r => ({
+            const rulesToInsert = rulesInDialog.map((r) => ({
                 Iranyitoszam: zipCode,
                 RendelesiNap: r.RendelesiNap!,
                 CutoffIdo: r.CutoffIdo!,
@@ -145,13 +162,17 @@ export default function ShippingListView() {
         }
     };
 
-    const usedOrderDays = useMemo(() => rulesInDialog.map(rule => rule.RendelesiNap), [rulesInDialog]);
+    const usedOrderDays = useMemo(
+        () => rulesInDialog.map((rule) => rule.RendelesiNap),
+        [rulesInDialog]
+    );
 
     const columns: GridColDef[] = [
         {
             field: 'zipCode',
             headerName: 'Irányítószám',
-            width: 150, align: 'center',
+            width: 150,
+            align: 'center',
             headerAlign: 'center',
             renderCell: (params) => (
                 <Box
@@ -160,13 +181,19 @@ export default function ShippingListView() {
                         height: '100%',
                         display: 'flex',
                         justifyContent: 'center',
-                        alignItems: 'center'
+                        alignItems: 'center',
                     }}
                 >
-                    <Typography variant="body2">{params.value}</Typography></Box>),
+                    <Typography variant="body2">{params.value}</Typography>
+                </Box>
+            ),
         },
         {
-            field: 'rules', headerName: 'Szabályok', flex: 1, sortable: false, disableColumnMenu: true,
+            field: 'rules',
+            headerName: 'Szabályok',
+            flex: 1,
+            sortable: false,
+            disableColumnMenu: true,
             renderCell: (params) => (
                 <Stack spacing={1} sx={{ my: 1, width: '100%' }}>
                     {params.value.map((rule: IShippingZone) => (
@@ -178,9 +205,19 @@ export default function ShippingListView() {
             ),
         },
         {
-            field: 'actions', type: 'actions', headerName: '', width: 80, align: 'right',
+            field: 'actions',
+            type: 'actions',
+            headerName: '',
+            width: 80,
+            align: 'right',
             getActions: ({ row }) => [
-                <GridActionsCellItem key="edit" icon={<Iconify icon="solar:pen-bold" />} label="Szerkesztés" onClick={() => handleOpenEditDialog(row)} showInMenu />,
+                <GridActionsCellItem
+                    key="edit"
+                    icon={<Iconify icon="solar:pen-bold" />}
+                    label="Szerkesztés"
+                    onClick={() => handleOpenEditDialog(row)}
+                    showInMenu
+                />,
             ],
         },
     ];
@@ -189,9 +226,16 @@ export default function ShippingListView() {
         <DashboardContent>
             <CustomBreadcrumbs
                 heading="Szállítási Zónák"
-                links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Szállítási Zónák', href: paths.dashboard.shipping.root }]}
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Szállítási Zónák', href: paths.dashboard.shipping.root },
+                ]}
                 action={
-                    <Button onClick={handleOpenNewDialog} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
+                    <Button
+                        onClick={handleOpenNewDialog}
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                    >
                         Új Szállítási Zóna
                     </Button>
                 }
@@ -208,10 +252,19 @@ export default function ShippingListView() {
                     slots={{ toolbar: CustomToolbar }}
                 />
             </Card>
-            <Dialog open={openFormDialog} onClose={() => setOpenFormDialog(false)} fullWidth maxWidth="md">
-                <DialogTitle>{isEditMode ? `"${zipCode}" zóna szerkesztése` : 'Új Szállítási Zóna'}</DialogTitle>
+            <Dialog
+                open={openFormDialog}
+                onClose={() => setOpenFormDialog(false)}
+                fullWidth
+                maxWidth="md"
+            >
+                <DialogTitle>
+                    {isEditMode ? `"${zipCode}" zóna szerkesztése` : 'Új Szállítási Zóna'}
+                </DialogTitle>
                 <DialogContent>
-                    <Typography variant="h6" sx={{ mb: 3, mt: 1 }}>{isEditMode ? 'Szabályok kezelése' : 'Új irányítószám és szabályok'}</Typography>
+                    <Typography variant="h6" sx={{ mb: 3, mt: 1 }}>
+                        {isEditMode ? 'Szabályok kezelése' : 'Új irányítószám és szabályok'}
+                    </Typography>
                     {rulesInDialog.length > 0 && (
                         <Stack spacing={2} sx={{ mb: 4 }}>
                             <Typography variant="subtitle1">Felvett szabályok</Typography>
@@ -225,50 +278,87 @@ export default function ShippingListView() {
                                         p: 1,
                                         border: '1px solid',
                                         borderColor: 'divider',
-                                        borderRadius: 1
+                                        borderRadius: 1,
                                     }}
                                 >
                                     <Typography sx={{ flexGrow: 1 }}>
                                         {`${dayMap[rule.RendelesiNap!]} ${rule.CutoffIdo!.slice(0, 5)} -> ${dayMap[rule.SzallitasiNap!]}`}
                                     </Typography>
-                                    <IconButton onClick={() => handleDeleteRuleFromDialog(index)} color="error">
-                                        <Iconify icon="solar:trash-bin-trash-bold" /></IconButton>
+                                    <IconButton
+                                        onClick={() => handleDeleteRuleFromDialog(index)}
+                                        color="error"
+                                    >
+                                        <Iconify icon="solar:trash-bin-trash-bold" />
+                                    </IconButton>
                                 </Stack>
                             ))}
                         </Stack>
                     )}
-                    <Stack spacing={2} sx={{ p: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}>
+                    <Stack
+                        spacing={2}
+                        sx={{ p: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}
+                    >
                         <Typography variant="subtitle1">Új szabály hozzáadása</Typography>
                         <TextField
                             label="Irányítószám"
                             value={zipCode}
-                            onChange={(e) => setZipCode(e.target.value)} disabled={isEditMode || rulesInDialog.length > 0}
+                            onChange={(e) => setZipCode(e.target.value)}
+                            disabled={isEditMode || rulesInDialog.length > 0}
                         />
                         <FormControl fullWidth>
                             <InputLabel>Rendelési nap</InputLabel>
-                            <Select value={newOrderDay} label="Rendelési nap" onChange={(e) => setNewOrderDay(e.target.value as number)}>
+                            <Select
+                                value={newOrderDay}
+                                label="Rendelési nap"
+                                onChange={(e) => setNewOrderDay(e.target.value as number)}
+                            >
                                 {Object.entries(dayMap).map(([key, value]) => (
-                                    <MenuItem key={key} value={Number(key)} disabled={usedOrderDays.includes(Number(key))}>
+                                    <MenuItem
+                                        key={key}
+                                        value={Number(key)}
+                                        disabled={usedOrderDays.includes(Number(key))}
+                                    >
                                         {value}
                                     </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="hu">
-                            <TimePicker label="Határidő" value={newCutoffTime} onChange={(newValue) => setNewCutoffTime(newValue)} ampm={false} />
+                            <TimePicker
+                                label="Határidő"
+                                value={newCutoffTime}
+                                onChange={(newValue) => setNewCutoffTime(newValue)}
+                                ampm={false}
+                            />
                         </LocalizationProvider>
                         <FormControl fullWidth>
                             <InputLabel>Szállítási nap</InputLabel>
-                            <Select value={newDeliveryDay} label="Szállítási nap" onChange={(e) => setNewDeliveryDay(e.target.value as number)}>
-                                {Object.entries(dayMap).map(([key, value]) => <MenuItem key={key} value={Number(key)}>{value}</MenuItem>)}
+                            <Select
+                                value={newDeliveryDay}
+                                label="Szállítási nap"
+                                onChange={(e) => setNewDeliveryDay(e.target.value as number)}
+                            >
+                                {Object.entries(dayMap).map(([key, value]) => (
+                                    <MenuItem key={key} value={Number(key)}>
+                                        {value}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
-                        <Box><Button variant="contained" onClick={handleAddRuleToDialog}>Szabály hozzáadása a listához</Button></Box>
+                        <Box>
+                            <Button variant="contained" onClick={handleAddRuleToDialog}>
+                                Szabály hozzáadása a listához
+                            </Button>
+                        </Box>
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenFormDialog(false)} color="inherit">Mégse</Button>
-                    <Button onClick={handleSaveChanges} variant="contained">Változások mentése</Button>
+                    <Button onClick={() => setOpenFormDialog(false)} color="inherit">
+                        Mégse
+                    </Button>
+                    <Button onClick={handleSaveChanges} variant="contained">
+                        Változások mentése
+                    </Button>
                 </DialogActions>
             </Dialog>
         </DashboardContent>

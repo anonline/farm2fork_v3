@@ -1,4 +1,3 @@
-
 import { MainLayout } from 'src/layouts/main';
 import { ShippingProvider } from 'src/contexts/shipping-context';
 
@@ -14,9 +13,7 @@ export default function Layout({ children }: Readonly<Props>) {
     return (
         <ShippingProvider>
             <GuestGuard>
-                <MainLayout>
-                    {children}
-                </MainLayout>
+                <MainLayout>{children}</MainLayout>
             </GuestGuard>
         </ShippingProvider>
     );
