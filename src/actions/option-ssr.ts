@@ -34,27 +34,33 @@ export async function getOption(option: OptionsEnum) {
 }
 
 export async function fetchOption(option: OptionsEnum) {
-    const cookieStore = await cookies();
-    const supabase = await supabaseSSR(cookieStore);
+    try {
+        const cookieStore = await cookies();
+        const supabase = await supabaseSSR(cookieStore);
 
-    const response = await supabase.from('Options').select('*').eq('name', option).maybeSingle();
+        const response = await supabase.from('Options').select('*').eq('name', option).maybeSingle();
 
-    const { data, error: responseError } = response;
+        const { data, error: responseError } = response;
 
-    let optionValue: Option<any> | null = null;
-    if (data) {
-        switch (data.type) {
-            case 'number':
-                optionValue = { ...data, value: Number(data.value) };
-                break;
-            case 'boolean':
-                optionValue = { ...data, value: data.value === 'true' };
-                break;
-            default:
-                optionValue = data;
+        let optionValue: Option<any> | null = null;
+        if (data) {
+            switch (data.type) {
+                case 'number':
+                    optionValue = { ...data, value: Number(data.value) };
+                    break;
+                case 'boolean':
+                    optionValue = { ...data, value: data.value === 'true' };
+                    break;
+                default:
+                    optionValue = data;
+            }
         }
-    }
 
-    if (responseError) throw responseError.message;
-    return optionValue;
+        if (responseError) throw responseError.message;
+        return optionValue;
+    } catch (error) {
+        // Return null for missing options when Supabase is not available
+        console.log(`Could not fetch option ${option}:`, error);
+        return null;
+    }
 }
