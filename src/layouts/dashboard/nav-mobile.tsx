@@ -13,7 +13,6 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { NavSectionVertical } from 'src/components/nav-section';
 
 import { layoutClasses } from '../core/classes';
-import { NavUpgrade } from '../components/nav-upgrade';
 
 // ----------------------------------------------------------------------
 
@@ -80,7 +79,7 @@ export function NavMobile({
                     sx={{ px: 2, flex: '1 1 auto' }}
                     {...other}
                 />
-                <NavUpgrade />
+                
             </Scrollbar>
 
             {slots?.bottomArea}

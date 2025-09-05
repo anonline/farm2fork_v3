@@ -184,7 +184,7 @@ function MainLayoutContent({
                         gap: { xs: 0.5, sm: 1.5 },
                         // Mobile: compact layout for icons
                         [theme.breakpoints.down(layoutQuery)]: {
-                            gap: 0.5,
+                            gap: 1.5,
                         },
                     }}
                 >

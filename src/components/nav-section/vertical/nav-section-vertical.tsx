@@ -37,7 +37,7 @@ export function NavSectionVertical({
                 {data.map((group) => (
                     <Group
                         key={group.subheader ?? group.items[0].title}
-                        subheader={group.subheader}
+                        subheader={''}
                         items={group.items}
                         render={render}
                         slotProps={slotProps}
@@ -62,9 +62,11 @@ function Group({
 }: NavGroupProps) {
     const groupOpen = useBoolean(true);
 
+    const listWithoutIcons = items.map((item) => ({ ...item, icon: undefined }));
+    
     const renderContent = () => (
         <NavUl sx={{ gap: 'var(--nav-item-gap)' }}>
-            {items.map((list) => (
+            {listWithoutIcons.map((list) => (
                 <NavList
                     key={list.title}
                     data={list}

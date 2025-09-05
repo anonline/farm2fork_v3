@@ -77,7 +77,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
         >
             <Typography
                 sx={{
-                    fontSize: '64px',
+                    fontSize: { xs: '32px', sm: '64px' },
                     fontWeight: '600',
                     textTransform: 'uppercase',
                     lineHeight: '70px',

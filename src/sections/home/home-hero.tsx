@@ -49,11 +49,14 @@ export function HomeHero({
                 backgroundImage: 'url(' + heroImg + ')',
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundPosition: { xs: 'center', md: 'center' },
                 height: heroHeight,
                 display: 'flex',
                 position: 'relative',
+                minHeight: { xs: '500px', sm: '600px' },
+                ...sx,
             }}
+            {...other}
         >
             <Box
                 sx={{
@@ -71,39 +74,48 @@ export function HomeHero({
                 sx={{
                     alignItems: 'flex-end',
                     display: 'flex',
-
-                    py: '80px',
+                    py: { xs: '40px', sm: '60px', md: '80px' },
                     zIndex: 2,
                 }}
             >
                 <Box
                     sx={{
-                        width: '60%',
+                        width: { xs: '100%', sm: '90%', md: '80%', lg: '60%' },
                         textTransform: 'uppercase',
                         display: 'flex',
                         flexDirection: 'column',
                         alignSelf: 'end',
                         m: 0,
-                        gap: 5,
+                        gap: { xs: 3, sm: 4, md: 5 },
                     }}
                 >
                     <Typography
                         variant="h1"
                         sx={(theme) => ({
                             color: theme.palette.common.white,
-                            fontSize: '64px',
+                            fontSize: { 
+                                xs: '32px', 
+                                sm: '40px', 
+                                md: '52px', 
+                                lg: '64px' 
+                            },
                             fontWeight: 600,
-                            lineHeight: '70px',
-                            letterSpacing: '-1px',
+                            lineHeight: { 
+                                xs: '36px', 
+                                sm: '44px', 
+                                md: '56px', 
+                                lg: '70px' 
+                            },
+                            letterSpacing: { xs: '-0.5px', md: '-1px' },
                         })}
                     >
                         {heroTitle}
                     </Typography>
                     <Stack
-                        direction="row"
-                        spacing={3}
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={{ xs: 2, sm: 3 }}
                         sx={{
-                            alignItems: 'flex-start',
+                            alignItems: { xs: 'stretch', sm: 'flex-start' },
                             justifyContent: 'flex-start',
                         }}
                     >
@@ -111,13 +123,14 @@ export function HomeHero({
                             variant="contained"
                             color="primary"
                             sx={(theme) => ({
-                                fontSize: '18px',
-                                padding: '16px 24px',
+                                fontSize: { xs: '16px', sm: '18px' },
+                                padding: { xs: '14px 20px', sm: '16px 24px' },
                                 borderRadius: '8px',
-                                lineHeight: '22px',
+                                lineHeight: { xs: '20px', sm: '22px' },
                                 borderWidth: '2px',
                                 borderStyle: 'solid',
                                 borderColor: theme.vars.palette.primary.main,
+                                minWidth: { xs: 'auto', sm: 'auto' },
                             })}
                             component={RouterLink}
                             href={paths.product.root}
@@ -128,12 +141,13 @@ export function HomeHero({
                             variant="outlined"
                             color="info"
                             sx={(theme) => ({
-                                fontSize: '18px',
-                                padding: '16px 24px',
+                                fontSize: { xs: '16px', sm: '18px' },
+                                padding: { xs: '14px 20px', sm: '16px 24px' },
                                 borderRadius: '8px',
-                                lineHeight: '22px',
+                                lineHeight: { xs: '20px', sm: '22px' },
                                 color: theme.palette.common.white,
                                 borderColor: theme.palette.common.white,
+                                minWidth: { xs: 'auto', sm: 'auto' },
                             })}
                         >
                             {heroSecondaryBtnText}

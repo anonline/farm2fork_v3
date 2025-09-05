@@ -9,6 +9,7 @@ import { usePathname } from 'src/routes/hooks';
 
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { Nav, NavUl } from '../components';
 import { NavList } from './nav-mobile-list';
@@ -29,7 +30,8 @@ export type NavMobileProps = NavMainProps & {
 
 export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
     const pathname = usePathname();
-
+    const { authenticated, user } = useAuthContext();
+    console.log(data);
     useEffect(() => {
         if (open) {
             onClose();
@@ -40,6 +42,7 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
     return (
         <Drawer
             open={open}
+            anchor="right"
             onClose={onClose}
             slotProps={{
                 paper: {
@@ -93,17 +96,19 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
                         display: 'flex',
                     }}
                 >
-                    <SignInButton fullWidth />
+                    {/*<SignInButton fullWidth />*/}
 
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        rel="noopener"
-                        target="_blank"
-                        href={paths.minimalStore}
-                    >
-                        Purchase
-                    </Button>
+                    {authenticated && user?.user_metadata?.is_admin && (
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            rel="noopener"
+                            target="_blank"
+                            href={paths.dashboard.root}
+                        >
+                            Admin
+                        </Button>
+                    )}
                 </Box>
             )}
         </Drawer>

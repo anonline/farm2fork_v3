@@ -54,7 +54,7 @@ export default function HeaderSearchMobile() {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const searchTextLimit = 3;
 
-    const searchIcon = <F2FIcons name="Search2" width={20} height={20} />;
+    const searchIcon = <F2FIcons name="Search2" width={22} height={22} />;
     const loadingIcon = <F2FIcons name="Loading" width={20} height={20} />;
     const arrowBackIcon = <Iconify icon="eva:arrow-ios-back-fill" width={20} />;
 

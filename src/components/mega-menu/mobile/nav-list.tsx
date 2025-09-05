@@ -86,6 +86,7 @@ export function NavList({
             <Drawer
                 open={open}
                 onClose={handleCloseSubDrawer}
+                anchor="right"
                 slotProps={{ backdrop: { invisible: true } }}
                 sx={{
                     ...cssVars,
