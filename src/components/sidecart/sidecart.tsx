@@ -84,9 +84,22 @@ export function SideCart({ open, onClose }: SideCartProps) {
             PaperProps={{
                 sx: {
                     width: isMobile ? '100vw' : 520,
-                    height: '100vh',
+                    height: isMobile ? '100dvh' : '100vh', // Use dynamic viewport height on mobile
+                    maxHeight: isMobile ? '100dvh' : '100vh',
                     display: 'flex',
                     flexDirection: 'column',
+                    // Ensure proper mobile viewport handling
+                    ...(isMobile && {
+                        '@supports (height: 100dvh)': {
+                            height: '100dvh',
+                            maxHeight: '100dvh',
+                        },
+                        // Fallback for older browsers
+                        '@supports not (height: 100dvh)': {
+                            height: '100vh',
+                            maxHeight: '100vh',
+                        },
+                    }),
                 },
             }}
         >
@@ -136,7 +149,17 @@ export function SideCart({ open, onClose }: SideCartProps) {
             </Box>
 
             {/* Cart Items */}
-            <Box sx={{ flex: 1, overflow: 'hidden' }}>
+            <Box 
+                sx={{ 
+                    flex: 1, 
+                    overflow: 'hidden',
+                    // Ensure proper mobile scrolling
+                    ...(isMobile && {
+                        minHeight: 0, // Allow flex item to shrink
+                        WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
+                    }),
+                }}
+            >
                 {isCartEmpty ? (
                     <Box
                         sx={{
@@ -171,8 +194,32 @@ export function SideCart({ open, onClose }: SideCartProps) {
                         </Button>
                     </Box>
                 ) : (
-                    <Scrollbar sx={{ height: '100%' }}>
-                        <Stack spacing={0} sx={{ p: 2 }}>
+                    <Scrollbar 
+                        sx={{ 
+                            height: '100%',
+                            // Mobile-specific scrolling improvements
+                            ...(isMobile && {
+                                '& .simplebar-content-wrapper': {
+                                    paddingBottom: 'env(safe-area-inset-bottom)', // Extra space for mobile safe areas
+                                },
+                                '& .simplebar-content': {
+                                    minHeight: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                },
+                            }),
+                        }}
+                    >
+                        <Stack 
+                            spacing={0} 
+                            sx={{ 
+                                p: 2,
+                                // Add extra bottom padding on mobile to ensure content is not hidden
+                                ...(isMobile && {
+                                    pb: 3,
+                                }),
+                            }}
+                        >
                             {checkoutState.items.map((item, index) => (
                                 <Box key={item.id}>
                                     <SideCartItem
@@ -199,6 +246,15 @@ export function SideCart({ open, onClose }: SideCartProps) {
                         p: 3,
                         borderTop: `1px solid ${theme.palette.divider}`,
                         bgcolor: 'background.paper',
+                        // Improve mobile positioning and safe area handling
+                        ...(isMobile && {
+                            pb: 'max(24px, env(safe-area-inset-bottom))', // Account for home indicator on iOS
+                            position: 'sticky',
+                            bottom: 0,
+                            zIndex: 1,
+                            borderTop: `1px solid ${theme.palette.divider}`,
+                            boxShadow: `0 -2px 8px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)'}`,
+                        }),
                     }}
                 >
                     <Stack spacing={2}>
