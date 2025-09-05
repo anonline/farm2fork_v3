@@ -6,16 +6,16 @@ import { useRef, useState, useEffect, forwardRef, useCallback } from 'react';
 import { 
     Box, 
     Link, 
+    Slide, 
     Button, 
-    TextField, 
-    Typography, 
-    Dialog,
-    DialogContent,
-    IconButton,
-    InputAdornment,
-    Slide,
-    useMediaQuery,
+    Dialog, 
     useTheme,
+    TextField,
+    Typography,
+    IconButton,
+    DialogContent,
+    useMediaQuery,
+    InputAdornment,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';

@@ -7,7 +7,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Container, Chip, Link, useTheme } from '@mui/material';
+import { Chip, Link, useTheme, Container } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -28,9 +28,9 @@ import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { navData as mainNavData } from '../nav-config-main';
 import { SignInButton } from '../components/sign-in-button';
+import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
 import HeaderSearchMobile from '../components/header-search-mobile/header-search-mobile';
 import HeaderCartButtonMobile from '../components/header-cart-button-mobile/header-cart-button-mobile';
-import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
 
 import type { FooterProps } from './footer';
 import type { NavMainProps } from './nav/types';
