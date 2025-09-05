@@ -12,7 +12,7 @@ import { Chip, Link, useTheme, Container } from '@mui/material';
 import { paths } from 'src/routes/paths';
 
 import { themeConfig } from 'src/theme';
-import { supabase } from 'src/lib/supabase';
+import { ensureValidAnnouncement } from 'src/actions/announcements';
 
 import { Logo } from 'src/components/logo';
 import { SideCart, useSideCart, SideCartProvider } from 'src/components/sidecart';
@@ -91,21 +91,15 @@ function MainLayoutContent({
     useEffect(() => {
         const fetchAnnouncement = async () => {
             try {
-                const now = new Date().toISOString();
-                const { data, error } = await supabase
-                    .from('Announcement')
-                    .select('text, validFrom, validUntil')
-                    .order('validFrom', { ascending: false })
-                    .limit(1)
-                    .or(`validFrom.is.null,validFrom.lte.${now}`)
-                    .or(`validUntil.is.null,validUntil.gte.${now}`);
-
-                if (!error && data && data.length > 0) {
-                    setAnnouncement(data[0].text);
+                // Use the new function that checks and creates announcements if needed
+                const announcementData = await ensureValidAnnouncement();
+                
+                if (announcementData && announcementData.text) {
+                    setAnnouncement(announcementData.text);
                 }
             } catch (error) {
                 // Silently handle supabase connection errors
-                console.log('Could not fetch announcements:', error);
+                console.log('Could not fetch/create announcements:', error);
             }
         };
         fetchAnnouncement();
