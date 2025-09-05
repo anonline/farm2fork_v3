@@ -1,4 +1,5 @@
 import Container from 'node_modules/@mui/material/esm/Container/Container';
+
 import { MainLayout } from 'src/layouts/main';
 
 // ----------------------------------------------------------------------

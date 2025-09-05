@@ -9,11 +9,11 @@ import { usePathname } from 'src/routes/hooks';
 
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 import { Nav, NavUl } from '../components';
 import { NavList } from './nav-mobile-list';
-import { SignInButton } from '../../../components/sign-in-button';
 
 import type { NavMainProps } from '../types';
 

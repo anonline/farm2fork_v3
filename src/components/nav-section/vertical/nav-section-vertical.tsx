@@ -37,7 +37,7 @@ export function NavSectionVertical({
                 {data.map((group) => (
                     <Group
                         key={group.subheader ?? group.items[0].title}
-                        subheader={''}
+                        subheader=""
                         items={group.items}
                         render={render}
                         slotProps={slotProps}
