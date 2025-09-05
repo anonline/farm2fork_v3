@@ -1,3 +1,5 @@
+import Container from 'node_modules/@mui/material/esm/Container/Container';
+
 import { MainLayout } from 'src/layouts/main';
 
 // ----------------------------------------------------------------------
@@ -7,5 +9,5 @@ type Props = {
 };
 
 export default function Layout({ children }: Readonly<Props>) {
-    return <MainLayout>{children}</MainLayout>;
+    return <MainLayout><Container sx={{ margin: '0 auto', padding: '20px' }}>{children}</Container></MainLayout>;
 }

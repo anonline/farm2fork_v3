@@ -41,7 +41,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
             ref={navItemRef}
             // slots
             path={data.path}
-            icon={data.icon}
+            icon={undefined}
             title={data.title}
             // state
             open={open}
@@ -59,7 +59,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
             <Collapse in={open}>
                 <NavSectionVertical
                     data={data.children}
-                    sx={{ px: 1.5 }}
+                    sx={{ px: 1.5, pl: 4 }}
                     slotProps={{
                         rootItem: {
                             sx: [
