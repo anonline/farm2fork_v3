@@ -51,7 +51,7 @@ type Props = {
     product?: IProductItem;
 };
 
-export function ProductShopDetailsView({ product }: Props) {
+export function ProductShopDetailsView({ product }: Readonly<Props>) {
     const { state: checkoutState, onAddToCart } = useCheckoutContext();
 
     const tabs = useTabs('description');

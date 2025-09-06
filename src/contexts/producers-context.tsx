@@ -1,7 +1,7 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import type { IProducerItem } from 'src/types/producer';
+import type { ReactNode } from "react";
+import type { IProducerItem } from "src/types/producer";
 
 import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useContext, createContext } from 'react';
@@ -54,6 +54,6 @@ export function ProducersProvider({ children }: Readonly<{ children: ReactNode }
 
 export const useProducers = () => {
     const context = useContext(ProducersContext);
-    if (!context) throw new Error('useProducers csak a ProducersProvider-en belül használható');
+    if (!context) throw new Error("useProducers csak a ProducersProvider-en belül használható");
     return context;
 };

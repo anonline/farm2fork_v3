@@ -128,8 +128,7 @@ export function RenderCellTags({ params }: ParamsProps) {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {params.row.tags &&
                 params.row.tags
-                    .replaceAll(',', ' ')
-                    .split(' ')
+                    .split('|')
                     .map(
                         (tag: string) =>
                             tag.trim().length > 0 && (

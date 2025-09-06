@@ -41,24 +41,41 @@ export default function ProductDetailsSmallInfo({
         },
     };
 
+    let usageText = product?.usageInformation?.trim();
+        let storingText = product?.storingInformation?.trim();
+
+        if (!usageText || !storingText) {
+            if (product?.category && product?.category?.length > 0) {
+                const cat = product.category[0];
+
+                if (!usageText && cat.usageInformation) {
+                    usageText = cat.usageInformation;
+                }
+
+                if (!storingText && cat.storingInformation) {
+                    storingText = cat.storingInformation;
+                }
+            }
+        }
+
     return (
         <Grid container spacing={{ xs: 3, md: 5 }} sx={{ my: 4 }}>
-            {product.usageInformation && (
+            {usageText && (
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Typography sx={titleStyle}>Felhasználás</Typography>
                     <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-                        {product.usageInformation}
+                        {usageText}
                     </Typography>
                 </Grid>
             )}
 
-            {product.storingInformation && (
+            {storingText && (
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                         <Box sx={{ flexGrow: 1 }}>
                             <Typography sx={titleStyle}>Tárolás</Typography>
                             <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-                                {product.storingInformation}
+                                {storingText}
                             </Typography>
                         </Box>
                         <Button sx={buttonStyle} onClick={() => router.push('/tarolas')}>

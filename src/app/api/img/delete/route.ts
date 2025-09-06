@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 import { CONFIG } from 'src/global-config';
 import { supabaseSSR } from 'src/lib/supabase-ssr';
 
-export async function POST(request: Request) {
+export async function DELETE(request: Request) {
     const cookieStore = await cookies();
     const supabase = await supabaseSSR(cookieStore);
 

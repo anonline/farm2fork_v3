@@ -18,11 +18,11 @@ export async function GET(req: NextRequest) {
 
     const searchTerm = `%${q}%`;
 
-    const { data: matchingProducts } = await supabase
-        .from('Products')
-        .select('producerId')
-        .eq('publish', true)
-        .ilike('name', searchTerm);
+  const { data: matchingProducts } = await supabase
+    .from('Products')
+    .select('producerId')
+    .eq('publish', true)
+    .or(`tags.ilike.%${q}%,name.ilike.${searchTerm}`);
 
     const matchingProducerIds = matchingProducts?.map((p) => p.producerId) ?? [];
 

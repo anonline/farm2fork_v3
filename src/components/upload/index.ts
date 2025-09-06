@@ -4,6 +4,8 @@ export * from './upload-box';
 
 export * from './upload-avatar';
 
+export * from './rhf-drag-drop-images';
+
 export * from './components/rejection-files';
 
 export * from './components/preview-multi-file';

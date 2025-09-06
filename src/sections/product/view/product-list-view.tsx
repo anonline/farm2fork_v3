@@ -73,6 +73,12 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 
 // ----------------------------------------------------------------------
 
+const NoRowsOverlay = () => <EmptyContent />;
+
+const NoResultsOverlay = () => <EmptyContent title="Nincs találat." />;
+
+// ----------------------------------------------------------------------
+
 export function ProductListView() {
     const confirmDialog = useBoolean();
 
@@ -324,8 +330,8 @@ export function ProductListView() {
                         }
                         slots={{
                             toolbar: CustomToolbarCallback,
-                            noRowsOverlay: () => <EmptyContent />,
-                            noResultsOverlay: () => <EmptyContent title="Nincs találat." />,
+                            noRowsOverlay: NoRowsOverlay,
+                            noResultsOverlay: NoResultsOverlay,
                         }}
                         slotProps={{
                             toolbar: { setFilterButtonEl },

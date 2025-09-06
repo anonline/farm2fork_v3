@@ -9,37 +9,35 @@ const supabase = createClient(
 );
 
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const q = searchParams.get('q');
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
+  const { searchParams } = new URL(req.url)
+  const q = searchParams.get('q')
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
 
-    if (!q || q.trim() === '') {
-        return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 });
-    }
 
-    const searchTerm = `%${q}%`;
+  if (!q || q.trim() === '') {
+    return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 })
+  }
 
-    const { data: matchingProducers } = await supabase
-        .from('Producers')
-        .select('id')
-        .or(
-            `name.ilike.%${q}%,location.ilike.%${q}%,shortDescription.ilike.%${q}%,producingTags.ilike.%${q}%,companyName.ilike.%${q}%`
-        );
+  const searchTerm = `%${q}%`;
 
-    const producerIds = matchingProducers?.map((p) => p.id) ?? [];
+  const { data: matchingProducers } = await supabase
+    .from('Producers')
+    .select('id')
+    .or(`name.ilike.%${q}%,location.ilike.%${q}%,shortDescription.ilike.%${q}%,producingTags.ilike.%${q}%,companyName.ilike.%${q}%`);
 
-    const { data, error } = await supabase
-        .from('Products')
-        .select('*')
-        .eq('publish', true)
-        .or(
-            `name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`
-        )
-        .limit(limit);
+  const producerIds = matchingProducers?.map(p => p.id) ?? [];
 
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+  const { data, error } = await supabase
+    .from('Products')
+    .select('*')
+    .eq('publish', true)
+    .or(`tags.ilike.%${q}%,name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`)
+    .limit(limit);
 
-    return NextResponse.json(data);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json(data)
 }

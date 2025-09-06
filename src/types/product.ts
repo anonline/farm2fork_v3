@@ -44,7 +44,7 @@ export const Months = {
     November: 'November',
     December: 'December',
 } as const;
-type MonthKeys = keyof typeof Months;
+export type MonthKeys = keyof typeof Months;
 
 export type IProductItem = {
     storingInformation: any;
@@ -108,6 +108,8 @@ export type IProductItem = {
         starCount: number;
         reviewCount: number;
     }[];
+    stock: number | null;
+    backorder: boolean;
 };
 
 export type IProductCategory = {
@@ -120,4 +122,9 @@ export type IProductCategory = {
     coverUrl: string;
     enabled: boolean;
     order: number;
+};
+
+export type IProductCategoryConnection = {
+    productId: number;
+    categoryId: number;
 };
