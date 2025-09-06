@@ -202,11 +202,16 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
     const onAddToCart = useCallback(
         (newItem: ICheckoutItem) => {
+            newItem.quantity = Math.max(newItem.quantity, newItem.minQuantity ?? 1);
+            newItem.quantity = Math.min(newItem.quantity, newItem.maxQuantity ?? 100);
+            newItem.quantity = Math.round(newItem.quantity / (newItem.stepQuantity ?? 1)) * (newItem.stepQuantity ?? 1);
+            newItem.quantity = newItem.quantity.toFixed(2) as unknown as number; 
+            newItem.subtotal = (newItem.custom == true ? 1 : newItem.quantity) * newItem.price;
+
             const updatedItems = state.items.map((item) => {
                 if (item.id === newItem.id) {
                     return {
                         ...item,
-                        colors: union(item.colors ?? [], newItem.colors ?? []),
                         quantity: item.quantity + newItem.quantity,
                     };
                 }
@@ -216,7 +221,6 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             if (!updatedItems.some((item) => item.id === newItem.id)) {
                 updatedItems.push(newItem);
             }
-
             setField('items', updatedItems);
             // Totals will be updated by the useEffect hook
         },

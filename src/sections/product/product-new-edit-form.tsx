@@ -4,11 +4,11 @@ import type { MonthKeys, IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
 import { useBoolean } from 'minimal-shared/hooks';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import { Box, Card, Chip, Stack, Button, Divider, Collapse, Checkbox, MenuItem, TextField, FormGroup, IconButton, CardHeader, Typography, Autocomplete, FormHelperText, FormControlLabel, CircularProgress, Grid } from '@mui/material';
+import { Box, Stack, Button, Grid } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -20,8 +20,7 @@ import { useProductCategoryConnection } from 'src/contexts/product-category-conn
 import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCategoryRelations } from 'src/actions/product';
 
 import { toast } from 'src/components/snackbar';
-import { Iconify } from 'src/components/iconify';
-import { Form, Field, RHFSwitch, schemaHelper, RHFTextField } from 'src/components/hook-form';
+import { Form, schemaHelper} from 'src/components/hook-form';
 import SeasonalityCard from './new-edit-form/seasonality-card';
 import FeaturedCard from './new-edit-form/featured-card';
 import PricingCard from './new-edit-form/pricing-card';
@@ -36,13 +35,6 @@ const UNIT_OPTIONS = [
     { value: 'üveg', label: 'üveg' }, { value: 'csokor', label: 'csokor' }, { value: 'doboz', label: 'doboz' },
 ];
 
-const MONTH_OPTIONS: { value: MonthKeys, label: string }[] = [
-    { value: 'January', label: 'Január' }, { value: 'February', label: 'Február' }, { value: 'March', label: 'Március' },
-    { value: 'April', label: 'Április' }, { value: 'May', label: 'Május' }, { value: 'June', label: 'Június' },
-    { value: 'July', label: 'Július' }, { value: 'August', label: 'Augusztus' }, { value: 'September', label: 'Szeptember' },
-    { value: 'October', label: 'Október' }, { value: 'November', label: 'November' }, { value: 'December', label: 'December' },
-];
-
 const monthValues: [MonthKeys, ...MonthKeys[]] = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -52,7 +44,7 @@ export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
     shortDescription: schemaHelper.editor({ message: 'Leírás megadása kötelező!' }),
-    images: schemaHelper.files({ message: 'Képek megadása kötelező!' }),
+    images: zod.array(zod.any()).optional(),
     featuredImage: zod.any().optional(),
     categoryIds: zod.array(zod.number()).min(1, { message: 'Legalább egy kategória választása kötelező.' }),
     tags: zod.array(zod.string()).optional(),
@@ -70,8 +62,6 @@ export const NewProductSchema = zod.object({
     featured: zod.boolean(),
     star: zod.boolean(),
     bio: zod.boolean(),
-    priceSale: zod.number({ coerce: true }).nullable(),
-    saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
     netPrice: zod
         .number({ coerce: true })
         .int({ message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
@@ -145,7 +135,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         if (Array.isArray(currentProduct?.tags)) {
             tags = currentProduct.tags;
         } else if (currentProduct?.tags) {
-            tags = [currentProduct.tags];
+            tags = (currentProduct.tags as string).split('|').map(tag => tag.trim());
         }
 
         return {
@@ -248,6 +238,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
             const productData: any = {
                 ...data,
+                tags: data.tags?.length ? data.tags.join('|') : null,
                 featuredImage: finalFeaturedImageUrl ?? undefined,
                 mininumQuantity: data.mininumQuantity ?? undefined,
                 maximumQuantity: data.maximumQuantity ?? undefined,
@@ -282,22 +273,9 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         }
     });
 
-    const renderCollapseButton = (value: boolean, onToggle: () => void) => (
-        <IconButton onClick={onToggle}>
-            <Iconify icon={value ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-forward-fill'} />
-        </IconButton>
-    );
-
     const renderDetails = () => (
         <DetailsCard isOpen={openDetails} handleURLGenerate={handleURLGenerate} />
     );
-
-    function renderTagChips(value: string[], getTagProps: any) {
-        if (!Array.isArray(value)) return null;
-        return value.map((option, index) => (
-            <Chip {...getTagProps({ index })} key={option} size="small" label={option} />
-        ));
-    }
 
     const renderProperties = () => {
         return (
@@ -305,7 +283,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         )
     };
 
-    const renderPricing = () => (
+    const renderPricingAndStock = () => (
         <PricingCard isOpen={openPricing} handleStock={handleStock} handleStockChange={toggleHandleStock} handleGrossPriceChange={handleGrossPriceChange} />
     );
 
@@ -330,14 +308,14 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                             <CategoryCard isOpen={openCategories} control={control} categoriesLoading={categoriesLoading} categories={categories} />
                         </Grid>
                         <Grid size={{xs:12, md:6}}>
-                            <SeasonalityCard isOpen={openSeasonality} control={control} onChange={handleSeasonalityChange} />
+                            <SeasonalityCard isOpen={openSeasonality} control={control} />
                         </Grid>
                     </Grid>
 
                     {renderProperties()}
                 </Stack>
                 <Stack spacing={3}>
-                    {renderPricing()}
+                    {renderPricingAndStock()}
 
                     {renderFeatured()}
                     
@@ -351,10 +329,3 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 }
 
 
-function handleSeasonalityChange(field: any, optionValue: MonthKeys) {
-    const currentValue = field.value || [];
-    const newValues = currentValue.includes(optionValue)
-        ? currentValue.filter((v: MonthKeys) => v !== optionValue)
-        : [...currentValue, optionValue];
-    field.onChange(newValues);
-}

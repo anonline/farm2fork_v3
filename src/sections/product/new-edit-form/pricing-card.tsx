@@ -25,6 +25,7 @@ export default function PricingCard({ isOpen, handleGrossPriceChange, handleStoc
                     <RHFTextField name="netPrice" label="Nettó alapár (Ft)" type="number" />
                     <RHFTextField name="vat" label="ÁFA (%)" type="number" />
                     <RHFTextField name="grossPrice" label="Bruttó alapár (Ft)" type="number" onChange={handleGrossPriceChange} />
+                    <RHFTextField name="salegrossPrice" label="Bruttó akciós Ár (Ft)" type="number" />
 
                     <Divider sx={{ my: 2 }} />
 

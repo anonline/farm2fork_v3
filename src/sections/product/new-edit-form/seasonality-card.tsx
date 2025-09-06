@@ -19,10 +19,9 @@ const MONTH_OPTIONS: { value: MonthKeys, label: string }[] = [
 type SeasonalityCheckboxGroupProps = {
     isOpen: UseBooleanReturn;
     control: Control<NewProductSchemaType>;
-    onChange: (field: any, optionValue: MonthKeys) => void;
 };
 
-export default function SeasonalityCard({isOpen, control, onChange}: SeasonalityCheckboxGroupProps ) {
+export default function SeasonalityCard({isOpen, control}: SeasonalityCheckboxGroupProps ) {
     return (
         <Card>
             <EditCardHeader title="Szezonalitás" isOpen={isOpen} sx={{ mb: 2 }} />
@@ -32,7 +31,7 @@ export default function SeasonalityCard({isOpen, control, onChange}: Seasonality
                     <Controller
                         name="seasonality"
                         control={control}
-                        render={({ field }) => <SeasonalityCheckboxGroup field={field} onChange={onChange} />}
+                        render={({ field }) => <SeasonalityCheckboxGroup field={field} onChange={handleSeasonalityChange} />}
                     />
                 </Stack>
             </Collapse>
@@ -57,4 +56,12 @@ function SeasonalityCheckboxGroup({ field, onChange }: Readonly<{ field: any, on
             ))}
         </FormGroup>
     );
+}
+
+function handleSeasonalityChange(field: any, optionValue: MonthKeys) {
+    const currentValue = field.value || [];
+    const newValues = currentValue.includes(optionValue)
+        ? currentValue.filter((v: MonthKeys) => v !== optionValue)
+        : [...currentValue, optionValue];
+    field.onChange(newValues);
 }

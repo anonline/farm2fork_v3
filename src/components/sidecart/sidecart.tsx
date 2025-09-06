@@ -298,7 +298,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                     Összesen
                                 </Typography>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                                    {fCurrency(checkoutState.total)}
+                                    {fCurrency(checkoutState.subtotal + checkoutState.surcharge)}
                                 </Typography>
                             </Box>
                         </Stack>
@@ -405,12 +405,12 @@ export function SideCartItem({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <NumberInput
                             disabled={hideControl}
-                            value={item.quantity}
+                            value={item.quantity.toFixed((item.quantity % 1 !== 0) ? 2 : 0)}
                             onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
                             min={item.minQuantity || 1}
                             max={item.maxQuantity || 999}
                             step={item.stepQuantity || 0.1}
-                            sx={{ width: 96 }}
+                            sx={{ width: 120 }}
                         />
                     </Box>
 
