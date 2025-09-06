@@ -8,8 +8,6 @@ import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material'
 
 import { useProducers } from 'src/contexts/producers-context';
 
-
-
 interface ProducerCardProps {
     producerId: number;
 }
@@ -17,11 +15,18 @@ interface ProducerCardProps {
 export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCardProps>) {
     const router = useRouter();
     const { producers, loading, error } = useProducers();
-    const producer = producers.find(p => p.id === producerId);
+    const producer = producers.find((p) => p.id === producerId);
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 300,
+                }}
+            >
                 <CircularProgress />
             </Box>
         );
@@ -52,7 +57,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
             backgroundColor: 'rgb(70, 110, 80)',
             color: 'white',
             border: '2px solid rgb(70, 110, 80)',
-        }
+        },
     };
 
     return (
@@ -70,19 +75,43 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
         >
             <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0 }}>
                 <img
-                    src={producer.featuredImage ?? "https://placehold.co/600x450"}
+                    src={producer.featuredImage ?? 'https://placehold.co/600x450'}
                     alt={producer.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius:'12px' }}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '12px',
+                    }}
                 />
             </Box>
-            <Box sx={{ p: { xs: 3, md: 4 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1 }}>
+            <Box
+                sx={{
+                    p: { xs: 3, md: 4 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    flexGrow: 1,
+                }}
+            >
                 <Stack spacing={1.5}>
-                    <Typography variant="overline" color="text.secondary">Termelő</Typography>
-                    <Typography variant="h3" sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: { xs: '28px', md: '36px' }, lineHeight: { xs: '34px', md: '42px' } }}>
+                    <Typography variant="overline" color="text.secondary">
+                        Termelő
+                    </Typography>
+                    <Typography
+                        variant="h3"
+                        sx={{
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            fontSize: { xs: '28px', md: '36px' },
+                            lineHeight: { xs: '34px', md: '42px' },
+                        }}
+                    >
                         {producer.name}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        {producer.shortDescription ?? 'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
+                        {producer.shortDescription ??
+                            'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
                     </Typography>
                     <Button sx={buttonStyle}>Tovább a termelőhöz</Button>
                 </Stack>

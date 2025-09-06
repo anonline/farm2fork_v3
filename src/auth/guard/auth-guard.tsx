@@ -52,8 +52,7 @@ export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
             router.replace(redirectPath);
 
             return;
-        }
-        else if (!user?.user_metadata.is_admin) {
+        } else if (!user?.user_metadata.is_admin) {
             const redirectPath = createRedirectPath(paths.page403);
 
             router.replace(redirectPath);

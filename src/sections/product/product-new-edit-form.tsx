@@ -59,16 +59,45 @@ export const NewProductSchema = zod.object({
     mininumQuantity: zod.number({ coerce: true }).min(0, 'Minimum 0 lehet.').nullable(),
     maximumQuantity: zod.number({ coerce: true }).min(0, 'Minimum 0 lehet.').nullable(),
     stepQuantity: zod.number({ coerce: true }).min(0.1, 'Minimum 0.1 lehet.').nullable(),
-    netPrice: zod.number({ coerce: true }).min(0),
-    grossPrice: zod.number({ coerce: true }).min(0),
-    vat: zod.number({ coerce: true }).min(0).max(100),
-    netPriceVIP: zod.number({ coerce: true }).min(0).nullable().optional(),
-    netPriceCompany: zod.number({ coerce: true }).min(0).nullable().optional(),
     stock: zod.number({ coerce: true }).nullable(),
     backorder: zod.boolean(),
     featured: zod.boolean(),
     star: zod.boolean(),
     bio: zod.boolean(),
+    priceSale: zod.number({ coerce: true }).nullable(),
+    saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
+    netPrice: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' }),
+    grossPrice: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' }),
+    salegrossPrice: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .nullable(),
+    netPriceVIP: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes VIP nettó árat!' }),
+    netPriceCompany: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' })
+        .max(999999, { message: 'Kérjük, adjon meg egy érvényes Céges nettó árat!' }),
+    vat: zod
+        .number({ coerce: true })
+        .int({ message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
+        .min(0, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
+        .max(100, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
+        .default(27),
 })
     .refine((data) => {
         if (!data.backorder && data.stock !== null) {
@@ -81,6 +110,8 @@ export const NewProductSchema = zod.object({
     });
 
 export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
+    
+});
 
 // ----------------------------------------------------------------------
 
@@ -329,6 +360,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                                     renderInput={(params) => <TextField label="Címkék" placeholder='A címkéket enter leütésével add hozzá' {...params} />}
                                 />
                             )}
+
                         />
 
                         <RHFTextField
@@ -369,6 +401,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                     <FormControlLabel control={<Checkbox checked={isUnlimitedStock} onChange={(e) => setIsUnlimitedStock(e.target.checked)} />} label="Korlátlan készlet" />
                     <RHFTextField name="stock" label="Készlet" type="number" disabled={isUnlimitedStock} />
                     <RHFSwitch name="backorder" label="Előrendelhető" />
+
                 </Stack>
             </Collapse>
         </Card>

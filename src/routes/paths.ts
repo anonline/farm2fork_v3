@@ -60,8 +60,8 @@ export const paths = {
     api: {
         search: {
             products: '/api/search/products',
-            producers: 'api/search/producers'
-        }
+            producers: 'api/search/producers',
+        },
     },
     product: {
         root: `/termekek`,
@@ -140,7 +140,7 @@ export const paths = {
                 root: `${ROOTS.DASHBOARD}/faqs/categories`,
                 new: `${ROOTS.DASHBOARD}/faqs/categories/new`,
                 edit: (id: number) => `${ROOTS.DASHBOARD}/faqs/categories/${id}/edit`,
-            }
+            },
         },
         general: {
             app: `${ROOTS.DASHBOARD}/app`,
@@ -195,8 +195,8 @@ export const paths = {
         post: {
             root: `${ROOTS.DASHBOARD}/post`,
             categories: {
-                root: `${ROOTS.DASHBOARD}/post/categories`
-            }
+                root: `${ROOTS.DASHBOARD}/post/categories`,
+            },
         },
         order: {
             root: `${ROOTS.DASHBOARD}/order`,
@@ -232,7 +232,7 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/partners`,
         },
         settings: {
-            purchase: `${ROOTS.DASHBOARD}/settings/purchase`
+            purchase: `${ROOTS.DASHBOARD}/settings/purchase`,
         },
         shipping: {
             root: `${ROOTS.DASHBOARD}/shipping`,

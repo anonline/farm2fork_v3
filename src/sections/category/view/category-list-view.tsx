@@ -82,14 +82,15 @@ export function CategoryListView() {
 
     const doDelete = async (ids: number[]) => {
         await deleteCategoriesByIds(ids);
-    }
+    };
 
     const handleDeleteRows = useCallback(async () => {
-        const deleteRows = tableData.filter((row) => row.id !== null && !selectedRowIds.includes(row.id));
+        const deleteRows = tableData.filter(
+            (row) => row.id !== null && !selectedRowIds.includes(row.id)
+        );
         await doDelete(selectedRowIds as number[]);
         setTableData(deleteRows);
         toast.success('Sikeres törlés!');
-
     }, [selectedRowIds, tableData]);
 
     const CustomToolbarCallback = useCallback(
@@ -151,7 +152,7 @@ export function CategoryListView() {
                     label="Megtekintés"
                     href={paths.categories.list(params.row.slug)}
                     target="_blank"
-                />
+                />,
             ],
         },
     ];
@@ -162,28 +163,29 @@ export function CategoryListView() {
             .map((column) => column.field);
 
     const renderConfirmDialog = () => (
-            <ConfirmDialog
-                open={confirmDialog.value}
-                onClose={confirmDialog.onFalse}
-                title="Törlés megerősítése"
-                content={
-                    <>
-                        Biztosan törölni akarja a(z) <strong> {selectedRowIds.length} </strong> elemet?
-                    </>
-                }
-                action={
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => {
-                            handleDeleteRows();
-                            confirmDialog.onFalse();
-                        }}
-                    >
-                        Törlés
-                    </Button>
-                }
-            />);
+        <ConfirmDialog
+            open={confirmDialog.value}
+            onClose={confirmDialog.onFalse}
+            title="Törlés megerősítése"
+            content={
+                <>
+                    Biztosan törölni akarja a(z) <strong> {selectedRowIds.length} </strong> elemet?
+                </>
+            }
+            action={
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                        handleDeleteRows();
+                        confirmDialog.onFalse();
+                    }}
+                >
+                    Törlés
+                </Button>
+            }
+        />
+    );
 
     return (
         <>
@@ -315,7 +317,6 @@ function CustomToolbar({
 
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton ref={setFilterButtonEl} />
-
                 </Box>
             </GridToolbarContainer>
 
@@ -339,7 +340,14 @@ type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' 
     target?: string;
 };
 
-export function GridActionsLinkItem({ ref, href, label, icon, sx, target }: GridActionsLinkItemProps) {
+export function GridActionsLinkItem({
+    ref,
+    href,
+    label,
+    icon,
+    sx,
+    target,
+}: GridActionsLinkItemProps) {
     return (
         <MenuItem ref={ref} sx={sx}>
             <Link

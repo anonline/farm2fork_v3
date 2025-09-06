@@ -33,7 +33,7 @@ export function CheckoutCartProductList({
     onDeleteCartItem,
     onChangeItemQuantity,
     onAddNote,
-    onDeleteNote
+    onDeleteNote,
 }: Readonly<Props>) {
     return (
         <Scrollbar>

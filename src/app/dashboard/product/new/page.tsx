@@ -6,7 +6,9 @@ import { ProductCreateView } from 'src/sections/product/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Új termék létrehozása | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = {
+    title: `Új termék létrehozása | Dashboard - ${CONFIG.appName}`,
+};
 
 export default function Page() {
     return <ProductCreateView />;

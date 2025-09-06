@@ -19,7 +19,7 @@ export default function TarolasHero() {
                     backgroundImage: `url(${heroImageUrl})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    borderRadius:'8px'
+                    borderRadius: '8px',
                 }}
             >
                 <Box
@@ -29,11 +29,12 @@ export default function TarolasHero() {
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)',//ezt ki kell venni amikor képekel van feltöltve
-                        borderRadius:'8px'
+                        background:
+                            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)', //ezt ki kell venni amikor képekel van feltöltve
+                        borderRadius: '8px',
                     }}
                 />
-                
+
                 <Container maxWidth="lg">
                     <Typography
                         variant="h1"
@@ -56,17 +57,19 @@ export default function TarolasHero() {
             </Box>
 
             <Box maxWidth="md" sx={{ mt: 3 }}>
-                <Typography 
-                    variant="body1" 
-                    color="text.secondary" 
-                    sx={{ 
+                <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{
                         textAlign: 'start',
                         fontSize: '16px',
                         fontWeight: 400,
                         lineHeight: '24px',
                     }}
                 >
-                    Termelőink sokat dolgoznak azért, hogy kiváló minőségű alapanyagok kerüljenek a tanyérodra. Tárolási tippjeinkkel segítünk, hogy minél tovább élvezhesd a finom ízeket és a termelésbe fektetett idő, erőforrások se kerüljenek pazarlásra.
+                    Termelőink sokat dolgoznak azért, hogy kiváló minőségű alapanyagok kerüljenek a
+                    tanyérodra. Tárolási tippjeinkkel segítünk, hogy minél tovább élvezhesd a finom
+                    ízeket és a termelésbe fektetett idő, erőforrások se kerüljenek pazarlásra.
                 </Typography>
             </Box>
         </Box>

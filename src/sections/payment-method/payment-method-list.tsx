@@ -32,40 +32,54 @@ import { paths } from 'src/routes/paths';
 import { fCurrency } from 'src/utils/format-number';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { createPaymentMethod, updatePaymentMethod, deletePaymentMethod, useGetPaymentMethods } from 'src/actions/payment-method';
+import {
+    createPaymentMethod,
+    updatePaymentMethod,
+    deletePaymentMethod,
+    useGetPaymentMethods,
+} from 'src/actions/payment-method';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { RHFSwitch, RHFTextField } from 'src/components/hook-form';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-
 // ----------------------------------------------------------------------
-
 
 export default function PaymentMethodListView() {
     const { methods, methodsLoading, methodsMutate } = useGetPaymentMethods();
 
-    const [dialogState, setDialogState] = useState({ open: false, view: 'form' as 'form' | 'confirmDelete' });
+    const [dialogState, setDialogState] = useState({
+        open: false,
+        view: 'form' as 'form' | 'confirmDelete',
+    });
     const [editingMethod, setEditingMethod] = useState<IPaymentMethod | null>(null);
 
-    const defaultValues = useMemo(() => ({
-        name: '',
-        slug: '',
-        type: 'online' as const,
-        additionalCost: 0,
-        protected: false,
-        enablePublic: true,
-        enableVIP: true,
-        enableCompany: true,
-    }), []);
+    const defaultValues = useMemo(
+        () => ({
+            name: '',
+            slug: '',
+            type: 'online' as const,
+            additionalCost: 0,
+            protected: false,
+            enablePublic: true,
+            enableVIP: true,
+            enableCompany: true,
+        }),
+        []
+    );
 
     const rhfMethods = useForm<PaymentMethodSchemaType>({
         resolver: zodResolver(PaymentMethodSchema),
         defaultValues,
     });
 
-    const { reset, control, handleSubmit, formState: { isSubmitting } } = rhfMethods;
+    const {
+        reset,
+        control,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = rhfMethods;
 
     const handleOpenNew = () => {
         reset(defaultValues);
@@ -116,19 +130,36 @@ export default function PaymentMethodListView() {
         { field: 'name', headerName: 'Név', flex: 1, minWidth: 180 },
         { field: 'slug', headerName: 'Slug', width: 150 },
         { field: 'type', headerName: 'Típus', width: 120 },
-        ...CURRENCY_COLUMNS_CONFIG.map(col => ({
-            field: col.field, headerName: col.headerName, width: col.width,
-            align: 'right' as const, headerAlign: 'right' as const,
-            renderCell: (params: any) => fCurrency(params.value)
+        ...CURRENCY_COLUMNS_CONFIG.map((col) => ({
+            field: col.field,
+            headerName: col.headerName,
+            width: col.width,
+            align: 'right' as const,
+            headerAlign: 'right' as const,
+            renderCell: (params: any) => fCurrency(params.value),
         })),
-        ...BOOLEAN_COLUMNS_CONFIG.map(col => ({
-            field: col.field, headerName: col.headerName, width: 100,
-            align: 'center' as const, headerAlign: 'center' as const,
-            renderCell: (params: any) => <RenderCellBoolean value={params.value} />
+        ...BOOLEAN_COLUMNS_CONFIG.map((col) => ({
+            field: col.field,
+            headerName: col.headerName,
+            width: 100,
+            align: 'center' as const,
+            headerAlign: 'center' as const,
+            renderCell: (params: any) => <RenderCellBoolean value={params.value} />,
         })),
         {
-            field: 'actions', type: 'actions', headerName: '', width: 80, align: 'right',
-            getActions: ({ row }) => [<GridActionsCellItem key="edit" icon={<Iconify icon="solar:pen-bold" />} label="Szerkesztés" onClick={() => handleOpenEdit(row)} />],
+            field: 'actions',
+            type: 'actions',
+            headerName: '',
+            width: 80,
+            align: 'right',
+            getActions: ({ row }) => [
+                <GridActionsCellItem
+                    key="edit"
+                    icon={<Iconify icon="solar:pen-bold" />}
+                    label="Szerkesztés"
+                    onClick={() => handleOpenEdit(row)}
+                />,
+            ],
         },
     ];
 
@@ -138,11 +169,21 @@ export default function PaymentMethodListView() {
                 <>
                     <DialogTitle>Törlés Megerősítése</DialogTitle>
                     <DialogContent>
-                        <Typography>Biztosan törölni szeretnéd a(z) <strong>{editingMethod?.name}</strong> fizetési módot?</Typography>
+                        <Typography>
+                            Biztosan törölni szeretnéd a(z) <strong>{editingMethod?.name}</strong>{' '}
+                            fizetési módot?
+                        </Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setDialogState({ ...dialogState, view: 'form' })} color="inherit">Vissza</Button>
-                        <Button onClick={handleDelete} color="error">Törlés</Button>
+                        <Button
+                            onClick={() => setDialogState({ ...dialogState, view: 'form' })}
+                            color="inherit"
+                        >
+                            Vissza
+                        </Button>
+                        <Button onClick={handleDelete} color="error">
+                            Törlés
+                        </Button>
                     </DialogActions>
                 </>
             );
@@ -151,7 +192,9 @@ export default function PaymentMethodListView() {
         return (
             <FormProvider {...rhfMethods}>
                 <form onSubmit={onSubmit}>
-                    <DialogTitle>{editingMethod ? `"${editingMethod.name}" szerkesztése` : 'Új fizetési mód'}</DialogTitle>
+                    <DialogTitle>
+                        {editingMethod ? `"${editingMethod.name}" szerkesztése` : 'Új fizetési mód'}
+                    </DialogTitle>
                     <DialogContent>
                         <Stack spacing={3} sx={{ pt: 1 }}>
                             <RHFTextField name="name" label="Név" />
@@ -162,14 +205,21 @@ export default function PaymentMethodListView() {
                                 render={({ field, fieldState: { error } }) => (
                                     <FormControl fullWidth error={!!error}>
                                         <InputLabel>Típus</InputLabel>
-                                        <Select {...field} label="Típus">{TYPE_OPTIONS.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                                        ))}
+                                        <Select {...field} label="Típus">
+                                            {TYPE_OPTIONS.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                 )}
                             />
-                            <RHFTextField name="additionalCost" label="Plusz költség" type="number" />
+                            <RHFTextField
+                                name="additionalCost"
+                                label="Plusz költség"
+                                type="number"
+                            />
                             <Stack direction="row" spacing={1} flexWrap="wrap">
                                 <RHFSwitch name="protected" label="Védett" />
                                 <RHFSwitch name="enablePublic" label="Publikus" />
@@ -180,7 +230,10 @@ export default function PaymentMethodListView() {
                     </DialogContent>
                     <DialogActions>
                         {editingMethod && (
-                            <Button onClick={() => setDialogState({ ...dialogState, view: 'confirmDelete' })}
+                            <Button
+                                onClick={() =>
+                                    setDialogState({ ...dialogState, view: 'confirmDelete' })
+                                }
                                 color="error"
                                 variant="outlined"
                                 disabled={editingMethod.protected}
@@ -189,8 +242,12 @@ export default function PaymentMethodListView() {
                             </Button>
                         )}
                         <Box sx={{ flexGrow: 1 }} />
-                        <Button onClick={handleCloseDialog} color="inherit">Mégse</Button>
-                        <LoadingButton type="submit" variant="contained" loading={isSubmitting}>{editingMethod ? 'Mentés' : 'Létrehozás'}</LoadingButton>
+                        <Button onClick={handleCloseDialog} color="inherit">
+                            Mégse
+                        </Button>
+                        <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                            {editingMethod ? 'Mentés' : 'Létrehozás'}
+                        </LoadingButton>
                     </DialogActions>
                 </form>
             </FormProvider>
@@ -201,8 +258,19 @@ export default function PaymentMethodListView() {
         <DashboardContent>
             <CustomBreadcrumbs
                 heading="Fizetési Módok"
-                links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Fizetési Módok' }]}
-                action={<Button onClick={handleOpenNew} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>Új Fizetési Mód</Button>}
+                links={[
+                    { name: 'Dashboard', href: paths.dashboard.root },
+                    { name: 'Fizetési Módok' },
+                ]}
+                action={
+                    <Button
+                        onClick={handleOpenNew}
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                    >
+                        Új Fizetési Mód
+                    </Button>
+                }
             />
             <Card sx={{ mt: 5 }}>
                 <DataGrid
@@ -222,9 +290,7 @@ export default function PaymentMethodListView() {
     );
 }
 
-
 // ----------------------------------------------------------------------
-
 
 const PaymentMethodSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező' }),
@@ -246,17 +312,19 @@ const TYPE_OPTIONS = [
 ];
 
 function RenderCellBoolean({ value }: Readonly<{ value: boolean }>) {
-    return <Chip
-        icon={<Iconify icon={value ? 'solar:check-circle-bold' : 'solar:close-circle-bold'} />}
-        color={value ? 'success' : 'error'}
-        size="small"
-        sx={{
-            width: '24px',
-            '& .MuiChip-icon': {
-                ml: 1.5
-            }
-        }}
-    />;
+    return (
+        <Chip
+            icon={<Iconify icon={value ? 'solar:check-circle-bold' : 'solar:close-circle-bold'} />}
+            color={value ? 'success' : 'error'}
+            size="small"
+            sx={{
+                width: '24px',
+                '& .MuiChip-icon': {
+                    ml: 1.5,
+                },
+            }}
+        />
+    );
 }
 
 const BOOLEAN_COLUMNS_CONFIG = [

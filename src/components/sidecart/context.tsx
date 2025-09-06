@@ -40,7 +40,6 @@ export function SideCartProvider({ children }: SideCartProviderProps) {
     const isOnCheckoutPage = pathname === '/product/checkout/';
 
     const openSideCart = () => {
-        
         if (!isOnCheckoutPage) {
             setIsOpen(true);
         }
@@ -50,7 +49,7 @@ export function SideCartProvider({ children }: SideCartProviderProps) {
 
     const toggleSideCart = () => {
         if (!isOnCheckoutPage) {
-            setIsOpen(prev => !prev);
+            setIsOpen((prev) => !prev);
         }
     };
 

@@ -1,15 +1,14 @@
-"use client";
+'use client';
 
-import type { ReactNode} from "react";
-import type { IProductItem } from "src/types/product";
+import type { ReactNode } from 'react';
+import type { IProductItem } from 'src/types/product';
 
-import { createClient } from "@supabase/supabase-js";
-import { useState, useEffect, useContext, createContext } from "react";
+import { createClient } from '@supabase/supabase-js';
+import { useState, useEffect, useContext, createContext } from 'react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 
 type ProductContextType = {
     product: IProductItem | null;
@@ -33,7 +32,11 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
-            const { data, error } = await supabase.from("Products").select("*").eq('url', slug).maybeSingle();
+            const { data, error } = await supabase
+                .from('Products')
+                .select('*')
+                .eq('url', slug)
+                .maybeSingle();
             if (error) {
                 setLoaderror(error.message);
                 setProduct(null);
@@ -55,8 +58,8 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
 }
 
 export const useProduct = () => {
-  const context = useContext(ProductContext);
-  console.log(context.product);
-  if (!context) throw new Error("useProduct csak a ProductProvider-en belül használható");
-  return context;
+    const context = useContext(ProductContext);
+    console.log(context.product);
+    if (!context) throw new Error('useProduct csak a ProductProvider-en belül használható');
+    return context;
 };

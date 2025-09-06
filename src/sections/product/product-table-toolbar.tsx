@@ -153,7 +153,15 @@ export function ProductTableToolbar({ filters, options }: Props) {
                     onChange={handleChangePublish}
                     onClose={handleFilterPublish}
                     input={<OutlinedInput label="Aktív" />}
-                    renderValue={(selected) => selected.map((value) => options.publishs.find((option) => option.value === value)?.label || value).join(', ')}
+                    renderValue={(selected) =>
+                        selected
+                            .map(
+                                (value) =>
+                                    options.publishs.find((option) => option.value === value)
+                                        ?.label || value
+                            )
+                            .join(', ')
+                    }
                     inputProps={{ id: 'filter-publish-select' }}
                     sx={{ textTransform: 'capitalize' }}
                 >
@@ -200,7 +208,15 @@ export function ProductTableToolbar({ filters, options }: Props) {
                     onChange={handleChangeBio}
                     onClose={handleFilterBio}
                     input={<OutlinedInput label="Bio" />}
-                    renderValue={(selected) => selected.map((value) => options.bios.find((option) => option.value === value)?.label || value).join(', ')}
+                    renderValue={(selected) =>
+                        selected
+                            .map(
+                                (value) =>
+                                    options.bios.find((option) => option.value === value)?.label ||
+                                    value
+                            )
+                            .join(', ')
+                    }
                     inputProps={{ id: 'filter-bio-select' }}
                     sx={{ textTransform: 'capitalize' }}
                 >

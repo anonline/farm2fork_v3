@@ -5,27 +5,28 @@ import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
 
-
-
 export function useGetShippingZones() {
-  const SWR_KEY = 'shippingZones';
+    const SWR_KEY = 'shippingZones';
 
-  const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
-    const { data: zones, error: dbError } = await supabase
-      .from('ShippingZones')
-      .select('*')
-      .order('Iranyitoszam', { ascending: true });
-    
-    if (dbError) throw new Error(dbError.message);
-    return zones as IShippingZone[];
-  });
+    const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
+        const { data: zones, error: dbError } = await supabase
+            .from('ShippingZones')
+            .select('*')
+            .order('Iranyitoszam', { ascending: true });
 
-  return useMemo(() => ({
-      shippingZones: data || [],
-      shippingZonesLoading: isLoading,
-      shippingZonesError: error,
-      shippingZonesMutate: mutate,
-    }), [data, error, isLoading, mutate]);
+        if (dbError) throw new Error(dbError.message);
+        return zones as IShippingZone[];
+    });
+
+    return useMemo(
+        () => ({
+            shippingZones: data || [],
+            shippingZonesLoading: isLoading,
+            shippingZonesError: error,
+            shippingZonesMutate: mutate,
+        }),
+        [data, error, isLoading, mutate]
+    );
 }
 
 export async function createShippingZoneRules(rules: Omit<IShippingZone, 'ID'>[]) {

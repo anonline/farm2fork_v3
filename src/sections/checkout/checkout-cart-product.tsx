@@ -28,7 +28,13 @@ type Props = {
     onDeleteNote: CheckoutContextValue['onDeleteNote'];
 };
 
-export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity, onAddNote, onDeleteNote }: Readonly<Props>) {
+export function CheckoutCartProduct({
+    row,
+    onDeleteCartItem,
+    onChangeItemQuantity,
+    onAddNote,
+    onDeleteNote,
+}: Readonly<Props>) {
     const [showNoteField, setShowNoteField] = useState(false);
     const [noteText, setNoteText] = useState(row.note || '');
 
@@ -66,20 +72,48 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                     <Avatar
                         variant="rounded"
                         alt={row.name}
-                        src={row.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                        src={
+                            row.coverUrl ||
+                            'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                        }
                         sx={{ width: 100, height: 100 }}
                     />
 
                     <Stack spacing={1} sx={{ flex: 1 }}>
-                        <Typography noWrap sx={{ maxWidth: 240, fontWeight: 700, fontSize: '18px', lineHeight: '28px', color: '#262626' }}>
+                        <Typography
+                            noWrap
+                            sx={{
+                                maxWidth: 240,
+                                fontWeight: 700,
+                                fontSize: '18px',
+                                lineHeight: '28px',
+                                color: '#262626',
+                            }}
+                        >
                             {row.name}
                         </Typography>
 
-                        <Typography sx={{ fontSize: '16px', fontWeight: '500', lineHeight: '24px', color: '#7e7e7e' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '16px',
+                                fontWeight: '500',
+                                lineHeight: '24px',
+                                color: '#7e7e7e',
+                            }}
+                        >
                             {fCurrency(row.price)}/{row.unit ?? 'db'}
                         </Typography>
 
-                        <Box sx={{ width: 150, gap: '8px', textAlign: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Box
+                            sx={{
+                                width: 150,
+                                gap: '8px',
+                                textAlign: 'right',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
                             <NumberInput
                                 hideDivider
                                 value={row.quantity}
@@ -109,25 +143,22 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                                 sx={{
                                     mt: 1,
                                     '& .MuiOutlinedInput-root': {
-                                        fontSize: '14px'
-                                    }
+                                        fontSize: '14px',
+                                    },
                                 }}
                             />
                         </Collapse>
-
                     </Stack>
                 </Box>
             </TableCell>
 
             <TableCell align="right" sx={{ px: 3 }}>
                 <Stack spacing={1}>
-                    <Typography>
-                        {fCurrency(row.subtotal)}
-                    </Typography>
+                    <Typography>{fCurrency(row.subtotal)}</Typography>
                     <Box>
                         <IconButton onClick={handleToggleNote}>
                             <F2FIcons
-                                name={row.note ? "CommentOn" : "CommentAdd"}
+                                name={row.note ? 'CommentOn' : 'CommentAdd'}
                                 width={20}
                                 height={20}
                             />

@@ -1,1 +1,1 @@
-export * from './profil-edit-account-view'
+export * from './profil-edit-account-view';

@@ -10,7 +10,9 @@ import { OptionsEnum } from 'src/types/option';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Kategória szerkesztés | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = {
+    title: `Kategória szerkesztés | Dashboard - ${CONFIG.appName}`,
+};
 
 type Props = {
     params: Promise<{ id: string }>;
@@ -22,5 +24,11 @@ export default async function Page({ params }: Props) {
     const maxFileSize = await getOption(OptionsEnum.MaxFileUploadSizeMB);
     const allCategories = await getCategories();
 
-    return <CategoryEditView category={category ?? undefined} maxFileSize={Number(maxFileSize?.value ?? 3)} allCategories={allCategories} />;
+    return (
+        <CategoryEditView
+            category={category ?? undefined}
+            maxFileSize={Number(maxFileSize?.value ?? 3)}
+            allCategories={allCategories}
+        />
+    );
 }

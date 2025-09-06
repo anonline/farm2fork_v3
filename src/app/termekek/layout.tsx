@@ -10,9 +10,10 @@ type Props = {
 
 export default function Layout({ children }: Readonly<Props>) {
     return (
-    <MainLayout>
-        <Box sx={{width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '20px'}}>
-            {children}
-        </Box>
-    </MainLayout>);
+        <MainLayout>
+            <Box sx={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '20px' }}>
+                {children}
+            </Box>
+        </MainLayout>
+    );
 }

@@ -32,17 +32,17 @@ export type IProductReview = {
 
 export const Months = {
     January: 'Január',
-    February: "Február",
-    March: "Március",
-    April: "April",
-    May: "May",
-    June: "Június",
-    July: "Július",
-    August: "Augusztus",
-    September: "Szeptember",
-    October: "October",
-    November: "November",
-    December: "December",
+    February: 'Február',
+    March: 'Március',
+    April: 'April',
+    May: 'May',
+    June: 'Június',
+    July: 'Július',
+    August: 'Augusztus',
+    September: 'Szeptember',
+    October: 'October',
+    November: 'November',
+    December: 'December',
 } as const;
 export type MonthKeys = keyof typeof Months;
 
@@ -68,9 +68,9 @@ export type IProductItem = {
     netPriceVIP: number;
     netPriceCompany: number;
     vat: number;
-    seasonality: MonthKeys[],
-    featured: boolean,
-    star: boolean,
+    seasonality: MonthKeys[];
+    featured: boolean;
+    star: boolean;
     code: string;
     price: number;
     taxes: number;

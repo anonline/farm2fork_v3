@@ -13,12 +13,11 @@ import { ProductEditView } from 'src/sections/product/view';
 export const metadata: Metadata = { title: `Termék szerkesztése | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-  params: Promise<{ slug: string }>;
+    params: Promise<{ slug: string }>;
 };
 
 export default async function Page({ params }: Readonly<Props>) {
-  const { slug } = await params;
-
+    const { slug } = await params;
   return (
     <ProductProvider slug={slug}>
       <ProducersProvider>

@@ -3,15 +3,16 @@ import type { IArticleItem } from 'src/types/article';
 
 import { supabase } from 'src/lib/supabase';
 
-
 const swrOptions: SWRConfiguration = {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
 };
 
-
-export async function insertNewArticle(newArticleData: Omit<IArticleItem, 'id'|'categories'|'categoryIds'>, categoryIds: number[]) {
+export async function insertNewArticle(
+    newArticleData: Omit<IArticleItem, 'id' | 'categories' | 'categoryIds'>,
+    categoryIds: number[]
+) {
     if (
         !newArticleData.title ||
         !newArticleData.year ||
@@ -26,21 +27,28 @@ export async function insertNewArticle(newArticleData: Omit<IArticleItem, 'id'|'
 
     const yearNum = Number(newArticleData.year);
     const currentYear = new Date().getFullYear();
-    if (!/^\d{4}$/.test(newArticleData.year) || isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear) {
+    if (
+        !/^\d{4}$/.test(newArticleData.year) ||
+        isNaN(yearNum) ||
+        yearNum < 1900 ||
+        yearNum > currentYear
+    ) {
         throw new Error(`Az évszámnak 1900 és ${currentYear} között kell lennie.`);
     }
 
     const { data: newArticle, error: articleError } = await supabase
         .from('Articles')
-        .insert([{
-            title: newArticleData.title,
-            medium: newArticleData.medium,
-            image: newArticleData.image,
-            year: newArticleData.year,
-            link: newArticleData.link,
-            publish_date: newArticleData.publish_date,
-            publish: newArticleData.publish,
-        }])
+        .insert([
+            {
+                title: newArticleData.title,
+                medium: newArticleData.medium,
+                image: newArticleData.image,
+                year: newArticleData.year,
+                link: newArticleData.link,
+                publish_date: newArticleData.publish_date,
+                publish: newArticleData.publish,
+            },
+        ])
         .select('id')
         .single();
 
@@ -49,7 +57,7 @@ export async function insertNewArticle(newArticleData: Omit<IArticleItem, 'id'|'
     }
 
     if (categoryIds && categoryIds.length > 0) {
-        const relationsToInsert = categoryIds.map(categoryId => ({
+        const relationsToInsert = categoryIds.map((categoryId) => ({
             articleId: newArticle.id,
             categoryId,
         }));
@@ -59,14 +67,20 @@ export async function insertNewArticle(newArticleData: Omit<IArticleItem, 'id'|'
             .insert(relationsToInsert);
 
         if (relationError) {
-            throw new Error(`A cikk létrejött (ID: ${newArticle.id}), de a kategória kapcsolatok mentése sikertelen: ${relationError.message}`);
+            throw new Error(
+                `A cikk létrejött (ID: ${newArticle.id}), de a kategória kapcsolatok mentése sikertelen: ${relationError.message}`
+            );
         }
     }
-    
+
     return newArticle;
 }
 
-export async function updateArticle(articleId: number, updatedArticleData: Partial<IArticleItem>, categoryIds: number[]) {
+export async function updateArticle(
+    articleId: number,
+    updatedArticleData: Partial<IArticleItem>,
+    categoryIds: number[]
+) {
     if (
         !updatedArticleData.title ||
         !updatedArticleData.year ||
@@ -81,7 +95,12 @@ export async function updateArticle(articleId: number, updatedArticleData: Parti
 
     const yearNum = Number(updatedArticleData.year);
     const currentYear = new Date().getFullYear();
-    if (!/^\d{4}$/.test(updatedArticleData.year) || isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear) {
+    if (
+        !/^\d{4}$/.test(updatedArticleData.year) ||
+        isNaN(yearNum) ||
+        yearNum < 1900 ||
+        yearNum > currentYear
+    ) {
         throw new Error(`Az évszámnak 1900 és ${currentYear} között kell lennie.`);
     }
 
@@ -93,18 +112,20 @@ export async function updateArticle(articleId: number, updatedArticleData: Parti
     if (articleError) {
         throw new Error(articleError.message);
     }
-    
+
     const { error: deleteError } = await supabase
         .from('ArticlesCategoriesRelations')
         .delete()
         .eq('articleId', articleId);
-    
+
     if (deleteError) {
-        throw new Error(`A cikk adatai frissültek, de a régi kategória kapcsolatok törlése sikertelen: ${deleteError.message}`);
+        throw new Error(
+            `A cikk adatai frissültek, de a régi kategória kapcsolatok törlése sikertelen: ${deleteError.message}`
+        );
     }
 
     if (categoryIds && categoryIds.length > 0) {
-        const relationsToInsert = categoryIds.map(categoryId => ({
+        const relationsToInsert = categoryIds.map((categoryId) => ({
             articleId,
             categoryId,
         }));
@@ -114,9 +135,11 @@ export async function updateArticle(articleId: number, updatedArticleData: Parti
             .insert(relationsToInsert);
 
         if (insertError) {
-            throw new Error(`A cikk adatai frissültek, de az új kategória kapcsolatok mentése sikertelen: ${insertError.message}`);
+            throw new Error(
+                `A cikk adatai frissültek, de az új kategória kapcsolatok mentése sikertelen: ${insertError.message}`
+            );
         }
     }
-    
+
     return { success: true, articleId };
 }

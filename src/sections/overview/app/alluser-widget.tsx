@@ -2,9 +2,13 @@ import { useTheme } from '@mui/material/styles';
 
 import { paths } from 'src/routes/paths';
 
-import { AppWidgetSummary } from "./app-widget-summary";
+import { AppWidgetSummary } from './app-widget-summary';
 
-export default function AllUserWidget({ total, series, percent }: Readonly<{ total: number, series: number[], percent: number }>) {
+export default function AllUserWidget({
+    total,
+    series,
+    percent,
+}: Readonly<{ total: number; series: number[]; percent: number }>) {
     const theme = useTheme();
 
     const monthNamesHungarian = [
@@ -19,7 +23,7 @@ export default function AllUserWidget({ total, series, percent }: Readonly<{ tot
         'Szeptember',
         'Október',
         'November',
-        'December'
+        'December',
     ];
     const now = new Date();
     const lastTwelveMonthNameHungarian = Array.from({ length: 12 }, (_, i) => {
@@ -33,12 +37,11 @@ export default function AllUserWidget({ total, series, percent }: Readonly<{ tot
             percent={percent}
             total={total}
             link={paths.dashboard.user.list}
-            suffix=' fő'
+            suffix=" fő"
             chart={{
                 colors: [theme.palette.error.main],
                 categories: lastTwelveMonthNameHungarian,
                 series,
-                
             }}
         />
     );

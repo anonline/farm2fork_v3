@@ -5,5 +5,5 @@ import ShippingCostListView from 'src/sections/shipping-cost/view/shipping-cost-
 export const metadata: Metadata = { title: 'Szállítási díjak és módok' };
 
 export default function Page() {
-  return <ShippingCostListView />;
+    return <ShippingCostListView />;
 }

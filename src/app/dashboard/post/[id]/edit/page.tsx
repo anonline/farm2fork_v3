@@ -19,8 +19,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     const { post } = await getPostById(id);
 
     if (post == null) {
-      console.log('Id:', id); 
-      notFound(); 
+        console.log('Id:', id);
+        notFound();
     }
 
     return <PostEditView post={post} />;

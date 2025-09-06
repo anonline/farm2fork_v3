@@ -1,10 +1,9 @@
 'use client';
 
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
-import { createClient } from "@supabase/supabase-js";
-import { useState, useEffect, useContext, createContext } from "react";
-
+import { createClient } from '@supabase/supabase-js';
+import { useState, useEffect, useContext, createContext } from 'react';
 
 export interface IStoragingMethod {
     id: number;
@@ -17,7 +16,6 @@ export interface IStoragingMethod {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 
 type TarolasContextType = {
     tarolasMod: IStoragingMethod[];
@@ -39,14 +37,14 @@ export function TarolasProvider({ children }: Readonly<{ children: ReactNode }>)
     useEffect(() => {
         async function fetchStoringMethods() {
             setLoading(true);
-            
+
             const { data, error: supabaseError } = await supabase
-                .from("StoragingMothods")
-                .select("*")
+                .from('StoragingMothods')
+                .select('*')
                 .order('order', { ascending: true });
-            
+
             if (supabaseError) {
-                console.error("Hiba a tárolási módok lekérésekor:", supabaseError);
+                console.error('Hiba a tárolási módok lekérésekor:', supabaseError);
                 setError(supabaseError.message);
                 setTarolasMod([]);
             } else {
@@ -69,7 +67,7 @@ export function TarolasProvider({ children }: Readonly<{ children: ReactNode }>)
 export const useTarolas = () => {
     const context = useContext(TarolasContext);
     if (!context) {
-        throw new Error("useTarolas csak a TarolasProvider-en belül használható");
+        throw new Error('useTarolas csak a TarolasProvider-en belül használható');
     }
     return context;
 };

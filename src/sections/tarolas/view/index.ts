@@ -1,1 +1,1 @@
-export * from './tarolas-view'
+export * from './tarolas-view';

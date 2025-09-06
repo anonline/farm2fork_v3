@@ -60,14 +60,14 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 // ----------------------------------------------------------------------
 type Props = {
-  _userList: IUserItem[]
+    _userList: IUserItem[];
 };
 
-export function UserListView( usersData: Readonly<Props>) {
-  const table = useTable();
-  const _userList = usersData._userList;
-  
-  const confirmDialog = useBoolean();
+export function UserListView(usersData: Readonly<Props>) {
+    const table = useTable();
+    const _userList = usersData._userList;
+
+    const confirmDialog = useBoolean();
 
     const [tableData, setTableData] = useState<IUserItem[]>(_userList);
 

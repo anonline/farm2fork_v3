@@ -53,18 +53,26 @@ export function NavSubItem({
             {...other}
         >
             <ItemIcon {...ownerState} sx={{ marginRight: '8px' }}>
-                {typeof icon === 'string' ? (
-                    <Image src={icon} alt={title} />
-                ) : (
-                    icon
-                )}
+                {typeof icon === 'string' ? <Image src={icon} alt={title} /> : icon}
             </ItemIcon>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                <ItemTitle {...ownerState} sx={{ textTransform: 'uppercase', fontFamily: themeConfig.fontFamily.primary, fontWeight: 600, fontSize: '14px', lineHeight: '20px' }}>
+                <ItemTitle
+                    {...ownerState}
+                    sx={{
+                        textTransform: 'uppercase',
+                        fontFamily: themeConfig.fontFamily.primary,
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        lineHeight: '20px',
+                    }}
+                >
                     {title}
                 </ItemTitle>
                 {ownerState.variant === 'subItem' && subtitle && (
-                    <ItemSubtitle {...ownerState} sx={{ fontSize: '12px', color: (themeConfig.palette.grey[500], 0.6) }}>
+                    <ItemSubtitle
+                        {...ownerState}
+                        sx={{ fontSize: '12px', color: (themeConfig.palette.grey[500], 0.6) }}
+                    >
                         {subtitle}
                     </ItemSubtitle>
                 )}
@@ -76,7 +84,9 @@ export function NavSubItem({
 
 // ----------------------------------------------------------------------
 
-const ItemIcon = styled('span', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'active' })<StyledState>(({ theme }) => ({
+const ItemIcon = styled('span', {
+    shouldForwardProp: (prop) => prop !== 'open' && prop !== 'active',
+})<StyledState>(({ theme }) => ({
     ...navItemStyles.captionIcon,
     width: 40,
     height: 40,
@@ -89,7 +99,9 @@ const ItemIcon = styled('span', { shouldForwardProp: (prop) => prop !== 'open' &
     ],
 }));
 
-const ItemSubtitle = styled('span', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'active' })<StyledState>(({ theme }) => ({
+const ItemSubtitle = styled('span', {
+    shouldForwardProp: (prop) => prop !== 'open' && prop !== 'active',
+})<StyledState>(({ theme }) => ({
     ...navItemStyles.captionText(theme),
     ...theme.typography.body2,
     fontWeight: theme.typography.fontWeightRegular,
@@ -98,7 +110,6 @@ const ItemSubtitle = styled('span', { shouldForwardProp: (prop) => prop !== 'ope
         { props: { active: true }, style: { fontWeight: theme.typography.fontWeightMedium } },
     ],
 }));
-
 
 type StyledState = Pick<NavItemProps, 'open' | 'active'> & {
     variant: 'rootItem' | 'subItem';
@@ -117,7 +128,6 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     const rootItemStyles: CSSObject = {
         //...(open && { '&::before': { ...dotTransitions.out } }),
         ...(active && { color: theme.vars.palette.primary.main }),
-
     };
 
     const subItemStyles: CSSObject = {
@@ -127,7 +137,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
     };
 
     return {
@@ -141,7 +151,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
             borderRadius: '8px',
         },
         '&:hover svg': {
-            transform: 'rotate(180deg)'
+            transform: 'rotate(180deg)',
         },
         padding: '15px',
         variants: [

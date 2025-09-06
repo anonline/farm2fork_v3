@@ -34,7 +34,6 @@ export function FaqTableToolbar({ filters, onResetPage }: Readonly<Props>) {
         [onResetPage, updateFilters]
     );
 
-
     const renderMenuActions = () => (
         <CustomPopover
             open={menuActions.open}

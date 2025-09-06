@@ -5,7 +5,8 @@ import type {
     GridRowId,
     GridColDef,
     GridRowModesModel,
-    GridRowSelectionModel} from '@mui/x-data-grid';
+    GridRowSelectionModel,
+} from '@mui/x-data-grid';
 
 import { useSWRConfig } from 'swr';
 import { useState, useCallback } from 'react';
@@ -33,7 +34,7 @@ import {
     createArticleCategory,
     updateArticleCategory,
     useGetArticleCategories,
-    deleteArticleCategories
+    deleteArticleCategories,
 } from 'src/actions/article-categories';
 
 import { toast } from 'src/components/snackbar';
@@ -42,10 +43,21 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 // ----------------------------------------------------------------------
 
-function CustomToolbar({ selectedRowCount, onBulkDeleteClick }: Readonly<{ selectedRowCount: number, onBulkDeleteClick: () => void }>) {
+function CustomToolbar({
+    selectedRowCount,
+    onBulkDeleteClick,
+}: Readonly<{ selectedRowCount: number; onBulkDeleteClick: () => void }>) {
     return (
         <GridToolbarContainer>
-            <Box sx={{ flexGrow: 1, p: '0px 8px', height: '48px', display: 'flex', alignItems: 'center' }}>
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    p: '0px 8px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
+            >
                 <Button
                     size="small"
                     color="error"
@@ -59,7 +71,6 @@ function CustomToolbar({ selectedRowCount, onBulkDeleteClick }: Readonly<{ selec
         </GridToolbarContainer>
     );
 }
-
 
 export default function CategoryListView() {
     const { categories, categoriesLoading } = useGetArticleCategories();
@@ -112,9 +123,15 @@ export default function CategoryListView() {
         }
     };
 
-    const handleEditClick = (id: GridRowId) => () => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-    const handleSaveClick = (id: GridRowId) => () => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    const handleCancelClick = (id: GridRowId) => () => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View, ignoreModifications: true } });
+    const handleEditClick = (id: GridRowId) => () =>
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    const handleSaveClick = (id: GridRowId) => () =>
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    const handleCancelClick = (id: GridRowId) => () =>
+        setRowModesModel({
+            ...rowModesModel,
+            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
 
     const columns: GridColDef[] = [
         {
@@ -124,11 +141,11 @@ export default function CategoryListView() {
             editable: true,
             disableColumnMenu: true,
         },
-        { 
-            field: 'articleCount', 
-            headerName: 'Cikkek száma', 
-            width: 150, 
-            align: 'center', 
+        {
+            field: 'articleCount',
+            headerName: 'Cikkek száma',
+            width: 150,
+            align: 'center',
             headerAlign: 'center',
             disableColumnMenu: true,
             editable: false,
@@ -145,12 +162,28 @@ export default function CategoryListView() {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
                 if (isInEditMode) {
                     return [
-                        <GridActionsCellItem key="save" icon={<Iconify icon="solar:check-circle-bold" />} label="Mentés" onClick={handleSaveClick(id)} color="primary" />,
-                        <GridActionsCellItem key="cancel" icon={<Iconify icon="solar:close-circle-bold" />} label="Mégse" onClick={handleCancelClick(id)} />,
+                        <GridActionsCellItem
+                            key="save"
+                            icon={<Iconify icon="solar:check-circle-bold" />}
+                            label="Mentés"
+                            onClick={handleSaveClick(id)}
+                            color="primary"
+                        />,
+                        <GridActionsCellItem
+                            key="cancel"
+                            icon={<Iconify icon="solar:close-circle-bold" />}
+                            label="Mégse"
+                            onClick={handleCancelClick(id)}
+                        />,
                     ];
                 }
                 return [
-                    <GridActionsCellItem key="edit" icon={<Iconify icon="solar:pen-bold" />} label="Szerkesztés" onClick={handleEditClick(id)} />
+                    <GridActionsCellItem
+                        key="edit"
+                        icon={<Iconify icon="solar:pen-bold" />}
+                        label="Szerkesztés"
+                        onClick={handleEditClick(id)}
+                    />,
                 ];
             },
         },
@@ -176,12 +209,16 @@ export default function CategoryListView() {
                     { name: 'Kategóriák' },
                 ]}
                 action={
-                    <Button onClick={() => setOpenNewCategoryDialog(true)} variant="contained" startIcon={<Iconify icon="mingcute:add-line" />}>
+                    <Button
+                        onClick={() => setOpenNewCategoryDialog(true)}
+                        variant="contained"
+                        startIcon={<Iconify icon="mingcute:add-line" />}
+                    >
                         Új kategória
                     </Button>
                 }
             />
-            
+
             <Card sx={{ mt: 2 }}>
                 <Box sx={{ minHeight: '60vh', width: '100%' }}>
                     <DataGrid
@@ -195,7 +232,9 @@ export default function CategoryListView() {
                         onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
                         processRowUpdate={processRowUpdate}
                         onProcessRowUpdateError={(error) => toast.error(error.message)}
-                        onRowSelectionModelChange={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
+                        onRowSelectionModelChange={(newSelectionModel) =>
+                            setSelectedRowIds(newSelectionModel)
+                        }
                         rowSelectionModel={selectedRowIds}
                         slots={{
                             toolbar: MemoizedToolbar,
@@ -204,7 +243,12 @@ export default function CategoryListView() {
                 </Box>
             </Card>
 
-            <Dialog open={openNewCategoryDialog} onClose={() => setOpenNewCategoryDialog(false)} fullWidth maxWidth="sm">
+            <Dialog
+                open={openNewCategoryDialog}
+                onClose={() => setOpenNewCategoryDialog(false)}
+                fullWidth
+                maxWidth="sm"
+            >
                 <DialogTitle>Új kategória hozzáadása</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -219,8 +263,12 @@ export default function CategoryListView() {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenNewCategoryDialog(false)} color="inherit">Mégse</Button>
-                    <Button onClick={addNewCategory} variant="contained">Hozzáadás</Button>
+                    <Button onClick={() => setOpenNewCategoryDialog(false)} color="inherit">
+                        Mégse
+                    </Button>
+                    <Button onClick={addNewCategory} variant="contained">
+                        Hozzáadás
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -228,12 +276,17 @@ export default function CategoryListView() {
                 <DialogTitle>Törlés Megerősítése</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Biztosan törölni szeretnéd a kiválasztott <strong>{selectedRowIds.length}</strong> elemet?
+                        Biztosan törölni szeretnéd a kiválasztott{' '}
+                        <strong>{selectedRowIds.length}</strong> elemet?
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenBulkDeleteConfirm(false)} color="inherit">Mégse</Button>
-                    <Button onClick={confirmBulkDelete} color="error" variant="contained">Törlés</Button>
+                    <Button onClick={() => setOpenBulkDeleteConfirm(false)} color="inherit">
+                        Mégse
+                    </Button>
+                    <Button onClick={confirmBulkDelete} color="error" variant="contained">
+                        Törlés
+                    </Button>
                 </DialogActions>
             </Dialog>
         </DashboardContent>

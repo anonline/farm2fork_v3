@@ -43,7 +43,19 @@ export function NavItem({
             })}
             {...other}
         >
-            <ItemTitle {...ownerState} sx={{ textTransform: 'uppercase', fontFamily: themeConfig.fontFamily.primary, fontWeight: 600, fontSize: '14px', lineHeight: '20px' }}> {title}</ItemTitle>
+            <ItemTitle
+                {...ownerState}
+                sx={{
+                    textTransform: 'uppercase',
+                    fontFamily: themeConfig.fontFamily.primary,
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    lineHeight: '20px',
+                }}
+            >
+                {' '}
+                {title}
+            </ItemTitle>
 
             {hasChild && <ItemArrow {...ownerState} icon="eva:arrow-ios-downward-fill" />}
         </ItemRoot>
@@ -66,7 +78,6 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     open,
     theme,
 }) => {
-    
     const rootItemStyles: CSSObject = {
         //...(open && { '&::before': { ...dotTransitions.out } }),
         ...(active && { color: theme.vars.palette.primary.main }),
@@ -89,7 +100,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
             borderRadius: '8px',
         },
         '&:hover svg': {
-            transform: 'rotate(180deg)'
+            transform: 'rotate(180deg)',
         },
         padding: '8px',
         variants: [

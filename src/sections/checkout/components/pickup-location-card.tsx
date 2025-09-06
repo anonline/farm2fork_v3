@@ -20,13 +20,12 @@ type PickupLocationCardProps = {
     onChange?: (locationId: number) => void;
 };
 
-export function PickupLocationCard({ 
-    location, 
-    isSelected, 
+export function PickupLocationCard({
+    location,
+    isSelected,
     value,
-    onChange 
+    onChange,
 }: PickupLocationCardProps) {
-    
     const handleChange = () => {
         if (onChange) {
             onChange(location.id);
@@ -34,12 +33,12 @@ export function PickupLocationCard({
     };
 
     return (
-        <Card 
-            sx={{ 
-                mb: 2, 
-                border: isSelected ? '2px solid' : '1px solid', 
+        <Card
+            sx={{
+                mb: 2,
+                border: isSelected ? '2px solid' : '1px solid',
                 borderColor: isSelected ? 'primary.main' : 'divider',
-                cursor: onChange ? 'pointer' : 'default'
+                cursor: onChange ? 'pointer' : 'default',
             }}
             onClick={onChange ? handleChange : undefined}
         >

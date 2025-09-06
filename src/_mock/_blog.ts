@@ -12,4 +12,4 @@ export const POST_PUBLISH_OPTIONS_LABELS = [
     { value: 'all', label: 'Összes' },
     { value: 'published', label: 'Közzétéve' },
     { value: 'draft', label: 'Piszkozat' },
-]
+];

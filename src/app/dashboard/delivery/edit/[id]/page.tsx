@@ -15,11 +15,10 @@ import DeliveryNewEditForm from 'src/sections/delivery/delivery-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-
 export default function Page() {
     const params = useParams();
     const id = params.id as string;
-    
+
     const { delivery, deliveryLoading } = useGetDelivery(id);
 
     return (

@@ -1,1 +1,1 @@
-export * from "./shipping-list-view"
+export * from './shipping-list-view';

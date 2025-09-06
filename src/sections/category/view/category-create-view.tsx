@@ -12,8 +12,13 @@ import { CategoryNewEditForm } from '../category-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function CategoryCreateView({maxFileSize = 5, allCategories}: { maxFileSize?: number, allCategories: ICategoryItem[] }) {
-    
+export function CategoryCreateView({
+    maxFileSize = 5,
+    allCategories,
+}: {
+    maxFileSize?: number;
+    allCategories: ICategoryItem[];
+}) {
     return (
         <DashboardContent>
             <CustomBreadcrumbs

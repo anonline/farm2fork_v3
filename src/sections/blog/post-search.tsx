@@ -143,7 +143,7 @@ export function PostSearch({ redirectPath, sx }: Readonly<Props>) {
                             <div key={inputValue}>
                                 {parts.map((part, index) => (
                                     <Typography
-                                        key={index+'_'}
+                                        key={index + '_'}
                                         component="span"
                                         color={part.highlight ? 'primary' : 'textPrimary'}
                                         sx={{

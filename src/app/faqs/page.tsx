@@ -25,9 +25,9 @@ export default async function Page() {
         id: -1,
         name: 'Összes',
         icon: '',
-        order: 0
-    } as IFaqCategoryItem
+        order: 0,
+    } as IFaqCategoryItem;
 
     faqsCategories = [all].concat(faqsCategories ?? []);
-    return <FaqsView faqs={faqs} faqCategories={faqsCategories}/>;
+    return <FaqsView faqs={faqs} faqCategories={faqsCategories} />;
 }
