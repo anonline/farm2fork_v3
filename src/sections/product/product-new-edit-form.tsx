@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import { Box, Card, Chip, Stack, Button, Divider, Collapse, Checkbox, MenuItem, TextField, FormGroup, IconButton, CardHeader, Typography, Autocomplete, FormHelperText, FormControlLabel, CircularProgress } from '@mui/material';
+import { Box, Card, Chip, Stack, Button, Divider, Collapse, Checkbox, MenuItem, TextField, FormGroup, IconButton, CardHeader, Typography, Autocomplete, FormHelperText, FormControlLabel, CircularProgress, Grid } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -26,6 +26,7 @@ import SeasonalityCard from './new-edit-form/seasonality-card';
 import FeaturedCard from './new-edit-form/featured-card';
 import PricingCard from './new-edit-form/pricing-card';
 import DetailsCard from './new-edit-form/details-card';
+import CategoryCard from './new-edit-form/category-card';
 
 // ----------------------------------------------------------------------
 
@@ -127,6 +128,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
+    const openCategories = useBoolean(true);
     const openPricing = useBoolean(true);
     const openFeatured = useBoolean(true);
     const openSeasonality = useBoolean(true);
@@ -304,38 +306,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 <CardHeader title="Tulajdonságok" action={renderCollapseButton(openProperties.value, openProperties.onToggle)} />
                 <Collapse in={openProperties.value}>
                     <Stack spacing={3} sx={{ p: 3 }}>
-                        <Controller
-                            name="categoryIds"
-                            control={control}
-                            render={({ field, fieldState: { error } }) => (
-                                <Box>
-                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Kategóriák</Typography>
-                                    {categoriesLoading ? <CircularProgress size={20} /> : (
-                                        <FormGroup sx={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                            {categoryOptions.map((option) => (
-                                                <FormControlLabel
-                                                    key={option.value}
-                                                    control={
-                                                        <Checkbox
-                                                            checked={(field.value || []).includes(option.value)}
-                                                            onChange={() => {
-                                                                const currentValue = field.value || [];
-                                                                const newValues = currentValue.includes(option.value)
-                                                                    ? currentValue.filter((v) => v !== option.value)
-                                                                    : [...currentValue, option.value];
-                                                                field.onChange(newValues);
-                                                            }}
-                                                        />
-                                                    }
-                                                    label={option.label}
-                                                />
-                                            ))}
-                                        </FormGroup>
-                                    )}
-                                    {!!error && <FormHelperText error sx={{ ml: 2 }}>{error.message}</FormHelperText>}
-                                </Box>
-                            )}
-                        />
+                        
 
                         <Controller
                             name="tags"
@@ -385,14 +356,6 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         <FeaturedCard isOpen={openFeatured} />
     );
 
-    const renderSeasonality = () => (
-        <SeasonalityCard
-            isOpen={openSeasonality}
-            control={control}
-            onChange={handleSeasonalityChange}
-        />
-    );
-
     return (
         <Form methods={methods} onSubmit={onSubmit}>
             <Box
@@ -404,12 +367,23 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             >
                 <Stack spacing={3}>
                     {renderDetails()}
+
+                    <Grid container spacing={3}>
+                        <Grid size={{xs:12, md:6}}>
+                            <CategoryCard isOpen={openCategories} control={control} categoriesLoading={categoriesLoading} categories={categories} />
+                        </Grid>
+                        <Grid size={{xs:12, md:6}}>
+                            <SeasonalityCard isOpen={openSeasonality} control={control} onChange={handleSeasonalityChange} />
+                        </Grid>
+                    </Grid>
+
                     {renderProperties()}
                 </Stack>
                 <Stack spacing={3}>
-                    {renderSeasonality()}
                     {renderPricing()}
+                    
                     {renderFeatured()}
+                    
                     <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
                         {currentProduct ? 'Változtatások mentése' : 'Termék létrehozása'}
                     </Button>
