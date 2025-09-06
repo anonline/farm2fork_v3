@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import { Alert } from '@mui/material';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -26,8 +27,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
+import { INVOICE_SERVICE_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _invoices, INVOICE_SERVICE_OPTIONS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -66,14 +67,14 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 // ----------------------------------------------------------------------
 
-export function InvoiceListView() {
+export function InvoiceListView({ documents, hasKey }: { documents: IInvoice[], hasKey: boolean }) {
     const theme = useTheme();
 
     const table = useTable({ defaultOrderBy: 'createDate' });
 
     const confirmDialog = useBoolean();
 
-    const [tableData, setTableData] = useState<IInvoice[]>(_invoices);
+    const [tableData, setTableData] = useState<IInvoice[]>(documents);
 
     const filters = useSetState<IInvoiceTableFilters>({
         name: '',
@@ -226,6 +227,12 @@ export function InvoiceListView() {
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                {hasKey && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        Nincs Billingo API kulcs beállítva. A Billingo integráció használatához szükséges a Billingo API kulcs beállítása.
+                    </Alert>
+                )}
 
                 <Card sx={{ mb: { xs: 3, md: 5 } }}>
                     <Scrollbar sx={{ minHeight: 108 }}>
