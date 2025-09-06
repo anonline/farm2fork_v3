@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Grid, Skeleton, Stack, Typography } from '@mui/material';
+import { Box, Container, Skeleton, Typography } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -71,6 +71,7 @@ export default function ProductDetails() {
             >
                 <Typography sx={{ fontWeight: 600, display: 'inline' }}>Szezonalitás: </Typography>
                 {product.seasonality
+                    .toSorted((a, b) => Object.keys(Months).indexOf(a) - Object.keys(Months).indexOf(b))
                     .map((season) => (
                         <Typography style={{ fontWeight: 500, display: 'inline' }} key={season}>
                             {Months[season]}
@@ -122,46 +123,52 @@ export default function ProductDetails() {
         );
     };
 
-    const renderQuantitySelector = () => (
-        loading
-            ? (
+    const isProductAvailable = () => {
+        return product && (product?.stock === null || (product?.stock > 0 || product?.backorder === true));
+    };
+
+    const renderQuantitySelector = () => {
+        if (loading) {
+            return (
                 <Box sx={{ width: '80%' }}>
                     <Skeleton variant="rectangular" width="100%" height={48} />
                 </Box>
-            )
-            : (
-                product && (product?.stock === null || (product?.stock > 0 || product?.backorder == true))
-                    ? (
-                        <Box sx={{ width: '80%' }}>
-                            <ProductQuantitySelector
-                                product={product}
-                                onAddToCart={onAddToCart}
-                                unit={product.unit}
-                                max={product.maximumQuantity}
-                                min={product.mininumQuantity}
-                                step={product.stepQuantity}
-                                format="row"
-                            />
-                        </Box>
-                    )
-                    : (
-                        <Box>
-                            <Typography
-                                sx={{
-                                    fontFamily: themeConfig.fontFamily.primary,
-                                    fontSize: '16px',
-                                    fontWeight: 500,
-                                    lineHeight: '24px',
-                                    letterSpacing: '0.32px',
-                                    color: themeConfig.textColor.grey,
-                                }}
-                            >
-                                Ez a termék sajnos jelenleg nem elérhető.
-                            </Typography>
-                        </Box>
-                    )
-            )
-    );
+            );
+        }
+
+        if (isProductAvailable() && product) {
+            return (
+                <Box sx={{ width: '80%' }}>
+                    <ProductQuantitySelector
+                        product={product}
+                        onAddToCart={onAddToCart}
+                        unit={product.unit}
+                        max={product.maximumQuantity}
+                        min={product.mininumQuantity}
+                        step={product.stepQuantity}
+                        format="row"
+                    />
+                </Box>
+            );
+        }
+
+        return (
+            <Box>
+                <Typography
+                    sx={{
+                        fontFamily: themeConfig.fontFamily.primary,
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        lineHeight: '24px',
+                        letterSpacing: '0.32px',
+                        color: themeConfig.textColor.grey,
+                    }}
+                >
+                    Ez a termék sajnos jelenleg nem elérhető.
+                </Typography>
+            </Box>
+        );
+    };
 
     const headRightSectionGap = '20px';
 

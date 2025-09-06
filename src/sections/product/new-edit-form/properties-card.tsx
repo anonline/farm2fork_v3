@@ -5,7 +5,6 @@ import { RHFTextField } from "src/components/hook-form";
 import { NewProductSchemaType } from "../product-new-edit-form";
 import { Control, Controller } from "react-hook-form";
 import { UseBooleanReturn } from "minimal-shared/hooks";
-import { HelperText } from "src/components/hook-form/help-text";
 
 type PropertiesCardProps = {
     isOpen: UseBooleanReturn;

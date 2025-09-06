@@ -501,7 +501,7 @@ export function ProductQuantitySelector({
                     qty={quantity || 1}
                     product={product}
                     label="Kosár"
-                    onAddToCart={onAddToCart ? onAddToCart : undefined}
+                    onAddToCart={onAddToCart ?? undefined}
                     isDisabled={buttonDisabled}
                     sx={{ width: format == 'column' ? '100%' : '50%' }}
                 />
@@ -568,8 +568,7 @@ function ProductCardButton({
                 maxQuantity: product.maximumQuantity,
                 stepQuantity: product.stepQuantity,
             });
-            console.log(product);
-            toast.success('Sikeresen kosárhoz adva.');
+            toast.success(`${qty.toFixed((qty%1===0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
             //openSideCart();
         }
     };
