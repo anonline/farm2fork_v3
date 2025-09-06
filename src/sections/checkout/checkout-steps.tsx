@@ -62,7 +62,7 @@ type StepIconProps = {
     completed?: boolean;
 };
 
-function StepIcon({ active, completed }: StepIconProps) {
+function StepIcon({ active, completed }: Readonly<StepIconProps>) {
     return (
         <Box
             sx={{
