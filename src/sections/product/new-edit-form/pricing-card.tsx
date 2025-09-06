@@ -7,15 +7,11 @@ import { useState } from "react";
 type PricingCardProps = {
     isOpen: UseBooleanReturn;
     handleGrossPriceChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleStock: boolean;
+    handleStockChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export default function PricingCard({ isOpen, handleGrossPriceChange }: Readonly<PricingCardProps>) {
-    const [handleStock, setHandleStock] = useState(false);
-
-    const toggleHandleStock = () => {
-        setHandleStock(!handleStock);
-    };
-
+export default function PricingCard({ isOpen, handleGrossPriceChange, handleStock = false, handleStockChange }: Readonly<PricingCardProps>) {
     return (
         <Card>
             <EditCardHeader title="Árak és Készlet" isOpen={isOpen} sx={{ mb: 2 }} />
@@ -41,11 +37,22 @@ export default function PricingCard({ isOpen, handleGrossPriceChange }: Readonly
                         label="Készlet kezelése"
                         sx={{ ml: 0 }}
                         control={
-                            <Switch checked={handleStock} onChange={toggleHandleStock} name="handleStock" />
+                            <Switch checked={handleStock} onChange={handleStockChange} name="handleStock" />
                         }
                     />
 
-                    <RHFTextField name="stock" label="Készlet" type="number" variant={handleStock ? "outlined" : "filled"} disabled={!handleStock} />
+                    <RHFTextField 
+                        name="stock" 
+                        label="Készlet" 
+                        type="number" 
+                        variant="outlined"
+                        disabled={!handleStock} 
+                        sx={{
+                            '& .MuiInputBase-root': {
+                                backgroundColor: handleStock ? 'transparent' : 'action.hover',
+                            }
+                        }}
+                    />
 
                     <RHFSwitch name="backorder" label="Előrendelhető" />
                 </Stack>

@@ -183,21 +183,17 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
     const { reset, watch, setValue, handleSubmit, control, formState: { isSubmitting } } = methods;
 
-    const [isUnlimitedStock, setIsUnlimitedStock] = useState(defaultValues.stock === null);
+    const [netPrice, grossPrice, vat] = watch(['netPrice', 'grossPrice', 'vat']);
 
-    useEffect(() => {
-        setIsUnlimitedStock(watch('stock') === null);
-    }, [watch('stock')]);
-
-    useEffect(() => {
-        if (isUnlimitedStock) {
-            setValue('stock', null);
-        } else if (watch('stock') === null) {
+    const [handleStock, setHandleStock] = useState(false);
+    const toggleHandleStock = () => {
+        
+        if(handleStock === true) {
             setValue('stock', 0);
         }
-    }, [isUnlimitedStock, setValue, watch]);
+        setHandleStock(!handleStock);
+    }
 
-    const [netPrice, grossPrice, vat] = watch(['netPrice', 'grossPrice', 'vat']);
     useEffect(() => {
         if (netPrice && vat) {
             const newGross = Math.round(netPrice * (1 + vat / 100));
@@ -382,7 +378,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     };
 
     const renderPricing = () => (
-        <PricingCard isOpen={openPricing} handleGrossPriceChange={handleGrossPriceChange} />
+        <PricingCard isOpen={openPricing} handleStock={handleStock} handleStockChange={toggleHandleStock} handleGrossPriceChange={handleGrossPriceChange} />
     );
 
     const renderFeatured = () => (
