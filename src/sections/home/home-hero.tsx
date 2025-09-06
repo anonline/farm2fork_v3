@@ -1,6 +1,4 @@
-import type { MotionProps } from 'framer-motion';
 import type { BoxProps } from '@mui/material/Box';
-import type { Breakpoint } from '@mui/material/styles';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -11,17 +9,8 @@ import Typography from '@mui/material/Typography';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { varFade } from 'src/components/animate';
 
 // ----------------------------------------------------------------------
-
-const smKey: Breakpoint = 'sm';
-const mdKey: Breakpoint = 'md';
-const lgKey: Breakpoint = 'lg';
-
-const motionProps: MotionProps = {
-    variants: varFade('inUp', { distance: 24 }),
-};
 
 type HomeHeroProps = {
     heroImg: string;

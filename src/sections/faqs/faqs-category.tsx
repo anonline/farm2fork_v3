@@ -1,15 +1,13 @@
 import type { IFaqItem, IFaqCategoryItem } from 'src/types/faq';
 
-import { Fragment, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTabs, useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import { Tab, Alert } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { CONFIG } from 'src/global-config';
@@ -157,50 +155,11 @@ type ItemProps = {
     category: (typeof CATEGORIES)[number];
 };
 
-function ItemDesktop({ category }: ItemProps) {
-    return (
-        <Paper
-            variant="outlined"
-            sx={[
-                (theme) => ({
-                    p: 3,
-                    borderRadius: 2,
-                    bgcolor: 'unset',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    '&:hover': {
-                        bgcolor: 'background.paper',
-                        boxShadow: theme.vars.customShadows.z20,
-                    },
-                }),
-            ]}
-        >
-            <Avatar
-                alt={category.icon}
-                src={category.icon}
-                sx={{
-                    mb: 2,
-                    width: 80,
-                    height: 80,
-                    mx: 'auto',
-                }}
-            />
 
-            <Typography
-                variant="subtitle2"
-                sx={(theme) => ({
-                    ...theme.mixins.maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
-                })}
-            >
-                {category.label}
-            </Typography>
-        </Paper>
-    );
-}
 
 // ----------------------------------------------------------------------
 
-function ItemMobile({ category }: ItemProps) {
+function ItemMobile({ category }: Readonly<ItemProps>) {
     return (
         <ListItemButton
             key={category.label}

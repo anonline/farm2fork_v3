@@ -10,10 +10,10 @@ import { getPostById } from 'src/sections/blog/view/get-post-by-ip';
 export const metadata: Metadata = { title: `Post edit | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 };
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: Readonly<Props>) {
     const { id } = await params;
 
     const { post } = await getPostById(id);

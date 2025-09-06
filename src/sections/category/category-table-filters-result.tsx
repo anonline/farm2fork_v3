@@ -11,7 +11,7 @@ type Props = FiltersResultProps & {
 };
 
 export function CategoryTableFiltersResult({ filters, totalResults, sx }: Props) {
-    const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+    const { resetState: resetFilters } = filters;
 
     return <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx} />;
 }

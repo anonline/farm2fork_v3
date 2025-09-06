@@ -19,7 +19,7 @@ type ParamsProps = {
     params: GridCellParams;
 };
 
-export function RenderCellPrice({ params }: ParamsProps) {
+export function RenderCellPrice({ params }: Readonly<ParamsProps>) {
     return (
         <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column', alignItems: 'flex-start' }}>
             <Label variant="soft" color="default">
@@ -39,7 +39,7 @@ export function RenderCellPrice({ params }: ParamsProps) {
     );
 }
 
-export function RenderCellGrossPrice({ params }: ParamsProps) {
+export function RenderCellGrossPrice({ params }: Readonly<ParamsProps>) {
     const vatMultiplier = 1 + (params.row.vat ?? 27) / 100;
     const grossPrice = params.row.netPrice * vatMultiplier;
     const grossPriceCompany = params.row.netPriceCompany
@@ -65,11 +65,11 @@ export function RenderCellGrossPrice({ params }: ParamsProps) {
     );
 }
 
-export function RenderCellUnit({ params }: ParamsProps) {
+export function RenderCellUnit({ params }: Readonly<ParamsProps>) {
     return params.row.unit ?? 'db';
 }
 
-export function RenderCellPublish({ params }: ParamsProps) {
+export function RenderCellPublish({ params }: Readonly<ParamsProps>) {
     return (
         <Label variant="soft" color={params.row.publish ? 'success' : 'default'}>
             {params.row.publish ? 'Közzétéve' : 'Rejtett'}
@@ -77,7 +77,7 @@ export function RenderCellPublish({ params }: ParamsProps) {
     );
 }
 
-export function RenderCellBio({ params }: ParamsProps) {
+export function RenderCellBio({ params }: Readonly<ParamsProps>) {
     return (
         <Label variant="soft" color={params.row.bio ? 'success' : 'default'}>
             {params.row.bio ? 'Bio' : 'Nem bio'}
@@ -85,7 +85,7 @@ export function RenderCellBio({ params }: ParamsProps) {
     );
 }
 
-export function RenderCellCreatedAt({ params }: ParamsProps) {
+export function RenderCellCreatedAt({ params }: Readonly<ParamsProps>) {
     return (
         <Box sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>
             <span>{fDate(params.row.createdAt)}</span>
@@ -96,20 +96,9 @@ export function RenderCellCreatedAt({ params }: ParamsProps) {
     );
 }
 
-export function RenderCellStock({ params }: ParamsProps) {
+export function RenderCellStock({ params }: Readonly<ParamsProps>) {
     return (
         <Box sx={{ width: 1, typography: 'caption', color: 'text.secondary' }}>
-            {/*<LinearProgress
-                value={(params.row.available * 100) / params.row.quantity}
-                variant="determinate"
-                color={
-                    (params.row.inventoryType === 'out of stock' && 'error') ||
-                    (params.row.inventoryType === 'low stock' && 'warning') ||
-                    'success'
-                }
-                sx={{ mb: 1, height: 6, width: 80 }}
-            />
-            {!!params.row.available && params.row.available} {params.row.inventoryType}*/}
             {params.row.stock ? (
                 <Label variant="soft" color="success">
                     {params.row.stock} {params.row.unit ?? 'db'}
@@ -123,34 +112,31 @@ export function RenderCellStock({ params }: ParamsProps) {
     );
 }
 
-export function RenderCellTags({ params }: ParamsProps) {
+export function RenderCellTags({ params }: Readonly<ParamsProps>) {
     return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {params.row.tags &&
-                params.row.tags
-                    .replaceAll(',', ' ')
-                    .split(' ')
-                    .map(
-                        (tag: string) =>
-                            tag.trim().length > 0 && (
-                                <Label key={tag.trim()} variant="soft" color="default">
-                                    {tag}
-                                </Label>
-                            )
-                    )}
+            {params.row.tags
+                ?.split('|')
+                ?.map(
+                    (tag: string) =>
+                        tag.trim().length > 0 && (
+                            <Label key={tag.trim()} variant="soft" color="default">
+                                {tag}
+                            </Label>
+                        )
+                )}
         </Box>
     );
 }
 
-export function RenderCellCategories({ params }: ParamsProps) {
+export function RenderCellCategories({ params }: Readonly<ParamsProps>) {
     return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {params.row.category &&
-                params.row.category.map((category: ICategoryItem) => (
-                    <Label key={category.id} variant="soft" color="default">
-                        {category.name}
-                    </Label>
-                ))}
+            {params.row.category?.map((category: ICategoryItem) => (
+                <Label key={category.id} variant="soft" color="default">
+                    {category.name}
+                </Label>
+            ))}
         </Box>
     );
 }

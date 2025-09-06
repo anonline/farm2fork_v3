@@ -12,9 +12,12 @@ export async function uploadFile(file: File, folder: UploadFolder, entityId: num
     return res.json();
 }
 
-export async function deleteFile(url: string, folder: UploadFolder) {
-    const res = await fetch(`/api/img/delete?url=${encodeURIComponent(url)}&folder=${folder}`, {
+export async function deleteFile(url: string) {
+    const res = await fetch(`/api/img/delete`, {
         method: 'DELETE',
+        body: JSON.stringify({
+            url,
+        })
     });
 
     if (!res.ok) throw new Error('Törlési hiba');

@@ -15,7 +15,6 @@ import { fCurrency } from 'src/utils/format-number';
 import { themeConfig } from 'src/theme';
 
 import { toast } from 'src/components/snackbar';
-import { useSideCart } from 'src/components/sidecart';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
@@ -501,7 +500,7 @@ export function ProductQuantitySelector({
                     qty={quantity || 1}
                     product={product}
                     label="Kosár"
-                    onAddToCart={onAddToCart ? onAddToCart : undefined}
+                    onAddToCart={onAddToCart ?? undefined}
                     isDisabled={buttonDisabled}
                     sx={{ width: format == 'column' ? '100%' : '50%' }}
                 />
@@ -527,7 +526,7 @@ function ProductCardButton({
     isDisabled = false,
     sx,
 }: Readonly<ProductCardButtonProps>) {
-    const { openSideCart } = useSideCart();
+    // if we want to open sidecart on addToCart we should use this: const { openSideCart } = useSideCart();
 
     const baseStyle: SxProps = {
         ...sx,
@@ -568,9 +567,8 @@ function ProductCardButton({
                 maxQuantity: product.maximumQuantity,
                 stepQuantity: product.stepQuantity,
             });
-            console.log(product);
-            toast.success('Sikeresen kosárhoz adva.');
-            //openSideCart();
+            toast.success(`${qty.toFixed((qty%1===0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
+            // if we want to open sidecart on addToCart we should use this: openSideCart();
         }
     };
     return (

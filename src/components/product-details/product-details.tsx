@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Skeleton, Container, Typography } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -15,6 +15,7 @@ import { Months } from 'src/types/product';
 
 import { Image } from '../image';
 import F2FIcons from '../f2ficons/f2ficons';
+import ProductGallery from './product-gallery';
 import ProducerProducts from './producer-products';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
@@ -23,7 +24,7 @@ import FeaturedProducerCard from '../producer-card/featured-producer-card';
 export default function ProductDetails() {
     const { onAddToCart } = useCheckoutContext();
 
-    const { product } = useProduct();
+    const { product, loading } = useProduct();
     const renderTitle = () => (
         <Typography
             variant="h1"
@@ -70,6 +71,7 @@ export default function ProductDetails() {
             >
                 <Typography sx={{ fontWeight: 600, display: 'inline' }}>Szezonalitás: </Typography>
                 {product.seasonality
+                    .toSorted((a, b) => Object.keys(Months).indexOf(a) - Object.keys(Months).indexOf(b))
                     .map((season) => (
                         <Typography style={{ fontWeight: 500, display: 'inline' }} key={season}>
                             {Months[season]}
@@ -120,23 +122,54 @@ export default function ProductDetails() {
             </Box>
         );
     };
-    const renderQuantitySelector = () => (
-        <Box sx={{ width: '80%' }}>
-            {product != null && (
-                <ProductQuantitySelector
-                    product={product}
-                    onAddToCart={onAddToCart}
-                    unit={product.unit}
-                    max={product.maximumQuantity}
-                    min={product.mininumQuantity}
-                    step={product.stepQuantity}
-                    format="row"
-                />
-            )}
-        </Box>
-    );
+
+    const isProductAvailable = () => product && (product?.stock === null || (product?.stock > 0 || product?.backorder === true));
+
+    const renderQuantitySelector = () => {
+        if (loading) {
+            return (
+                <Box sx={{ width: '80%' }}>
+                    <Skeleton variant="rectangular" width="100%" height={48} />
+                </Box>
+            );
+        }
+
+        if (isProductAvailable() && product) {
+            return (
+                <Box sx={{ width: '80%' }}>
+                    <ProductQuantitySelector
+                        product={product}
+                        onAddToCart={onAddToCart}
+                        unit={product.unit}
+                        max={product.maximumQuantity}
+                        min={product.mininumQuantity}
+                        step={product.stepQuantity}
+                        format="row"
+                    />
+                </Box>
+            );
+        }
+
+        return (
+            <Box>
+                <Typography
+                    sx={{
+                        fontFamily: themeConfig.fontFamily.primary,
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        lineHeight: '24px',
+                        letterSpacing: '0.32px',
+                        color: themeConfig.textColor.grey,
+                    }}
+                >
+                    Ez a termék sajnos jelenleg nem elérhető.
+                </Typography>
+            </Box>
+        );
+    };
 
     const headRightSectionGap = '20px';
+
     const renderHead = () => (
         <Box
             sx={{
@@ -193,14 +226,19 @@ export default function ProductDetails() {
             </Box>
         </Box>
     );
+
     return (
         <>
             <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
                 {renderHead()}
-                <Container>
-                    <ProductDetailsSmallInfo product={product} />
-                </Container>
-                {/* galery */}
+
+                <ProductDetailsSmallInfo product={product} />
+
+                <ProductGallery
+                    images={product?.images}
+                    loading={loading}
+                    productName={product?.name}
+                />
             </Container>
 
             <Container

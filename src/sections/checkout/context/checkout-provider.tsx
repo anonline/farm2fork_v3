@@ -4,7 +4,7 @@ import type { IAddressItem } from 'src/types/common';
 import type { IPaymentMethod } from 'src/types/payment-method';
 import type { ICheckoutItem, ICheckoutState } from 'src/types/checkout';
 
-import { union, isEqual } from 'es-toolkit';
+import { isEqual } from 'es-toolkit';
 import { getStorage } from 'minimal-shared/utils';
 import { useLocalStorage } from 'minimal-shared/hooks';
 import { useMemo, useState, Suspense, useEffect, useCallback } from 'react';
@@ -118,7 +118,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     const updateTotals = useCallback(() => {
         const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
         const subtotal = state.items.reduce(
-            (total, item) => total + (item.custom == true ? 1 : item.quantity) * item.price,
+            (total, item) => total + (item.custom === true ? 1 : item.quantity) * item.price,
             0
         );
 
@@ -202,11 +202,15 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
     const onAddToCart = useCallback(
         (newItem: ICheckoutItem) => {
+            newItem.quantity = Math.max(newItem.quantity, newItem.minQuantity ?? 1);
+            newItem.quantity = Math.min(newItem.quantity, newItem.maxQuantity ?? 100);
+            newItem.quantity = Math.round(newItem.quantity / (newItem.stepQuantity ?? 1)) * (newItem.stepQuantity ?? 1);
+            newItem.subtotal = (newItem.custom === true ? 1 : newItem.quantity) * newItem.price;
+
             const updatedItems = state.items.map((item) => {
                 if (item.id === newItem.id) {
                     return {
                         ...item,
-                        colors: union(item.colors ?? [], newItem.colors ?? []),
                         quantity: item.quantity + newItem.quantity,
                     };
                 }
@@ -216,7 +220,6 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             if (!updatedItems.some((item) => item.id === newItem.id)) {
                 updatedItems.push(newItem);
             }
-
             setField('items', updatedItems);
             // Totals will be updated by the useEffect hook
         },

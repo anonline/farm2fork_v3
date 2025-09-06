@@ -33,17 +33,8 @@ export function ProductTableToolbar({ filters, options }: Props) {
 
     const { state: currentFilters, setState: updateFilters } = filters;
 
-    const [stock, setStock] = useState(currentFilters.stock);
     const [publish, setPublish] = useState(currentFilters.publish);
     const [bio, setBio] = useState(currentFilters.bio);
-
-    const handleChangeStock = useCallback((event: SelectChangeEvent<string[]>) => {
-        const {
-            target: { value },
-        } = event;
-
-        setStock(typeof value === 'string' ? value.split(',') : value);
-    }, []);
 
     const handleChangePublish = useCallback((event: SelectChangeEvent<string[]>) => {
         const {
@@ -61,9 +52,6 @@ export function ProductTableToolbar({ filters, options }: Props) {
         setBio(typeof value === 'string' ? value.split(',') : value);
     }, []);
 
-    const handleFilterStock = useCallback(() => {
-        updateFilters({ stock });
-    }, [updateFilters, stock]);
 
     const handleFilterPublish = useCallback(() => {
         updateFilters({ publish });

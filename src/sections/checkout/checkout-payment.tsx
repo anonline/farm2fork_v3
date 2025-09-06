@@ -91,7 +91,6 @@ export function CheckoutPayment() {
     const { customerData } = useGetCustomerData(user?.id);
 
     const {
-        loading,
         onResetCart,
         onChangeStep,
         onApplyShipping,
@@ -149,7 +148,7 @@ export function CheckoutPayment() {
 
             return true;
         });
-    }, [shippingMethods, getUserType, checkoutState.subtotal]);
+    }, [shippingMethods, getUserType, checkoutState.subtotal, checkoutState.surcharge]);
 
     // Filter payment methods based on user type
     const availablePaymentMethods = useMemo(() => {
@@ -219,16 +218,6 @@ export function CheckoutPayment() {
     const formatMethodLabel = useMemo(
         () => (method: IShippingCostMethod) => {
             const totalCost = getTotalMethodCost(method);
-
-            // Add range information if min/max limits are set
-            let rangeInfo = '';
-            if (method.minNetPrice > 0 && method.maxNetPrice > 0) {
-                rangeInfo = ` (${method.minNetPrice}-${method.maxNetPrice} Ft között)`;
-            } else if (method.minNetPrice > 0) {
-                rangeInfo = ` (${method.minNetPrice} Ft felett)`;
-            } else if (method.maxNetPrice > 0) {
-                rangeInfo = ` (${method.maxNetPrice} Ft alatt)`;
-            }
 
             const costLabel = totalCost === 0 ? 'Ingyenes' : `${Math.round(totalCost)} Ft`;
             return `${method.name} - ${costLabel}`;
@@ -316,10 +305,6 @@ export function CheckoutPayment() {
         try {
             const date = new Date(checkoutState.selectedDeliveryDateTime);
             const formattedDate = date.toLocaleDateString('hu-HU');
-            const timeRange =
-                selectedShippingMethod && isPersonalPickup(selectedShippingMethod)
-                    ? '06:00-19:00' // Default pickup hours
-                    : '06:00-19:00'; // Default delivery hours
             return `${formattedDate}`;
         } catch {
             return '';
@@ -494,6 +479,7 @@ export function CheckoutPayment() {
         customerData?.deliveryAddress,
         getTotalMethodCost,
         onApplyShipping,
+        handleDeliveryAddressChange
     ]);
 
     // Recalculate available methods and costs when cart subtotal changes
@@ -672,9 +658,7 @@ export function CheckoutPayment() {
                                     width: 32,
                                     height: 32,
                                     borderRadius: '8px',
-                                    bgcolor: deliveryAccordionExpanded
-                                        ? 'primary.main'
-                                        : 'primary.main',
+                                    bgcolor: 'primary.main',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -739,7 +723,6 @@ export function CheckoutPayment() {
                                                 selectedAddressIndex={selectedDeliveryAddressIndex}
                                                 onAddressChange={handleDeliveryAddressChange}
                                                 onEditAddress={(index) => {
-                                                    // TODO: Implement edit functionality later
                                                     console.log('Edit address at index:', index);
                                                 }}
                                                 onShippingZoneError={handleShippingZoneError}
@@ -817,9 +800,7 @@ export function CheckoutPayment() {
                                     width: 32,
                                     height: 32,
                                     borderRadius: '8px',
-                                    bgcolor: deliveryAccordionExpanded
-                                        ? 'primary.main'
-                                        : 'primary.main',
+                                    bgcolor: 'primary.main',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -1096,7 +1077,6 @@ export function CheckoutPayment() {
                                     A számlázási cím adatai fognak megjelenni a számlán. Ezek az
                                     adatok a fizetés feldolgozásához szükségesek.
                                 </Typography>
-                                {/* TODO: Add billing address form fields */}
                             </Box>
 
                             {/* Terms and Conditions Checkboxes */}

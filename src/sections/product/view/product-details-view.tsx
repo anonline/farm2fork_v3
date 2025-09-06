@@ -52,7 +52,7 @@ type Props = {
     product?: IProductItem;
 };
 
-export function ProductDetailsView({ product }: Props) {
+export function ProductDetailsView({ product }: Readonly<Props>) {
     const tabs = useTabs('description');
 
     const [publish, setPublish] = useState('');

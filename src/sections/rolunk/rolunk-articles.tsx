@@ -21,6 +21,8 @@ export default function RolunkArticles() {
             )
         ),
     ];
+    const categoriesStringList = categories.join(',');
+
     const [activeCategory, setActiveCategory] = useState(categories[0]);
     const INITIAL_VISIBLE_COUNT = 3;
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -56,7 +58,7 @@ export default function RolunkArticles() {
             setActiveCategory(categories[0]);
             setVisibleCount(INITIAL_VISIBLE_COUNT);
         }
-    }, [categories.join(',')]);
+    }, [categoriesStringList, activeCategory, categories]);
 
     return (
         <Container

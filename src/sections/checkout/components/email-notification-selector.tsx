@@ -16,14 +16,15 @@ interface EmailNotificationSelectorProps {
     userEmail?: string; // Add optional user email prop
 }
 
-export function EmailNotificationSelector({
-    emails,
-    onEmailsChange,
-    userEmail,
-}: EmailNotificationSelectorProps) {
+export function EmailNotificationSelector({emails, onEmailsChange, userEmail}: Readonly<EmailNotificationSelectorProps>) {
     const [inputValue, setInputValue] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const hasInitialized = useRef(false);
+
+    // Email validation regex - optimized to avoid catastrophic backtracking
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+    const isValidEmail = (email: string): boolean => emailRegex.test(email.trim());
 
     // Add user email on component mount if emails array is empty
     useEffect(() => {
@@ -36,12 +37,7 @@ export function EmailNotificationSelector({
             onEmailsChange([userEmail]);
             hasInitialized.current = true;
         }
-    }, [userEmail, emails.length, onEmailsChange]);
-
-    // Email validation regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    const isValidEmail = (email: string): boolean => emailRegex.test(email.trim());
+    }, [userEmail, emails.length, onEmailsChange, isValidEmail]);
 
     const addEmail = (email: string) => {
         const trimmedEmail = email.trim();
@@ -155,8 +151,10 @@ export function EmailNotificationSelector({
                             p: 0.5,
                         },
                     }}
-                    InputProps={{
-                        disableUnderline: true,
+                    slotProps={{
+                        input: {
+                            disableUnderline: true,
+                        },
                     }}
                 />
             </Box>

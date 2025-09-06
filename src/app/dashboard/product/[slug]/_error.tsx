@@ -11,14 +11,12 @@ import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 
 // ----------------------------------------------------------------------
-
-export default function Error({
-    error,
-    reset,
-}: {
+type Props = {
     error: Error & { digest?: string };
     reset: () => void;
-}) {
+};
+
+export default function ProductError({error, reset}: Readonly<Props>) {
     return (
         <DashboardContent sx={{ pt: 5 }}>
             <EmptyContent

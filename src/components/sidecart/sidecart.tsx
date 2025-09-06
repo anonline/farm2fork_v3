@@ -35,7 +35,7 @@ type SideCartProps = {
     onClose: () => void;
 };
 
-export function SideCart({ open, onClose }: SideCartProps) {
+export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const { user, authenticated } = useAuthContext();
@@ -81,25 +81,27 @@ export function SideCart({ open, onClose }: SideCartProps) {
             anchor="right"
             open={open}
             onClose={onClose}
-            PaperProps={{
-                sx: {
-                    width: isMobile ? '100vw' : 520,
-                    height: isMobile ? '100dvh' : '100vh', // Use dynamic viewport height on mobile
-                    maxHeight: isMobile ? '100dvh' : '100vh',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // Ensure proper mobile viewport handling
-                    ...(isMobile && {
-                        '@supports (height: 100dvh)': {
-                            height: '100dvh',
-                            maxHeight: '100dvh',
-                        },
-                        // Fallback for older browsers
-                        '@supports not (height: 100dvh)': {
-                            height: '100vh',
-                            maxHeight: '100vh',
-                        },
-                    }),
+            slotProps={{
+                paper: {
+                    sx: {
+                        width: isMobile ? '100vw' : 520,
+                        height: isMobile ? '100dvh' : '100vh', // Use dynamic viewport height on mobile
+                        maxHeight: isMobile ? '100dvh' : '100vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        // Ensure proper mobile viewport handling
+                        ...(isMobile && {
+                            '@supports (height: 100dvh)': {
+                                height: '100dvh',
+                                maxHeight: '100dvh',
+                            },
+                            // Fallback for older browsers
+                            '@supports not (height: 100dvh)': {
+                                height: '100vh',
+                                maxHeight: '100vh',
+                            },
+                        }),
+                    },
                 },
             }}
         >
@@ -298,7 +300,7 @@ export function SideCart({ open, onClose }: SideCartProps) {
                                     Összesen
                                 </Typography>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                                    {fCurrency(checkoutState.total)}
+                                    {fCurrency(checkoutState.subtotal + checkoutState.surcharge)}
                                 </Typography>
                             </Box>
                         </Stack>
@@ -405,12 +407,12 @@ export function SideCartItem({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <NumberInput
                             disabled={hideControl}
-                            value={item.quantity}
+                            value={item.quantity.toFixed(2)}
                             onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
                             min={item.minQuantity || 1}
                             max={item.maxQuantity || 999}
                             step={item.stepQuantity || 0.1}
-                            sx={{ width: 96 }}
+                            sx={{ width: 120 }}
                         />
                     </Box>
 
