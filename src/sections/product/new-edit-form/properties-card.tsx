@@ -1,11 +1,10 @@
-import { Autocomplete, Card, Chip, Collapse, Divider, Grid, InputAdornment, MenuItem, Stack, TextField } from "@mui/material";
+import { Autocomplete, Card, Chip, Collapse, Divider, Grid, MenuItem, Stack, TextField } from "@mui/material";
 import EditCardHeader from "./card-header";
 
 import { RHFTextField } from "src/components/hook-form";
-import { Control } from "node_modules/react-hook-form/dist/types/form";
-import { UseBooleanReturn } from "node_modules/minimal-shared/dist/hooks/use-boolean/use-boolean";
 import { NewProductSchemaType } from "../product-new-edit-form";
-import { Controller } from "react-hook-form";
+import { Control, Controller } from "react-hook-form";
+import { UseBooleanReturn } from "minimal-shared/hooks";
 
 type PropertiesCardProps = {
     isOpen: UseBooleanReturn;
@@ -14,7 +13,7 @@ type PropertiesCardProps = {
     UNIT_OPTIONS: { value: string; label: string }[];
 }
 
-export default function PropertiesCard({ isOpen, control, producers, UNIT_OPTIONS }: PropertiesCardProps) {
+export default function PropertiesCard({ isOpen, control, producers, UNIT_OPTIONS }: Readonly<PropertiesCardProps>) {
     return (
         <Card>
             <EditCardHeader title="Tulajdonságok" isOpen={isOpen} sx={{ mb: 2 }} />
@@ -41,7 +40,7 @@ export default function PropertiesCard({ isOpen, control, producers, UNIT_OPTION
                         select
                         name="producerId"
                         label="Termelő"
-                        InputLabelProps={{ shrink: true }}
+                        slotProps={{ inputLabel: { shrink: true } }}
                     >
                         <MenuItem value="">Nincs</MenuItem>
                         {producers.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}

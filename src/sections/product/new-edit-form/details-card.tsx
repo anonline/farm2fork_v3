@@ -1,11 +1,8 @@
 import { UseBooleanReturn } from "minimal-shared/hooks";
-import Card from "node_modules/@mui/material/esm/Card/Card";
 import EditCardHeader from "./card-header";
-import Collapse from "node_modules/@mui/material/esm/Collapse/Collapse";
-import Stack from "node_modules/@mui/material/esm/Stack/Stack";
 import { Field, RHFTextField } from "src/components/hook-form";
 import { RHFDragDropImages } from "src/components/upload";
-import { Divider } from "@mui/material";
+import { Card, Collapse, Divider, Stack } from "@mui/material";
 
 type DetailsCardProps = {
     isOpen: UseBooleanReturn;

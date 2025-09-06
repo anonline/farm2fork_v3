@@ -48,7 +48,7 @@ type CategoryListProps = {
     error: any;
 };
 
-function CategoryList({ loading, options, field, error }: CategoryListProps) {
+function CategoryList({ loading, options, field, error }: Readonly<CategoryListProps>) {
     return (
         <Box>
             {loading
@@ -68,7 +68,7 @@ type CategoryItemProps = {
     field: ControllerRenderProps<NewProductSchemaType, 'categoryIds'>;
 };
 
-function CategoryItem({ option, field }: CategoryItemProps) {
+function CategoryItem({ option, field }: Readonly<CategoryItemProps>) {
     return (
         <FormControlLabel
             key={option.value}

@@ -1,11 +1,9 @@
 import { Checkbox, Divider, FormControlLabel, FormGroup, Stack } from "@mui/material";
 import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
 import Collapse from "@mui/material/Collapse";
 import { UseBooleanReturn } from "minimal-shared/hooks";
 import { Control, Controller } from "react-hook-form";
-import CollapseButton from "./collapse-button";
-import { IProductItem, MonthKeys } from "src/types/product";
+import { MonthKeys } from "src/types/product";
 import { NewProductSchemaType } from "../product-new-edit-form";
 import EditCardHeader from "./card-header";
 
@@ -21,7 +19,7 @@ type SeasonalityCheckboxGroupProps = {
     control: Control<NewProductSchemaType>;
 };
 
-export default function SeasonalityCard({isOpen, control}: SeasonalityCheckboxGroupProps ) {
+export default function SeasonalityCard({isOpen, control}: Readonly<SeasonalityCheckboxGroupProps> ) {
     return (
         <Card>
             <EditCardHeader title="Szezonalitás" isOpen={isOpen} sx={{ mb: 2 }} />

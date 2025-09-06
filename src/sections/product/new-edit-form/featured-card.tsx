@@ -1,4 +1,4 @@
-import { Card, Collapse, Divider, Stack, Typography } from "@mui/material";
+import { Card, Collapse, Divider, Stack } from "@mui/material";
 import { UseBooleanReturn } from "minimal-shared/hooks";
 import { Field, RHFSwitch } from "src/components/hook-form";
 import EditCardHeader from "./card-header";
@@ -7,7 +7,7 @@ type FeaturedCardProps = {
     isOpen: UseBooleanReturn;
 }
 
-export default function FeaturedCard({ isOpen }: FeaturedCardProps) {
+export default function FeaturedCard({ isOpen }: Readonly<FeaturedCardProps>) {
     return (
         <Card>
             <EditCardHeader title="Kiemelt termék" isOpen={isOpen} sx={{ mb: 2 }} />

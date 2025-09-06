@@ -1,8 +1,7 @@
-import { Card, Checkbox, Collapse, Divider, FormControlLabel, Stack, Switch } from "@mui/material";
+import { Card, Collapse, Divider, FormControlLabel, Stack, Switch } from "@mui/material";
 import EditCardHeader from "./card-header";
 import { RHFSwitch, RHFTextField } from "src/components/hook-form";
 import { UseBooleanReturn } from "minimal-shared/hooks";
-import { useState } from "react";
 
 type PricingCardProps = {
     isOpen: UseBooleanReturn;
