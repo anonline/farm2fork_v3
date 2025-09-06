@@ -4,6 +4,7 @@ import EditCardHeader from "./card-header";
 import Collapse from "node_modules/@mui/material/esm/Collapse/Collapse";
 import Stack from "node_modules/@mui/material/esm/Stack/Stack";
 import { Field, RHFTextField } from "src/components/hook-form";
+import { RHFDragDropImages } from "src/components/upload";
 import { Divider } from "@mui/material";
 
 type DetailsCardProps = {
@@ -24,7 +25,14 @@ export default function DetailsCard({ isOpen, handleURLGenerate }: Readonly<Deta
                     <RHFTextField name="sku" label="SKU (Azonosító)" />
 
                     <Field.Editor name="shortDescription" />
-                    <Field.Upload multiple thumbnail name="images" />
+
+                    <Divider />
+                    
+                    <RHFDragDropImages 
+                        name="images" 
+                        label="Termék képek (0-3 darab)"
+                        helperText="Húzza a képeket az átrendezéshez. Maximum 3 kép tölthető fel."
+                    />
                 </Stack>
             </Collapse>
         </Card>

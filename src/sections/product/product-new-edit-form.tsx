@@ -44,7 +44,7 @@ export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
     shortDescription: schemaHelper.editor({ message: 'Leírás megadása kötelező!' }),
-    images: zod.array(zod.any()).optional(),
+    images: zod.array(zod.any()).max(3, { message: 'Maximum 3 kép tölthető fel!' }).optional(),
     featuredImage: zod.any().optional(),
     categoryIds: zod.array(zod.number()).min(1, { message: 'Legalább egy kategória választása kötelező.' }),
     tags: zod.array(zod.string()).optional(),
@@ -241,9 +241,35 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 finalFeaturedImageUrl = response.url;
             }
 
+            // Handle multiple images upload
+            const finalImages: string[] = [];
+            const currentImages = currentProduct?.images || [];
+            const newImages = data.images || [];
+
+            // Determine which images to delete (images that were in currentImages but not in newImages)
+            const imagesToDelete = currentImages.filter(
+                (currentImage: string) => !newImages.some((newImage: File | string) => 
+                    typeof newImage === 'string' && newImage === currentImage
+                )
+            );
+
+            // Process new images - upload files and keep existing URLs
+            for (const image of newImages) {
+                if (image instanceof File) {
+                    console.info('Uploading new product image...');
+                    const response = await uploadFile(image, 'products', finalImages.length);
+                    if (!response.url) throw new Error('Egy termék kép feltöltése sikertelen.');
+                    finalImages.push(response.url);
+                } else if (typeof image === 'string') {
+                    // Keep existing image URL
+                    finalImages.push(image);
+                }
+            }
+
             const productData: any = {
                 ...data,
                 tags: data.tags?.length ? data.tags.join('|') : null,
+                images: finalImages.length > 0 ? finalImages : null,
                 featuredImage: finalFeaturedImageUrl ?? null,
                 mininumQuantity: data.mininumQuantity ?? undefined,
                 maximumQuantity: data.maximumQuantity ?? undefined,
@@ -263,13 +289,19 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 productId = newProduct.id;
             }
 
-            console.log(productData.featuredImage);
-            console.log(currentProduct?.featuredImage);
-
+            // Delete old featured image if it was removed
             if((productData.featuredImage == null || productData.featuredImage === '' || productData.featuredImage === undefined)
             && currentProduct?.featuredImage) {
                 console.info('Deleted old featured image:', currentProduct.featuredImage);
                 await deleteFile(currentProduct.featuredImage);
+            }
+
+            // Delete removed product images
+            for (const imageToDelete of imagesToDelete) {
+                if (typeof imageToDelete === 'string') {
+                    console.info('Deleting removed product image:', imageToDelete);
+                    await deleteFile(imageToDelete);
+                }
             }
 
             if (!productId) {
@@ -302,9 +334,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         <PricingCard isOpen={openPricing} handleStock={handleStock} handleStockChange={toggleHandleStock} handleGrossPriceChange={handleGrossPriceChange} />
     );
 
-    const renderFeatured = () => (
-        <FeaturedCard isOpen={openFeatured} />
-    );
+    const renderFeatured = () => <FeaturedCard isOpen={openFeatured} />;
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
