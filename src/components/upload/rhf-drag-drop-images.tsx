@@ -49,7 +49,12 @@ function SortableImageItem({ id, file, onRemove }: SortableImageItemProps) {
         transform,
         transition,
         isDragging,
-    } = useSortable({ id });
+    } = useSortable({ 
+        id,
+        data: {
+            type: 'image',
+        }
+    });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -62,6 +67,18 @@ function SortableImageItem({ id, file, onRemove }: SortableImageItemProps) {
             return imageFile;
         }
         return URL.createObjectURL(imageFile);
+    };
+
+    // Create drag listeners that exclude the remove button
+    const dragListeners = {
+        ...listeners,
+        onPointerDown: (e: any) => {
+            // Don't start drag if clicking on remove button or its children
+            if (e.target.closest('[data-no-drag]')) {
+                return;
+            }
+            listeners?.onPointerDown?.(e);
+        },
     };
 
     return (
@@ -83,7 +100,7 @@ function SortableImageItem({ id, file, onRemove }: SortableImageItemProps) {
                 },
             }}
             {...attributes}
-            {...listeners}
+            {...dragListeners}
         >
             <Box
                 component="img"
@@ -98,9 +115,17 @@ function SortableImageItem({ id, file, onRemove }: SortableImageItemProps) {
             />
             <IconButton
                 className="remove-button"
+                data-no-drag="true"
                 onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     onRemove();
+                }}
+                onMouseDown={(e) => {
+                    e.stopPropagation();
+                }}
+                onTouchStart={(e) => {
+                    e.stopPropagation();
                 }}
                 sx={{
                     position: 'absolute',
@@ -112,8 +137,10 @@ function SortableImageItem({ id, file, onRemove }: SortableImageItemProps) {
                     color: 'white',
                     opacity: 0,
                     transition: 'opacity 0.2s',
+                    zIndex: 1,
                     '&:hover': {
                         bgcolor: 'error.dark',
+                        opacity: 1,
                     },
                 }}
             >
