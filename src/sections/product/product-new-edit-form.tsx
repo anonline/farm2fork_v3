@@ -24,6 +24,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, RHFSwitch, schemaHelper, RHFTextField } from 'src/components/hook-form';
 import SeasonalityCard from './new-edit-form/seasonality-card';
 import FeaturedCard from './new-edit-form/featured-card';
+import PricingCard from './new-edit-form/pricing-card';
 
 // ----------------------------------------------------------------------
 
@@ -391,24 +392,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     };
 
     const renderPricing = () => (
-        <Card>
-            <CardHeader title="Árak és Készlet" action={renderCollapseButton(openPricing.value, openPricing.onToggle)} />
-            <Collapse in={openPricing.value}>
-                <Stack spacing={3} sx={{ p: 3 }}>
-                    <RHFTextField name="netPrice" label="Nettó alapár (Ft)" type="number" />
-                    <RHFTextField name="vat" label="ÁFA (%)" type="number" />
-                    <RHFTextField name="grossPrice" label="Bruttó alapár (Ft)" type="number" onChange={handleGrossPriceChange} />
-                    <Divider sx={{ my: 2 }} />
-                    <RHFTextField name="netPriceVIP" label="VIP Nettó Ár (Ft)" type="number" />
-                    <RHFTextField name="netPriceCompany" label="Céges Nettó Ár (Ft)" type="number" />
-                    <Divider sx={{ my: 2 }} />
-                    <FormControlLabel control={<Checkbox checked={isUnlimitedStock} onChange={(e) => setIsUnlimitedStock(e.target.checked)} />} label="Korlátlan készlet" />
-                    <RHFTextField name="stock" label="Készlet" type="number" disabled={isUnlimitedStock} />
-                    <RHFSwitch name="backorder" label="Előrendelhető" />
-
-                </Stack>
-            </Collapse>
-        </Card>
+        <PricingCard isOpen={openPricing} handleGrossPriceChange={handleGrossPriceChange} />
     );
 
     const renderFeatured = () => (

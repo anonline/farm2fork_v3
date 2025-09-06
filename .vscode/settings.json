@@ -5,6 +5,9 @@
     },
     "prettier.tabWidth": 4,
     "cSpell.words": [
+        "backorder",
+        "Előrendelhető",
+        "kezelése",
         "salegross"
     ]
 }
