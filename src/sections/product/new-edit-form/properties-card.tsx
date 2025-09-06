@@ -1,10 +1,15 @@
-import { Autocomplete, Card, Chip, Collapse, Divider, Grid, MenuItem, Stack, TextField } from "@mui/material";
-import EditCardHeader from "./card-header";
+import type { Control} from "react-hook-form";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+
+import { Controller } from "react-hook-form";
+
+import { Card, Chip, Grid, Stack, Divider, Collapse, MenuItem, TextField, Autocomplete } from "@mui/material";
 
 import { RHFTextField } from "src/components/hook-form";
-import { NewProductSchemaType } from "../product-new-edit-form";
-import { Control, Controller } from "react-hook-form";
-import { UseBooleanReturn } from "minimal-shared/hooks";
+
+import EditCardHeader from "./card-header";
+
+import type { NewProductSchemaType } from "../product-new-edit-form";
 
 type PropertiesCardProps = {
     isOpen: UseBooleanReturn;

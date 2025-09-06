@@ -1,6 +1,9 @@
-import { Card, Collapse, Divider, Stack } from "@mui/material";
-import { UseBooleanReturn } from "minimal-shared/hooks";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+
+import { Card, Stack, Divider, Collapse } from "@mui/material";
+
 import { Field, RHFSwitch } from "src/components/hook-form";
+
 import EditCardHeader from "./card-header";
 
 type FeaturedCardProps = {

@@ -3,30 +3,31 @@
 import type { MonthKeys, IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
-import { useBoolean } from 'minimal-shared/hooks';
 import { useForm} from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import { Box, Stack, Button, Grid } from '@mui/material';
+import { Box, Grid, Stack, Button } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { deleteFile, uploadFile } from 'src/lib/blob/blobClient';
 import { useCategories } from 'src/contexts/category-context';
 import { useProducers } from 'src/contexts/producers-context';
+import { deleteFile, uploadFile } from 'src/lib/blob/blobClient';
 import { useProductCategoryConnection } from 'src/contexts/product-category-connection-context';
 import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCategoryRelations } from 'src/actions/product';
 
 import { toast } from 'src/components/snackbar';
 import { Form, schemaHelper} from 'src/components/hook-form';
-import SeasonalityCard from './new-edit-form/seasonality-card';
-import FeaturedCard from './new-edit-form/featured-card';
+
 import PricingCard from './new-edit-form/pricing-card';
 import DetailsCard from './new-edit-form/details-card';
+import FeaturedCard from './new-edit-form/featured-card';
 import CategoryCard from './new-edit-form/category-card';
 import PropertiesCard from './new-edit-form/properties-card';
+import SeasonalityCard from './new-edit-form/seasonality-card';
 
 // ----------------------------------------------------------------------
 
@@ -328,11 +329,9 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         <DetailsCard isOpen={openDetails} handleURLGenerate={handleURLGenerate} />
     );
 
-    const renderProperties = () => {
-        return (
+    const renderProperties = () => (
             <PropertiesCard isOpen={openProperties} control={control} producers={producers} UNIT_OPTIONS={UNIT_OPTIONS} />
-        )
-    };
+        );
 
     const renderPricingAndStock = () => (
         <PricingCard isOpen={openPricing} handleStock={handleStock} handleStockChange={toggleHandleStock} handleGrossPriceChange={handleGrossPriceChange} />

@@ -1,6 +1,8 @@
-import { UseBooleanReturn } from "minimal-shared/hooks";
-import CollapseButton from "./collapse-button";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+
 import CardHeader from "@mui/material/CardHeader";
+
+import CollapseButton from "./collapse-button";
 
 type EditCardHeaderProps = {
     title: string;

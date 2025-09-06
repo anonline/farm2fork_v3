@@ -1,4 +1,5 @@
 import { IconButton } from "@mui/material";
+
 import { Iconify } from "src/components/iconify";
 
 type CollapseButtonProps = {

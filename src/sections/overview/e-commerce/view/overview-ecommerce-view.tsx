@@ -10,8 +10,6 @@ import {
     _ecommerceLatestProducts,
 } from 'src/_mock';
 
-import { useMockedUser } from 'src/auth/hooks';
-
 import { EcommerceYearlySales } from '../ecommerce-yearly-sales';
 import { EcommerceBestSalesman } from '../ecommerce-best-salesman';
 import { EcommerceSaleByGender } from '../ecommerce-sale-by-gender';
@@ -23,30 +21,12 @@ import { EcommerceCurrentBalance } from '../ecommerce-current-balance';
 // ----------------------------------------------------------------------
 
 export function OverviewEcommerceView() {
-    const { user } = useMockedUser();
-
     const theme = useTheme();
 
     return (
         <DashboardContent maxWidth="xl">
             <Grid container spacing={3}>
-                {/*<Grid size={{ xs: 12, md: 8 }}>
-          <EcommerceWelcome
-            title={`Congratulations 🎉  \n ${user?.displayName}`}
-            description="Best seller of the month you have done 57.6% more sales today."
-            img={<MotivationIllustration hideBackground />}
-            action={
-              <Button variant="contained" color="primary">
-                Go now
-              </Button>
-            }
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 4 }}>
-          <EcommerceNewProducts list={_ecommerceNewProducts} />
-        </Grid>*/}
-
+                
                 <Grid size={{ xs: 12, md: 4 }}>
                     <EcommerceWidgetSummary
                         title="Eladott termékek"

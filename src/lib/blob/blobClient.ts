@@ -16,7 +16,7 @@ export async function deleteFile(url: string) {
     const res = await fetch(`/api/img/delete`, {
         method: 'DELETE',
         body: JSON.stringify({
-            url: url,
+            url,
         })
     });
 

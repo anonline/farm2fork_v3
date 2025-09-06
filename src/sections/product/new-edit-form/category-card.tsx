@@ -1,9 +1,14 @@
-import { Box, Card, Checkbox, CircularProgress, Collapse, Divider, FormControlLabel, FormGroup, FormHelperText, Stack } from "@mui/material";
+import type { ICategoryItem } from "src/types/category";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+import type { Control, ControllerRenderProps } from "react-hook-form";
+
+import { Controller } from "react-hook-form";
+
+import { Box, Card, Stack, Divider, Checkbox, Collapse, FormGroup, FormHelperText, CircularProgress, FormControlLabel } from "@mui/material";
+
 import EditCardHeader from "./card-header";
-import { UseBooleanReturn } from "minimal-shared/hooks";
-import { Control, Controller, ControllerRenderProps } from "react-hook-form";
-import { ICategoryItem } from "src/types/category";
-import { NewProductSchemaType } from "../product-new-edit-form";
+
+import type { NewProductSchemaType } from "../product-new-edit-form";
 
 type CategoryCardProps = {
     isOpen: UseBooleanReturn;

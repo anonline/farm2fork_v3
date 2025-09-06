@@ -1,5 +1,4 @@
 import type { CheckoutContextValue } from 'src/types/checkout';
-import type { TableHeadCellProps } from 'src/components/table';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,16 +6,6 @@ import TableBody from '@mui/material/TableBody';
 import { Scrollbar } from 'src/components/scrollbar';
 
 import { CheckoutCartProduct } from './checkout-cart-product';
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD: TableHeadCellProps[] = [
-    { id: 'product', label: 'Product' },
-    { id: 'price', label: 'Price' },
-    { id: 'quantity', label: 'Quantity' },
-    { id: 'totalAmount', label: 'Total Price', align: 'right' },
-    { id: '' },
-];
 
 // ----------------------------------------------------------------------
 

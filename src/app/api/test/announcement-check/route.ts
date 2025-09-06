@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { ensureValidAnnouncement } from 'src/actions/announcements';
 
 export async function GET() {

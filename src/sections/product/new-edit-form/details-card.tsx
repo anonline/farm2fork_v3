@@ -1,8 +1,11 @@
-import { UseBooleanReturn } from "minimal-shared/hooks";
-import EditCardHeader from "./card-header";
-import { Field, RHFTextField } from "src/components/hook-form";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+
+import { Card, Stack, Divider, Collapse } from "@mui/material";
+
 import { RHFDragDropImages } from "src/components/upload";
-import { Card, Collapse, Divider, Stack } from "@mui/material";
+import { Field, RHFTextField } from "src/components/hook-form";
+
+import EditCardHeader from "./card-header";
 
 type DetailsCardProps = {
     isOpen: UseBooleanReturn;

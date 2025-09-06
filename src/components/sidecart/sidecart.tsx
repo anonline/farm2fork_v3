@@ -35,7 +35,7 @@ type SideCartProps = {
     onClose: () => void;
 };
 
-export function SideCart({ open, onClose }: SideCartProps) {
+export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const { user, authenticated } = useAuthContext();
@@ -81,25 +81,27 @@ export function SideCart({ open, onClose }: SideCartProps) {
             anchor="right"
             open={open}
             onClose={onClose}
-            PaperProps={{
-                sx: {
-                    width: isMobile ? '100vw' : 520,
-                    height: isMobile ? '100dvh' : '100vh', // Use dynamic viewport height on mobile
-                    maxHeight: isMobile ? '100dvh' : '100vh',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // Ensure proper mobile viewport handling
-                    ...(isMobile && {
-                        '@supports (height: 100dvh)': {
-                            height: '100dvh',
-                            maxHeight: '100dvh',
-                        },
-                        // Fallback for older browsers
-                        '@supports not (height: 100dvh)': {
-                            height: '100vh',
-                            maxHeight: '100vh',
-                        },
-                    }),
+            slotProps={{
+                paper: {
+                    sx: {
+                        width: isMobile ? '100vw' : 520,
+                        height: isMobile ? '100dvh' : '100vh', // Use dynamic viewport height on mobile
+                        maxHeight: isMobile ? '100dvh' : '100vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        // Ensure proper mobile viewport handling
+                        ...(isMobile && {
+                            '@supports (height: 100dvh)': {
+                                height: '100dvh',
+                                maxHeight: '100dvh',
+                            },
+                            // Fallback for older browsers
+                            '@supports not (height: 100dvh)': {
+                                height: '100vh',
+                                maxHeight: '100vh',
+                            },
+                        }),
+                    },
                 },
             }}
         >

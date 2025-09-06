@@ -1,7 +1,10 @@
-import { Card, Collapse, Divider, FormControlLabel, Stack, Switch } from "@mui/material";
-import EditCardHeader from "./card-header";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+
+import { Card, Stack, Switch, Divider, Collapse, FormControlLabel } from "@mui/material";
+
 import { RHFSwitch, RHFTextField } from "src/components/hook-form";
-import { UseBooleanReturn } from "minimal-shared/hooks";
+
+import EditCardHeader from "./card-header";
 
 type PricingCardProps = {
     isOpen: UseBooleanReturn;

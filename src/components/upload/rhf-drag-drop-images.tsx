@@ -1,35 +1,33 @@
-import { useCallback, useMemo } from 'react';
+import { CSS } from '@dnd-kit/utilities';
+import { useMemo, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { varAlpha } from 'minimal-shared/utils';
 import { Controller, useFormContext } from 'react-hook-form';
-
 import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    SortableContext,
     arrayMove,
+    useSortable,
+    SortableContext,
     rectSortingStrategy,
     sortableKeyboardCoordinates,
-    useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import {
+    useSensor,
+    DndContext,
+    useSensors,
+    closestCenter,
+    PointerSensor,
+    KeyboardSensor,
+    type DragEndEvent,
+} from '@dnd-kit/core';
 
-import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import FormHelperText from '@mui/material/FormHelperText';
-import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import { alpha } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-
-import { varAlpha } from 'minimal-shared/utils';
+import FormHelperText from '@mui/material/FormHelperText';
 
 import { Iconify } from 'src/components/iconify';
 

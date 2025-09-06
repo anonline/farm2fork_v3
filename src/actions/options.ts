@@ -54,7 +54,7 @@ export function useGetOption(option: OptionsEnum) {
 
 export async function updateOption(option: OptionsEnum, value: any) {
     // First, try to update the existing option
-    const { data: updateData, error: updateError } = await supabase
+    const { error: updateError } = await supabase
         .from('Options')
         .update({ value: String(value) })
         .eq('name', option);

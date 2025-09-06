@@ -1,11 +1,16 @@
-import { Checkbox, Divider, FormControlLabel, FormGroup, Stack } from "@mui/material";
+import type { Control} from "react-hook-form";
+import type { MonthKeys } from "src/types/product";
+import type { UseBooleanReturn } from "minimal-shared/hooks";
+
+import { Controller } from "react-hook-form";
+
 import Card from "@mui/material/Card";
 import Collapse from "@mui/material/Collapse";
-import { UseBooleanReturn } from "minimal-shared/hooks";
-import { Control, Controller } from "react-hook-form";
-import { MonthKeys } from "src/types/product";
-import { NewProductSchemaType } from "../product-new-edit-form";
+import { Stack, Divider, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
+
 import EditCardHeader from "./card-header";
+
+import type { NewProductSchemaType } from "../product-new-edit-form";
 
 const MONTH_OPTIONS: { value: MonthKeys, label: string }[] = [
     { value: 'January', label: 'Január' }, { value: 'February', label: 'Február' }, { value: 'March', label: 'Március' },

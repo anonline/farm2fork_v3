@@ -283,7 +283,7 @@ export default function PickupLocationListView() {
         });
 
         return baseColumns;
-    }, [isMobile]);
+    }, [isMobile, handleOpenEdit]);
 
     const renderDialogContent = () => {
         if (dialogState.view === 'confirmDelete') {

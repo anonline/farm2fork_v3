@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { IProductItem } from 'src/types/product';
 
 import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect, useContext, createContext, useMemo } from 'react';
+import { useMemo, useState, useEffect, useContext, createContext } from 'react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

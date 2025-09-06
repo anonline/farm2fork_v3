@@ -1,9 +1,9 @@
 'use client';
 
-import { Box, Grid, Skeleton, Stack } from '@mui/material';
+
+import { Box, Grid, Stack, Skeleton } from '@mui/material';
 
 import { Image } from '../image';
-import { on } from 'events';
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ interface ProductGalleryProps {
     productName?: string;
 }
 
-export default function ProductGallery({ images, loading, productName }: ProductGalleryProps) {
+export default function ProductGallery({ images, loading, productName }: Readonly<ProductGalleryProps>) {
 
     const heights = {
         single: 640,

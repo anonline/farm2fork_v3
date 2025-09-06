@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Skeleton, Typography } from '@mui/material';
+import { Box, Skeleton, Container, Typography } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -15,8 +15,8 @@ import { Months } from 'src/types/product';
 
 import { Image } from '../image';
 import F2FIcons from '../f2ficons/f2ficons';
-import ProducerProducts from './producer-products';
 import ProductGallery from './product-gallery';
+import ProducerProducts from './producer-products';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
@@ -123,9 +123,7 @@ export default function ProductDetails() {
         );
     };
 
-    const isProductAvailable = () => {
-        return product && (product?.stock === null || (product?.stock > 0 || product?.backorder === true));
-    };
+    const isProductAvailable = () => product && (product?.stock === null || (product?.stock > 0 || product?.backorder === true));
 
     const renderQuantitySelector = () => {
         if (loading) {

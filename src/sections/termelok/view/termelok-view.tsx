@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Container, Typography, CircularProgress } from '@mui/material';
 
 import { useProducers } from 'src/contexts/producers-context';
 
@@ -11,7 +11,7 @@ export default function TermelokView({ viewslug }: any) {
     const { producers, loading, error } = useProducers();
 
     if (loading) {
-        return <></>;
+        return <CircularProgress />;
     }
     if (error) {
         return <Typography color="error">Hiba: {error}</Typography>;
