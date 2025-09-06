@@ -1,6 +1,8 @@
-import { OpenAPI, DocumentService, UtilService, TaxNumber, Document, DocumentNotificationStatus } from '@codingsans/billingo-client';
-import { IInvoice, IInvoiceItem } from 'src/types/invoice';
-import { IDateValue } from 'src/types/common';
+import type { IInvoice} from 'src/types/invoice';
+import type { IDateValue } from 'src/types/common';
+
+import { OpenAPI, DocumentService, DocumentNotificationStatus } from '@codingsans/billingo-client';
+
 
 function addBillingoApiKey() {
     const apiKey = '8f0a70aa-6deb-11f0-a720-0adb4fd9a356';
@@ -19,7 +21,7 @@ export default async function GetDocuments({per_page, page}: {per_page?: number,
     let currentPage = page;
     let lastPage = page;
 
-    let documentList: IInvoice[] = [];
+    const documentList: IInvoice[] = [];
     do {
         const documentResponse = await DocumentService.listDocument(currentPage, per_page);
         if (documentResponse.data) {

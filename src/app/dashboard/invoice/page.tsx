@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { getOption } from 'src/actions/option-ssr';
 
 import { CONFIG } from 'src/global-config';
 import GetDocuments from 'src/lib/billingo';
+import { getOption } from 'src/actions/option-ssr';
 
 import { InvoiceListView } from 'src/sections/invoice/view';
+
 import { OptionsEnum } from 'src/types/option';
 
 // ----------------------------------------------------------------------
