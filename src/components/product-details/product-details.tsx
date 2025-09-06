@@ -121,6 +121,7 @@ export default function ProductDetails() {
             </Box>
         );
     };
+    
     const renderQuantitySelector = () => (
         loading
             ? (

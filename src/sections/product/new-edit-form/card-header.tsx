@@ -1,6 +1,6 @@
 import { UseBooleanReturn } from "minimal-shared/hooks";
 import CollapseButton from "./collapse-button";
-import CardHeader from "node_modules/@mui/material/esm/CardHeader/CardHeader";
+import CardHeader from "@mui/material/CardHeader";
 
 type EditCardHeaderProps = {
     title: string;
