@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, FormGroup, Stack } from "@mui/material";
+import { Checkbox, Divider, FormControlLabel, FormGroup, Stack } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import Collapse from "@mui/material/Collapse";
@@ -7,6 +7,7 @@ import { Control, Controller } from "react-hook-form";
 import CollapseButton from "./collapse-button";
 import { IProductItem, MonthKeys } from "src/types/product";
 import { NewProductSchemaType } from "../product-new-edit-form";
+import EditCardHeader from "./card-header";
 
 const MONTH_OPTIONS: { value: MonthKeys, label: string }[] = [
     { value: 'January', label: 'Január' }, { value: 'February', label: 'Február' }, { value: 'March', label: 'Március' },
@@ -24,7 +25,8 @@ type SeasonalityCheckboxGroupProps = {
 export default function SeasonalityCard({isOpen, control, onChange}: SeasonalityCheckboxGroupProps ) {
     return (
         <Card>
-            <CardHeader title="Szezonalitás új" action={<CollapseButton value={isOpen.value} onToggle={isOpen.onToggle} />} />
+            <EditCardHeader title="Szezonalitás" isOpen={isOpen} sx={{ mb: 2 }} />
+            <Divider />
             <Collapse in={isOpen.value}>
                 <Stack spacing={3} sx={{ p: 3 }}>
                     <Controller

@@ -22,7 +22,8 @@ import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCateg
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, RHFSwitch, schemaHelper, RHFTextField } from 'src/components/hook-form';
-import SeasonalityCard from './new-edit-form/seasonality';
+import SeasonalityCard from './new-edit-form/seasonality-card';
+import FeaturedCard from './new-edit-form/featured-card';
 
 // ----------------------------------------------------------------------
 
@@ -411,24 +412,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     );
 
     const renderFeatured = () => (
-        <Card>
-            <CardHeader title="Kiemelt termék" action={renderCollapseButton(openFeatured.value, openFeatured.onToggle)} />
-            <Collapse in={openFeatured.value}>
-                <Stack spacing={3} sx={{ p: 3 }}>
-                    <Stack spacing={1.5}>
-                        <Typography variant="subtitle2">Kiemelt kép</Typography>
-                        <Field.Upload name="featuredImage" thumbnail />
-                    </Stack>
-                    <Divider />
-                    <RHFSwitch name="featured" label="Főoldalon kiemelt termék" />
-                    <RHFSwitch name="star" label="Szezonális sztár termék" />
-                    <RHFSwitch name="bio" label="Bio termék" />
-                </Stack>
-            </Collapse>
-        </Card>
+        <FeaturedCard isOpen={openFeatured} />
     );
-
-
 
     const renderSeasonality = () => (
         <SeasonalityCard
@@ -436,19 +421,6 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             control={control}
             onChange={handleSeasonalityChange}
         />
-        /*
-        <Card>
-            <CardHeader title="Szezonalitás" action={renderCollapseButton(openSeasonality.value, openSeasonality.onToggle)} />
-            <Collapse in={openSeasonality.value}>
-                <Stack spacing={3} sx={{ p: 3 }}>
-                    <Controller
-                        name="seasonality"
-                        control={control}
-                        render={({ field }) => <SeasonalityCheckboxGroup field={field} />}
-                    />
-                </Stack>
-            </Collapse>
-        </Card>*/
     );
 
     return (
@@ -484,23 +456,4 @@ function handleSeasonalityChange(field: any, optionValue: MonthKeys) {
         ? currentValue.filter((v: MonthKeys) => v !== optionValue)
         : [...currentValue, optionValue];
     field.onChange(newValues);
-}
-
-function SeasonalityCheckboxGroup({ field }: Readonly<{ field: any }>) {
-    return (
-        <FormGroup>
-            {MONTH_OPTIONS.map((option) => (
-                <FormControlLabel
-                    key={option.value}
-                    control={
-                        <Checkbox
-                            checked={(field.value || []).includes(option.value)}
-                            onChange={() => handleSeasonalityChange(field, option.value)}
-                        />
-                    }
-                    label={option.label}
-                />
-            ))}
-        </FormGroup>
-    );
 }
