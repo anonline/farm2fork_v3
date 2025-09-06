@@ -16,6 +16,7 @@ import { Months } from 'src/types/product';
 import { Image } from '../image';
 import F2FIcons from '../f2ficons/f2ficons';
 import ProducerProducts from './producer-products';
+import ProductGallery from './product-gallery';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
@@ -225,7 +226,11 @@ export default function ProductDetails() {
                 <Container>
                     <ProductDetailsSmallInfo product={product} />
                 </Container>
-                {/* galery */}
+                <ProductGallery 
+                    images={product?.images} 
+                    loading={loading} 
+                    productName={product?.name}
+                />
             </Container>
 
             <Container
