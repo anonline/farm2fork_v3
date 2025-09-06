@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Container, Skeleton, Typography } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -23,7 +23,7 @@ import FeaturedProducerCard from '../producer-card/featured-producer-card';
 export default function ProductDetails() {
     const { onAddToCart } = useCheckoutContext();
 
-    const { product } = useProduct();
+    const { product, loading } = useProduct();
     const renderTitle = () => (
         <Typography
             variant="h1"
@@ -121,19 +121,44 @@ export default function ProductDetails() {
         );
     };
     const renderQuantitySelector = () => (
-        <Box sx={{ width: '80%' }}>
-            {product != null && (
-                <ProductQuantitySelector
-                    product={product}
-                    onAddToCart={onAddToCart}
-                    unit={product.unit}
-                    max={product.maximumQuantity}
-                    min={product.mininumQuantity}
-                    step={product.stepQuantity}
-                    format="row"
-                />
-            )}
-        </Box>
+        loading
+            ? (
+                <Box sx={{ width: '80%' }}>
+                    <Skeleton variant="rectangular" width="100%" height={48} />
+                </Box>
+            )
+            : (
+                product && (product?.stock === null || (product?.stock > 0 || product?.backorder == true))
+                ? (
+                    <Box sx={{ width: '80%' }}>
+                        <ProductQuantitySelector
+                            product={product}
+                            onAddToCart={onAddToCart}
+                            unit={product.unit}
+                            max={product.maximumQuantity}
+                            min={product.mininumQuantity}
+                            step={product.stepQuantity}
+                            format="row"
+                        />
+                    </Box>
+                )
+                : (
+                    <Box>
+                        <Typography
+                            sx={{
+                                fontFamily: themeConfig.fontFamily.primary,
+                                fontSize: '16px',
+                                fontWeight: 500,
+                                lineHeight: '24px',
+                                letterSpacing: '0.32px',
+                                color: themeConfig.textColor.grey,
+                            }}
+                        >
+                            Ez a termék sajnos jelenleg nem elérhető.
+                        </Typography>
+                    </Box>
+                )
+            )
     );
 
     const headRightSectionGap = '20px';

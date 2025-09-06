@@ -13,7 +13,7 @@ import { Box, Stack, Button, Grid } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { uploadFile } from 'src/lib/blob/blobClient';
+import { deleteFile, uploadFile } from 'src/lib/blob/blobClient';
 import { useCategories } from 'src/contexts/category-context';
 import { useProducers } from 'src/contexts/producers-context';
 import { useProductCategoryConnection } from 'src/contexts/product-category-connection-context';
@@ -178,10 +178,14 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
     const [netPrice, grossPrice, vat] = watch(['netPrice', 'grossPrice', 'vat']);
 
-    const [handleStock, setHandleStock] = useState(false);
+    const [handleStock, setHandleStock] = useState(currentProduct ? currentProduct.stock !== null : false);
+    
+    useEffect(() => {
+        setHandleStock(currentProduct ? currentProduct.stock !== null : false);
+    }, [currentProduct]);
+
     const toggleHandleStock = () => {
-        
-        if(handleStock === true) {
+        if (handleStock === true) {
             setValue('stock', 0);
         }
         setHandleStock(!handleStock);
@@ -205,7 +209,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     };
 
     const generateSlug = (name: string) => {
-        const hungarianMap: Record<string, string> = { 'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o', 'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O' };
+        const hungarianMap: Record<string, string> = { 'á': 'a', 'é': 'e', 'ő': 'o', 'ú': 'u', 'ű': 'u', 'ó': 'o', 'ü': 'u', 'ö': 'o', 'Á': 'A', 'É': 'E', 'Ő': 'O', 'Ú': 'U', 'Ű': 'U', 'Ó': 'O', 'Ü': 'U', 'Ö': 'O', 'í': 'i', 'Í': 'I' };
         return name.split('').map(char => hungarianMap[char] || char).join('').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
     };
 
@@ -231,6 +235,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             let finalFeaturedImageUrl = data.featuredImage;
 
             if (finalFeaturedImageUrl instanceof File) {
+                console.info('Uploading new featured image...');
                 const response = await uploadFile(finalFeaturedImageUrl, 'products', 0);
                 if (!response.url) throw new Error('A kiemelt kép feltöltése sikertelen.');
                 finalFeaturedImageUrl = response.url;
@@ -239,12 +244,13 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             const productData: any = {
                 ...data,
                 tags: data.tags?.length ? data.tags.join('|') : null,
-                featuredImage: finalFeaturedImageUrl ?? undefined,
+                featuredImage: finalFeaturedImageUrl ?? null,
                 mininumQuantity: data.mininumQuantity ?? undefined,
                 maximumQuantity: data.maximumQuantity ?? undefined,
                 stepQuantity: data.stepQuantity ?? undefined,
                 netPriceVIP: data.netPriceVIP ?? undefined,
                 netPriceCompany: data.netPriceCompany ?? undefined,
+                stock: handleStock ? data.stock ?? 0 : null,
             };
             delete productData.categoryIds;
 
@@ -255,6 +261,15 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             } else {
                 const newProduct = await createProduct(productData);
                 productId = newProduct.id;
+            }
+
+            console.log(productData.featuredImage);
+            console.log(currentProduct?.featuredImage);
+
+            if((productData.featuredImage == null || productData.featuredImage === '' || productData.featuredImage === undefined)
+            && currentProduct?.featuredImage) {
+                console.info('Deleted old featured image:', currentProduct.featuredImage);
+                await deleteFile(currentProduct.featuredImage);
             }
 
             if (!productId) {

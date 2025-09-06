@@ -44,7 +44,7 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
                 setProduct(data ?? null);
                 setLoaderror(null);
             }
-            console.log(data);
+            console.log('fetching:', data);
             setLoading(false);
         }
         fetchProducts();

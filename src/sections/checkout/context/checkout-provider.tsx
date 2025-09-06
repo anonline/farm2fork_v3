@@ -205,7 +205,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             newItem.quantity = Math.max(newItem.quantity, newItem.minQuantity ?? 1);
             newItem.quantity = Math.min(newItem.quantity, newItem.maxQuantity ?? 100);
             newItem.quantity = Math.round(newItem.quantity / (newItem.stepQuantity ?? 1)) * (newItem.stepQuantity ?? 1);
-            newItem.quantity = newItem.quantity.toFixed(2) as unknown as number; 
+            newItem.quantity = newItem.quantity; 
             newItem.subtotal = (newItem.custom == true ? 1 : newItem.quantity) * newItem.price;
 
             const updatedItems = state.items.map((item) => {
