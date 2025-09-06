@@ -18,10 +18,13 @@ import { CircleSvg } from './components/svg-elements';
 import { SectionTitle } from './components/section-title';
 
 export function HomeCategoryList({ sx, ...other }: BoxProps) {
-
     const categories = useCategories();
 
-    const [hovered, setHovered] = useState(categories.categories.length > 0 ? categories.categories[0].coverUrl : 'https://farm2fork.hu/wp-content/uploads/2025/05/DSC4379_FIN-1-scaled.jpg');
+    const [hovered, setHovered] = useState(
+        categories.categories.length > 0
+            ? categories.categories[0].coverUrl
+            : 'https://farm2fork.hu/wp-content/uploads/2025/05/DSC4379_FIN-1-scaled.jpg'
+    );
 
     const renderDescription = () => (
         <>
@@ -30,12 +33,17 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                 title="NÉZZ SZÉT A TERMÉKEINK KÖZT"
                 txtGradient=""
                 description=""
-                sx={{ textAlign: { xs: 'center', md: 'left' }, fontSize: '40px', fontFamily: themeConfig.fontFamily.primary, fontWeight: 600, lineHeight: '48px', mb: 3 }}
+                sx={{
+                    textAlign: { xs: 'center', md: 'left' },
+                    fontSize: '40px',
+                    fontFamily: themeConfig.fontFamily.primary,
+                    fontWeight: 600,
+                    lineHeight: '48px',
+                    mb: 3,
+                }}
             />
 
-            <Stack
-                direction="column"
-                spacing={1}>
+            <Stack direction="column" spacing={1}>
                 {categories.loading && <ListItemText primary="Loading categories..." />}
                 {categories.error && <ListItemText primary={`Error: ${categories.error}`} />}
                 {categories.categories.map((category) => (
@@ -45,14 +53,15 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                         sx={{
                             fontSize: '32px',
                             cursor: 'pointer',
-                            fontWeight:400,
+                            fontWeight: 400,
                             '&:hover': {
                                 fontWeight: '700',
                             },
                         }}
-                    >{category.name}</Typography>
-                ))
-                }
+                    >
+                        {category.name}
+                    </Typography>
+                ))}
             </Stack>
         </>
     );
@@ -102,20 +111,12 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
             {...other}
         >
             <MotionViewport>
+                <Grid container spacing={{ xs: 5, md: 8 }} sx={{ position: 'relative', zIndex: 9 }}>
+                    <Grid size={{ xs: 12, md: 6, lg: 5 }}>{renderDescription()}</Grid>
+                    <Grid size={{ xs: 12, md: 6, lg: 7 }}>{renderImage()}</Grid>
+                </Grid>
 
-                    <Grid
-                        container
-                        spacing={{ xs: 5, md: 8 }}
-                        sx={{ position: 'relative', zIndex: 9 }}
-                    >
-                        <Grid size={{ xs: 12, md: 6, lg: 5 }}>{renderDescription()}</Grid>
-                        <Grid size={{ xs: 12, md: 6, lg: 7 }}>{renderImage()}</Grid>
-                    </Grid>
-
-                    <CircleSvg
-                        variants={varFade('in')}
-                        sx={{ display: { xs: 'none', md: 'block' } }}
-                    />
+                <CircleSvg variants={varFade('in')} sx={{ display: { xs: 'none', md: 'block' } }} />
             </MotionViewport>
         </Box>
     );

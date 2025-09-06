@@ -1,10 +1,14 @@
 import type { ICheckoutItem, CheckoutContextValue } from 'src/types/checkout';
 
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import TableRow from '@mui/material/TableRow';
+import Collapse from '@mui/material/Collapse';
 import TableCell from '@mui/material/TableCell';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -24,7 +28,43 @@ type Props = {
     onDeleteNote: CheckoutContextValue['onDeleteNote'];
 };
 
-export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantity, onAddNote, onDeleteNote }: Readonly<Props>) {
+export function CheckoutCartProduct({
+    row,
+    onDeleteCartItem,
+    onChangeItemQuantity,
+    onAddNote,
+    onDeleteNote,
+}: Readonly<Props>) {
+    const [showNoteField, setShowNoteField] = useState(false);
+    const [noteText, setNoteText] = useState(row.note || '');
+
+    const handleToggleNote = () => {
+        setShowNoteField(!showNoteField);
+    };
+
+    const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNoteText(event.target.value);
+    };
+
+    const handleNoteSubmit = () => {
+        if (noteText.trim()) {
+            onAddNote(row.id, noteText.trim());
+        } else {
+            onDeleteNote(row.id);
+        }
+        setShowNoteField(false);
+    };
+
+    const handleNoteKeyPress = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            handleNoteSubmit();
+        }
+        if (event.key === 'Escape') {
+            setNoteText(row.note || '');
+            setShowNoteField(false);
+        }
+    };
+
     return (
         <TableRow>
             <TableCell>
@@ -32,49 +72,99 @@ export function CheckoutCartProduct({ row, onDeleteCartItem, onChangeItemQuantit
                     <Avatar
                         variant="rounded"
                         alt={row.name}
-                        src={row.coverUrl}
+                        src={
+                            row.coverUrl ||
+                            'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                        }
                         sx={{ width: 100, height: 100 }}
                     />
 
-                    <Stack spacing={1}>
-                        <Typography noWrap sx={{ maxWidth: 240, fontWeight: 700, fontSize: '18px', lineHeight: '28px', color: '#262626' }}>
+                    <Stack spacing={1} sx={{ flex: 1 }}>
+                        <Typography
+                            noWrap
+                            sx={{
+                                maxWidth: 240,
+                                fontWeight: 700,
+                                fontSize: '18px',
+                                lineHeight: '28px',
+                                color: '#262626',
+                            }}
+                        >
                             {row.name}
                         </Typography>
 
-                        <Typography sx={{ fontSize: '16px', fontWeight: '500', lineHeight: '24px', color: '#7e7e7e' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '16px',
+                                fontWeight: '500',
+                                lineHeight: '24px',
+                                color: '#7e7e7e',
+                            }}
+                        >
                             {fCurrency(row.price)}/{row.unit ?? 'db'}
                         </Typography>
 
-                        <Box sx={{ width: 150, gap: '8px', textAlign: 'right', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Box
+                            sx={{
+                                width: 150,
+                                gap: '8px',
+                                textAlign: 'right',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
                             <NumberInput
                                 hideDivider
                                 value={row.quantity}
                                 onChange={(event, quantity: number) =>
                                     onChangeItemQuantity(row.id, quantity)
                                 }
-                                max={row.available}
+                                min={row.minQuantity || 1}
+                                max={row.maxQuantity || row.available}
+                                step={row.stepQuantity || 1}
                             />
 
                             <IconButton onClick={() => onDeleteCartItem(row.id)}>
                                 <Iconify icon="solar:trash-bin-trash-bold" />
                             </IconButton>
                         </Box>
+
+                        <Collapse in={showNoteField}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Megjegyzés hozzáadása..."
+                                value={noteText}
+                                onChange={handleNoteChange}
+                                onKeyDown={handleNoteKeyPress}
+                                onBlur={handleNoteSubmit}
+                                autoFocus
+                                sx={{
+                                    mt: 1,
+                                    '& .MuiOutlinedInput-root': {
+                                        fontSize: '14px',
+                                    },
+                                }}
+                            />
+                        </Collapse>
                     </Stack>
                 </Box>
             </TableCell>
 
-            <TableCell align="right" sx={{ px: 1 }}>
+            <TableCell align="right" sx={{ px: 3 }}>
                 <Stack spacing={1}>
-                    <Typography>
-                        {fCurrency(row.subtotal)}
-                    </Typography>
+                    <Typography>{fCurrency(row.subtotal)}</Typography>
                     <Box>
-                        <IconButton>
-                            <F2FIcons name="CommentAdd" width={20} height={20}/>
+                        <IconButton onClick={handleToggleNote}>
+                            <F2FIcons
+                                name={row.note ? 'CommentOn' : 'CommentAdd'}
+                                width={20}
+                                height={20}
+                            />
                         </IconButton>
                     </Box>
                 </Stack>
-
             </TableCell>
         </TableRow>
     );

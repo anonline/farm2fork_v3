@@ -36,7 +36,7 @@ export function Editor({
     editable = true,
     fullItem = false,
     value: content = '',
-    placeholder = 'Write something awesome...',
+    placeholder = 'Írjunk valami szépet...',
     ...other
 }: EditorProps) {
     const [fullScreen, setFullScreen] = useState(false);

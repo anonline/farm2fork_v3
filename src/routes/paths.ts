@@ -32,8 +32,8 @@ export const paths = {
         editProfile: '/profil/edit-account',
     },
     rendelesMenete: '/rendeles-menete',
-    szezonalitas:'/szezonalitas/Jan',
-    tarolas:'/tarolas',
+    szezonalitas: '/szezonalitas/Jan',
+    tarolas: '/tarolas',
     page403: '/error/403',
     page404: '/error/404',
     page500: '/error/500',
@@ -46,6 +46,7 @@ export const paths = {
     figmaUrl:
         'https://www.figma.com/design/oAxS3CUFO0ou7rH2lTS8oI/%5BPreview%5D-Minimal-Web.v7.0.0',
     categories: {
+        list: (slug: string) => `/termekek/${slug}`,
         root: '/termekek',
         zoldsegek: '/termekek/zoldsegek',
         gyumolcsok: '/termekek/gyumolcsok',
@@ -59,8 +60,8 @@ export const paths = {
     api: {
         search: {
             products: '/api/search/products',
-            producers: 'api/search/producers'
-        }
+            producers: 'api/search/producers',
+        },
     },
     product: {
         root: `/termekek`,
@@ -135,11 +136,11 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/faqs`,
             new: `${ROOTS.DASHBOARD}/faqs/new`,
             edit: (id: number) => `${ROOTS.DASHBOARD}/faqs/${id}/edit`,
-            categories : {
+            categories: {
                 root: `${ROOTS.DASHBOARD}/faqs/categories`,
                 new: `${ROOTS.DASHBOARD}/faqs/categories/new`,
                 edit: (id: number) => `${ROOTS.DASHBOARD}/faqs/categories/${id}/edit`,
-            }
+            },
         },
         general: {
             app: `${ROOTS.DASHBOARD}/app`,
@@ -164,13 +165,13 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/producer`,
             new: `${ROOTS.DASHBOARD}/producer/new`,
             details: (id: string) => `${ROOTS.DASHBOARD}/producer/${id}`,
-            edit: (id: string) => `${ROOTS.DASHBOARD}/producer/${id}/edit`,
+            edit: (slug: string) => `${ROOTS.DASHBOARD}/producer/edit/${slug}`,
         },
         product: {
             root: `${ROOTS.DASHBOARD}/product`,
             new: `${ROOTS.DASHBOARD}/product/new`,
             details: (id: string) => `${ROOTS.DASHBOARD}/product/${id}`,
-            edit: (id: string) => `${ROOTS.DASHBOARD}/product/${id}/edit`,
+            edit: (slug: string) => `${ROOTS.DASHBOARD}/product/${slug}/edit`,
             demo: {
                 details: `${ROOTS.DASHBOARD}/product/${MOCK_ID}`,
                 edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
@@ -178,7 +179,7 @@ export const paths = {
             categories: {
                 root: `${ROOTS.DASHBOARD}/product/categories`,
                 new: `${ROOTS.DASHBOARD}/product/categories/new`,
-                edit: (id: string) => `${ROOTS.DASHBOARD}/product/categories/${id}/edit`,
+                edit: (id: string) => `${ROOTS.DASHBOARD}/product/categories/${id}`,
             },
         },
         invoice: {
@@ -193,12 +194,8 @@ export const paths = {
         },
         post: {
             root: `${ROOTS.DASHBOARD}/post`,
-            new: `${ROOTS.DASHBOARD}/post/new`,
-            details: (title: string) => `${ROOTS.DASHBOARD}/post/${kebabCase(title)}`,
-            edit: (title: string) => `${ROOTS.DASHBOARD}/post/${kebabCase(title)}/edit`,
-            demo: {
-                details: `${ROOTS.DASHBOARD}/post/${kebabCase(MOCK_TITLE)}`,
-                edit: `${ROOTS.DASHBOARD}/post/${kebabCase(MOCK_TITLE)}/edit`,
+            categories: {
+                root: `${ROOTS.DASHBOARD}/post/categories`,
             },
         },
         order: {
@@ -225,6 +222,29 @@ export const paths = {
                 details: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}`,
                 edit: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}/edit`,
             },
+        },
+        delivery: {
+            root: `${ROOTS.DASHBOARD}/delivery`,
+            new: `${ROOTS.DASHBOARD}/delivery/new`,
+            edit: (id: string | number) => `${ROOTS.DASHBOARD}/delivery/edit/${id}`,
+        },
+        partners: {
+            root: `${ROOTS.DASHBOARD}/partners`,
+        },
+        settings: {
+            purchase: `${ROOTS.DASHBOARD}/settings/purchase`,
+        },
+        shipping: {
+            root: `${ROOTS.DASHBOARD}/shipping`,
+        },
+        shippingCost: {
+            root: `${ROOTS.DASHBOARD}/shipping-cost`,
+        },
+        paymentMethod: {
+            root: `${ROOTS.DASHBOARD}/payment-method`,
+        },
+        pickup: {
+            root: `${ROOTS.DASHBOARD}/pickup`,
         },
     },
 };

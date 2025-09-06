@@ -1,7 +1,6 @@
-import { Box, Stack, Typography, } from "@mui/material";
+import { Box, Stack, Typography } from '@mui/material';
 
-import { Image } from "src/components/image";
-
+import { Image } from 'src/components/image';
 
 interface ITarolasMethod {
     id: number;
@@ -42,7 +41,7 @@ export default function TarolasKartya({ method }: Readonly<TarolasKartyaProps>) 
                         height: 'auto',
                         aspectRatio: '414/282',
                         objectFit: 'cover',
-                        borderRadius:'8px'
+                        borderRadius: '8px',
                     }}
                 />
                 <Typography variant="h3" sx={nameStyle}>

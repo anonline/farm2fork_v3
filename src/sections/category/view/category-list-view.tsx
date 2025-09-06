@@ -23,8 +23,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import {
     DataGrid,
     gridClasses,
-    GridToolbarExport,
-    GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,
     GridToolbarFilterButton,
@@ -35,7 +33,8 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useGetProductCategories } from 'src/actions/category';
+import { deleteCategoriesByIds } from 'src/actions/category';
+import { useCategories } from 'src/contexts/category-context';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -58,23 +57,21 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 export function CategoryListView() {
     const confirmDialog = useBoolean();
 
-    const { categories, categoriesLoading } = useGetProductCategories();
+    const { categories, loading } = useCategories();
 
     const [tableData, setTableData] = useState<ICategoryItem[]>(categories);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
 
-    const filters = useSetState<ICategoryTableFilter>({ publish: [], stock: [], bio: [] });
+    useEffect(() => {
+        setTableData(categories);
+    }, [categories]);
+
+    const filters = useSetState<ICategoryTableFilter>();
     const { state: currentFilters } = filters;
 
     const [columnVisibilityModel, setColumnVisibilityModel] =
         useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
-
-    useEffect(() => {
-        if (categories.length) {
-            setTableData(categories);
-        }
-    }, [categories]);
 
     const canReset = false;
 
@@ -83,23 +80,17 @@ export function CategoryListView() {
         filters: currentFilters,
     });
 
-    const handleDeleteRow = useCallback(
-        (id: number) => {
-            const deleteRow = tableData.filter((row) => row.id !== id);
+    const doDelete = async (ids: number[]) => {
+        await deleteCategoriesByIds(ids);
+    };
 
-            toast.success('Sikeres törlés!');
-
-            setTableData(deleteRow);
-        },
-        [tableData]
-    );
-
-    const handleDeleteRows = useCallback(() => {
-        const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
-
-        toast.success('Sikeres törlés!');
-
+    const handleDeleteRows = useCallback(async () => {
+        const deleteRows = tableData.filter(
+            (row) => row.id !== null && !selectedRowIds.includes(row.id)
+        );
+        await doDelete(selectedRowIds as number[]);
         setTableData(deleteRows);
+        toast.success('Sikeres törlés!');
     }, [selectedRowIds, tableData]);
 
     const CustomToolbarCallback = useCallback(
@@ -121,13 +112,13 @@ export function CategoryListView() {
         { field: 'category', headerName: 'Category', filterable: false },
         {
             field: 'enabled',
-            headerName: '',
+            headerName: 'Aktív',
             width: 110,
             renderCell: (params) => <RenderCellEnabled params={params} />,
         },
         {
             field: 'name',
-            headerName: 'Termék',
+            headerName: 'Termék kategória',
             flex: 1,
             minWidth: 360,
             hideable: false,
@@ -140,7 +131,7 @@ export function CategoryListView() {
         },
         {
             field: 'createdAt',
-            headerName: 'Dátum',
+            headerName: 'Létrehozva',
             width: 160,
             renderCell: (params) => <RenderCellCreatedAt params={params} />,
         },
@@ -159,20 +150,8 @@ export function CategoryListView() {
                     showInMenu
                     icon={<Iconify icon="solar:eye-bold" />}
                     label="Megtekintés"
-                    href={paths.dashboard.product.details(params.row.id)}
-                />,
-                <GridActionsLinkItem
-                    showInMenu
-                    icon={<Iconify icon="solar:pen-bold" />}
-                    label="Szerkesztés"
-                    href={paths.dashboard.product.edit(params.row.id)}
-                />,
-                <GridActionsCellItem
-                    showInMenu
-                    icon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                    label="Törlés"
-                    onClick={() => handleDeleteRow(params.row.id)}
-                    sx={{ color: 'error.main' }}
+                    href={paths.categories.list(params.row.slug)}
+                    target="_blank"
                 />,
             ],
         },
@@ -212,10 +191,10 @@ export function CategoryListView() {
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="List"
+                    heading="Termék kategóriák"
                     links={[
                         { name: 'Dashboard', href: paths.dashboard.root },
-                        { name: 'Termék', href: paths.dashboard.product.root },
+                        { name: 'Termékek', href: paths.dashboard.product.root },
                         { name: 'Kategóriák', href: paths.dashboard.product.categories.root },
                         { name: 'Lista' },
                     ]}
@@ -246,7 +225,7 @@ export function CategoryListView() {
                         disableRowSelectionOnClick
                         rows={dataFiltered}
                         columns={columns}
-                        loading={categoriesLoading}
+                        loading={loading}
                         getRowHeight={() => 'auto'}
                         pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
                         initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
@@ -338,7 +317,6 @@ function CustomToolbar({
 
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton ref={setFilterButtonEl} />
-                    <GridToolbarExport />
                 </Box>
             </GridToolbarContainer>
 
@@ -359,9 +337,17 @@ type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' 
     href: string;
     sx?: SxProps<Theme>;
     ref?: React.RefObject<HTMLLIElement | null>;
+    target?: string;
 };
 
-export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsLinkItemProps) {
+export function GridActionsLinkItem({
+    ref,
+    href,
+    label,
+    icon,
+    sx,
+    target,
+}: GridActionsLinkItemProps) {
     return (
         <MenuItem ref={ref} sx={sx}>
             <Link
@@ -369,6 +355,7 @@ export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsL
                 href={href}
                 underline="none"
                 color="inherit"
+                target={target ?? ''}
                 sx={{ width: 1, display: 'flex', alignItems: 'center' }}
             >
                 {icon && <ListItemIcon>{icon}</ListItemIcon>}
@@ -386,15 +373,8 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, filters }: ApplyFilterProps) {
-    /*const { stock, publish } = filters;
-
-  if (stock.length) {
-    inputData = inputData.filter((product) => stock.includes(product.inventoryType));
-  }
-
-  if (publish.length) {
-    inputData = inputData.filter((product) => publish.includes(product.publish));
-  }*/
-
+    console.log('applyFilter inputData:', inputData);
+    console.log('applyFilter filters:', filters);
+    // ...filter logika...
     return inputData;
 }

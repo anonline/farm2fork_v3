@@ -1,54 +1,27 @@
-import type { IPostItem } from 'src/types/blog';
+import type { IArticleItem } from 'src/types/article';
 
-import Box from '@mui/material/Box';
-import Pagination, { paginationClasses } from '@mui/material/Pagination';
+import { Grid } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-
-import { PostItemSkeleton } from './post-skeleton';
 import { PostItemHorizontal } from './post-item-horizontal';
 
-// ----------------------------------------------------------------------
+interface Props {
+    posts: IArticleItem[];
+    onEditPost: (post: IArticleItem) => void;
+    onDeletePost: (post: IArticleItem) => void;
+}
 
-type Props = {
-    posts: IPostItem[];
-    loading?: boolean;
-};
-
-export function PostListHorizontal({ posts, loading }: Readonly<Props>) {
-    const renderLoading = () => <PostItemSkeleton variant="horizontal" />;
-
-    const renderList = () =>
-        posts.map((post) => (
-            <PostItemHorizontal
-                key={post.id}
-                post={post}
-                detailsHref={paths.dashboard.post.details(post.title)}
-                editHref={paths.dashboard.post.edit(post.title)}
-            />
-        ));
-
+export default function PostListHorizontal({ posts, onEditPost, onDeletePost }: Readonly<Props>) {
     return (
-        <>
-            <Box
-                sx={{
-                    gap: 3,
-                    display: 'grid',
-                    gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-                }}
-            >
-                {loading ? renderLoading() : renderList()}
-            </Box>
-
-            {posts.length > 8 && (
-                <Pagination
-                    count={8}
-                    sx={{
-                        mt: { xs: 5, md: 8 },
-                        [`& .${paginationClasses.ul}`]: { justifyContent: 'center' },
-                    }}
-                />
-            )}
-        </>
+        <Grid container spacing={3}>
+            {posts.map((post) => (
+                <Grid size={{ xs: 12, md: 6 }} key={post.id}>
+                    <PostItemHorizontal
+                        post={post}
+                        onEdit={() => onEditPost(post)}
+                        onDelete={() => onDeletePost(post)}
+                    />
+                </Grid>
+            ))}
+        </Grid>
     );
 }

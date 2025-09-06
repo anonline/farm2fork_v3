@@ -104,15 +104,14 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                                                 : themeConfig.defaultMode
                                         }
                                     >
-
-                                                <MotionLazy>
-                                                    <CheckoutProvider>
-                                                        <Snackbar />
-                                                        <ProgressBar />
-                                                        <SettingsDrawer defaultSettings={defaultSettings} />
-                                                        {children}
-                                                    </CheckoutProvider>
-                                                </MotionLazy>
+                                        <MotionLazy>
+                                            <CheckoutProvider>
+                                                <Snackbar />
+                                                <ProgressBar />
+                                                <SettingsDrawer defaultSettings={defaultSettings} />
+                                                {children}
+                                            </CheckoutProvider>
+                                        </MotionLazy>
                                     </ThemeProvider>
                                 </AppRouterCacheProvider>
                             </LocalizationProvider>

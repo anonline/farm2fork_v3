@@ -14,16 +14,16 @@ export function ProductCreateView() {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="Create a new product"
+                heading="Új termék hozzáadása"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Product', href: paths.dashboard.product.root },
-                    { name: 'New product' },
+                    { name: 'Termékek', href: paths.dashboard.product.root },
+                    { name: 'Új termék' },
                 ]}
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 
-            <ProductNewEditForm />
+            <ProductNewEditForm currentProduct={null} />
         </DashboardContent>
     );
 }

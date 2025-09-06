@@ -1,6 +1,7 @@
 'use client';
 
-import type { IPostItem, IPostFilters } from 'src/types/blog';
+import type { IPostFilters } from 'src/types/blog';
+import type { IArticleItem } from 'src/types/article';
 
 import { orderBy } from 'es-toolkit';
 import { useState, useCallback } from 'react';
@@ -9,75 +10,128 @@ import { useSetState } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
+import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
-import { POST_SORT_OPTIONS } from 'src/_mock';
-import { useGetPosts } from 'src/actions/blog';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useArticles } from 'src/contexts/articles-context';
+import { POST_SORT_OPTIONS, POST_PUBLISH_OPTIONS_LABELS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { PostSort } from '../post-sort';
-import { PostSearch } from '../post-search';
-import { PostListHorizontal } from '../post-list-horizontal';
+import NewPostForm from './new-post-form';
+import PostListHorizontal from '../post-list-horizontal';
 
-// ----------------------------------------------------------------------
-
-export function PostListView() {
-    const { posts, postsLoading } = useGetPosts();
+export default function PostListView() {
+    const {
+        articles = [],
+        loading,
+        createArticle,
+        updateArticle,
+        deleteArticle,
+        refetchArticles,
+    } = useArticles();
 
     const [sortBy, setSortBy] = useState('latest');
+    const { state: filters, setState: setFilters } = useSetState<IPostFilters>({ publish: 'all' });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPost, setSelectedPost] = useState<IArticleItem | undefined>(undefined);
 
-    const { state, setState } = useSetState<IPostFilters>({ publish: 'all' });
-
-    const dataFiltered = applyFilter({ inputData: posts, filters: state, sortBy });
+    const dataFiltered = applyFilter({ inputData: articles, filters, sortBy });
 
     const handleFilterPublish = useCallback(
         (event: React.SyntheticEvent, newValue: string) => {
-            setState({ publish: newValue });
+            setFilters({ publish: newValue });
         },
-        [setState]
+        [setFilters]
     );
+
+    const handleOpenCreateModal = () => {
+        setSelectedPost(undefined);
+        setIsModalOpen(true);
+    };
+
+    const handleOpenEditModal = (post: IArticleItem) => {
+        setSelectedPost(post);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedPost(undefined);
+    };
+
+    const handleSave = async (data: any, categoryIds: number[]) => {
+        const { category, ...articleData } = data;
+        try {
+            if (selectedPost) {
+                await updateArticle(selectedPost.id, articleData, categoryIds);
+            } else {
+                await createArticle(articleData, categoryIds);
+            }
+            await refetchArticles();
+            handleCloseModal();
+            toast.success(`A(z) ${data.title} bejegyzés sikeresen mentve.`);
+        } catch (err) {
+            console.error('Mentési hiba:', err);
+            if (err instanceof Error) {
+                toast.error(`Hiba történt a mentés során: ${err.message}`);
+            } else {
+                toast.error('Ismeretlen hiba történt a mentés során.');
+            }
+        }
+    };
+
+    const handleDeletePost = async (postToDelete: IArticleItem) => {
+        try {
+            await deleteArticle(postToDelete.id);
+            await refetchArticles();
+            toast.warning(`A(z) ${postToDelete.title} bejegyzés sikeresen törölve.`);
+        } catch (err) {
+            console.error('Törlési hiba:', err);
+            if (err instanceof Error) {
+                alert(`Hiba történt a törlés során: ${err.message}`);
+            } else {
+                alert('Ismeretlen hiba történt a törlés során.');
+            }
+        }
+    };
 
     return (
         <DashboardContent>
             <CustomBreadcrumbs
-                heading="List"
+                heading="Hírek kezelése"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Blog', href: paths.dashboard.post.root },
-                    { name: 'List' },
+                    { name: 'Hírek', href: paths.dashboard.post.root },
+                    { name: 'Összes hír' },
                 ]}
                 action={
                     <Button
-                        component={RouterLink}
-                        href={paths.dashboard.post.new}
+                        onClick={handleOpenCreateModal}
                         variant="contained"
                         startIcon={<Iconify icon="mingcute:add-line" />}
                     >
-                        New post
+                        Új hír
                     </Button>
                 }
-                sx={{ mb: { xs: 3, md: 5 } }}
             />
 
             <Box
                 sx={{
                     gap: 3,
                     display: 'flex',
-                    mb: { xs: 3, md: 5 },
-                    justifyContent: 'space-between',
+                    justifyContent: 'end',
                     flexDirection: { xs: 'column', sm: 'row' },
                     alignItems: { xs: 'flex-end', sm: 'center' },
                 }}
             >
-                <PostSearch redirectPath={(title: string) => paths.dashboard.post.details(title)} />
-
                 <PostSort
                     sort={sortBy}
                     onSort={(newValue: string) => setSortBy(newValue)}
@@ -86,28 +140,31 @@ export function PostListView() {
             </Box>
 
             <Tabs
-                value={state.publish}
+                value={filters.publish}
                 onChange={handleFilterPublish}
-                sx={{ mb: { xs: 3, md: 5 } }}
+                sx={{ mb: { xs: 3, md: 3 } }}
             >
                 {['all', 'published', 'draft'].map((tab) => (
                     <Tab
                         key={tab}
                         iconPosition="end"
                         value={tab}
-                        label={tab}
+                        label={
+                            POST_PUBLISH_OPTIONS_LABELS.find((label) => label.value === tab)?.label
+                        }
                         icon={
                             <Label
                                 variant={
-                                    ((tab === 'all' || tab === state.publish) && 'filled') || 'soft'
+                                    ((tab === 'all' || tab === filters.publish) && 'filled') ||
+                                    'soft'
                                 }
                                 color={(tab === 'published' && 'info') || 'default'}
                             >
-                                {tab === 'all' && posts.length}
+                                {tab === 'all' && articles.length}
                                 {tab === 'published' &&
-                                    posts.filter((post) => post.publish === 'published').length}
+                                    articles.filter((post) => post.publish === 'published').length}
                                 {tab === 'draft' &&
-                                    posts.filter((post) => post.publish === 'draft').length}
+                                    articles.filter((post) => post.publish === 'draft').length}
                             </Label>
                         }
                         sx={{ textTransform: 'capitalize' }}
@@ -115,37 +172,46 @@ export function PostListView() {
                 ))}
             </Tabs>
 
-            <PostListHorizontal posts={dataFiltered} loading={postsLoading} />
+            {loading && <p>Betöltés...</p>}
+            {!loading && (
+                <PostListHorizontal
+                    posts={dataFiltered}
+                    onEditPost={handleOpenEditModal}
+                    onDeletePost={handleDeletePost}
+                />
+            )}
+
+            <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="sm">
+                <NewPostForm
+                    currentPost={selectedPost}
+                    onSave={handleSave}
+                    onCancel={handleCloseModal}
+                />
+            </Dialog>
         </DashboardContent>
     );
 }
 
-// ----------------------------------------------------------------------
-
 type ApplyFilterProps = {
-    inputData: IPostItem[];
+    inputData: IArticleItem[];
     filters: IPostFilters;
     sortBy: string;
 };
 
-function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps) {
+function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps): IArticleItem[] {
+    if (!inputData) {
+        return [];
+    }
     const { publish } = filters;
-
+    let filteredData = [...inputData];
     if (sortBy === 'latest') {
-        inputData = orderBy(inputData, ['createdAt'], ['desc']);
+        filteredData = orderBy(filteredData, ['publish_date'], ['desc']);
     }
-
     if (sortBy === 'oldest') {
-        inputData = orderBy(inputData, ['createdAt'], ['asc']);
+        filteredData = orderBy(filteredData, ['publish_date'], ['asc']);
     }
-
-    if (sortBy === 'popular') {
-        inputData = orderBy(inputData, ['totalViews'], ['desc']);
-    }
-
     if (publish !== 'all') {
-        inputData = inputData.filter((post) => post.publish === publish);
+        filteredData = filteredData.filter((post) => post.publish === publish);
     }
-
-    return inputData;
+    return filteredData;
 }

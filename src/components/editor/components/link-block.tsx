@@ -85,7 +85,7 @@ export function LinkBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
                 <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
                     <TextField
                         size="small"
-                        placeholder="Enter URL here..."
+                        placeholder="URL megadása..."
                         value={url}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                             setUrl(event.target.value);
@@ -93,7 +93,7 @@ export function LinkBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
                         sx={{ width: 240 }}
                     />
                     <Button variant="contained" onClick={handleUpdateUrl}>
-                        Apply
+                        Alkalmaz
                     </Button>
                 </Box>
             </Popover>

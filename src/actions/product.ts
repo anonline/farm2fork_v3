@@ -22,24 +22,27 @@ type ProductsData = {
 };
 
 export function useGetProducts() {
-  const { data, isLoading, error, isValidating } = useSWR<ProductsData>("products", async () =>  {
-    const response = await supabase.from("Products").select("*");
-    const { data: products, error: responseError } = response;
-    
-    if (responseError) throw responseError.message;
-    return { products };
-  });
-  
-  const memoizedValue = useMemo(
-    () => ({
-      products: data?.products || [],
-      productsLoading: isLoading,
-      productsError: error,
-      productsValidating: isValidating,
-      productsEmpty: !isLoading && !isValidating && !data?.products.length,
-    }),
-    [data?.products, error, isLoading, isValidating]
-  );
+    const { data, isLoading, error, isValidating } = useSWR<ProductsData>('products', async () => {
+        const response = await supabase
+            .from('Products')
+            .select('*, ProductCategories_Products(ProductCategories(*))');
+
+        const { data: products, error: responseError } = response;
+
+        if (responseError) throw responseError.message;
+        return { products };
+    });
+
+    const memoizedValue = useMemo(
+        () => ({
+            products: data?.products || [],
+            productsLoading: isLoading,
+            productsError: error,
+            productsValidating: isValidating,
+            productsEmpty: !isLoading && !isValidating && !data?.products.length,
+        }),
+        [data?.products, error, isLoading, isValidating]
+    );
 
     return memoizedValue;
 }
@@ -68,6 +71,19 @@ export function useGetProduct(productId: string) {
     return memoizedValue;
 }
 
+export async function fetchGetProductBySlug(slug: string) {
+    const response = await supabase
+        .from('Products')
+        .select('*, ProductCategories_Products(ProductCategories(*))')
+        .eq('url', slug)
+        .maybeSingle();
+
+    const { data, error: responseError } = response;
+
+    if (responseError) throw responseError.message;
+    return { product: data as IProductItem | null };
+}
+
 // ----------------------------------------------------------------------
 
 type SearchResultsData = {
@@ -94,4 +110,73 @@ export function useSearchProducts(query: string) {
     );
 
     return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export async function createProduct(productData: Partial<IProductItem>) {
+    const { categoryIds, ...restProductData } = productData as any;
+
+    const { data: newProduct, error } = await supabase
+        .from('Products')
+        .insert(restProductData)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Supabase create error:', error);
+        throw new Error(`Hiba a termék létrehozása során: ${error.message}`);
+    }
+
+    if (categoryIds && categoryIds.length > 0) {
+        await updateProductCategoryRelations(newProduct.id, categoryIds);
+    }
+
+    return newProduct;
+}
+
+export async function updateProduct(id: number, productData: Partial<IProductItem>) {
+    const { categoryIds, ...restProductData } = productData as any;
+
+    const { error } = await supabase.from('Products').update(restProductData).eq('id', id);
+    if (error) {
+        console.error('Supabase update error:', error);
+        throw new Error(`Hiba a termék frissítése során: ${error.message}`);
+    }
+
+    if (categoryIds) {
+        await updateProductCategoryRelations(id, categoryIds);
+    }
+
+    return { success: true };
+}
+
+export async function updateProductCategoryRelations(productId: number, categoryIds: number[]) {
+    const { error: deleteError } = await supabase
+        .from('ProductCategories_Products')
+        .delete()
+        .eq('productId', productId);
+
+    if (deleteError) {
+        console.error('Supabase relation delete error:', deleteError);
+        throw new Error(`Hiba a kategória kapcsolatok törlése során: ${deleteError.message}`);
+    }
+
+    if (categoryIds && categoryIds.length > 0) {
+        const newRelations = categoryIds.map((categoryId) => ({
+            productId,
+            categoryId,
+        }));
+
+        const { error: insertError } = await supabase
+            .from('ProductCategories_Products')
+            .insert(newRelations);
+
+        if (insertError) {
+            console.error('Supabase relation insert error:', insertError);
+            throw new Error(`Hiba a kategória kapcsolatok mentése során: ${insertError.message}`);
+        }
+    }
+
+    return { success: true };
 }

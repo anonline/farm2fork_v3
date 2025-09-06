@@ -26,7 +26,7 @@ export function NavDesktop({ data, sx, ...other }: Readonly<NavMainProps>) {
                 }}
             >
                 {data.map((list) => (
-                    <NavList key={list.title} data={list} sx={{position:'relative'}} />
+                    <NavList key={list.title} data={list} sx={{ position: 'relative' }} />
                 ))}
             </NavUl>
         </Nav>

@@ -45,7 +45,7 @@ export function NavItem({
             })}
             {...other}
         >
-            <ItemIcon {...ownerState}> {navItem.renderIcon}</ItemIcon>
+            {navItem.renderIcon && <ItemIcon {...ownerState}> {navItem.renderIcon}</ItemIcon>}
 
             <ItemTitle {...ownerState}>{title}</ItemTitle>
 

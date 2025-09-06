@@ -29,7 +29,7 @@ type Props = {
     redirectPath: (title: string) => string;
 };
 
-export function PostSearch({ redirectPath, sx }: Props) {
+export function PostSearch({ redirectPath, sx }: Readonly<Props>) {
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -87,7 +87,7 @@ export function PostSearch({ redirectPath, sx }: Props) {
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    placeholder="Search..."
+                    placeholder="Keresés..."
                     slotProps={{
                         input: {
                             ...params.InputProps,
@@ -143,7 +143,7 @@ export function PostSearch({ redirectPath, sx }: Props) {
                             <div key={inputValue}>
                                 {parts.map((part, index) => (
                                     <Typography
-                                        key={index}
+                                        key={index + '_'}
                                         component="span"
                                         color={part.highlight ? 'primary' : 'textPrimary'}
                                         sx={{

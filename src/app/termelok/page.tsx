@@ -11,7 +11,8 @@ export const metadata: Metadata = { title: `Termelők - ${CONFIG.appName}` };
 
 export default async function Page() {
     return (
-    <ProducersProvider>
-        <ProducersPage />
-    </ProducersProvider>);
+        <ProducersProvider>
+            <ProducersPage />
+        </ProducersProvider>
+    );
 }

@@ -1,12 +1,12 @@
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // vagy anon key, ha nincs jogosultságigény
-)
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '' // vagy anon key, ha nincs jogosultságigény
+);
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -27,11 +27,15 @@ export async function GET(req: NextRequest) {
 
   const producerIds = matchingProducers?.map(p => p.id) ?? [];
 
+  const baseQuery = `tags.ilike.%${q}%,name.ilike.${searchTerm}`;
+  const producerQuery = producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : '';
+  const orQuery = baseQuery + producerQuery;
+
   const { data, error } = await supabase
     .from('Products')
     .select('*')
     .eq('publish', true)
-    .or(`name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`)
+    .or(orQuery)
     .limit(limit);
 
 

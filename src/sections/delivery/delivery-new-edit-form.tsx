@@ -1,0 +1,108 @@
+'use client';
+
+import type { IDeliveryPerson } from 'src/types/delivery';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import { LoadingButton } from '@mui/lab';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+
+import { paths } from 'src/routes/paths';
+
+import { createDelivery, updateDelivery } from 'src/actions/delivery';
+
+import { toast } from 'src/components/snackbar';
+
+import { formatPhoneNumber } from './view/delivery-list-view';
+
+// ----------------------------------------------------------------------
+
+type Props = {
+    currentDelivery?: IDeliveryPerson;
+};
+
+export default function DeliveryNewEditForm({ currentDelivery }: Readonly<Props>) {
+    const router = useRouter();
+    const [formData, setFormData] = useState({
+        name: '',
+        phone: '',
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (currentDelivery) {
+            setFormData({
+                name: currentDelivery.name,
+                phone: currentDelivery.phone ? formatPhoneNumber(currentDelivery.phone) : '',
+            });
+        }
+    }, [currentDelivery]);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        if (name === 'phone') {
+            setFormData((prev) => ({ ...prev, phone: formatPhoneNumber(value) }));
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const submissionData = {
+                ...formData,
+                phone: formData.phone.replace(/\D/g, ''),
+            };
+
+            if (currentDelivery) {
+                await updateDelivery(currentDelivery.id, submissionData);
+                toast.success('Sikeres mentés!');
+            } else {
+                await createDelivery(submissionData);
+                toast.success('Futár sikeresen létrehozva!');
+            }
+            router.push(paths.dashboard.delivery.root);
+        } catch (error: any) {
+            toast.error(error.message);
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <Card>
+                <Stack spacing={3} sx={{ p: 3 }}>
+                    <Typography variant="h6">Futár adatai</Typography>
+                    <TextField
+                        name="name"
+                        label="Név"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                    />
+                    <TextField
+                        name="phone"
+                        label="Telefonszám"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        placeholder="+36 (20) 123 4567"
+                        type="text"
+                    />
+                </Stack>
+            </Card>
+
+            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                    {currentDelivery ? 'Változtatások mentése' : 'Futár létrehozása'}
+                </LoadingButton>
+            </Stack>
+        </form>
+    );
+}

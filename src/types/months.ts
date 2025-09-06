@@ -13,34 +13,34 @@ export enum MonthsEnum {
     December = 'Dec',
 }
 
-export function getMonthName(month:MonthsEnum){
+export function getMonthName(month: MonthsEnum) {
     switch (month) {
         case MonthsEnum.January:
-            return "Január";
+            return 'Január';
         case MonthsEnum.February:
-            return "Február";
+            return 'Február';
         case MonthsEnum.March:
-            return "Március";
+            return 'Március';
         case MonthsEnum.April:
-            return "Április";
+            return 'Április';
         case MonthsEnum.May:
-            return "Május";
+            return 'Május';
         case MonthsEnum.June:
-            return "Június";
+            return 'Június';
         case MonthsEnum.July:
-            return "Július";
+            return 'Július';
         case MonthsEnum.August:
-            return "Augusztus";
+            return 'Augusztus';
         case MonthsEnum.September:
-            return "Szeptember";
+            return 'Szeptember';
         case MonthsEnum.October:
-            return "Október";
+            return 'Október';
         case MonthsEnum.November:
-            return "November";
+            return 'November';
         case MonthsEnum.December:
-            return "December";
+            return 'December';
         default:
-            return "";
+            return '';
     }
 }
 

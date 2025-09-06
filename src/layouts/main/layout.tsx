@@ -7,14 +7,15 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Chip, Link, Container } from '@mui/material';
+import { Chip, Link, useTheme, Container } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
 import { themeConfig } from 'src/theme';
-import { supabase } from 'src/lib/supabase';
+import { ensureValidAnnouncement } from 'src/actions/announcements';
 
 import { Logo } from 'src/components/logo';
+import { SideCart, useSideCart, SideCartProvider } from 'src/components/sidecart';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -27,9 +28,9 @@ import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { navData as mainNavData } from '../nav-config-main';
 import { SignInButton } from '../components/sign-in-button';
-import HeaderSearch from '../components/header-search/header-search';
 import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
-import HeaderCartButton from '../components/header-cart-button/header-cart-button';
+import HeaderSearchMobile from '../components/header-search-mobile/header-search-mobile';
+import HeaderCartButtonMobile from '../components/header-cart-button-mobile/header-cart-button-mobile';
 
 import type { FooterProps } from './footer';
 import type { NavMainProps } from './nav/types';
@@ -60,24 +61,45 @@ export function MainLayout({
     slotProps,
     layoutQuery = 'md',
 }: MainLayoutProps) {
+    return (
+        <SideCartProvider>
+            <MainLayoutContent
+                sx={sx}
+                cssVars={cssVars}
+                children={children}
+                slotProps={slotProps}
+                layoutQuery={layoutQuery}
+            />
+        </SideCartProvider>
+    );
+}
+
+function MainLayoutContent({
+    sx,
+    cssVars,
+    children,
+    slotProps,
+    layoutQuery = 'md',
+}: MainLayoutProps) {
+    const theme = useTheme();
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
+    const { isOpen: isSideCartOpen, closeSideCart } = useSideCart();
     const navData = slotProps?.nav?.data ?? mainNavData;
     const [announcement, setAnnouncement] = useState<string | null>(null);
     const authContext = useAuthContext();
 
     useEffect(() => {
         const fetchAnnouncement = async () => {
-            const now = new Date().toISOString();
-            const { data, error } = await supabase
-                .from('Announcement')
-                .select('text, validFrom, validUntil')
-                .order('validFrom', { ascending: false })
-                .limit(1)
-                .or(`validFrom.is.null,validFrom.lte.${now}`)
-                .or(`validUntil.is.null,validUntil.gte.${now}`);
-
-            if (!error && data && data.length > 0) {
-                setAnnouncement(data[0].text);
+            try {
+                // Use the new function that checks and creates announcements if needed
+                const announcementData = await ensureValidAnnouncement();
+                
+                if (announcementData && announcementData.text) {
+                    setAnnouncement(announcementData.text);
+                }
+            } catch (error) {
+                // Silently handle supabase connection errors
+                console.log('Could not fetch/create announcements:', error);
             }
         };
         fetchAnnouncement();
@@ -102,7 +124,7 @@ export function MainLayout({
                 {announcement}
             </Box>
         );
-    }
+    };
 
     const renderHeader = () => {
         const headerSlots: HeaderSectionProps['slots'] = {
@@ -112,89 +134,127 @@ export function MainLayout({
                 </Alert>
             ),
             leftArea: (
-                <>
-                    {/** @slot Nav mobile */}
-                    <MenuButton
-                        onClick={onOpen}
-                        sx={(theme) => ({
-                            mr: 1,
-                            ml: -1,
-                            [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
-                        })}
-                    />
-                    <NavMobile data={navData} open={open} onClose={onClose} />
-
-                    <Container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: { sm: 0, md: 0, lg: 0, xl: 0 } }}>
-                        <Logo sx={{ marginRight: "30px", marginTop: '-8px' }} />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flex: 1,
+                        // Mobile: Logo only on the left
+                        [theme.breakpoints.down(layoutQuery)]: {
+                            flex: 'none',
+                        },
+                    }}
+                >
+                    {/* Logo - always visible */}
+                    <Logo sx={{ marginRight: { xs: 0, [layoutQuery]: '30px' }, marginTop: '-8px' }} />
+                    
+                    {/* Desktop Navigation - hidden on mobile */}
+                    <Container
+                        sx={{
+                            display: 'none',
+                            [theme.breakpoints.up(layoutQuery)]: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start',
+                                paddingLeft: { sm: 0, md: 0, lg: 0, xl: 0 },
+                            },
+                        }}
+                    >
                         <NavDesktop
                             data={navData}
-                            sx={(theme) => ({
-                                display: 'none',
-                                [theme.breakpoints.up(layoutQuery)]: { mr: 2.5, display: 'flex' },
-                            })}
+                            sx={{
+                                mr: 2.5,
+                                display: 'flex',
+                            }}
                         />
                     </Container>
-                </>
+                </Box>
             ),
             rightArea: (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-                    <HeaderSearch />
+                <Box 
+                    sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: { xs: 0.5, sm: 1.5 },
+                        // Mobile: compact layout for icons
+                        [theme.breakpoints.down(layoutQuery)]: {
+                            gap: 1.5,
+                        },
+                    }}
+                >
+                    {/* Search - responsive component */}
+                    <HeaderSearchMobile />
 
-                    <HeaderCartButton />
+                    {/* Cart - responsive component */}
+                    <HeaderCartButtonMobile />
 
-                    {
-                        !authContext.loading && authContext.authenticated ? (
-                            <>
-                                <LoggedInHeaderAvatar name={authContext.displayName} />
+                    {/* Authentication */}
+                    {!authContext.loading && authContext.authenticated ? (
+                        <>
+                            <LoggedInHeaderAvatar name={authContext.displayName} />
+                            {/* Hide admin/corp/vip chips on mobile */}
+                            <Box
+                                sx={{
+                                    display: 'none',
+                                    [theme.breakpoints.up(layoutQuery)]: {
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                    },
+                                }}
+                            >
                                 {authContext.user?.user_metadata?.is_admin && (
                                     <Link href={paths.dashboard.root}>
-                                        <Chip
-                                            variant="soft"
-                                            label="Admin"
-                                            color="primary"
-                                        />
+                                        <Chip variant="soft" label="Admin" color="primary" />
                                     </Link>
                                 )}
                                 {authContext.user?.user_metadata?.is_corp && (
                                     <Link href={paths.dashboard.root}>
-                                        <Chip
-                                            variant="soft"
-                                            label="Céges"
-                                            color="info"
-                                        />
+                                        <Chip variant="soft" label="Céges" color="info" />
                                     </Link>
                                 )}
                                 {authContext.user?.user_metadata?.is_vip && (
                                     <Link href={paths.dashboard.root}>
-                                        <Chip
-                                            variant="soft"
-                                            label="VIP"
-                                            color="warning"
-                                        />
+                                        <Chip variant="soft" label="VIP" color="warning" />
                                     </Link>
                                 )}
-                            </>
-                        ) : (
-                            <SignInButton sx={
-                                {
-                                    backgroundColor: themeConfig.palette.common.black,
-                                    borderRadius: '8px',
-                                    fontFamily: themeConfig.fontFamily.primary,
-                                    padding: '8px 20px',
-
-                                    textTransform: 'uppercase',
-                                    fontWeight: 600,
+                            </Box>
+                        </>
+                    ) : (
+                        <SignInButton
+                            sx={{
+                                backgroundColor: themeConfig.palette.common.black,
+                                borderRadius: '8px',
+                                fontFamily: themeConfig.fontFamily.primary,
+                                padding: { xs: '6px 12px', sm: '8px 20px' },
+                                textTransform: 'uppercase',
+                                fontWeight: 600,
+                                color: themeConfig.palette.common.white,
+                                fontSize: { xs: '12px', sm: '14px' },
+                                lineHeight: '30px',
+                                letterSpacing: '0.01em',
+                                '&:hover': {
+                                    backgroundColor: themeConfig.palette.primary.main,
                                     color: themeConfig.palette.common.white,
-                                    fontSize: '14px',
-                                    lineHeight: '30px',
-                                    letterSpacing: '0.01em',
-                                    '&:hover': {
-                                        backgroundColor: themeConfig.palette.primary.main,
-                                        color: themeConfig.palette.common.white,
-                                    },
-                                }
-                            } />
-                        )}
+                                },
+                            }}
+                        />
+                    )}
+
+                    {/* Mobile Menu Button - only visible on mobile */}
+                    <MenuButton
+                        onClick={onOpen}
+                        sx={(muiTheme) => ({
+                            display: 'none',
+                            [muiTheme.breakpoints.down(layoutQuery)]: { 
+                                display: 'flex',
+                                ml: 0.5,
+                            },
+                        })}
+                    />
+                    
+                    {/* Mobile Navigation Drawer */}
+                    <NavMobile data={navData} open={open} onClose={onClose} />
                 </Box>
             ),
         };
@@ -210,11 +270,13 @@ export function MainLayout({
         );
     };
 
-    const renderFooter = () =>
+    const renderFooter = () => (
         /*isHomePage ? (
             <HomeFooter sx={slotProps?.footer?.sx} />
         ) : (*/
         <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
+    );
+
     //);
 
     const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
@@ -237,6 +299,7 @@ export function MainLayout({
             sx={sx}
         >
             {renderMain()}
+            <SideCart open={isSideCartOpen} onClose={closeSideCart} />
         </LayoutSection>
     );
 }

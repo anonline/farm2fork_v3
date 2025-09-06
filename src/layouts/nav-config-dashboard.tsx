@@ -145,10 +145,10 @@ export const navData: NavSectionProps['data'] = [
                 path: paths.dashboard.post.root,
                 icon: ICONS.blog,
                 children: [
-                    { title: 'List', path: paths.dashboard.post.root },
-                    { title: 'Details', path: paths.dashboard.post.demo.details },
-                    { title: 'Create', path: paths.dashboard.post.new },
-                    { title: 'Edit', path: paths.dashboard.post.demo.edit },
+                    //{ title: 'Profile', path: paths.dashboard.user.root },
+                    //{ title: 'Cards', path: paths.dashboard.user.cards },
+                    { title: 'Összes hír', path: paths.dashboard.post.root },
+                    { title: 'Kategóriák kezelése', path: paths.dashboard.post.categories.root },
                 ],
             },
             /*{
@@ -199,7 +199,7 @@ export const navData: NavSectionProps['data'] = [
                 title: 'GYIK',
                 path: paths.dashboard.faqs.root,
                 icon: ICONS.menuItem,
-                caption: 'Gyakran Ismételt Kérdések'
+                caption: 'Gyakran Ismételt Kérdések',
             },
             /*{
                 /**
@@ -228,6 +228,33 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.parameter,
                 children: [
                     { title: 'Kezdőképernyő beállításai', path: '#/dashboard/settings/home' },
+                    {
+                        title: 'Vásárlás',
+                        path: paths.dashboard.settings.purchase,
+                        icon: ICONS.order,
+                    },
+                    { title: 'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
+                    { title: 'Partnerek', path: paths.dashboard.partners.root, icon: ICONS.kanban },
+                    {
+                        title: 'Szállítási Zónák',
+                        path: paths.dashboard.shipping.root,
+                        icon: ICONS.tour,
+                    },
+                    {
+                        title: 'Szállítási díjak és metódusok',
+                        path: paths.dashboard.shippingCost.root,
+                        icon: ICONS.banking,
+                    },
+                    {
+                        title: 'Fizetésimódok',
+                        path: paths.dashboard.paymentMethod.root,
+                        icon: ICONS.external,
+                    },
+                    {
+                        title: 'Átvételi pontok',
+                        path: paths.dashboard.pickup.root,
+                        icon: ICONS.folder,
+                    },
                     {
                         title: 'Level 1a',
                         path: '#/dashboard/menu_level/menu_level_1a',
@@ -274,7 +301,7 @@ export const navData: NavSectionProps['data'] = [
                     </Label>
                 ),
             },*/
-            
+
             /*{
                 title: 'Params',
                 path: '/dashboard/params?id=e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1',

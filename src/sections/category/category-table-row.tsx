@@ -37,6 +37,11 @@ export function RenderCellCreatedAt({ params }: ParamsProps) {
 }
 
 export function RenderCellCategory({ params, href }: ParamsProps & { href: string }) {
+    function stripHtml(description: any) {
+        if (typeof description !== 'string') return '';
+        return description.replace(/<[^>]*>/g, '').trim();
+    }
+
     return (
         <Box
             sx={{
@@ -51,7 +56,11 @@ export function RenderCellCategory({ params, href }: ParamsProps & { href: strin
                 alt={params.row.name}
                 src={params.row.coverUrl}
                 variant="rounded"
-                sx={{ width: 64, height: 64 }}
+                sx={{
+                    width: 64,
+                    height: 64,
+                    ml: { sx: 0, md: params.row.parentId ? `${params.row.level * 64}px` : 0 },
+                }}
             />
 
             <ListItemText
@@ -61,10 +70,10 @@ export function RenderCellCategory({ params, href }: ParamsProps & { href: strin
                     </Link>
                 }
                 secondary={
-                    params.row.slug +
-                    ' | ' +
-                    (params.row.description?.slice(0, 50) ?? '') +
-                    (params.row.description?.length > 50 ? '...' : '')
+                    params.row.description &&
+                    params.row.description !== 'null' &&
+                    stripHtml(params.row.description).slice(0, 50) +
+                        (stripHtml(params.row.description).length > 50 ? '...' : '')
                 }
                 slotProps={{
                     primary: { noWrap: true },

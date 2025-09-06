@@ -41,6 +41,10 @@ export function ProductItem({ product, detailsHref }: Props) {
             colors: [colors[0]],
             size: sizes[0],
             quantity: 1,
+            minQuantity: product.mininumQuantity,
+            maxQuantity: product.maximumQuantity,
+            stepQuantity: product.stepQuantity,
+            unit: product.unit,
         };
         try {
             onAddToCart(newProduct);

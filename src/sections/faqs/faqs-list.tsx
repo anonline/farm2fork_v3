@@ -36,39 +36,51 @@ export function FaqsList({ sx, ...other }: BoxProps) {
 
 type F2FFaqsListProps = {
     data: IFaqItem[] | null;
-
-}
-export function F2FFaqsList({ data, sx, ...other } : F2FFaqsListProps & BoxProps) {
+};
+export function F2FFaqsList({ data, sx, ...other }: F2FFaqsListProps & BoxProps) {
     const iconSx = {
-                width: 40,
-                height: 40,
-                color: 'text',
-                mr: 2,
-                backgroundColor: '#eae3d7',
-                p: "8px",
-                borderRadius: 1,
-            };
+        width: 40,
+        height: 40,
+        color: 'text',
+        mr: 2,
+        backgroundColor: '#eae3d7',
+        p: '8px',
+        borderRadius: 1,
+    };
     return (
         <Box sx={sx} {...other}>
-            {(data?.length ?? 0) ? data?.map((accordion) => (
-                <Accordion key={accordion.id} sx={{mb: 1, bgColor:'red', borderRadius:4, border:0}}>
-                    <AccordionSummary 
-                        sx={{ mt: 2, display: 'flex', alignItems: 'center', borderRadius:8 }} 
-                        expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-                    >
-                        <Iconify icon={(accordion.faqCategory?.icon ?? "solar:dollar-minimalistic-linear") as IconifyName} sx={iconSx} />
+            {(data?.length ?? 0)
+                ? data?.map((accordion) => (
+                      <Accordion
+                          key={accordion.id}
+                          sx={{ mb: 1, bgColor: 'red', borderRadius: 4, border: 0 }}
+                      >
+                          <AccordionSummary
+                              sx={{ mt: 2, display: 'flex', alignItems: 'center', borderRadius: 8 }}
+                              expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                          >
+                              <Iconify
+                                  icon={
+                                      (accordion.faqCategory?.icon ??
+                                          'solar:dollar-minimalistic-linear') as IconifyName
+                                  }
+                                  sx={iconSx}
+                              />
 
-                        <Typography variant="subtitle1" sx={{ display: 'flex', alignItems: 'center' }}>
-                            {accordion.question}
-                        </Typography>
-                    </AccordionSummary>
+                              <Typography
+                                  variant="subtitle1"
+                                  sx={{ display: 'flex', alignItems: 'center' }}
+                              >
+                                  {accordion.question}
+                              </Typography>
+                          </AccordionSummary>
 
-                    <AccordionDetails>
-                        <Typography>{accordion.answer}</Typography>
-                    </AccordionDetails>
-                </Accordion>
-            )) : null
-        }
+                          <AccordionDetails>
+                              <Typography>{accordion.answer}</Typography>
+                          </AccordionDetails>
+                      </Accordion>
+                  ))
+                : null}
         </Box>
     );
 }

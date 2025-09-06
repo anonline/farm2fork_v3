@@ -34,8 +34,8 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useGetProducers } from 'src/actions/producer';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { deleteProducer, useGetProducers } from 'src/actions/producer';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -54,11 +54,6 @@ import {
 
 // ----------------------------------------------------------------------
 
-const PUBLISH_OPTIONS = [
-    { value: true, label: 'Közzétéve' },
-    { value: false, label: 'Rejtve' },
-];
-
 const BIO_OPTIONS = [
     { value: 'true', label: 'BIO' },
     { value: 'false', label: 'Nem BIO' },
@@ -73,9 +68,9 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 export function ProducerListView() {
     const confirmDialog = useBoolean();
 
-    const { producers, producersLoading } = useGetProducers();
+    const { producers, producersLoading, producersMutate } = useGetProducers();
 
-    const [tableData, setTableData] = useState<IProducerItem[]>(producers);
+    const [tableData, setTableData] = useState<IProducerItem[]>([]);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
 
@@ -86,9 +81,7 @@ export function ProducerListView() {
         useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
 
     useEffect(() => {
-        if (producers.length) {
-            setTableData(producers);
-        }
+        setTableData(producers);
     }, [producers]);
 
     const canReset = currentFilters.bio.length > 0;
@@ -99,23 +92,36 @@ export function ProducerListView() {
     });
 
     const handleDeleteRow = useCallback(
-        (id: number) => {
-            const deleteRow = tableData.filter((row) => row.id !== id);
+        async (id: number) => {
+            try {
+                await deleteProducer(id);
 
-            toast.success('Törlés sikeres!');
+                const updatedProducers = tableData.filter((row) => row.id !== id);
+                producersMutate({ producers: updatedProducers }, false);
 
-            setTableData(deleteRow);
+                toast.success('Törlés sikeres!');
+            } catch (error) {
+                console.error(error);
+                toast.error('A törlés sikertelen!');
+            }
         },
-        [tableData]
+        [tableData, producersMutate]
     );
 
-    const handleDeleteRows = useCallback(() => {
-        const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
+    const handleDeleteRows = useCallback(async () => {
+        try {
+            await Promise.all(selectedRowIds.map((id) => deleteProducer(Number(id))));
 
-        toast.success('Törlés sikeres!');
+            const updatedProducers = tableData.filter((row) => !selectedRowIds.includes(row.id));
+            producersMutate({ producers: updatedProducers }, false);
 
-        setTableData(deleteRows);
-    }, [selectedRowIds, tableData]);
+            toast.success('Törlés sikeres!');
+            setSelectedRowIds([]);
+        } catch (error) {
+            console.error(error);
+            toast.error('A tömeges törlés sikertelen!');
+        }
+    }, [selectedRowIds, tableData, producersMutate]);
 
     const CustomToolbarCallback = useCallback(
         () => (
@@ -128,8 +134,7 @@ export function ProducerListView() {
                 onOpenConfirmDeleteRows={confirmDialog.onTrue}
             />
         ),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [currentFilters, selectedRowIds]
+        [currentFilters, selectedRowIds, canReset, dataFiltered.length, filters, confirmDialog]
     );
 
     const columns: GridColDef[] = [
@@ -138,7 +143,6 @@ export function ProducerListView() {
             field: 'bio',
             headerName: '',
             width: 80,
-
             renderCell: (params) => <RenderCellBio params={params} />,
         },
         {
@@ -150,7 +154,7 @@ export function ProducerListView() {
             renderCell: (params) => (
                 <RenderCellName
                     params={params}
-                    href={paths.dashboard.producer.details(params.row.id)}
+                    href={paths.dashboard.producer.edit(params.row.slug)}
                 />
             ),
         },
@@ -158,12 +162,11 @@ export function ProducerListView() {
             field: 'producingTags',
             headerName: 'Mit termel?',
             width: 460,
-
             renderCell: (params) => <RenderCellProducingTags params={params} />,
         },
         {
             field: 'createdAt',
-            headerName: 'Create at',
+            headerName: 'Létrehozva',
             width: 160,
             renderCell: (params) => <RenderCellCreatedAt params={params} />,
         },
@@ -180,20 +183,16 @@ export function ProducerListView() {
             getActions: (params) => [
                 <GridActionsLinkItem
                     showInMenu
-                    icon={<Iconify icon="solar:eye-bold" />}
-                    label="View"
-                    href={paths.dashboard.product.details(params.row.id)}
-                />,
-                <GridActionsLinkItem
-                    showInMenu
+                    key={`edit-${params.row.id}`}
                     icon={<Iconify icon="solar:pen-bold" />}
-                    label="Edit"
-                    href={paths.dashboard.product.edit(params.row.id)}
+                    label="Szerkesztés"
+                    href={paths.dashboard.producer.edit(params.row.slug)}
                 />,
                 <GridActionsCellItem
                     showInMenu
+                    key={`delete-${params.row.id}`}
                     icon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                    label="Delete"
+                    label="Törlés"
                     onClick={() => handleDeleteRow(params.row.id)}
                     sx={{ color: 'error.main' }}
                 />,
@@ -239,13 +238,13 @@ export function ProducerListView() {
                     heading="Termelők"
                     links={[
                         { name: 'Dashboard', href: paths.dashboard.root },
-                        { name: 'Termelők', href: paths.dashboard.product.root },
+                        { name: 'Termelők', href: paths.dashboard.producer.root },
                         { name: 'Lista' },
                     ]}
                     action={
                         <Button
                             component={RouterLink}
-                            href={paths.dashboard.product.new}
+                            href={paths.dashboard.producer.new}
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                         >
@@ -320,7 +319,6 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     filteredResults: number;
     selectedRowIds: GridRowSelectionModel;
     filters: UseSetStateReturn<IProducerTableFilters>;
-
     onOpenConfirmDeleteRows: () => void;
 };
 
@@ -336,9 +334,7 @@ function CustomToolbar({
         <>
             <GridToolbarContainer>
                 <ProducerTableToolbar filters={filters} options={{ bios: BIO_OPTIONS }} />
-
                 <GridToolbarQuickFilter />
-
                 <Box
                     sx={{
                         gap: 1,
@@ -355,16 +351,14 @@ function CustomToolbar({
                             startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
                             onClick={onOpenConfirmDeleteRows}
                         >
-                            Delete ({selectedRowIds.length})
+                            Törlés ({selectedRowIds.length})
                         </Button>
                     )}
-
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton ref={setFilterButtonEl} />
                     <GridToolbarExport />
                 </Box>
             </GridToolbarContainer>
-
             {canReset && (
                 <ProducerTableFiltersResult
                     filters={filters}
@@ -382,14 +376,23 @@ type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' 
     href: string;
     sx?: SxProps<Theme>;
     ref?: React.RefObject<HTMLLIElement | null>;
+    target?: string;
 };
 
-export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsLinkItemProps) {
+export function GridActionsLinkItem({
+    ref,
+    href,
+    label,
+    icon,
+    sx,
+    target,
+}: GridActionsLinkItemProps) {
     return (
         <MenuItem ref={ref} sx={sx}>
             <Link
                 component={RouterLink}
                 href={href}
+                target={target}
                 underline="none"
                 color="inherit"
                 sx={{ width: 1, display: 'flex', alignItems: 'center' }}

@@ -25,7 +25,7 @@ type Props = {
     posts: IPostItem[];
 };
 
-export function PostListHomeView({ posts }: Props) {
+export function PostListHomeView({ posts }: Readonly<Props>) {
     const [sortBy, setSortBy] = useState('latest');
 
     const dataFiltered = applyFilter({ inputData: posts, sortBy });

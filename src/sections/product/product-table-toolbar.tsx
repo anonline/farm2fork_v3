@@ -22,7 +22,7 @@ import { CustomPopover } from 'src/components/custom-popover';
 type Props = {
     filters: UseSetStateReturn<IProductTableFilters>;
     options: {
-        stocks: { value: string; label: string }[];
+        //stocks: { value: string; label: string }[];
         publishs: { value: string; label: string }[];
         bios: { value: string; label: string }[];
     };
@@ -33,16 +33,8 @@ export function ProductTableToolbar({ filters, options }: Props) {
 
     const { state: currentFilters, setState: updateFilters } = filters;
 
-    const [stock, setStock] = useState(currentFilters.stock);
     const [publish, setPublish] = useState(currentFilters.publish);
-
-    const handleChangeStock = useCallback((event: SelectChangeEvent<string[]>) => {
-        const {
-            target: { value },
-        } = event;
-
-        setStock(typeof value === 'string' ? value.split(',') : value);
-    }, []);
+    const [bio, setBio] = useState(currentFilters.bio);
 
     const handleChangePublish = useCallback((event: SelectChangeEvent<string[]>) => {
         const {
@@ -52,13 +44,22 @@ export function ProductTableToolbar({ filters, options }: Props) {
         setPublish(typeof value === 'string' ? value.split(',') : value);
     }, []);
 
-    const handleFilterStock = useCallback(() => {
-        updateFilters({ stock });
-    }, [updateFilters, stock]);
+    const handleChangeBio = useCallback((event: SelectChangeEvent<string[]>) => {
+        const {
+            target: { value },
+        } = event;
+
+        setBio(typeof value === 'string' ? value.split(',') : value);
+    }, []);
+
 
     const handleFilterPublish = useCallback(() => {
         updateFilters({ publish });
     }, [publish, updateFilters]);
+
+    const handleFilterBio = useCallback(() => {
+        updateFilters({ bio });
+    }, [bio, updateFilters]);
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -88,7 +89,7 @@ export function ProductTableToolbar({ filters, options }: Props) {
 
     return (
         <>
-            <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+            {/*<FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
                 <InputLabel htmlFor="filter-stock-select">Stock</InputLabel>
                 <Select
                     multiple
@@ -130,17 +131,25 @@ export function ProductTableToolbar({ filters, options }: Props) {
                         Apply
                     </MenuItem>
                 </Select>
-            </FormControl>
+            </FormControl>*/}
 
             <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-                <InputLabel htmlFor="filter-publish-select">Publish</InputLabel>
+                <InputLabel htmlFor="filter-publish-select">Aktív</InputLabel>
                 <Select
                     multiple
                     value={publish}
                     onChange={handleChangePublish}
                     onClose={handleFilterPublish}
-                    input={<OutlinedInput label="Publish" />}
-                    renderValue={(selected) => selected.map((value) => value).join(', ')}
+                    input={<OutlinedInput label="Aktív" />}
+                    renderValue={(selected) =>
+                        selected
+                            .map(
+                                (value) =>
+                                    options.publishs.find((option) => option.value === value)
+                                        ?.label || value
+                            )
+                            .join(', ')
+                    }
                     inputProps={{ id: 'filter-publish-select' }}
                     sx={{ textTransform: 'capitalize' }}
                 >
@@ -174,21 +183,29 @@ export function ProductTableToolbar({ filters, options }: Props) {
                             }),
                         ]}
                     >
-                        Apply
+                        Alkalmaz
                     </MenuItem>
                 </Select>
             </FormControl>
 
             <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-                <InputLabel htmlFor="filter-publish-select">Bio</InputLabel>
+                <InputLabel htmlFor="filter-bio-select">Bio</InputLabel>
                 <Select
                     multiple
-                    value={publish}
-                    onChange={handleChangePublish}
-                    onClose={handleFilterPublish}
-                    input={<OutlinedInput label="Publish" />}
-                    renderValue={(selected) => selected.map((value) => value).join(', ')}
-                    inputProps={{ id: 'filter-publish-select' }}
+                    value={bio}
+                    onChange={handleChangeBio}
+                    onClose={handleFilterBio}
+                    input={<OutlinedInput label="Bio" />}
+                    renderValue={(selected) =>
+                        selected
+                            .map(
+                                (value) =>
+                                    options.bios.find((option) => option.value === value)?.label ||
+                                    value
+                            )
+                            .join(', ')
+                    }
+                    inputProps={{ id: 'filter-bio-select' }}
                     sx={{ textTransform: 'capitalize' }}
                 >
                     {options.bios.map((option) => (
@@ -211,7 +228,7 @@ export function ProductTableToolbar({ filters, options }: Props) {
                     <MenuItem
                         disableGutters
                         disableTouchRipple
-                        onClick={handleFilterPublish}
+                        onClick={handleFilterBio}
                         sx={[
                             (theme) => ({
                                 justifyContent: 'center',
@@ -221,7 +238,7 @@ export function ProductTableToolbar({ filters, options }: Props) {
                             }),
                         ]}
                     >
-                        Apply
+                        Alkalmaz
                     </MenuItem>
                 </Select>
             </FormControl>

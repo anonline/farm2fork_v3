@@ -13,7 +13,6 @@ import HomeHighlight from '../home-highlight';
 import HomeIntegrations from '../home-integrations';
 import { HomeCategoryList } from '../home-category-list';
 
-
 // ----------------------------------------------------------------------
 type HomeViewProps = {
     heroImg: string;
@@ -22,40 +21,39 @@ type HomeViewProps = {
     heroPrimaryBtnText: string;
     heroSecondaryBtnText: string;
     heroImgOverlay: string;
-}
+};
 export function HomeView(props: Readonly<HomeViewProps>) {
     const pageProgress = useScrollProgress();
     const oddBoxStyle = {
-        backgroundColor: "#f5f5f5",
-        width: "100%"
+        backgroundColor: '#f5f5f5',
+        width: '100%',
     };
     const evenBoxStyle = {
-        backgroundColor: "background.default",
-        width: "100%",
+        backgroundColor: 'background.default',
+        width: '100%',
     };
 
     return (
         <>
-            <Box sx={{ backgroundColor: "#e0e7e1" }}>
-                    <ScrollProgress
-                        variant="linear"
-                        progress={pageProgress.scrollYProgress}
-                        sx={[(theme) => ({ position: 'fixed', zIndex: theme.zIndex.appBar + 1 })]}
-                    />
+            <Box sx={{ backgroundColor: '#e0e7e1' }}>
+                <ScrollProgress
+                    variant="linear"
+                    progress={pageProgress.scrollYProgress}
+                    sx={[(theme) => ({ position: 'fixed', zIndex: theme.zIndex.appBar + 1 })]}
+                />
 
-                    <BackToTopButton />
+                <BackToTopButton />
 
-                    <BackToTopButton />
+                <BackToTopButton />
 
-                    <HomeHero
-                        heroImg={props.heroImg}
-                        heroHeight={props.heroHeight}
-                        heroTitle={props.heroTitle}
-                        heroPrimaryBtnText={props.heroPrimaryBtnText}
-                        heroSecondaryBtnText={props.heroSecondaryBtnText}
-                        heroImgOverlay={props.heroImgOverlay}
-                    />
-
+                <HomeHero
+                    heroImg={props.heroImg}
+                    heroHeight={props.heroHeight}
+                    heroTitle={props.heroTitle}
+                    heroPrimaryBtnText={props.heroPrimaryBtnText}
+                    heroSecondaryBtnText={props.heroSecondaryBtnText}
+                    heroImgOverlay={props.heroImgOverlay}
+                />
             </Box>
 
             <Box sx={evenBoxStyle}>
@@ -70,8 +68,7 @@ export function HomeView(props: Readonly<HomeViewProps>) {
 
             <Box sx={oddBoxStyle}>
                 <Container maxWidth="lg">
-                    
-                            <HomeMinimal />
+                    <HomeMinimal />
                 </Container>
             </Box>
 
@@ -81,13 +78,11 @@ export function HomeView(props: Readonly<HomeViewProps>) {
                 </Container>
             </Box>
 
-            <Box sx={oddBoxStyle}>
+            <Box sx={evenBoxStyle}>
                 <Container maxWidth="lg">
                     <HomeIntegrations />
                 </Container>
             </Box>
-
         </>
-
     );
 }
