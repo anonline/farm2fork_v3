@@ -27,6 +27,7 @@ import FeaturedCard from './new-edit-form/featured-card';
 import PricingCard from './new-edit-form/pricing-card';
 import DetailsCard from './new-edit-form/details-card';
 import CategoryCard from './new-edit-form/category-card';
+import PropertiesCard from './new-edit-form/properties-card';
 
 // ----------------------------------------------------------------------
 
@@ -299,52 +300,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     }
 
     const renderProperties = () => {
-        const categoryOptions = categories.filter(cat => cat.id != null).map(cat => ({ value: cat.id as number, label: cat.name }));
-
         return (
-            <Card>
-                <CardHeader title="Tulajdonságok" action={renderCollapseButton(openProperties.value, openProperties.onToggle)} />
-                <Collapse in={openProperties.value}>
-                    <Stack spacing={3} sx={{ p: 3 }}>
-                        
-
-                        <Controller
-                            name="tags"
-                            control={control}
-                            render={({ field }) => (
-                                <Autocomplete
-                                    multiple
-                                    freeSolo
-                                    options={[]}
-                                    value={field.value || []}
-                                    onChange={(event, newValue) => field.onChange(newValue)}
-                                    renderTags={renderTagChips}
-                                    renderInput={(params) => <TextField label="Címkék" placeholder='A címkéket enter leütésével add hozzá' {...params} />}
-                                />
-                            )}
-
-                        />
-
-                        <RHFTextField
-                            select
-                            name="producerId"
-                            label="Termelő"
-                            InputLabelProps={{ shrink: true }}
-                        >
-                            <MenuItem value="">Nincs</MenuItem>
-                            {producers.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
-                        </RHFTextField>
-
-                        <RHFTextField select name="unit" label="Mértékegység">
-                            {UNIT_OPTIONS.map(opt => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
-                        </RHFTextField>
-
-                        <RHFTextField name="mininumQuantity" label="Kosárba tétel minimuma" type="number" />
-                        <RHFTextField name="maximumQuantity" label="Kosárba tétel maximuma" type="number" />
-                        <RHFTextField name="stepQuantity" label="Kosárba tétel léptéke" type="number" />
-                    </Stack>
-                </Collapse>
-            </Card>
+            <PropertiesCard isOpen={openProperties} control={control} producers={producers} UNIT_OPTIONS={UNIT_OPTIONS} />
         )
     };
 
@@ -381,7 +338,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 </Stack>
                 <Stack spacing={3}>
                     {renderPricing()}
-                    
+
                     {renderFeatured()}
                     
                     <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
