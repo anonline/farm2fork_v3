@@ -21,8 +21,8 @@ export function EmailNotificationSelector({emails, onEmailsChange, userEmail}: R
     const inputRef = useRef<HTMLInputElement>(null);
     const hasInitialized = useRef(false);
 
-    // Email validation regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Email validation regex - optimized to avoid catastrophic backtracking
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
     const isValidEmail = (email: string): boolean => emailRegex.test(email.trim());
 

@@ -658,9 +658,7 @@ export function CheckoutPayment() {
                                     width: 32,
                                     height: 32,
                                     borderRadius: '8px',
-                                    bgcolor: deliveryAccordionExpanded
-                                        ? 'primary.main'
-                                        : 'primary.main',
+                                    bgcolor: 'primary.main',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -725,7 +723,6 @@ export function CheckoutPayment() {
                                                 selectedAddressIndex={selectedDeliveryAddressIndex}
                                                 onAddressChange={handleDeliveryAddressChange}
                                                 onEditAddress={(index) => {
-                                                    // TODO: Implement edit functionality later
                                                     console.log('Edit address at index:', index);
                                                 }}
                                                 onShippingZoneError={handleShippingZoneError}
@@ -803,9 +800,7 @@ export function CheckoutPayment() {
                                     width: 32,
                                     height: 32,
                                     borderRadius: '8px',
-                                    bgcolor: deliveryAccordionExpanded
-                                        ? 'primary.main'
-                                        : 'primary.main',
+                                    bgcolor: 'primary.main',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -1082,7 +1077,6 @@ export function CheckoutPayment() {
                                     A számlázási cím adatai fognak megjelenni a számlán. Ezek az
                                     adatok a fizetés feldolgozásához szükségesek.
                                 </Typography>
-                                {/* TODO: Add billing address form fields */}
                             </Box>
 
                             {/* Terms and Conditions Checkboxes */}
