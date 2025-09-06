@@ -22,6 +22,7 @@ import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCateg
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, RHFSwitch, schemaHelper, RHFTextField } from 'src/components/hook-form';
+import SeasonalityCard from './new-edit-form/seasonality';
 
 // ----------------------------------------------------------------------
 
@@ -111,7 +112,6 @@ export const NewProductSchema = zod.object({
 
 export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
     
-});
 
 // ----------------------------------------------------------------------
 
@@ -160,13 +160,16 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             netPrice: currentProduct?.netPrice || 0,
             grossPrice: currentProduct?.grossPrice || 0,
             vat: currentProduct?.vat || 27,
-            netPriceVIP: currentProduct?.netPriceVIP ?? null,
-            netPriceCompany: currentProduct?.netPriceCompany ?? null,
-            stock: currentProduct?.stock ?? null,
+            netPriceVIP: currentProduct?.netPriceVIP ?? 0,
+            netPriceCompany: currentProduct?.netPriceCompany ?? 0,
+            stock: currentProduct?.stock ?? 0,
             backorder: currentProduct?.backorder || false,
             featured: currentProduct?.featured || false,
             star: currentProduct?.star || false,
             bio: currentProduct?.bio || false,
+            priceSale: currentProduct?.priceSale || null,
+            saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
+            salegrossPrice: currentProduct?.salegrossPrice || null,
         }
     }, [currentProduct, connection]);
 
@@ -428,6 +431,12 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
 
     const renderSeasonality = () => (
+        <SeasonalityCard
+            isOpen={openSeasonality}
+            control={control}
+            onChange={handleSeasonalityChange}
+        />
+        /*
         <Card>
             <CardHeader title="Szezonalitás" action={renderCollapseButton(openSeasonality.value, openSeasonality.onToggle)} />
             <Collapse in={openSeasonality.value}>
@@ -439,7 +448,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                     />
                 </Stack>
             </Collapse>
-        </Card>
+        </Card>*/
     );
 
     return (
