@@ -229,3 +229,125 @@ export async function updatePaymentStatus(
         return { success: false, error: 'Failed to update payment status' };
     }
 }
+
+/**
+ * Get all orders with pagination and filtering
+ */
+export async function getAllOrders(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    customerId?: string;
+}): Promise<{ orders: IOrderData[]; total: number; error: string | null }> {
+    try {
+        let query = supabase
+            .from('orders')
+            .select('*', { count: 'exact' })
+            .order('date_created', { ascending: false });
+
+        // Apply filters
+        if (params?.status && params.status !== 'all') {
+            query = query.eq('order_status', params.status);
+        }
+
+        if (params?.customerId) {
+            query = query.eq('customer_id', params.customerId);
+        }
+
+        // Apply pagination
+        if (params?.page && params?.limit) {
+            const from = (params.page - 1) * params.limit;
+            const to = from + params.limit - 1;
+            query = query.range(from, to);
+        }
+
+        const { data, count, error } = await query;
+
+        if (error) {
+            console.error('Error fetching orders:', error);
+            return { orders: [], total: 0, error: error.message };
+        }
+
+        // Transform database fields to match our interface
+        const orders: IOrderData[] = (data || []).map((row) => ({
+            id: row.id,
+            dateCreated: row.date_created,
+            customerId: row.customer_id,
+            customerName: row.customer_name,
+            billingEmails: row.billing_emails || [],
+            notifyEmails: row.notify_emails || [],
+            note: row.note || '',
+            shippingAddress: row.shipping_address,
+            billingAddress: row.billing_address,
+            denyInvoice: row.deny_invoice || false,
+            needVAT: row.need_vat || false,
+            surchargeAmount: row.surcharge_amount || 0,
+            items: row.items || [],
+            subtotal: row.subtotal || 0,
+            shippingCost: row.shipping_cost || 0,
+            vatTotal: row.vat_total || 0,
+            discountTotal: row.discount_total || 0,
+            total: row.total || 0,
+            payedAmount: row.payed_amount || 0,
+            shippingMethod: row.shipping_method,
+            paymentMethod: row.payment_method,
+            paymentStatus: row.payment_status || 'pending',
+            orderStatus: row.order_status || 'pending',
+            paymentDueDays: row.payment_due_days || 0,
+            courier: row.courier,
+            plannedShippingDateTime: row.planned_shipping_date_time,
+            simplepayDataJson: row.simplepay_data_json,
+            invoiceDataJson: row.invoice_data_json,
+            history: row.history || [],
+        }));
+
+        return { orders, total: count || 0, error: null };
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        return { orders: [], total: 0, error: 'Failed to fetch orders' };
+    }
+}
+
+/**
+ * Delete an order by ID
+ */
+export async function deleteOrder(orderId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const { error } = await supabase
+            .from('orders')
+            .delete()
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error deleting order:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        return { success: false, error: 'Failed to delete order' };
+    }
+}
+
+/**
+ * Delete multiple orders by IDs
+ */
+export async function deleteOrders(orderIds: string[]): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const { error } = await supabase
+            .from('orders')
+            .delete()
+            .in('id', orderIds);
+
+        if (error) {
+            console.error('Error deleting orders:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error deleting orders:', error);
+        return { success: false, error: 'Failed to delete orders' };
+    }
+}
