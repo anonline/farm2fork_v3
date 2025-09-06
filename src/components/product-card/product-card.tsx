@@ -15,7 +15,6 @@ import { fCurrency } from 'src/utils/format-number';
 import { themeConfig } from 'src/theme';
 
 import { toast } from 'src/components/snackbar';
-import { useSideCart } from 'src/components/sidecart';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
@@ -527,7 +526,7 @@ function ProductCardButton({
     isDisabled = false,
     sx,
 }: Readonly<ProductCardButtonProps>) {
-    const { openSideCart } = useSideCart();
+    // if we want to open sidecart on addToCart we should use this: const { openSideCart } = useSideCart();
 
     const baseStyle: SxProps = {
         ...sx,
@@ -569,7 +568,7 @@ function ProductCardButton({
                 stepQuantity: product.stepQuantity,
             });
             toast.success(`${qty.toFixed((qty%1===0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
-            //openSideCart();
+            // if we want to open sidecart on addToCart we should use this: openSideCart();
         }
     };
     return (

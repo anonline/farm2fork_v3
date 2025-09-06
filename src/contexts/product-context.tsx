@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { IProductItem } from 'src/types/product';
 
 import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect, useContext, createContext } from 'react';
+import { useState, useEffect, useContext, createContext, useMemo } from 'react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -50,8 +50,14 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
         fetchProducts();
     }, [slug]);
 
+    const contextValue = useMemo(() => ({
+        product,
+        loading,
+        error: loaderror
+    }), [product, loading, loaderror]);
+
     return (
-        <ProductContext.Provider value={{ product, loading, error: loaderror }}>
+        <ProductContext.Provider value={contextValue}>
             {children}
         </ProductContext.Provider>
     );

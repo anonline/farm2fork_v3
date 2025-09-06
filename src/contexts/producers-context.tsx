@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { IProducerItem } from "src/types/producer";
 
 import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect, useContext, createContext } from 'react';
+import { useState, useEffect, useContext, createContext, useMemo } from 'react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -45,8 +45,14 @@ export function ProducersProvider({ children }: Readonly<{ children: ReactNode }
         fetchProducers();
     }, []);
 
+    const contextValue = useMemo(() => ({
+        producers,
+        loading,
+        error: loadError
+    }), [producers, loading, loadError]);
+
     return (
-        <ProducersContext.Provider value={{ producers, loading, error: loadError }}>
+        <ProducersContext.Provider value={contextValue}>
             {children}
         </ProducersContext.Provider>
     );

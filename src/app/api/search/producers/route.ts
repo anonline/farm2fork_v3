@@ -26,12 +26,23 @@ export async function GET(req: NextRequest) {
 
     const matchingProducerIds = matchingProducts?.map((p) => p.producerId) ?? [];
 
+    const searchConditions = [
+        `name.ilike.${searchTerm}`,
+        `location.ilike.${searchTerm}`,
+        `shortDescription.ilike.${searchTerm}`,
+        `producingTags.ilike.${searchTerm}`,
+        `companyName.ilike.${searchTerm}`
+    ];
+
+    if (matchingProducerIds.length > 0) {
+        const producerIdsCondition = `id.in.(${matchingProducerIds.join(',')})`;
+        searchConditions.push(producerIdsCondition);
+    }
+
     const { data, error } = await supabase
         .from('Producers')
         .select('*')
-        .or(
-            `name.ilike.${searchTerm},location.ilike.${searchTerm},shortDescription.ilike.${searchTerm},producingTags.ilike.${searchTerm},companyName.ilike.${searchTerm}${matchingProducerIds.length ? `,id.in.(${matchingProducerIds.join(',')})` : ''}`
-        );
+        .or(searchConditions.join(','));
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

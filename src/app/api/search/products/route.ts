@@ -27,11 +27,15 @@ export async function GET(req: NextRequest) {
 
   const producerIds = matchingProducers?.map(p => p.id) ?? [];
 
+  const baseQuery = `tags.ilike.%${q}%,name.ilike.${searchTerm}`;
+  const producerQuery = producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : '';
+  const orQuery = baseQuery + producerQuery;
+
   const { data, error } = await supabase
     .from('Products')
     .select('*')
     .eq('publish', true)
-    .or(`tags.ilike.%${q}%,name.ilike.${searchTerm}${producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : ''}`)
+    .or(orQuery)
     .limit(limit);
 
 

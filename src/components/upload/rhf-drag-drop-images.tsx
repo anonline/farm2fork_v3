@@ -41,7 +41,7 @@ interface SortableImageItemProps {
     onRemove: () => void;
 }
 
-function SortableImageItem({ id, file, onRemove }: SortableImageItemProps) {
+function SortableImageItem({ id, file, onRemove }: Readonly<SortableImageItemProps>) {
     const {
         attributes,
         listeners,
@@ -174,7 +174,7 @@ interface RHFDragDropImagesProps {
     helperText?: string;
 }
 
-export function RHFDragDropImages({ name, label = "Termék képek", helperText }: RHFDragDropImagesProps) {
+export function RHFDragDropImages({ name, label = "Termék képek", helperText }: Readonly<RHFDragDropImagesProps>) {
     const { control, setValue, watch } = useFormContext();
     const watchedImages = watch(name) || [];
 
@@ -299,7 +299,7 @@ export function RHFDragDropImages({ name, label = "Termék képek", helperText }
                                     >
                                         {images.map((file: File | string, index: number) => (
                                             <SortableImageItem
-                                                key={`image-${index}`}
+                                                key={`image-${index+'_'}`}
                                                 id={`image-${index}`}
                                                 file={file}
                                                 onRemove={() => removeImage(index)}
