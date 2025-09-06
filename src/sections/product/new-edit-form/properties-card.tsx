@@ -5,6 +5,7 @@ import { RHFTextField } from "src/components/hook-form";
 import { NewProductSchemaType } from "../product-new-edit-form";
 import { Control, Controller } from "react-hook-form";
 import { UseBooleanReturn } from "minimal-shared/hooks";
+import { HelperText } from "src/components/hook-form/help-text";
 
 type PropertiesCardProps = {
     isOpen: UseBooleanReturn;
@@ -60,6 +61,12 @@ export default function PropertiesCard({ isOpen, control, producers, UNIT_OPTION
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
                             <RHFTextField name="maximumQuantity" label="Kosárba tétel maximuma" type="number" />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <RHFTextField name="storingInformation" label="Tárolási információk" multiline minRows={2} />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <RHFTextField name="usageInformation" label="Felhasználási információk" multiline minRows={2} />
                         </Grid>
                     </Grid>
                 </Stack>

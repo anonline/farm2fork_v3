@@ -12,4 +12,6 @@ export type ICategoryItem = {
     Parent: ICategoryItem | null;
     children: ICategoryItem[];
     level: number;
+    usageInformation: string;
+    storingInformation: string;
 };

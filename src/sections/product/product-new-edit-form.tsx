@@ -43,7 +43,9 @@ const monthValues: [MonthKeys, ...MonthKeys[]] = [
 export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
-    shortDescription: schemaHelper.editor({ message: 'Leírás megadása kötelező!' }),
+    shortDescription: schemaHelper.editor().optional(),
+    storingInformation: zod.string().optional(),
+    usageInformation: zod.string().optional(),
     images: zod.array(zod.any()).max(3, { message: 'Maximum 3 kép tölthető fel!' }).optional(),
     featuredImage: zod.any().optional(),
     categoryIds: zod.array(zod.number()).min(1, { message: 'Legalább egy kategória választása kötelező.' }),
@@ -166,6 +168,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             priceSale: currentProduct?.priceSale || null,
             saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
             salegrossPrice: currentProduct?.salegrossPrice || null,
+            storingInformation: currentProduct?.storingInformation || '',
+            usageInformation: currentProduct?.usageInformation || '',
         }
     }, [currentProduct, connection]);
 
