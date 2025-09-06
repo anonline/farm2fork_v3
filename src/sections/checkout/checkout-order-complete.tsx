@@ -2,6 +2,8 @@ import type { PaperProps } from '@mui/material/Paper';
 import type { DialogProps } from '@mui/material/Dialog';
 import type { CheckoutContextValue } from 'src/types/checkout';
 
+import { useEffect, useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
@@ -25,6 +27,22 @@ type Props = DialogProps & {
 
 export function CheckoutOrderComplete({ onResetCart, onDownloadPDF, slotProps, ...other }: Props) {
     const dialogPaperSx = (slotProps?.paper as PaperProps)?.sx;
+    const [orderId, setOrderId] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Get the order ID from localStorage that was stored during checkout
+        const storedOrderId = localStorage.getItem('last-order-id');
+        if (storedOrderId) {
+            setOrderId(storedOrderId);
+            // Clear it after use
+            localStorage.removeItem('last-order-id');
+        }
+    }, []);
+
+    const handleResetCart = () => {
+        setOrderId(null);
+        onResetCart();
+    };
 
     return (
         <Dialog
@@ -58,21 +76,27 @@ export function CheckoutOrderComplete({ onResetCart, onDownloadPDF, slotProps, .
                     flexDirection: 'column',
                 }}
             >
-                <Typography variant="h4">Thank you for your purchase!</Typography>
+                <Typography variant="h4">Köszönjük a rendelését!</Typography>
 
                 <OrderCompleteIllustration />
 
                 <Typography>
-                    Thanks for placing order
+                    Köszönjük, hogy nálunk rendelt!
                     <br />
                     <br />
-                    <Link>01dc1370-3df6-11eb-b378-0242ac130002</Link>
+                    {orderId ? (
+                        <>
+                            Rendelési szám: <Link sx={{ fontWeight: 'bold' }}>{orderId}</Link>
+                        </>
+                    ) : (
+                        'Rendelési szám: Betöltés...'
+                    )}
                     <br />
                     <br />
-                    We will send you a notification within 5 days when it ships.
-                    <br /> If you have any question or queries then fell to get in contact us.{' '}
+                    5 napon belül értesítést küldünk a szállításról.
+                    <br /> Ha bármilyen kérdése van, ne habozzon kapcsolatba lépni velünk.{' '}
                     <br />
-                    All the best,
+                    Minden jót kívánunk!
                 </Typography>
 
                 <Divider sx={{ width: 1, borderStyle: 'dashed' }} />
@@ -91,10 +115,10 @@ export function CheckoutOrderComplete({ onResetCart, onDownloadPDF, slotProps, .
                         size="large"
                         color="inherit"
                         variant="outlined"
-                        onClick={onResetCart}
+                        onClick={handleResetCart}
                         startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
                     >
-                        Continue shopping
+                        Tovább vásárolok
                     </Button>
 
                     <Button
@@ -103,7 +127,7 @@ export function CheckoutOrderComplete({ onResetCart, onDownloadPDF, slotProps, .
                         startIcon={<Iconify icon="eva:cloud-download-fill" />}
                         onClick={onDownloadPDF}
                     >
-                        Download as PDF
+                        PDF letöltése
                     </Button>
                 </Box>
             </Box>
