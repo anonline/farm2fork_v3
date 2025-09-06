@@ -25,6 +25,7 @@ import { Form, Field, RHFSwitch, schemaHelper, RHFTextField } from 'src/componen
 import SeasonalityCard from './new-edit-form/seasonality-card';
 import FeaturedCard from './new-edit-form/featured-card';
 import PricingCard from './new-edit-form/pricing-card';
+import DetailsCard from './new-edit-form/details-card';
 
 // ----------------------------------------------------------------------
 
@@ -289,18 +290,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     );
 
     const renderDetails = () => (
-        <Card>
-            <CardHeader title="Alapadatok" action={renderCollapseButton(openDetails.value, openDetails.onToggle)} />
-            <Collapse in={openDetails.value}>
-                <Stack spacing={3} sx={{ p: 3 }}>
-                    <RHFTextField name="name" label="Termék név" onBlur={handleURLGenerate} />
-                    <RHFTextField name="url" label="Termék URL" disabled />
-                    <RHFTextField name="sku" label="SKU (Azonosító)" />
-                    <Field.Editor name="shortDescription" />
-                    <Field.Upload multiple thumbnail name="images" />
-                </Stack>
-            </Collapse>
-        </Card>
+        <DetailsCard isOpen={openDetails} handleURLGenerate={handleURLGenerate} />
     );
 
     function renderTagChips(value: string[], getTagProps: any) {
