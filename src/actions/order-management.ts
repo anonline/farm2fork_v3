@@ -351,3 +351,25 @@ export async function deleteOrders(orderIds: string[]): Promise<{ success: boole
         return { success: false, error: 'Failed to delete orders' };
     }
 }
+
+/**
+ * Get the count of pending orders
+ */
+export async function getPendingOrdersCount(): Promise<{ count: number; error: string | null }> {
+    try {
+        const { count, error } = await supabase
+            .from('orders')
+            .select('*', { count: 'exact', head: true })
+            .eq('order_status', 'pending');
+
+        if (error) {
+            console.error('Error fetching pending orders count:', error);
+            return { count: 0, error: error.message };
+        }
+
+        return { count: count || 0, error: null };
+    } catch (error) {
+        console.error('Error fetching pending orders count:', error);
+        return { count: 0, error: 'Failed to fetch pending orders count' };
+    }
+}
