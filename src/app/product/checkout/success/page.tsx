@@ -9,6 +9,8 @@ import { getOrderByIdSSR, updateOrderPaymentStatusSSR } from 'src/actions/order-
 
 import { Iconify } from 'src/components/iconify';
 
+import { CartClearer } from './cart-clearer';
+
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = { title: `Payment Success - ${CONFIG.appName}` };
@@ -50,6 +52,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
         // If payment failed, show failure message
         return (
             <Container sx={{ py: 10, textAlign: 'center' }}>
+                <CartClearer shouldClear={false} />
                 <Box sx={{ maxWidth: 600, mx: 'auto' }}>
                     <Iconify 
                         icon="solar:close-circle-bold" 
@@ -105,6 +108,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
     return (
         <Container sx={{ py: 10, textAlign: 'center' }}>
+            <CartClearer shouldClear={isPaymentSuccess} />
             <Box sx={{ maxWidth: 600, mx: 'auto' }}>
                 <Iconify 
                     icon="solar:check-circle-bold" 
