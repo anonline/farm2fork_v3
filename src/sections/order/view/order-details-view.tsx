@@ -128,7 +128,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                                 <Divider sx={{ borderStyle: 'dashed' }} />
                                 <OrderDetailsDeliveryGuy 
                                     orderId={orderData.id}
-                                    currentDeliveryGuyId={orderData.courier ? parseInt(orderData.courier, 10) : null}
+                                    currentDeliveryGuyId={orderData.courier ? (Number.isNaN(parseInt(orderData.courier, 10)) ? null : parseInt(orderData.courier, 10)) : null}
                                 />
                             </>
                         )}
