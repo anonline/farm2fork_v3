@@ -65,7 +65,11 @@ export function OrderDetailsDeliveryGuy({ orderId, currentDeliveryGuyId }: Props
         [orderId, selectedDeliveryGuyId, isUpdating]
     );
 
-    const formatPhoneNumber = (phone: string): string => {
+    const formatPhoneNumber = (phone: string | null | undefined): string => {
+        if (!phone || typeof phone !== 'string') {
+            return '';
+        }
+        
         const cleaned = phone.replace(/\D/g, '');
         if (cleaned.length === 11 && cleaned.startsWith('36')) {
             return `+${cleaned.slice(0, 2)} ${cleaned.slice(2, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
@@ -122,7 +126,7 @@ export function OrderDetailsDeliveryGuy({ orderId, currentDeliveryGuyId }: Props
                                 >
                                     Név:
                                 </Box>
-                                <Typography variant="body2">{selectedDeliveryGuy.name}</Typography>
+                                <Typography variant="body2">{selectedDeliveryGuy.name || 'N/A'}</Typography>
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Box
@@ -132,7 +136,7 @@ export function OrderDetailsDeliveryGuy({ orderId, currentDeliveryGuyId }: Props
                                     Telefon:
                                 </Box>
                                 <Typography variant="body2">
-                                    {formatPhoneNumber(selectedDeliveryGuy.phone)}
+                                    {formatPhoneNumber(selectedDeliveryGuy.phone) || 'N/A'}
                                 </Typography>
                             </Box>
                         </Stack>
