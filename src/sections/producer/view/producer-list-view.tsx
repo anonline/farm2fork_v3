@@ -35,7 +35,8 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { deleteProducer, useGetProducers } from 'src/actions/producer';
+import { deleteProducer } from 'src/actions/producer';
+import { useProducers } from 'src/contexts/producers-context';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -68,7 +69,7 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 export function ProducerListView() {
     const confirmDialog = useBoolean();
 
-    const { producers, producersLoading, producersMutate } = useGetProducers();
+    const { producers, loading: producersLoading, error: producersError } = useProducers();
 
     const [tableData, setTableData] = useState<IProducerItem[]>([]);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
@@ -97,7 +98,7 @@ export function ProducerListView() {
                 await deleteProducer(id);
 
                 const updatedProducers = tableData.filter((row) => row.id !== id);
-                producersMutate({ producers: updatedProducers }, false);
+                setTableData(updatedProducers);
 
                 toast.success('Törlés sikeres!');
             } catch (error) {
@@ -105,7 +106,7 @@ export function ProducerListView() {
                 toast.error('A törlés sikertelen!');
             }
         },
-        [tableData, producersMutate]
+        [tableData]
     );
 
     const handleDeleteRows = useCallback(async () => {
@@ -113,7 +114,7 @@ export function ProducerListView() {
             await Promise.all(selectedRowIds.map((id) => deleteProducer(Number(id))));
 
             const updatedProducers = tableData.filter((row) => !selectedRowIds.includes(row.id));
-            producersMutate({ producers: updatedProducers }, false);
+            setTableData(updatedProducers);
 
             toast.success('Törlés sikeres!');
             setSelectedRowIds([]);
@@ -121,7 +122,7 @@ export function ProducerListView() {
             console.error(error);
             toast.error('A tömeges törlés sikertelen!');
         }
-    }, [selectedRowIds, tableData, producersMutate]);
+    }, [selectedRowIds, tableData]);
 
     const CustomToolbarCallback = useCallback(
         () => (
