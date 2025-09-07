@@ -1,35 +1,59 @@
+import type { IAddress } from 'src/types/address';
+
 import { useState } from 'react';
 
 import { Chip, Paper, Stack, Button, Typography } from '@mui/material';
 
+import { deleteAddress, updateAddress, useGetAddresses } from 'src/actions/address';
+
+import { toast } from 'src/components/snackbar';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import BillingAddressKartyaEdit from './billing-address-kartya-edit';
 import ShippingAddressKartyaEdit from './shipping-address-kartya-edit';
 
-interface IAddress {
-    id: number;
-    type: 'shipping' | 'billing';
-    name: string;
-    address: string;
-    phone: string;
-    email?: string;
-    taxNumber?: string;
-    isDefault: boolean;
-}
 export default function ProfilAddressKartya({
     address: initialAddress,
 }: Readonly<{ address: IAddress }>) {
+    const { user } = useAuthContext();
     const [isEditing, setIsEditing] = useState(false);
     const [address, setAddress] = useState(initialAddress);
+    const { addressesMutate } = useGetAddresses(user?.id);
 
-    const handleSave = (updatedAddress: IAddress) => {
-        setAddress(updatedAddress);
-        setIsEditing(false);
+    const handleSave = async (updatedAddress: IAddress) => {
+        if (!user?.id || !address.id) {
+            toast.error('Hiba a cím mentésekor');
+            return;
+        }
+
+        try {
+            await updateAddress(user.id, address.id, updatedAddress);
+            setAddress(updatedAddress);
+            setIsEditing(false);
+            await addressesMutate(); // Refresh the data
+            toast.success('Cím sikeresen frissítve');
+        } catch (error) {
+            console.error('Error updating address:', error);
+            toast.error('Hiba történt a cím frissítése során');
+        }
     };
 
-    const handleDelete = () => {
-        console.log('Törlés:', address.id);
+    const handleDelete = async () => {
+        if (!user?.id || !address.id) {
+            toast.error('Hiba a cím törlésekor');
+            return;
+        }
+
+        try {
+            await deleteAddress(user.id, address.id);
+            await addressesMutate(); // Refresh the data
+            toast.success('Cím sikeresen törölve');
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            toast.error('Hiba történt a cím törlése során');
+        }
     };
 
     if (isEditing) {
@@ -67,21 +91,29 @@ export default function ProfilAddressKartya({
             }}
         >
             <Stack spacing={0.5}>
-                <Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{address.name}</Typography>
+                <Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{address.fullName}</Typography>
                 <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
-                    {address.address}
+                    {address.postcode} {address.city}, {address.street} {address.houseNumber}
+                    {address.type === 'shipping' && address.floor && `, ${address.floor}`}
                 </Typography>
-                <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
-                    {address.phone}
-                </Typography>
-                {address.email && (
+                {address.phone && (
+                    <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                        {address.phone}
+                    </Typography>
+                )}
+                {address.type === 'billing' && address.email && (
                     <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
                         {address.email}
                     </Typography>
                 )}
-                {address.taxNumber && (
+                {address.type === 'billing' && address.taxNumber && (
                     <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
                         Adószám: {address.taxNumber}
+                    </Typography>
+                )}
+                {address.companyName && (
+                    <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                        {address.companyName}
                     </Typography>
                 )}
             </Stack>

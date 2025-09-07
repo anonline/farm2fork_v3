@@ -1,5 +1,7 @@
 'use client';
 
+import type { IAddress } from 'src/types/address';
+
 import { useState } from 'react';
 
 import {
@@ -11,25 +13,6 @@ import {
     Typography,
     FormControlLabel,
 } from '@mui/material';
-
-interface IAddress {
-    id: number;
-    type: 'shipping' | 'billing';
-    name: string;
-    address: string;
-    phone: string;
-    email?: string;
-    taxNumber?: string;
-    isDefault: boolean;
-    companyName?: string;
-    postcode?: string;
-    city?: string;
-    street?: string;
-    houseNumber?: string;
-    floor?: string;
-    doorbell?: string;
-    comment?: string;
-}
 
 interface AddressFormProps {
     address: IAddress;
@@ -44,7 +27,19 @@ export default function ShippingAddressKartyaEdit({
     onCancel,
     onDelete,
 }: Readonly<AddressFormProps>) {
-    const [formData, setFormData] = useState(address);
+    const [formData, setFormData] = useState({
+        fullName: address.fullName || '',
+        companyName: address.companyName || '',
+        postcode: address.postcode || '',
+        city: address.city || '',
+        street: address.street || '',
+        houseNumber: address.houseNumber || '',
+        floor: address.type === 'shipping' ? (address as any).floor || '' : '',
+        doorbell: address.type === 'shipping' ? (address as any).doorbell || '' : '',
+        phone: address.phone || '',
+        comment: address.comment || '',
+        isDefault: address.isDefault || false,
+    });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -56,15 +51,30 @@ export default function ShippingAddressKartyaEdit({
 
     const handleSave = () => {
         if (
-            formData.name &&
+            formData.fullName &&
             formData.postcode &&
             formData.city &&
             formData.street &&
             formData.houseNumber &&
             formData.phone
         ) {
-            console.log('Mentés:', formData);
-            onSave(formData);
+            const updatedAddress: IAddress = {
+                ...address,
+                fullName: formData.fullName,
+                companyName: formData.companyName || undefined,
+                postcode: formData.postcode,
+                city: formData.city,
+                street: formData.street,
+                houseNumber: formData.houseNumber,
+                phone: formData.phone,
+                comment: formData.comment || undefined,
+                isDefault: formData.isDefault,
+                ...(address.type === 'shipping' && {
+                    floor: formData.floor || undefined,
+                    doorbell: formData.doorbell || undefined,
+                }),
+            } as IAddress;
+            onSave(updatedAddress);
         } else {
             console.error('Hiányzó kötelező mezők!');
         }
@@ -82,7 +92,7 @@ export default function ShippingAddressKartyaEdit({
     return (
         <Stack spacing={3} sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: '4px' }}>
             <Typography variant="h6" fontWeight={600}>
-                {address.name}
+                {address.fullName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
                 Jelenleg csak bizonyos kerületekbe szállítunk. Az irányítószám megadásával
@@ -100,12 +110,12 @@ export default function ShippingAddressKartyaEdit({
             />
             <TextField
                 label="Teljes név"
-                name="name"
-                value={formData.name}
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleChange}
                 fullWidth
                 required
-                error={!formData.name}
+                error={!formData.fullName}
                 sx={requiredFieldSx}
             />
             <TextField

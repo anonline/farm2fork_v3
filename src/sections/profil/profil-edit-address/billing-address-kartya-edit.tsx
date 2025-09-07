@@ -1,3 +1,5 @@
+import type { IAddress } from 'src/types/address';
+
 import { useState } from 'react';
 
 import {
@@ -9,25 +11,6 @@ import {
     Typography,
     FormControlLabel,
 } from '@mui/material';
-
-interface IAddress {
-    id: number;
-    type: 'shipping' | 'billing';
-    name: string;
-    address: string;
-    phone: string;
-    email?: string;
-    taxNumber?: string;
-    isDefault: boolean;
-    companyName?: string;
-    postcode?: string;
-    city?: string;
-    street?: string;
-    houseNumber?: string;
-    floor?: string;
-    doorbell?: string;
-    comment?: string;
-}
 
 interface AddressFormProps {
     address: IAddress;
@@ -42,11 +25,53 @@ export default function BillingAddressEditForm({
     onCancel,
     onDelete,
 }: Readonly<AddressFormProps>) {
-    const [formData, setFormData] = useState(address);
+    const [formData, setFormData] = useState({
+        fullName: address.fullName || '',
+        companyName: address.companyName || '',
+        postcode: address.postcode || '',
+        city: address.city || '',
+        street: address.street || '',
+        houseNumber: address.houseNumber || '',
+        phone: address.phone || '',
+        taxNumber: address.type === 'billing' ? (address as any).taxNumber || '' : '',
+        email: address.type === 'billing' ? (address as any).email || '' : '',
+        comment: address.comment || '',
+        isDefault: address.isDefault || false,
+    });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    };
+
+    const handleSave = () => {
+        if (
+            formData.fullName &&
+            formData.postcode &&
+            formData.city &&
+            formData.street &&
+            formData.houseNumber
+        ) {
+            const updatedAddress: IAddress = {
+                ...address,
+                fullName: formData.fullName,
+                companyName: formData.companyName || undefined,
+                postcode: formData.postcode,
+                city: formData.city,
+                street: formData.street,
+                houseNumber: formData.houseNumber,
+                phone: formData.phone,
+                comment: formData.comment || undefined,
+                isDefault: formData.isDefault,
+                ...(address.type === 'billing' && {
+                    taxNumber: formData.taxNumber || undefined,
+                    email: formData.email || undefined,
+                }),
+            } as IAddress;
+            onSave(updatedAddress);
+        } else {
+            console.error('Hiányzó kötelező mezők!');
+        }
     };
 
     const requiredFieldSx = {
@@ -61,7 +86,7 @@ export default function BillingAddressEditForm({
     return (
         <Stack spacing={3} sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: '4px' }}>
             <Typography variant="h6" fontWeight={600}>
-                {address.name}
+                {address.fullName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
                 Jelenleg csak bizonyos kerületekbe szállítunk. Az irányítószám megadásával
@@ -88,12 +113,12 @@ export default function BillingAddressEditForm({
 
             <TextField
                 label="Teljes név"
-                name="name"
-                value={formData.name}
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleChange}
                 fullWidth
                 required
-                error={!formData.name}
+                error={!formData.fullName}
                 sx={requiredFieldSx}
             />
 
@@ -148,24 +173,6 @@ export default function BillingAddressEditForm({
                         sx={requiredFieldSx}
                     />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Emelet, ajtó"
-                        name="floor"
-                        value={formData.floor ?? ''}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Kapucsengő"
-                        name="doorbell"
-                        value={formData.doorbell ?? ''}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                </Grid>
             </Grid>
 
             <TextField
@@ -179,7 +186,7 @@ export default function BillingAddressEditForm({
             <TextField
                 label="Adószám"
                 name="taxNumber"
-                value={formData.taxNumber ?? ''}
+                value={formData.taxNumber}
                 onChange={handleChange}
                 fullWidth
             />
@@ -187,7 +194,7 @@ export default function BillingAddressEditForm({
                 type="email"
                 label="E-mail"
                 name="email"
-                value={formData.email ?? ''}
+                value={formData.email}
                 onChange={handleChange}
                 fullWidth
             />
@@ -195,7 +202,7 @@ export default function BillingAddressEditForm({
                 label="Megjegyzés"
                 placeholder="TSZ mögött"
                 name="comment"
-                value={formData.comment ?? ''}
+                value={formData.comment}
                 onChange={handleChange}
                 fullWidth
                 multiline
@@ -212,7 +219,7 @@ export default function BillingAddressEditForm({
                     </Button>
                     <Button
                         variant="contained"
-                        onClick={() => onSave(formData)}
+                        onClick={handleSave}
                         sx={{
                             bgcolor: 'rgb(70, 110, 80)',
                             '&:hover': { bgcolor: 'rgb(60, 90, 65)' },
