@@ -89,9 +89,11 @@ export const paths = {
             params.append('orderId', orderId);
             return `/product/checkout/pay/?${params.toString()}`;
         },
-        fail: (orderId:string, status?: string, success?: string, failed?: string, error?: string) => {
+        fail: (orderId?:string, status?: string, success?: string, failed?: string, error?: string) => {
             let params = new URLSearchParams();
-            params.append('orderId', orderId);
+            if (orderId) {
+                params.append('orderId', orderId);
+            }
             if (status) {
                 params.append('status', status);
             }

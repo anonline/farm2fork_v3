@@ -44,8 +44,8 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
-import { redirect } from 'next/navigation';
 import { paths } from 'src/routes/paths';
+
 
 // ----------------------------------------------------------------------
 
@@ -689,12 +689,14 @@ export function CheckoutPayment() {
             }
 
             if (orderId) {
-                toast.success('Rendelés sikeresen létrehozva!');
+                
                 console.info('Order created successfully:', orderId);
                 
                 // Store order ID in checkout context or local storage for the completion page
                 localStorage.setItem('last-order-id', orderId);
-                
+
+                toast.success('Rendelés sikeresen létrehozva!');
+                toast.warning('Átirányítás folyamatban...');
                 // Check if payment method is 'simple' (online payment)
                 if (selectedPaymentMethodData?.slug === 'simple' || selectedPaymentMethodData?.type === 'online') {
                     // For simple/online payment, redirect to payment page with orderId
@@ -703,7 +705,8 @@ export function CheckoutPayment() {
                 }
 
                 if(selectedPaymentMethodData?.type === 'cod' || selectedPaymentMethodData?.type === 'wire') {
-                    redirect(paths.checkout.success(orderId, undefined, 'true'));
+                    console.info('Proceeding to order completion for payment method:', selectedPaymentMethodData, paths.checkout.success(orderId, undefined, 'true'));
+                    window.location.href = paths.checkout.success(orderId, undefined, 'true');
                     return;
                 }
                 
