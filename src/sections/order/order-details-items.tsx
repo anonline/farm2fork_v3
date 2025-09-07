@@ -53,8 +53,8 @@ export function OrderDetailsItems({
 
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ color: 'text.secondary' }}>Szállítás</Box>
-                <Box sx={{ width: 160, ...(shipping && { color: 'error.main' }) }}>
-                    {shipping ? `- ${fCurrency(shipping)}` : '-'}
+                <Box sx={{ width: 160 }}>
+                    {shipping ? fCurrency(shipping) : '-'}
                 </Box>
             </Box>
 
@@ -111,7 +111,7 @@ export function OrderDetailsItems({
 
                         <ListItemText
                             primary={item.name}
-                            secondary={item.sku}
+                            secondary={`${fCurrency(item.price)} / ${item.unit}`}
                             slotProps={{
                                 primary: { sx: { typography: 'body2' } },
                                 secondary: {
@@ -120,12 +120,10 @@ export function OrderDetailsItems({
                             }}
                         />
 
-                        <Box sx={{ width: 110, typography: 'subtitle2' }}>$10/ea</Box>
-
-                        <Box sx={{ typography: 'body2' }}>x{item.quantity}</Box>
+                        <Box sx={{ typography: 'subtitle2' }}>{item.quantity} {item.unit}</Box>
 
                         <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                            {fCurrency(item.price)}
+                            {fCurrency(item.subtotal)}
                         </Box>
                     </Box>
                 ))}

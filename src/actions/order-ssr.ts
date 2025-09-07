@@ -1,0 +1,182 @@
+import type { IOrderData } from 'src/types/order-management';
+
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+
+import { CONFIG } from 'src/global-config';
+
+// ----------------------------------------------------------------------
+
+/**
+ * Create a server-side Supabase client with service role for admin operations
+ */
+async function createAdminClient() {
+    const cookieStore = await cookies();
+    
+    return createServerClient(CONFIG.supabase.url, CONFIG.supabase.service_key, {
+        cookies: {
+            getAll() {
+                return cookieStore.getAll();
+            },
+            setAll(cookiesToSet) {
+                try {
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        cookieStore.set(name, value, options)
+                    );
+                } catch {
+                    // The `setAll` method was called from a Server Component.
+                    // This can be ignored if you have middleware refreshing
+                    // user sessions.
+                }
+            },
+        },
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+        },
+    });
+}
+
+// ----------------------------------------------------------------------
+
+/**
+ * Get order by ID - Server-side version for use in server components
+ */
+export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderData | null; error: string | null }> {
+    try {
+        const supabase = await createAdminClient();
+        
+        const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', orderId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching order (SSR):', error);
+            return { order: null, error: error.message };
+        }
+
+        if (!data) {
+            return { order: null, error: 'Order not found' };
+        }
+
+        // Transform database fields to match our interface
+        const order: IOrderData = {
+            id: data.id,
+            dateCreated: data.date_created,
+            customerId: data.customer_id,
+            customerName: data.customer_name,
+            billingEmails: data.billing_emails || [],
+            notifyEmails: data.notify_emails || [],
+            note: data.note || '',
+            shippingAddress: data.shipping_address,
+            billingAddress: data.billing_address,
+            denyInvoice: data.deny_invoice || false,
+            needVAT: data.need_vat || false,
+            surchargeAmount: data.surcharge_amount || 0,
+            items: data.items || [],
+            subtotal: data.subtotal || 0,
+            shippingCost: data.shipping_cost || 0,
+            vatTotal: data.vat_total || 0,
+            discountTotal: data.discount_total || 0,
+            total: data.total || 0,
+            payedAmount: data.payed_amount || 0,
+            shippingMethod: data.shipping_method,
+            paymentMethod: data.payment_method,
+            paymentStatus: data.payment_status || 'pending',
+            orderStatus: data.order_status || 'pending',
+            paymentDueDays: data.payment_due_days || 0,
+            courier: data.courier,
+            plannedShippingDateTime: data.planned_shipping_date_time,
+            simplepayDataJson: data.simplepay_data_json,
+            invoiceDataJson: data.invoice_data_json,
+            history: data.history || [],
+        };
+
+        return { order, error: null };
+    } catch (error) {
+        console.error('Error fetching order (SSR):', error);
+        return { order: null, error: 'Failed to fetch order' };
+    }
+}
+
+/**
+ * Get all orders - Server-side version for use in server components
+ */
+export async function getAllOrdersSSR(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    customerId?: string;
+}): Promise<{ orders: IOrderData[]; total: number; error: string | null }> {
+    try {
+        const supabase = await createAdminClient();
+        
+        let query = supabase
+            .from('orders')
+            .select('*', { count: 'exact' })
+            .order('date_created', { ascending: false });
+
+        // Apply filters
+        if (params?.status && params.status !== 'all') {
+            query = query.eq('order_status', params.status);
+        }
+
+        if (params?.customerId) {
+            query = query.eq('customer_id', params.customerId);
+        }
+
+        // Apply pagination
+        if (params?.page && params?.limit) {
+            const from = (params.page - 1) * params.limit;
+            const to = from + params.limit - 1;
+            query = query.range(from, to);
+        }
+
+        const { data, count, error } = await query;
+
+        if (error) {
+            console.error('Error fetching orders (SSR):', error);
+            return { orders: [], total: 0, error: error.message };
+        }
+
+        // Transform database fields to match our interface
+        const orders: IOrderData[] = (data || []).map((row: any) => ({
+            id: row.id,
+            dateCreated: row.date_created,
+            customerId: row.customer_id,
+            customerName: row.customer_name,
+            billingEmails: row.billing_emails || [],
+            notifyEmails: row.notify_emails || [],
+            note: row.note || '',
+            shippingAddress: row.shipping_address,
+            billingAddress: row.billing_address,
+            denyInvoice: row.deny_invoice || false,
+            needVAT: row.need_vat || false,
+            surchargeAmount: row.surcharge_amount || 0,
+            items: row.items || [],
+            subtotal: row.subtotal || 0,
+            shippingCost: row.shipping_cost || 0,
+            vatTotal: row.vat_total || 0,
+            discountTotal: row.discount_total || 0,
+            total: row.total || 0,
+            payedAmount: row.payed_amount || 0,
+            shippingMethod: row.shipping_method,
+            paymentMethod: row.payment_method,
+            paymentStatus: row.payment_status || 'pending',
+            orderStatus: row.order_status || 'pending',
+            paymentDueDays: row.payment_due_days || 0,
+            courier: row.courier,
+            plannedShippingDateTime: row.planned_shipping_date_time,
+            simplepayDataJson: row.simplepay_data_json,
+            invoiceDataJson: row.invoice_data_json,
+            history: row.history || [],
+        }));
+
+        return { orders, total: count || 0, error: null };
+    } catch (error) {
+        console.error('Error fetching orders (SSR):', error);
+        return { orders: [], total: 0, error: 'Failed to fetch orders' };
+    }
+}

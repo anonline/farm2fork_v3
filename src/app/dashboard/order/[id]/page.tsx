@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
 
 import { CONFIG } from 'src/global-config';
-import { getOrderById } from 'src/actions/order-management';
+import { getOrderByIdSSR } from 'src/actions/order-ssr';
 
 import { OrderDetailsView } from 'src/sections/order/view';
 
@@ -18,7 +18,7 @@ type Props = {
 export default async function Page({ params }: Props) {
     const { id } = await params;
 
-    const { order: orderData, error } = await getOrderById(id);
+    const { order: orderData, error } = await getOrderByIdSSR(id);
     
     // Transform the order data to match the expected format
     const currentOrder = orderData ? await transformOrderDataToTableItem(orderData) : undefined;

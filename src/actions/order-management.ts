@@ -82,10 +82,14 @@ export async function getOrderById(orderId: string): Promise<{ order: IOrderData
             .select('*')
             .eq('id', orderId)
             .single();
-
+        console.log('Fetched order data:', orderId); // Debug log to check fetched data
         if (error) {
             console.error('Error fetching order:', error);
             return { order: null, error: error.message };
+        }
+
+        if (!data) {
+            return { order: null, error: 'Order not found' };
         }
 
         // Transform database fields to match our interface
