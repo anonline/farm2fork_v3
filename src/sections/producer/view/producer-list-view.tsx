@@ -34,8 +34,8 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { DashboardContent } from 'src/layouts/dashboard';
 import { deleteProducer } from 'src/actions/producer';
+import { DashboardContent } from 'src/layouts/dashboard';
 import { useProducers } from 'src/contexts/producers-context';
 
 import { toast } from 'src/components/snackbar';
@@ -69,7 +69,7 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 export function ProducerListView() {
     const confirmDialog = useBoolean();
 
-    const { producers, loading: producersLoading, error: producersError } = useProducers();
+    const { producers, loading: producersLoading } = useProducers();
 
     const [tableData, setTableData] = useState<IProducerItem[]>([]);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
