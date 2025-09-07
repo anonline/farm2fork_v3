@@ -17,11 +17,11 @@ type SimplepayResponse = {
 }
 
 type PayPageProps = {
-    readonly searchParams: { orderId?: string }
+    searchParams: Promise<{ orderId?: string }>
 }
 
-export default async function PayPage({ searchParams }: PayPageProps) {
-    const { orderId } = searchParams;
+export default async function PayPage({ searchParams }: Readonly<PayPageProps>) {
+    const { orderId } = await searchParams;
 
     if (!orderId) {
         redirect('/product/checkout');
