@@ -14,17 +14,17 @@ import { Iconify } from 'src/components/iconify';
 export const metadata: Metadata = { title: `Payment Success - ${CONFIG.appName}` };
 
 type SuccessPageProps = {
-    searchParams: { 
+    searchParams: Promise<{ 
         orderId?: string; 
         status?: string;
         success?: string;
         failed?: string;
         error?: string;
-    }
+    }>
 }
 
 export default async function PaymentSuccessPage({ searchParams }: SuccessPageProps) {
-    const { orderId, status, success, failed, error: paymentError } = searchParams;
+    const { orderId, status, success, failed, error: paymentError } = await searchParams;
 
     if (!orderId) {
         redirect('/');

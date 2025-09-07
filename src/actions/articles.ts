@@ -3,12 +3,6 @@ import type { IArticleItem } from 'src/types/article';
 
 import { supabase } from 'src/lib/supabase';
 
-const swrOptions: SWRConfiguration = {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-};
-
 export async function insertNewArticle(
     newArticleData: Omit<IArticleItem, 'id' | 'categories' | 'categoryIds'>,
     categoryIds: number[]

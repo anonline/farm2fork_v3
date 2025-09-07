@@ -14,11 +14,11 @@ import { Iconify } from 'src/components/iconify';
 export const metadata: Metadata = { title: `Payment Failed - ${CONFIG.appName}` };
 
 type FailPageProps = {
-    searchParams: { orderId?: string; error?: string }
+    searchParams: Promise<{ orderId?: string; error?: string }>
 }
 
-export default async function PaymentFailPage({ searchParams }: FailPageProps) {
-    const { orderId, error: paymentError } = searchParams;
+export default async function PaymentFailPage({ searchParams }: Readonly<FailPageProps>) {
+    const { orderId, error: paymentError } = await searchParams;
 
     if (!orderId) {
         redirect('/product/checkout');

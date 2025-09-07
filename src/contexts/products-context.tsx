@@ -264,7 +264,7 @@ export function ProductsInMonthInCategoryProvider({
         }
 
         fetchFilteredProducts();
-    }, [categoryId, month]);
+    }, [categoryId, month, monthNames]);
 
     const value = useMemo(
         () => ({
@@ -326,7 +326,7 @@ export function FeaturedProductsProvider({
             setLoading(false);
         }
         fetchProducts();
-    }, []);
+    }, [limit]);
 
     const value = useMemo(
         () => ({
@@ -385,7 +385,7 @@ export function StarProductsProvider({
             setLoading(false);
         }
         fetchProducts();
-    }, []);
+    }, [limit]);
 
     const value = useMemo(
         () => ({

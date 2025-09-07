@@ -28,20 +28,6 @@ async function fetchFaqCategory(id: number) {
     return faqCategory;
 }
 
-async function fetchFaqCategories() {
-    const response = await supabase.from('FaqCategories').select('*');
-    const { data, error: responseError } = response;
-    const faqsCategories = data as IFaqCategoryItem[];
-
-    if (response.count ?? 0) {
-        faqsCategories?.map(async (faqsCategory) => {
-            faqsCategory.faqs = await fetchFaqsByCategoryId(faqsCategory);
-        });
-    }
-    if (responseError) throw responseError.message;
-    return faqsCategories;
-}
-
 async function fetchFaqsByCategoryId(faqCategory: number | IFaqCategoryItem) {
     const response = await supabase.from('Faqs').select('*').eq('faqcategoryId', faqCategory);
     const { data, error: responseError } = response;
