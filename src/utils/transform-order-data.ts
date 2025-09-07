@@ -59,6 +59,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         taxes: orderData.vatTotal,
         shipping: orderData.shippingCost,
         discount: orderData.discountTotal,
+        deposit: orderData.surchargeAmount || 0,
         createdAt: orderData.dateCreated,
         customer: {
             id: orderData.customerId || 'guest',

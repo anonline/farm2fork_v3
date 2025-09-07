@@ -60,6 +60,7 @@ export type IOrderItem = {
     shipping: number;
     discount: number;
     subtotal: number;
+    deposit: number;
     orderNumber: string;
     totalAmount: number;
     totalQuantity: number;

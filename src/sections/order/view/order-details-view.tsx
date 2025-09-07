@@ -82,6 +82,7 @@ export function OrderDetailsView({ order, orderError }: Props) {
                 backHref={paths.dashboard.order.root}
                 onChangeStatus={handleChangeStatus}
                 statusOptions={ORDER_STATUS_OPTIONS}
+                order={order}
             />
 
             <Grid container spacing={3}>

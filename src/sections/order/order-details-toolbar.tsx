@@ -1,4 +1,5 @@
 import type { IDateValue } from 'src/types/common';
+import type { IOrderItem } from 'src/types/order';
 
 import { usePopover } from 'minimal-shared/hooks';
 
@@ -13,20 +14,23 @@ import Typography from '@mui/material/Typography';
 import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
+import { generateShippingLabelPDF } from 'src/utils/pdf-generator';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
+import { toast } from 'src/components/snackbar';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-    status?: string;
-    backHref: string;
-    orderNumber?: string;
-    createdAt?: IDateValue;
-    onChangeStatus: (newValue: string) => void;
-    statusOptions: { value: string; label: string }[];
+    readonly status?: string;
+    readonly backHref: string;
+    readonly orderNumber?: string;
+    readonly createdAt?: IDateValue;
+    readonly order?: IOrderItem;
+    readonly onChangeStatus: (newValue: string) => void;
+    readonly statusOptions: { value: string; label: string }[];
 };
 
 export function OrderDetailsToolbar({
@@ -36,8 +40,25 @@ export function OrderDetailsToolbar({
     orderNumber,
     statusOptions,
     onChangeStatus,
+    order,
 }: Props) {
     const menuActions = usePopover();
+
+    const handleGeneratePDF = async () => {
+        if (!order) {
+            toast.error('Nincs rendelési adat a PDF generálásához');
+            return;
+        }
+
+        try {
+            toast.info('PDF generálása folyamatban...');
+            await generateShippingLabelPDF(order);
+            toast.success('Szállítólevél sikeresen letöltve!');
+        } catch (error) {
+            console.error('Failed to generate PDF:', error);
+            toast.error('PDF generálása sikertelen volt');
+        }
+    };
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -124,6 +145,8 @@ export function OrderDetailsToolbar({
                         color="inherit"
                         variant="outlined"
                         startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
+                        onClick={handleGeneratePDF}
+                        disabled={!order}
                     >
                         Szállítólevél
                     </Button>
