@@ -1,5 +1,6 @@
 import type { IAddressItem } from 'src/types/common';
 import type { IShippingCostMethod } from 'src/types/shipping-cost';
+import type { ICreateOrderData } from 'src/types/order-management';
 
 import { z as zod } from 'zod';
 import { useMemo, useState, useEffect } from 'react';
@@ -23,6 +24,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { useGetCustomerData } from 'src/actions/customer';
+import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
@@ -609,11 +611,105 @@ export function CheckoutPayment() {
             }
 
             clearErrors(['pickupLocation', 'deliveryAddressIndex']);
-            onResetCart();
-            onChangeStep('next');
-            console.info('DATA', data);
+
+            // Prepare order data
+            const selectedShippingMethodData = availableShippingMethods.find(m => m.id === data.shippingMethod);
+            const selectedPaymentMethodData = checkoutState.selectedPaymentMethod;
+            
+            // Get delivery address
+            let deliveryAddress: IAddressItem | null = null;
+            if (data.deliveryAddressIndex !== undefined && data.deliveryAddressIndex !== null && customerData) {
+                const addresses = customerData.deliveryAddress;
+                if (addresses && addresses[data.deliveryAddressIndex]) {
+                    const addr = addresses[data.deliveryAddressIndex];
+                    deliveryAddress = {
+                        id: data.deliveryAddressIndex.toString(),
+                        primary: false,
+                        name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
+                        fullAddress: `${addr.zipCode} ${addr.city}, ${addr.streetAddress}${addr.floorDoor ? `, ${addr.floorDoor}` : ''}`,
+                        phoneNumber: addr.phone || '',
+                        company: customerData.companyName || '',
+                    };
+                }
+            }
+
+            // Convert checkout items to order items
+            const orderItems = checkoutState.items.map(item => ({
+                id: item.id,
+                name: item.name,
+                size: item.size,
+                price: item.price,
+                unit: item.unit,
+                coverUrl: item.coverUrl,
+                quantity: item.quantity,
+                subtotal: item.subtotal || (item.custom === true ? item.price : item.quantity * item.price),
+                note: item.note,
+                custom: item.custom,
+            }));
+
+            // Prepare order data
+            const orderData: ICreateOrderData = {
+                customerId: user?.id || null,
+                customerName: user?.user_metadata?.full_name || user?.email || 'Guest User',
+                billingEmails: user?.email ? [user.email] : [],
+                notifyEmails: checkoutState.notificationEmails,
+                note: checkoutState.deliveryComment,
+                shippingAddress: deliveryAddress,
+                billingAddress: checkoutState.billing,
+                denyInvoice: false, // You might want to add this to checkout state
+                needVAT: false, // You might want to add this to checkout state
+                surchargeAmount: checkoutState.surcharge,
+                items: orderItems,
+                subtotal: checkoutState.subtotal,
+                shippingCost: checkoutState.shipping,
+                vatTotal: 0, // Calculate based on your business logic
+                discountTotal: checkoutState.discount,
+                total: checkoutState.total,
+                shippingMethod: selectedShippingMethodData ? {
+                    id: selectedShippingMethodData.id,
+                    name: selectedShippingMethodData.name,
+                    description: '', // Not available in IShippingCostMethod
+                    cost: checkoutState.shipping // Use the calculated shipping cost from checkout state
+                } : null,
+                paymentMethod: selectedPaymentMethodData,
+                paymentDueDays: 30, // Default payment due days, you might want to configure this
+                plannedShippingDateTime: checkoutState.selectedDeliveryDateTime,
+            };
+
+            // Create order in database
+            toast.info('Rendelés létrehozása...');
+            const { orderId, error } = await createOrder(orderData);
+
+            if (error) {
+                toast.error(`Hiba a rendelés létrehozása során: ${error}`);
+                console.error('Order creation error:', error);
+                return;
+            }
+
+            if (orderId) {
+                toast.success('Rendelés sikeresen létrehozva!');
+                console.info('Order created successfully:', orderId);
+                
+                // Store order ID in checkout context or local storage for the completion page
+                localStorage.setItem('last-order-id', orderId);
+                
+                // Check if payment method is 'simple' (online payment)
+                if (selectedPaymentMethodData?.slug === 'simple' || selectedPaymentMethodData?.type === 'online') {
+                    // For simple/online payment, redirect to payment page with orderId
+                    window.location.href = `/product/checkout/pay?orderId=${orderId}`;
+                    return;
+                }
+                
+                // For other payment methods (cod, wire), proceed to completion
+                onResetCart();
+                onChangeStep('next');
+            }
+
+            console.info('Form DATA', data);
+            console.info('Order DATA', orderData);
         } catch (error) {
-            console.error(error);
+            console.error('Checkout error:', error);
+            toast.error('Váratlan hiba történt a rendelés során.');
         }
     });
 

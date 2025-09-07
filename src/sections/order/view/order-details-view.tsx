@@ -7,7 +7,9 @@ import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
@@ -25,15 +27,51 @@ import { OrderDetailsShipping } from '../order-details-shipping';
 // ----------------------------------------------------------------------
 
 type Props = {
-    order?: IOrderItem;
+    readonly order?: IOrderItem;
+    readonly orderError?: string | null;
 };
 
-export function OrderDetailsView({ order }: Props) {
+export function OrderDetailsView({ order, orderError }: Props) {
     const [status, setStatus] = useState(order?.status);
 
     const handleChangeStatus = useCallback((newValue: string) => {
         setStatus(newValue);
     }, []);
+
+    if (orderError) {
+        return (
+            <DashboardContent>
+                <Card sx={{ p: 3, textAlign: 'center' }}>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="h6" color="error">
+                            Hiba történt a rendelés betöltése során
+                        </Typography>
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                            {orderError}
+                        </Typography>
+                    </Box>
+                    <Button variant="contained" href={paths.dashboard.order.root}>
+                        Vissza a rendelésekhez
+                    </Button>
+                </Card>
+            </DashboardContent>
+        );
+    }
+
+    if (!order) {
+        return (
+            <DashboardContent>
+                <Card sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="h6">
+                        Rendelés nem található
+                    </Typography>
+                    <Button variant="contained" href={paths.dashboard.order.root} sx={{ mt: 2 }}>
+                        Vissza a rendelésekhez
+                    </Button>
+                </Card>
+            </DashboardContent>
+        );
+    }
 
     return (
         <DashboardContent>
@@ -44,6 +82,7 @@ export function OrderDetailsView({ order }: Props) {
                 backHref={paths.dashboard.order.root}
                 onChangeStatus={handleChangeStatus}
                 statusOptions={ORDER_STATUS_OPTIONS}
+                order={order}
             />
 
             <Grid container spacing={3}>

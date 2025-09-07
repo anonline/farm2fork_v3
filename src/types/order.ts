@@ -39,6 +39,7 @@ export type IOrderCustomer = {
     email: string;
     avatarUrl: string;
     ipAddress: string;
+    userType: 'public' | 'vip' | 'company';
 };
 
 export type IOrderProductItem = {
@@ -48,6 +49,8 @@ export type IOrderProductItem = {
     price: number;
     coverUrl: string;
     quantity: number;
+    unit: string;
+    subtotal: number;
 };
 
 export type IOrderItem = {
@@ -57,6 +60,7 @@ export type IOrderItem = {
     shipping: number;
     discount: number;
     subtotal: number;
+    deposit: number;
     orderNumber: string;
     totalAmount: number;
     totalQuantity: number;

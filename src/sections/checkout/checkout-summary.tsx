@@ -137,11 +137,10 @@ export function CheckoutSummary({
                             color: '#979594',
                         }}
                     >
-                        {shipping != undefined
-                            ? shipping == 0
-                                ? 'Ingyenes'
-                                : fCurrency(shipping)
-                            : displayShipping}
+                        {(() => {
+                            if (shipping === undefined) return displayShipping;
+                            return shipping === 0 ? 'Ingyenes' : fCurrency(shipping);
+                        })()}
                     </Typography>
                 </Box>
 

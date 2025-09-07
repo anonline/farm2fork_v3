@@ -97,14 +97,39 @@ export const signUp = async ({
 export const signOut = async (): Promise<{
     error: AuthError | null;
 }> => {
-    const { error } = await supabase.auth.signOut();
+    try {
+        // Check if there's an active session before attempting to sign out
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
 
-    if (error) {
-        console.error(error);
+        // If no session exists, consider the logout successful
+        if (!session) {
+            return { error: null };
+        }
+
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            // Handle specific auth session missing error gracefully
+            if (error.message?.includes('Auth session missing')) {
+                console.warn('No active session to sign out from');
+                return { error: null };
+            }
+            console.error(error);
+            throw error;
+        }
+
+        return { error };
+    } catch (error) {
+        // Handle any other errors gracefully
+        if (error instanceof Error && error.message?.includes('Auth session missing')) {
+            console.warn('No active session to sign out from');
+            return { error: null };
+        }
+        console.error('Unexpected error during sign out:', error);
         throw error;
     }
-
-    return { error };
 };
 
 /** **************************************

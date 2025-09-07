@@ -39,13 +39,28 @@ export function SignOutButton({ onClose, sx, ...other }: Props) {
     const handleLogout = useCallback(async () => {
         try {
             await signOut();
+            
+            // Always check user session to ensure proper state cleanup
             await checkUserSession?.();
 
             onClose?.();
             router.refresh();
         } catch (error) {
-            console.error(error);
-            toast.error('Unable to logout!');
+            console.error('Logout error:', error);
+            
+            // Even if signOut fails, still check session and cleanup state
+            try {
+                await checkUserSession?.();
+                onClose?.();
+                router.refresh();
+            } catch (sessionError) {
+                console.error('Session cleanup error:', sessionError);
+            }
+            
+            // Only show error toast for unexpected errors, not for session missing errors
+            if (error instanceof Error && !error.message?.includes('Auth session missing')) {
+                toast.error('Unable to logout!');
+            }
         }
     }, [checkUserSession, onClose, router]);
 

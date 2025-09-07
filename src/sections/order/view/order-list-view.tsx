@@ -3,8 +3,8 @@
 import type { TableHeadCellProps } from 'src/components/table';
 import type { IOrderItem, IOrderTableFilters } from 'src/types/order';
 
-import { useState, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
+import { useState, useEffect, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Tab from '@mui/material/Tab';
@@ -16,19 +16,23 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
+import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
+import { deleteOrder, deleteOrders } from 'src/actions/order-management';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
     useTable,
@@ -48,15 +52,24 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Összes' }, ...ORDER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [
+    { value: 'all', label: 'Összes' },
+    { value: 'pending', label: 'Függőben' },
+    { value: 'inprogress', label: 'Feldolgozás alatt' },
+    { value: 'completed', label: 'Teljesítve' },
+    { value: 'cancelled', label: 'Visszamondva' },
+];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
     { id: 'orderNumber', label: 'ID', width: 88 },
     { id: 'status', label: '', width: 110 },
     { id: 'name', label: 'Vásárló' },
-    { id: 'totalQuantity', label: 'Termékek', width: 120, align: 'center' },
+    { id: 'totalQuantity', label: '', width: 120, align: 'center' },
+    { id: 'totalnetAmount', label: 'Nettó összeg', width: 140 },
     { id: 'totalAmount', label: 'Br. összeg', width: 140 },
     { id: 'createdAt', label: 'Dátum', width: 140 },
+    { id: 'delivery', label: 'Szállítási mód', width: 140 },
+    { id: 'payment', label: 'Fizetési mód', width: 140 },
     { id: '', width: 88 },
 ];
 
@@ -67,8 +80,6 @@ export function OrderListView() {
 
     const confirmDialog = useBoolean();
 
-    const [tableData, setTableData] = useState<IOrderItem[]>(_orders);
-
     const filters = useSetState<IOrderTableFilters>({
         name: '',
         status: 'all',
@@ -76,6 +87,30 @@ export function OrderListView() {
         endDate: null,
     });
     const { state: currentFilters, setState: updateFilters } = filters;
+
+    // Fetch orders from database
+    const { 
+        orders: ordersData, 
+        ordersLoading, 
+        ordersError, 
+        refreshOrders 
+    } = useGetOrders({
+        status: currentFilters.status !== 'all' ? currentFilters.status : undefined,
+    });
+
+    // Transform orders data to table format
+    const [tableData, setTableData] = useState<IOrderItem[]>([]);
+
+    useEffect(() => {
+        const loadTransformedData = async () => {
+            if (ordersData) {
+                const transformedData = await transformOrdersDataToTableItems(ordersData);
+                setTableData(transformedData);
+            }
+        };
+
+        loadTransformedData();
+    }, [ordersData]);
 
     const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
@@ -96,27 +131,43 @@ export function OrderListView() {
     const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
     const handleDeleteRow = useCallback(
-        (id: string) => {
-            const deleteRow = tableData.filter((row) => row.id !== id);
-
-            toast.success('Delete success!');
-
-            setTableData(deleteRow);
-
-            table.onUpdatePageDeleteRow(dataInPage.length);
+        async (id: string) => {
+            try {
+                const { success, error } = await deleteOrder(id);
+                
+                if (success) {
+                    toast.success('Rendelés sikeresen törölve!');
+                    // Refresh data from server
+                    refreshOrders();
+                    table.onUpdatePageDeleteRow(dataInPage.length);
+                } else {
+                    toast.error(error || 'Hiba történt a rendelés törlése során');
+                }
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                toast.error('Váratlan hiba történt');
+            }
         },
-        [dataInPage.length, table, tableData]
+        [dataInPage.length, table, refreshOrders]
     );
 
-    const handleDeleteRows = useCallback(() => {
-        const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-        toast.success('Delete success!');
-
-        setTableData(deleteRows);
-
-        table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-    }, [dataFiltered.length, dataInPage.length, table, tableData]);
+    const handleDeleteRows = useCallback(async () => {
+        try {
+            const { success, error } = await deleteOrders(table.selected);
+            
+            if (success) {
+                toast.success('Rendelések sikeresen törölve!');
+                // Refresh data from server
+                refreshOrders();
+                table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
+            } else {
+                toast.error(error || 'Hiba történt a rendelések törlése során');
+            }
+        } catch (error) {
+            console.error('Error deleting orders:', error);
+            toast.error('Váratlan hiba történt');
+        }
+    }, [dataFiltered.length, dataInPage.length, table, refreshOrders]);
 
     const handleFilterStatus = useCallback(
         (event: React.SyntheticEvent, newValue: string) => {
@@ -164,7 +215,24 @@ export function OrderListView() {
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
 
-                <Card>
+                {ordersLoading && <LoadingScreen />}
+
+                {ordersError && !ordersLoading && (
+                    <Card sx={{ p: 3, textAlign: 'center' }}>
+                        <Typography variant="h6" color="error">
+                            Hiba történt a rendelések betöltése során
+                        </Typography>
+                        <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
+                            {ordersError}
+                        </Typography>
+                        <Button variant="contained" onClick={() => refreshOrders()}>
+                            Újrapróbálás
+                        </Button>
+                    </Card>
+                )}
+
+                {!ordersLoading && !ordersError && (
+                    <Card>
                     <Tabs
                         value={currentFilters.status}
                         onChange={handleFilterStatus}
@@ -307,7 +375,8 @@ export function OrderListView() {
                         onChangeDense={table.onChangeDense}
                         onRowsPerPageChange={table.onChangeRowsPerPage}
                     />
-                </Card>
+                    </Card>
+                )}
             </DashboardContent>
 
             {renderConfirmDialog()}

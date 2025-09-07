@@ -15,10 +15,6 @@ type CachedOption = {
 
 const optionCache = new Map<OptionsEnum, CachedOption>();
 
-function refreshOptionCache(option: OptionsEnum) {
-    optionCache.delete(option);
-}
-
 export async function getOption(option: OptionsEnum) {
     const now = Date.now();
     if (optionCache.has(option)) {

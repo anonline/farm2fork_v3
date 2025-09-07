@@ -1,5 +1,6 @@
 'use client';
 
+import router from 'next/router';
 import { useState, useEffect } from 'react';
 import { useWatch, useFormContext } from 'react-hook-form';
 
@@ -8,6 +9,8 @@ import MuiStepper from '@mui/material/Stepper';
 import StepLabel from '@mui/material/StepLabel';
 import { type Theme, type SxProps } from '@mui/material/styles';
 import { Grid, Link, Stack, Alert, Button, MenuItem, Typography } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { useShipping } from 'src/contexts/shipping-context';
 
@@ -199,12 +202,8 @@ export function StepCompleted({ onReset }: Readonly<{ onReset: () => void }>) {
     return (
         <Stack alignItems="center" justifyContent="center" spacing={3} sx={{ flexGrow: 1 }}>
             <Typography variant="h4">Köszönjük a regisztrációt!</Typography>
-            <Typography>
-                A fiókod sikeresen létrejött. A megerősítéshez kövesd az e-mailben küldött
-                utasításokat.
-            </Typography>
-            <Button variant="outlined" color="inherit" onClick={onReset}>
-                Új regisztráció
+            <Button variant="outlined" color="inherit" onClick={()=>{router.push(paths.auth.supabase.signIn);}}>
+                Bejelentkezés
             </Button>
         </Stack>
     );

@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import { Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import MenuList from '@mui/material/MenuList';
@@ -41,7 +42,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
     const confirmDialog = useBoolean();
     const menuActions = usePopover();
     const collapseRow = useBoolean();
-
+    console.log('Order row data:', row); // Debugging line
     const renderPrimaryRow = () => (
         <TableRow hover selected={selected}>
             <TableCell padding="checkbox">
@@ -92,9 +93,18 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                 </Box>
             </TableCell>
 
-            <TableCell align="center"> {row.totalQuantity} </TableCell>
+            <TableCell align="center">
+                <Tooltip title={row.customer.userType == 'vip' ? 'VIP' : row.customer.userType == 'company' ? 'Cég' : 'Magánszemély'} arrow>
+                    <span>
+                        {row.customer.userType == 'vip' && <Iconify icon="eva:star-fill" width={20} height={20} color="#FFD700" name='VIP' />}
+                        {row.customer.userType == 'company' && <Iconify icon="solar:buildings-3-line-duotone" width={20} height={20} color="#4CAF50" name='Cég' />}
+                        {row.customer.userType == 'public' && <Iconify icon="solar:user-rounded-bold" width={20} height={20} color="#2196F3" name='Magánszemély' />}
+                    </span>
+                </Tooltip>
+            </TableCell>
 
-            <TableCell> {fCurrency(row.subtotal)} </TableCell>
+            <TableCell> {fCurrency(row.totalAmount-row.taxes)} </TableCell>
+            <TableCell> {fCurrency(row.totalAmount)} </TableCell>
 
             <TableCell>
                 <ListItemText
@@ -111,6 +121,9 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                     }}
                 />
             </TableCell>
+
+            <TableCell align="center"> {row.delivery.shipBy} </TableCell>
+            <TableCell align="center"> {row.payment.cardType} </TableCell>
 
             <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
                 <IconButton
@@ -133,7 +146,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
     const renderSecondaryRow = () => (
         <TableRow>
-            <TableCell sx={{ p: 0, border: 'none' }} colSpan={8}>
+            <TableCell sx={{ p: 0, border: 'none' }} colSpan={11}>
                 <Collapse
                     in={collapseRow.value}
                     timeout="auto"
@@ -161,7 +174,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
                                 <ListItemText
                                     primary={item.name}
-                                    secondary={item.sku}
+                                    secondary={`${fCurrency(item.price)} / ${item.unit}`}
                                     slotProps={{
                                         primary: {
                                             sx: { typography: 'body2' },
@@ -172,10 +185,10 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                                     }}
                                 />
 
-                                <div>x{item.quantity} </div>
+                                <div>x{item.quantity}</div>
 
                                 <Box sx={{ width: 110, textAlign: 'right' }}>
-                                    {fCurrency(item.price)}
+                                    {fCurrency(item.subtotal)}
                                 </Box>
                             </Box>
                         ))}
