@@ -23,7 +23,7 @@ type SuccessPageProps = {
     }>
 }
 
-export default async function PaymentSuccessPage({ searchParams }: SuccessPageProps) {
+export default async function PaymentSuccessPage({ searchParams }: Readonly<SuccessPageProps>) {
     const { orderId, status, success, failed, error: paymentError } = await searchParams;
 
     if (!orderId) {
