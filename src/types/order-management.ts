@@ -1,6 +1,5 @@
 import type { IAddressItem } from './common';
 import type { IPaymentMethod } from './payment-method';
-import type { ICheckoutItem } from './checkout';
 
 // ----------------------------------------------------------------------
 

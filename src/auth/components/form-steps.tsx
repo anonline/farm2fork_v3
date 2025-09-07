@@ -1,5 +1,6 @@
 'use client';
 
+import router from 'next/router';
 import { useState, useEffect } from 'react';
 import { useWatch, useFormContext } from 'react-hook-form';
 
@@ -9,11 +10,11 @@ import StepLabel from '@mui/material/StepLabel';
 import { type Theme, type SxProps } from '@mui/material/styles';
 import { Grid, Link, Stack, Alert, Button, MenuItem, Typography } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 import { useShipping } from 'src/contexts/shipping-context';
 
 import { RHFSelect, RHFSwitch, RHFTextField } from 'src/components/hook-form';
-import { paths } from 'src/routes/paths';
-import router from 'next/router';
 
 // ----------------------------------------------------------------------
 

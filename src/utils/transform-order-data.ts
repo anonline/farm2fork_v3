@@ -1,5 +1,6 @@
-import type { IOrderData } from 'src/types/order-management';
 import type { IOrderItem } from 'src/types/order';
+import type { IOrderData } from 'src/types/order-management';
+
 import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
@@ -65,7 +66,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             email: customerEmail,
             avatarUrl: generateAvatarUrl(customerName),
             ipAddress: '192.168.1.1', // Not tracked in our system
-            userType: userType,
+            userType,
         },
         payment: {
             cardType: orderData.paymentMethod?.name || 'Unknown',

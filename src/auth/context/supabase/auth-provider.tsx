@@ -34,8 +34,13 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
             if (error) {
                 setState({ user: null, loading: false });
-                console.error(error);
-                throw error;
+                console.error('Session check error:', error);
+                
+                // Don't throw for auth session missing errors as this is expected when not logged in
+                if (!error.message?.includes('Auth session missing')) {
+                    throw error;
+                }
+                return;
             }
 
             if (session) {
@@ -55,8 +60,9 @@ export function AuthProvider({ children }: Readonly<Props>) {
                 delete axios.defaults.headers.common.Authorization;
             }
         } catch (error) {
-            console.error(error);
+            console.error('Unexpected session check error:', error);
             setState({ user: null, loading: false });
+            delete axios.defaults.headers.common.Authorization;
         }
     }, [setState]);
 

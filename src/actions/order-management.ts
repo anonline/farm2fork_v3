@@ -1,4 +1,4 @@
-import type { ICreateOrderData, IOrderData, OrderHistoryEntry } from 'src/types/order-management';
+import type { IOrderData, ICreateOrderData, OrderHistoryEntry } from 'src/types/order-management';
 
 import { supabase } from 'src/lib/supabase';
 

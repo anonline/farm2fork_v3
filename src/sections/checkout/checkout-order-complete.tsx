@@ -2,7 +2,7 @@ import type { PaperProps } from '@mui/material/Paper';
 import type { DialogProps } from '@mui/material/Dialog';
 import type { CheckoutContextValue } from 'src/types/checkout';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';

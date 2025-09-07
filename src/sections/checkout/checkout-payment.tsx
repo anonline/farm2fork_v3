@@ -24,10 +24,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { useGetCustomerData } from 'src/actions/customer';
+import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
-import { createOrder } from 'src/actions/order-management';
 
 import { Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';

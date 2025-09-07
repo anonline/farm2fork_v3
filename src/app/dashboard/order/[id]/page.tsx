@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 
+import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
+
 import { CONFIG } from 'src/global-config';
 import { getOrderById } from 'src/actions/order-management';
-import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
 
 import { OrderDetailsView } from 'src/sections/order/view';
 
@@ -20,7 +21,7 @@ export default async function Page({ params }: Props) {
     const { order: orderData, error } = await getOrderById(id);
     
     // Transform the order data to match the expected format
-    const currentOrder = orderData ? transformOrderDataToTableItem(orderData) : undefined;
+    const currentOrder = orderData ? await transformOrderDataToTableItem(orderData) : undefined;
 
     if (error) {
         // Handle error case - could redirect to error page or show error message
