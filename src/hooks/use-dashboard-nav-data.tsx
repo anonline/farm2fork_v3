@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-
 import type { NavSectionProps } from 'src/components/nav-section';
+
+import { useMemo } from 'react';
 
 import { paths } from 'src/routes/paths';
 

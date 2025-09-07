@@ -1,4 +1,4 @@
-import { Container, Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, CircularProgress } from '@mui/material';
 
 export default function PayLoading() {
     return (

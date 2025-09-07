@@ -1,5 +1,5 @@
-import type { IDateValue } from 'src/types/common';
 import type { IOrderItem } from 'src/types/order';
+import type { IDateValue } from 'src/types/common';
 
 import { usePopover } from 'minimal-shared/hooks';
 
@@ -17,9 +17,9 @@ import { fDateTime } from 'src/utils/format-time';
 import { generateShippingLabelPDF } from 'src/utils/pdf-generator';
 
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-import { toast } from 'src/components/snackbar';
 
 // ----------------------------------------------------------------------
 

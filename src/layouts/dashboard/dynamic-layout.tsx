@@ -1,10 +1,9 @@
 'use client';
 
-import type { DashboardLayoutProps } from './layout';
-
 import { useDashboardNavData } from '../../hooks';
-
 import { DashboardLayout as OriginalDashboardLayout } from './layout';
+
+import type { DashboardLayoutProps } from './layout';
 
 // ----------------------------------------------------------------------
 

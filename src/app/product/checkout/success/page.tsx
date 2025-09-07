@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import { Container, Typography, Box, Button } from '@mui/material';
+
 import { redirect } from 'next/navigation';
+
+import { Box, Button, Container, Typography } from '@mui/material';
 
 import { CONFIG } from 'src/global-config';
 import { getOrderByIdSSR, updateOrderPaymentStatusSSR } from 'src/actions/order-ssr';

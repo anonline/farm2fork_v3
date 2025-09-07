@@ -1,6 +1,7 @@
-import { Container } from '@mui/material'
 import { redirect } from 'next/navigation'
 import { startPayment } from 'simplepay-js-sdk'
+
+import { Container } from '@mui/material'
 
 import { getOrderByIdSSR } from 'src/actions/order-ssr'
 
@@ -44,7 +45,7 @@ export default async function PayPage({ searchParams }: PayPageProps) {
                 orderRef: orderId,
                 total: Math.round(order.total), // Ensure integer for payment gateway
                 currency: 'HUF', // opcionális, HUF | HUF_SZEP | EUR | USD, alapértelmezett: HUF
-                customerEmail: customerEmail,
+                customerEmail,
                 language: 'HU', // opcionális, AR | BG | CS | DE | EN | ES | FR | IT | HR | HU | PL | RO | RU | SK | TR | ZH, alapértelmezett: HU
                 method: 'CARD', // opcionális, CARD | WIRE, alapértelmezett: CARD
                 invoice: {
@@ -60,8 +61,8 @@ export default async function PayPage({ searchParams }: PayPageProps) {
                 redirectUrl: `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8082'}/product/checkout/success?orderId=${orderId}` // opcionális, alapértelmezetten a SIMPLEPAY_REDIRECT_URL környezeti változó értéke
             })
             return response as unknown as SimplepayResponse;
-        } catch (error) {
-            console.error('Fizetés indítása sikertelen:', error)
+        } catch (ex) {
+            console.error('Fizetés indítása sikertelen:', ex)
             return null;
         }
     }
