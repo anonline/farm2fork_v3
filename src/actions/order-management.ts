@@ -357,6 +357,41 @@ export async function deleteOrders(orderIds: string[]): Promise<{ success: boole
 }
 
 /**
+ * Update order payment status
+ */
+export async function updateOrderPaymentStatus(
+    orderId: string, 
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
+    payedAmount?: number
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const updateData: any = {
+            payment_status: paymentStatus,
+            updated_at: new Date().toISOString(),
+        };
+
+        if (payedAmount !== undefined) {
+            updateData.payed_amount = payedAmount;
+        }
+
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order payment status:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order payment status:', error);
+        return { success: false, error: 'Failed to update order payment status' };
+    }
+}
+
+/**
  * Get the count of pending orders
  */
 export async function getPendingOrdersCount(): Promise<{ count: number; error: string | null }> {

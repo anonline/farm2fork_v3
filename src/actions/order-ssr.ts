@@ -180,3 +180,40 @@ export async function getAllOrdersSSR(params?: {
         return { orders: [], total: 0, error: 'Failed to fetch orders' };
     }
 }
+
+/**
+ * Update order payment status - Server-side version
+ */
+export async function updateOrderPaymentStatusSSR(
+    orderId: string, 
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
+    payedAmount?: number
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const supabase = await createAdminClient();
+        
+        const updateData: any = {
+            payment_status: paymentStatus,
+            updated_at: new Date().toISOString(),
+        };
+
+        if (payedAmount !== undefined) {
+            updateData.payed_amount = payedAmount;
+        }
+
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order payment status (SSR):', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order payment status (SSR):', error);
+        return { success: false, error: 'Failed to update order payment status' };
+    }
+}

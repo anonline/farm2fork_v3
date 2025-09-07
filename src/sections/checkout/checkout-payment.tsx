@@ -693,7 +693,14 @@ export function CheckoutPayment() {
                 // Store order ID in checkout context or local storage for the completion page
                 localStorage.setItem('last-order-id', orderId);
                 
-                // Reset cart and proceed to next step
+                // Check if payment method is 'simple' (online payment)
+                if (selectedPaymentMethodData?.slug === 'simple' || selectedPaymentMethodData?.type === 'online') {
+                    // For simple/online payment, redirect to payment page with orderId
+                    window.location.href = `/product/checkout/pay?orderId=${orderId}`;
+                    return;
+                }
+                
+                // For other payment methods (cod, wire), proceed to completion
                 onResetCart();
                 onChangeStep('next');
             }
