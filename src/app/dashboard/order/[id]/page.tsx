@@ -28,5 +28,5 @@ export default async function Page({ params }: Props) {
         console.error('Error fetching order:', error);
     }
 
-    return <OrderDetailsView order={currentOrder} orderError={error} />;
+    return <OrderDetailsView order={currentOrder} orderData={orderData || undefined} orderError={error} />;
 }
