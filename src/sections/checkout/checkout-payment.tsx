@@ -44,6 +44,8 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
+import { redirect } from 'next/navigation';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -696,7 +698,12 @@ export function CheckoutPayment() {
                 // Check if payment method is 'simple' (online payment)
                 if (selectedPaymentMethodData?.slug === 'simple' || selectedPaymentMethodData?.type === 'online') {
                     // For simple/online payment, redirect to payment page with orderId
-                    window.location.href = `/product/checkout/pay?orderId=${orderId}`;
+                    window.location.href = paths.checkout.pay(orderId);
+                    return;
+                }
+
+                if(selectedPaymentMethodData?.type === 'cod' || selectedPaymentMethodData?.type === 'wire') {
+                    redirect(paths.checkout.success(orderId, undefined, 'true'));
                     return;
                 }
                 

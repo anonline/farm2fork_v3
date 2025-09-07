@@ -1,3 +1,4 @@
+import { fail } from 'assert';
 import { kebabCase } from 'es-toolkit';
 
 import { _id, _postTitles } from 'src/_mock/assets';
@@ -61,6 +62,49 @@ export const paths = {
         search: {
             products: '/api/search/products',
             producers: 'api/search/producers',
+        },
+    },
+    checkout: {
+        success: (orderId?:string, status?: string, success?: string, failed?: string, error?: string) => {
+            let params = new URLSearchParams();
+            if (orderId) {
+                params.append('orderId', orderId);
+            }
+            if (status) {
+                params.append('status', status);
+            }
+            if (success) {
+                params.append('success', success);
+            }
+            if (failed) {
+                params.append('failed', failed);
+            }
+            if (error) {
+                params.append('error', error);
+            }
+            return `/product/checkout/success/?${params.toString()}`;
+        },
+        pay: (orderId:string) => {
+            let params = new URLSearchParams();
+            params.append('orderId', orderId);
+            return `/product/checkout/pay/?${params.toString()}`;
+        },
+        fail: (orderId:string, status?: string, success?: string, failed?: string, error?: string) => {
+            let params = new URLSearchParams();
+            params.append('orderId', orderId);
+            if (status) {
+                params.append('status', status);
+            }
+            if (success) {
+                params.append('success', success);
+            }
+            if (failed) {
+                params.append('failed', failed);
+            }
+            if (error) {
+                params.append('error', error);
+            }
+            return `/product/checkout/success/?${params.toString()}`;
         },
     },
     product: {
