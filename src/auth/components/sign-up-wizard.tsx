@@ -61,7 +61,7 @@ const getRegistrationSchema = () => {
             .refine(
                 (val) => {
                     if (val === '' || !val) return true;
-                    return /^\+36\d{9}$/.test(val);
+                    return /^\+36\d{7,9}$/.test(val);
                 },
                 {
                     message: 'Érvénytelen telefonszám formátum! (Pl: +36301234567)',

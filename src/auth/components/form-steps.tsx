@@ -12,6 +12,8 @@ import { Grid, Link, Stack, Alert, Button, MenuItem, Typography } from '@mui/mat
 import { useShipping } from 'src/contexts/shipping-context';
 
 import { RHFSelect, RHFSwitch, RHFTextField } from 'src/components/hook-form';
+import { paths } from 'src/routes/paths';
+import router from 'next/router';
 
 // ----------------------------------------------------------------------
 
@@ -199,12 +201,8 @@ export function StepCompleted({ onReset }: Readonly<{ onReset: () => void }>) {
     return (
         <Stack alignItems="center" justifyContent="center" spacing={3} sx={{ flexGrow: 1 }}>
             <Typography variant="h4">Köszönjük a regisztrációt!</Typography>
-            <Typography>
-                A fiókod sikeresen létrejött. A megerősítéshez kövesd az e-mailben küldött
-                utasításokat.
-            </Typography>
-            <Button variant="outlined" color="inherit" onClick={onReset}>
-                Új regisztráció
+            <Button variant="outlined" color="inherit" onClick={()=>{router.push(paths.auth.supabase.signIn);}}>
+                Bejelentkezés
             </Button>
         </Stack>
     );

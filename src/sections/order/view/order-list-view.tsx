@@ -64,9 +64,12 @@ const TABLE_HEAD: TableHeadCellProps[] = [
     { id: 'orderNumber', label: 'ID', width: 88 },
     { id: 'status', label: '', width: 110 },
     { id: 'name', label: 'Vásárló' },
-    { id: 'totalQuantity', label: 'Termékek', width: 120, align: 'center' },
+    { id: 'totalQuantity', label: '', width: 120, align: 'center' },
+    { id: 'totalnetAmount', label: 'Nettó összeg', width: 140 },
     { id: 'totalAmount', label: 'Br. összeg', width: 140 },
     { id: 'createdAt', label: 'Dátum', width: 140 },
+    { id: 'delivery', label: 'Szállítási mód', width: 140 },
+    { id: 'payment', label: 'Fizetési mód', width: 140 },
     { id: '', width: 88 },
 ];
 
@@ -99,10 +102,14 @@ export function OrderListView() {
     const [tableData, setTableData] = useState<IOrderItem[]>([]);
 
     useEffect(() => {
-        if (ordersData) {
-            const transformedData = transformOrdersDataToTableItems(ordersData);
-            setTableData(transformedData);
-        }
+        const loadTransformedData = async () => {
+            if (ordersData) {
+                const transformedData = await transformOrdersDataToTableItems(ordersData);
+                setTableData(transformedData);
+            }
+        };
+
+        loadTransformedData();
     }, [ordersData]);
 
     const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);

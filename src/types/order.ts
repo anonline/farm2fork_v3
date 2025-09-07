@@ -39,6 +39,7 @@ export type IOrderCustomer = {
     email: string;
     avatarUrl: string;
     ipAddress: string;
+    userType: 'public' | 'vip' | 'company';
 };
 
 export type IOrderProductItem = {

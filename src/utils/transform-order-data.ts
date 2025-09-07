@@ -1,12 +1,13 @@
 import type { IOrderData } from 'src/types/order-management';
 import type { IOrderItem } from 'src/types/order';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
 /**
  * Transform our order management data to the format expected by the dashboard table
  */
-export function transformOrderDataToTableItem(orderData: IOrderData): IOrderItem {
+export async function transformOrderDataToTableItem(orderData: IOrderData): Promise<IOrderItem> {
     // Calculate totals from items
     const totalQuantity = orderData.items.reduce((total, item) => total + item.quantity, 0);
     
@@ -46,7 +47,7 @@ export function transformOrderDataToTableItem(orderData: IOrderData): IOrderItem
             .slice(0, 2);
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=00AB55&color=fff&size=128`;
     };
-
+    const userType = await getUserType(orderData.customerId);
     return {
         id: orderData.id,
         orderNumber: orderData.id,
@@ -64,6 +65,7 @@ export function transformOrderDataToTableItem(orderData: IOrderData): IOrderItem
             email: customerEmail,
             avatarUrl: generateAvatarUrl(customerName),
             ipAddress: '192.168.1.1', // Not tracked in our system
+            userType: userType,
         },
         payment: {
             cardType: orderData.paymentMethod?.name || 'Unknown',
@@ -99,9 +101,41 @@ export function transformOrderDataToTableItem(orderData: IOrderData): IOrderItem
     };
 }
 
+async function getUserType(customerId: string | null): Promise<'public' | 'vip' | 'company'> {
+    if (!customerId) return 'public';
+    
+    try {
+        // Import Supabase client
+        const { createClient } = await import('@supabase/supabase-js');
+               
+        const supabase = createClient(
+            CONFIG.supabase.url,
+            CONFIG.supabase.key
+        );
+        
+        // Call the database function with the specific user ID parameter
+        const { data, error } = await supabase.rpc('get_user_type_by_id', {
+            user_id: customerId
+        });
+        
+        console.log('User type fetched from Supabase function for user:', customerId, 'result:', data);
+        
+        if (error) {
+            console.error('Error fetching user type from Supabase:', error);
+            return 'public';
+        }
+        
+        // The function returns the user type directly
+        return data as 'public' | 'vip' | 'company' || 'public';
+    } catch (error) {
+        console.error('Error fetching user type from Supabase:', error);
+        return 'public';
+    }
+}
+
 /**
  * Transform multiple order data items to table items
  */
-export function transformOrdersDataToTableItems(ordersData: IOrderData[]): IOrderItem[] {
-    return ordersData.map(transformOrderDataToTableItem);
+export async function transformOrdersDataToTableItems(ordersData: IOrderData[]): Promise<IOrderItem[]> {
+    return Promise.all(ordersData.map(transformOrderDataToTableItem));
 }
