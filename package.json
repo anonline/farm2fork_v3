@@ -107,6 +107,7 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "simplebar-react": "^3.3.0",
+    "simplepay-js-sdk": "^0.10.1",
     "sonner": "^2.0.2",
     "stylis": "^4.3.6",
     "stylis-plugin-rtl": "^2.1.1",
