@@ -49,6 +49,8 @@ export type IOrderProductItem = {
     price: number;
     coverUrl: string;
     quantity: number;
+    unit: string;
+    subtotal: number;
 };
 
 export type IOrderItem = {

@@ -146,7 +146,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
     const renderSecondaryRow = () => (
         <TableRow>
-            <TableCell sx={{ p: 0, border: 'none' }} colSpan={10}>
+            <TableCell sx={{ p: 0, border: 'none' }} colSpan={11}>
                 <Collapse
                     in={collapseRow.value}
                     timeout="auto"
@@ -174,7 +174,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
                                 <ListItemText
                                     primary={item.name}
-                                    secondary={item.sku}
+                                    secondary={`${fCurrency(item.price)} / ${item.unit}`}
                                     slotProps={{
                                         primary: {
                                             sx: { typography: 'body2' },
@@ -188,7 +188,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                                 <div>x{item.quantity}</div>
 
                                 <Box sx={{ width: 110, textAlign: 'right' }}>
-                                    {fCurrency(item.price)}
+                                    {fCurrency(item.subtotal)}
                                 </Box>
                             </Box>
                         ))}

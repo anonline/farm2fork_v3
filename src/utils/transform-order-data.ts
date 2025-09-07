@@ -88,6 +88,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             price: item.price,
             coverUrl: item.coverUrl || '/assets/placeholder.jpg',
             quantity: item.quantity,
+            unit: item.unit || 'db',
+            subtotal: item.subtotal,
         })),
         history: {
             orderTime: orderData.dateCreated,
