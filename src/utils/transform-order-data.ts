@@ -87,10 +87,11 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             sku: `SKU-${item.id}`,
             name: item.name,
             price: item.price,
-            coverUrl: item.coverUrl || '/assets/placeholder.jpg',
+            coverUrl: item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
             quantity: item.quantity,
             unit: item.unit || 'db',
             subtotal: item.subtotal,
+            slug: item.slug || '',
         })),
         history: {
             orderTime: orderData.dateCreated,

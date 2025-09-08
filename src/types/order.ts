@@ -51,6 +51,7 @@ export type IOrderProductItem = {
     quantity: number;
     unit: string;
     subtotal: number;
+    slug: string;
 };
 
 export type IOrderItem = {

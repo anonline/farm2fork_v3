@@ -1,4 +1,4 @@
-import type { IOrderData } from 'src/types/order-management';
+import type { IOrderData, OrderHistoryEntry } from 'src/types/order-management';
 
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
@@ -248,5 +248,42 @@ export async function updateOrderPaymentSimpleStatusSSR(
     } catch (error) {
         console.error('Error updating order payment data (SSR):', error);
         return { success: false, error: 'Failed to update order payment data' };
+    }
+}
+
+export async function addOrderHistorySSR(orderId: string, newHistory: OrderHistoryEntry): Promise<{ success: boolean; error: string | null }> {
+    console.log('adding new OrderHistory', orderId, newHistory);
+
+    try {
+        const supabase = await createAdminClient();
+        
+        const { data, error } = await supabase
+            .from('orders')
+            .select('history')
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error fetching order history:', error);
+            return { success: false, error: error.message };
+        }
+        console.log('existing history:', data);
+
+        const history = data[0]?.history || [];
+        history.push(newHistory);
+
+        const { error: updateError } = await supabase
+            .from('orders')
+            .update({ history })
+            .eq('id', orderId);
+
+        if (updateError) {
+            console.error('Error updating order history:', updateError);
+            return { success: false, error: updateError.message };
+        }
+        console.log('History updated successfully.');
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error adding order history:', error);
+        return { success: false, error: 'Failed to add order history' };
     }
 }

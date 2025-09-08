@@ -104,6 +104,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                             discount={order?.discount}
                             subtotal={order?.subtotal}
                             totalAmount={order?.totalAmount}
+                            surcharge={order?.deposit}
                         />
 
                         <OrderDetailsHistory history={order?.history} />

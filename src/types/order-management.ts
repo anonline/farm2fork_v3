@@ -45,6 +45,7 @@ export type IOrderItem = {
     subtotal: number;
     note?: string;
     custom?: boolean;
+    slug?: string;
 };
 
 export type IOrderData = {

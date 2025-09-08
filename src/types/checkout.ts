@@ -19,6 +19,7 @@ export type ICheckoutItem = {
     maxQuantity?: number;
     stepQuantity?: number;
     custom?: boolean;
+    slug?: string;
 };
 
 export type ICheckoutDeliveryOption = {

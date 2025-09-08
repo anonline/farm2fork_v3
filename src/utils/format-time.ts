@@ -38,16 +38,16 @@ dayjs.extend(relativeTime);
 export type DatePickerFormat = Dayjs | Date | string | number | null | undefined;
 
 export const formatPatterns = {
-    dateTime: 'DD MMM YYYY h:mm a', // 17 Apr 2022 12:00 am
-    date: 'YYYY. MMM DD.', // 17 Apr 2022
-    time: 'hh:mm', // 12:00 am
+    dateTime: 'YYYY.MM.DD. HH:mm', // 2022.04.17. 12:00
+    date: 'YYYY.MM.DD.', // 2022.04.17.
+    time: 'HH:mm', // 12:00
     split: {
-        dateTime: 'DD/MM/YYYY h:mm a', // 17/04/2022 12:00 am
-        date: 'DD/MM/YYYY', // 17/04/2022
+        dateTime: 'YYYY/MM/DD HH:mm', // 17/04/2022 12:00
+        date: 'YYYY/MM/DD', // 17/04/2022
     },
     paramCase: {
-        dateTime: 'DD-MM-YYYY h:mm a', // 17-04-2022 12:00 am
-        date: 'DD-MM-YYYY', // 17-04-2022
+        dateTime: 'YYYY-MM-DD HH:mm', // 17-04-2022 12:00
+        date: 'YYYY-MM-DD', // 17-04-2022
     },
 };
 
