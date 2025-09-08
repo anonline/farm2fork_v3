@@ -95,6 +95,7 @@ export function HomeHero({
                                 md: '56px', 
                                 lg: '70px' 
                             },
+                            fontFamily: 'Bricolage Grotesque',
                             letterSpacing: { xs: '-0.5px', md: '-1px' },
                         })}
                     >
@@ -115,11 +116,19 @@ export function HomeHero({
                                 fontSize: { xs: '16px', sm: '18px' },
                                 padding: { xs: '14px 20px', sm: '16px 24px' },
                                 borderRadius: '8px',
+                                fontWeight: 600,
                                 lineHeight: { xs: '20px', sm: '22px' },
                                 borderWidth: '2px',
                                 borderStyle: 'solid',
-                                borderColor: theme.vars.palette.primary.main,
+                                color: theme.vars.palette.common.black,
+                                bgcolor: theme.vars.palette.common.white,
+                                borderColor: theme.vars.palette.common.white,
                                 minWidth: { xs: 'auto', sm: 'auto' },
+                                '&:hover': {
+                                    bgcolor: theme.vars.palette.primary.main,
+                                    borderColor: theme.vars.palette.primary.main,
+                                    color: theme.vars.palette.common.white,
+                                },
                             })}
                             component={RouterLink}
                             href={paths.product.root}
@@ -133,10 +142,17 @@ export function HomeHero({
                                 fontSize: { xs: '16px', sm: '18px' },
                                 padding: { xs: '14px 20px', sm: '16px 24px' },
                                 borderRadius: '8px',
+                                fontWeight: 600,
                                 lineHeight: { xs: '20px', sm: '22px' },
                                 color: theme.palette.common.white,
                                 borderColor: theme.palette.common.white,
+                                border: '2px solid',
                                 minWidth: { xs: 'auto', sm: 'auto' },
+                                '&:hover': {
+                                    bgcolor: theme.vars.palette.common.white,
+                                    borderColor: theme.vars.palette.common.white,
+                                    color: theme.vars.palette.common.black,
+                                },
                             })}
                         >
                             {heroSecondaryBtnText}

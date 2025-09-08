@@ -310,7 +310,7 @@ export function FeaturedProductsProvider({
             setLoading(true);
             const { data, error: supabaseError } = await supabase
                 .from('Products')
-                .select('*')
+                .select('*, producer:Producers(*), category:ProductCategories(*)')
                 .eq('featured', true)
                 .limit(limit);
             if (supabaseError) {
@@ -369,7 +369,7 @@ export function StarProductsProvider({
             setLoading(true);
             const { data, error: supabaseError } = await supabase
                 .from('Products')
-                .select('*')
+                .select('*, producer:Producers(*), category:ProductCategories(*)')
                 .eq('star', true)
                 .limit(limit);
             if (supabaseError) {

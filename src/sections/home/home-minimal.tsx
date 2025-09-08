@@ -11,16 +11,17 @@ import HomeMinimalProductsRedirectButton from './home-minimal-products-redirect-
 
 export function HomeMinimal() {
     const h2Style = {
-        fontSize: '40px',
+        fontSize: '40px !important',
         lineHeight: '48px',
         textTransform: 'uppercase',
         fontWeight: 600,
         mb: 3,
+        fontFamily: 'Bricolage Grotesque',
     };
 
     return (
         <Box my={4}>
-            <Typography variant="h2" sx={h2Style}>
+            <Typography variant="h2" sx={h2Style} >
                 Új termékek
             </Typography>
 
@@ -55,7 +56,7 @@ function StarProductsWrapper() {
 
 function FeaturedProductWrapper() {
     const { products, loading } = useFeaturedProducts();
-
+    console.log('products', products);
     return (
         <>
             {loading && (
