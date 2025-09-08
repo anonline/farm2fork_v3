@@ -5,6 +5,7 @@ import type { OrderStatusEnum } from 'src/types/order';
 import { useRouter } from 'next/navigation';
 
 import { Box, Chip, Grid, Paper, Stack, Avatar, Typography } from '@mui/material';
+import { fCurrency } from 'src/utils/format-number';
 
 interface IOrderProduct {
     id: number;
@@ -77,7 +78,7 @@ export default function ProfilRendelesekKartya({ order }: Readonly<{ order: IOrd
                             }}
                         />
                         <Typography variant="h6" fontWeight={700}>
-                            {order.totalPrice.toLocaleString('hu-HU')} Ft
+                            {fCurrency(order.totalPrice)}
                         </Typography>
                     </Stack>
                 </Grid>
@@ -86,7 +87,14 @@ export default function ProfilRendelesekKartya({ order }: Readonly<{ order: IOrd
                     <Stack spacing={1.5} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
                         <DeliveryChip deliveryDateString={order.deliveryDate} />
 
-                        <Grid container spacing={1} sx={{ marginLeft: 'auto' }}>
+                        <Grid 
+                            container 
+                            spacing={1} 
+                            sx={{ 
+                                marginLeft: 'auto',
+                                justifyContent: displayProducts.length < 3 ? 'flex-end' : 'flex-start'
+                            }}
+                        >
                             {displayProducts.map((product, index) => {
                                 const showOverlay = index === 2 && hasMoreProducts;
                                 return (
