@@ -2,13 +2,13 @@ import type { IProductItem } from 'src/types/product';
 
 import { Box, Grid, Skeleton, Typography } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
 import { useStarProducts, useFeaturedProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
 import FeaturedProductCard from 'src/components/product-card/featured-product-card';
 
 import HomeMinimalProductsRedirectButton from './home-minimal-products-redirect-button';
-import { themeConfig } from 'src/theme';
 
 export function HomeMinimal() {
     const h2Style = {

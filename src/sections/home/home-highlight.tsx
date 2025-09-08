@@ -8,6 +8,7 @@ import fooldal_rolunk from 'public/assets/images/home/fooldal_rolunk-1024x1024.w
 import { Box, Grid, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+
 import { themeConfig } from 'src/theme';
 
 export default function HomeHighlight() {

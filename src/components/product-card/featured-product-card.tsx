@@ -8,11 +8,12 @@ import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { themeConfig } from 'src/theme';
+
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
-import { themeConfig } from 'src/theme';
 
 function ProducerInfo({ name, location, img }: Readonly<{ name: string; location: string; img: string }>) {
     return (

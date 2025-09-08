@@ -12,7 +12,9 @@ export type ICategoryItem = {
     Parent: ICategoryItem | null;
     children: ICategoryItem[];
     level: number;
+    order: number | null;
     usageInformation: string;
     storingInformation: string;
     showHome: boolean;
+    showProductPage: boolean;
 };

@@ -41,7 +41,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
             const category = categories.find((c) => c.slug === urlSlug);
 
             if (category) {
-                setActiveCategoryId(category.id ?? 8);
+                setActiveCategoryId(category.id ?? 42);
             }
         }
     }, [urlSlug, categories]);
@@ -170,11 +170,11 @@ export function ProductPageFilter({
         >
             <Stack direction="row" spacing="16px" flexWrap="wrap" sx={{ width: '100%' }}>
                 {categories
-                    .filter((c) => c.level < 2)
+                    .filter((c) => c.level < 2 && c.enabled && c.showProductPage)
                     .map((category) => (
                         <Button
                             key={category.id}
-                            onClick={() => filterChangeAction(category.id ?? 8)}
+                            onClick={() => filterChangeAction(category.id ?? 42)}
                             sx={{
                                 fontSize: '16px',
                                 fontWeight: activeCategoryId == category.id ? '600' : '500',
@@ -284,7 +284,7 @@ export function ProductPageTextFilter({
                     position: 'relative',
                 }}
             >
-                {categories.map((category) => (
+                {categories.filter(c => c.enabled && c.showProductPage).map((category) => (
                     <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'}>
                         {category.name}
                     </MenuItem>
@@ -328,9 +328,9 @@ export function ProductPageTextFilter({
                                     sx={
                                         isLoading
                                             ? {
-                                                  animation: 'rotation 2s infinite linear',
-                                                  animationDirection: 'reverse',
-                                              }
+                                                animation: 'rotation 2s infinite linear',
+                                                animationDirection: 'reverse',
+                                            }
                                             : {}
                                     }
                                 >

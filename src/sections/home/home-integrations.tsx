@@ -2,10 +2,10 @@
 
 import { Box, Grid, Link, Typography } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
 import { usePartners } from 'src/contexts/partners-context';
 
 import { Image } from 'src/components/image';
-import { themeConfig } from 'src/theme';
 
 export default function HomeIntegrations() {
     const { partners } = usePartners();
