@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import { MenuItem } from '@mui/material';
+import { Grid, MenuItem } from '@mui/material';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
@@ -25,6 +25,7 @@ import { insertCategory, updateCategory } from 'src/actions/category';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { s } from 'node_modules/@fullcalendar/core/internal-common';
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +39,10 @@ export const NewProductCategorySchema = zod.object({
     enabled: zod.boolean().default(true),
     // Not required
     parentId: zod.number().optional(),
+    showHome: zod.boolean().default(true),
+    usageInformation: zod.string().optional(),
+    storingInformation: zod.string().optional(),
+    slug: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -64,6 +69,10 @@ export function CategoryNewEditForm({
         description: currentCategory?.description || '',
         enabled: currentCategory?.enabled ?? true,
         id: currentCategory?.id ?? undefined,
+        showHome: currentCategory?.showHome ?? true,
+        usageInformation: currentCategory?.usageInformation || '',
+        storingInformation: currentCategory?.storingInformation || '',
+        slug: currentCategory?.slug || '',
     };
 
     const methods = useForm<NewProductCategorySchemaType>({
@@ -71,13 +80,17 @@ export function CategoryNewEditForm({
         defaultValues,
         values: currentCategory
             ? {
-                  name: currentCategory.name,
-                  parentId: currentCategory.parentId ?? 8,
-                  images: currentCategory.coverUrl || undefined,
-                  description: currentCategory.description ?? '',
-                  enabled: currentCategory.enabled ?? true,
-                  id: currentCategory.id ?? undefined,
-              }
+                name: currentCategory.name,
+                parentId: currentCategory.parentId ?? undefined,
+                images: currentCategory.coverUrl || undefined,
+                description: currentCategory.description ?? '',
+                enabled: currentCategory.enabled ?? true,
+                id: currentCategory.id ?? undefined,
+                showHome: currentCategory.showHome ?? true,
+                usageInformation: currentCategory.usageInformation || '',
+                storingInformation: currentCategory.storingInformation || '',
+                slug: currentCategory.slug || '',
+            }
             : undefined,
     });
 
@@ -114,15 +127,18 @@ export function CategoryNewEditForm({
             coverUrl: data.images ?? '',
             parentId: data.parentId || null,
             enabled: data.enabled || true,
+            showHome: data.showHome || false,
+            usageInformation: data.usageInformation || '',
+            storingInformation: data.storingInformation || '',
         };
 
         try {
             await doSave(updatedData);
 
             await new Promise((resolve) => setTimeout(resolve, 500));
-            reset();
+            //reset();
             toast.success(currentCategory ? 'Frissítés sikeres!' : 'Létrehozás sikeres!');
-            router.push(paths.dashboard.product.categories.root);
+            //router.push(paths.dashboard.product.categories.root);
         } catch (error) {
             console.error(error);
         }
@@ -170,6 +186,8 @@ export function CategoryNewEditForm({
                 <Stack spacing={3} sx={{ p: 3 }}>
                     <Field.Text name="name" label="Kategória neve" />
 
+                    <Field.Text name="slug" label="URL" variant='filled' disabled/>
+
                     <Stack spacing={1.5}>
                         <Typography variant="subtitle2">Leírás</Typography>
                         <Field.Editor
@@ -178,6 +196,27 @@ export function CategoryNewEditForm({
                             placeholder="Írd be a leírást..."
                         />
                     </Stack>
+
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Field.Text
+                                name="usageInformation"
+                                label="Használati információ"
+                                placeholder="Írd be a használati információt..."
+                                multiline
+                                minRows={2}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Field.Text
+                                name="storingInformation"
+                                label="Tárolási információ"
+                                placeholder="Írd be a tárolási információt..."
+                                multiline
+                                minRows={2}
+                            />
+                        </Grid>
+                    </Grid>
 
                     <Stack spacing={1.5}>
                         <Typography variant="subtitle2">Képek (max. {maxFileSize} MB)</Typography>
@@ -229,6 +268,13 @@ export function CategoryNewEditForm({
                         defaultChecked={values.enabled}
                         value={values.enabled}
                     />
+
+                    <Field.Switch
+                        name="showHome"
+                        label="Főoldalon való megjelenítés"
+                        defaultChecked={values.showHome}
+                        value={values.showHome}
+                    />
                 </Stack>
             </Collapse>
         </Card>
@@ -253,11 +299,18 @@ export function CategoryNewEditForm({
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
-            <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-                {renderDetails()}
-                {renderProperties()}
-                {renderActions()}
-            </Stack>
+            <Grid container spacing={3}>
+                <Grid size={{ xs: 12, md: 8 }}>
+                    {renderDetails()}
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+                        {renderProperties()}
+                        {renderActions()}
+                    </Stack>
+                </Grid>
+            </Grid>
+
         </Form>
     );
 }
