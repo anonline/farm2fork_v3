@@ -24,6 +24,8 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+import { themeConfig } from 'src/theme';
+import { Image } from 'src/components/image';
 
 type HeaderSearchBaseResultItem = {
     id: number;
@@ -36,6 +38,7 @@ type HeaderSearchBaseResultItem = {
 interface HeaderSearchProductResultItem extends HeaderSearchBaseResultItem {
     price: number;
     unit?: string;
+    isFromProducer?: boolean;
 }
 
 interface HeaderSearchProducerResultItem extends HeaderSearchBaseResultItem {
@@ -72,11 +75,12 @@ export default function HeaderSearchMobile() {
     const dbProductToSearchResult = (product: IProductItem): HeaderSearchProductResultItem => ({
         id: product.id,
         name: product.name ?? 'Termék',
-        image: product.featuredImage ?? 'https://placehold.co/64x64',
+        image: product.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
         price: product.netPrice ?? 99999,
         bio: product.bio ?? false,
         slug: product.url,
         unit: product.unit ?? 'db',
+        isFromProducer: (product as any).isFromProducer || false,
     });
 
     const dbProducerToSearchResult = (producer: IProducerItem): HeaderSearchProducerResultItem => ({
@@ -84,7 +88,7 @@ export default function HeaderSearchMobile() {
         name:
             producer.name +
             (producer.companyName.length > 0 ? ' (' + producer.companyName + ')' : ''),
-        image: producer.featuredImage ?? 'https://placehold.co/64x64',
+        image: producer.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
         description:
             producer.shortDescription == null || producer.shortDescription.length == 0
                 ? producer.producingTags
@@ -538,7 +542,9 @@ function HeaderSearchProductResultItem({
     price,
     bio,
     unit,
+    isFromProducer,
 }: Readonly<HeaderSearchProductResultItem>) {
+    
     return (
         <Box
             sx={{
@@ -550,15 +556,42 @@ function HeaderSearchProductResultItem({
                 padding: '8px',
                 width: '100%',
                 cursor: 'pointer',
+                position: 'relative',
                 backgroundColor: '#fff',
                 '&:hover': { transform: 'scale(1.01)' },
             }}
         >
-            <img
-                src={image ?? 'https://placehold.co/64x64'}
-                alt={name}
-                style={{ width: '64px', height: '64px', borderRadius: '4px' }}
-            />
+            {isFromProducer && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        backgroundColor: themeConfig.palette.primary.main,
+                        color: '#fff',
+                        borderRadius: '4px',
+                        px: 0.5,
+                        fontSize: '10px',
+                        fontWeight: '600',
+                    }}
+                >
+                    Termelő
+                </Box>
+            )}
+            <Box
+            sx={{
+                width: '64px',
+                height: '64px',
+                flexShrink: 0,
+            }}
+            >
+                <Image
+                    src={image ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                    alt={name}
+                    style={{ width: '100%', height: '64px', borderRadius: '4px' }}
+                />
+            </Box>
+            
             <Box
                 sx={{
                     width: '100%',
@@ -606,7 +639,9 @@ function HeaderSearchProductResultItemMobile({
     price,
     bio,
     unit,
+    isFromProducer,
 }: Readonly<HeaderSearchProductResultItem>) {
+    
     return (
         <Box
             sx={{
@@ -619,9 +654,28 @@ function HeaderSearchProductResultItemMobile({
                 mb: 1,
                 cursor: 'pointer',
                 backgroundColor: '#fff',
+                position: 'relative',
                 '&:hover': { backgroundColor: '#f9f9f9' },
             }}
         >
+            {isFromProducer && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 8,
+                        backgroundColor: themeConfig.palette.primary.main,
+                        color: '#fff',
+                        borderRadius: '4px',
+                        px: 0.5,
+                        py: 0.25,
+                        fontSize: '10px',
+                        fontWeight: '600',
+                    }}
+                >
+                    Termelő
+                </Box>
+            )}
             <img
                 src={image ?? 'https://placehold.co/64x64'}
                 alt={name}

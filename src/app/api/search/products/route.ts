@@ -9,39 +9,74 @@ const supabase = createClient(
 );
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const q = searchParams.get('q')
-  const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
+    const { searchParams } = new URL(req.url);
+    const q = searchParams.get('q');
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
 
+    if (!q || q.trim() === '') {
+        return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 });
+    }
 
-  if (!q || q.trim() === '') {
-    return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 })
-  }
+    const searchTerm = `%${q}%`;
 
-  const searchTerm = `%${q}%`;
+    const baseQuery = `tags.ilike.${searchTerm},name.ilike.${searchTerm}`;
 
-  const { data: matchingProducers } = await supabase
-    .from('Producers')
-    .select('id')
-    .or(`name.ilike.%${q}%,location.ilike.%${q}%,shortDescription.ilike.%${q}%,producingTags.ilike.%${q}%,companyName.ilike.%${q}%`);
+    const productsResponse = await supabase
+        .from('Products')
+        .select('*')
+        .eq('publish', true)
+        .or(baseQuery);
 
-  const producerIds = matchingProducers?.map(p => p.id) ?? [];
+    if (productsResponse.error) {
+        return NextResponse.json(
+            { error: 'Products: ' + productsResponse.error.message },
+            { status: 500 }
+        );
+    }
 
-  const baseQuery = `tags.ilike.%${q}%,name.ilike.${searchTerm}`;
-  const producerQuery = producerIds.length ? `,producerId.in.(${producerIds.join(',')})` : '';
-  const orQuery = baseQuery + producerQuery;
+    const { data: matchingProducers, error: producerError } = await supabase
+        .from('Producers')
+        .select('id')
+        .or(
+            `name.ilike.%${q}%,location.ilike.%${q}%,shortDescription.ilike.%${q}%,producingTags.ilike.%${q}%,companyName.ilike.%${q}%`
+        );
 
-  const { data, error } = await supabase
-    .from('Products')
-    .select('*')
-    .eq('publish', true)
-    .or(orQuery)
-    .limit(limit);
+    if (producerError) {
+        return NextResponse.json({ error: 'Producers: ' + producerError.message }, { status: 500 });
+    }
 
+    let producersProducts = [];
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+    if (matchingProducers && matchingProducers.length > 0) {
+        const producerIds = matchingProducers?.map((p) => p.id) ?? [];
+        const producerQuery = producerIds.length ? `producerId.in.(${producerIds.join(',')})` : '';
+        const producersProductsResponse = await supabase
+            .from('Products')
+            .select('*')
+            .eq('publish', true)
+            .or(producerQuery)
+            .order('name', { ascending: true })
+            .limit(limit);
 
-  return NextResponse.json(data)
+        if (producersProductsResponse.error) {
+            return NextResponse.json(
+                { error: "Producer's Products: " + producersProductsResponse.error.message },
+                { status: 500 }
+            );
+        }
+
+        producersProducts = producersProductsResponse.data ?? [];
+    }
+
+    const combinedData = [
+        ...(productsResponse.data.map((p) => ({ ...p, isFromProducer: false })) ?? []),
+        ...(producersProducts.map((p) => ({ ...p, isFromProducer: true })) ?? []),
+    ];
+
+    const uniqueData = combinedData.filter(
+        (item, index, array) => array.findIndex((t) => t.id === item.id) === index
+    );
+    const data = uniqueData.slice(0, limit);
+
+    return NextResponse.json(data);
 }
