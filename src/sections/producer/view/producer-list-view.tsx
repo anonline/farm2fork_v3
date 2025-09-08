@@ -135,7 +135,7 @@ export function ProducerListView() {
                 onOpenConfirmDeleteRows={confirmDialog.onTrue}
             />
         ),
-        [currentFilters, selectedRowIds, canReset, dataFiltered.length, filters, confirmDialog]
+        [currentFilters, selectedRowIds, canReset, dataFiltered.length, confirmDialog.onTrue]
     );
 
     const columns: GridColDef[] = [

@@ -36,11 +36,11 @@ import { RHFSwitch, RHFEditor, RHFUpload, RHFTextField } from 'src/components/ho
 const ProducerSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     slug: zod.string().min(1, { message: 'URL (slug) megadása kötelező!' }),
-    companyName: zod.string().nullable(),
-    location: zod.string().nullable(),
+    companyName: zod.string().optional(),
+    location: zod.string().optional(),
     bio: zod.boolean(),
-    shortDescription: zod.string().nullable(),
-    producingTags: zod.string().nullable(),
+    shortDescription: zod.string().optional(),
+    producingTags: zod.string().optional(),
     featuredImage: zod
         .union([zod.string(), zod.instanceof(File)])
         .nullable()
@@ -65,11 +65,11 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
         return {
             name: currentProducer?.name || '',
             slug: currentProducer?.slug || '',
-            companyName: currentProducer?.companyName || null,
-            location: currentProducer?.location || null,
+            companyName: currentProducer?.companyName || '',
+            location: currentProducer?.location || '',
             bio: currentProducer?.bio || false,
-            shortDescription: currentProducer?.shortDescription || null,
-            producingTags: currentProducer?.producingTags || null,
+            shortDescription: currentProducer?.shortDescription || '',
+            producingTags: currentProducer?.producingTags || '',
             featuredImage: currentProducer?.featuredImage || null,
             productIds: assignedProductIds,
         };
@@ -163,11 +163,11 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
             const producerData: Partial<IProducerItem> = {
                 name: data.name,
                 slug: data.slug,
-                companyName: data.companyName ?? undefined,
-                location: data.location ?? undefined,
+                companyName: data.companyName || undefined,
+                location: data.location || undefined,
                 bio: data.bio,
-                shortDescription: plainShortDescription ?? undefined,
-                producingTags: data.producingTags ?? undefined,
+                shortDescription: plainShortDescription || undefined,
+                producingTags: data.producingTags || undefined,
                 featuredImage: typeof finalImageUrl === 'string' ? finalImageUrl : undefined,
             };
 
