@@ -21,7 +21,6 @@ import {
 
 import { useGetProducts } from 'src/actions/product';
 import { uploadFile } from 'src/lib/blob/blobClient';
-import BioBadge from 'src/components/bio-badge/bio-badge';
 import {
     createProducer,
     updateProducer,
@@ -30,6 +29,7 @@ import {
 } from 'src/actions/producer';
 
 import { toast } from 'src/components/snackbar';
+import BioBadge from 'src/components/bio-badge/bio-badge';
 import { RHFSwitch, RHFEditor, RHFUpload, RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
