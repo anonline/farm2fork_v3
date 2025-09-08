@@ -2,6 +2,8 @@ import { CONFIG } from 'src/global-config';
 
 type BioBadgeSvgProps = {
     style: React.CSSProperties;
+    width?: number;
+    height?: number;
 };
 
 export default function BioBadge(props: BioBadgeSvgProps) {
@@ -9,8 +11,8 @@ export default function BioBadge(props: BioBadgeSvgProps) {
         <img
             style={props.style}
             src={`${CONFIG.assetsDir}/assets/icons/BIO.svg`}
-            width={45}
-            height={24}
+            width={props.width || 45}
+            height={props.height || 24}
         />
     );
 }

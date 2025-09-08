@@ -31,7 +31,7 @@ export function RHFTextFieldComponent({
                 <TextField
                     {...field}
                     fullWidth
-                    value={isNumberType ? transformValue(field.value) : field.value}
+                    value={isNumberType ? (transformValue(field.value) ?? '') : (field.value ?? '')}
                     onChange={(event) => {
                         const transformedValue = isNumberType
                             ? transformValueOnChange(event.target.value)
