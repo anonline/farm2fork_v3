@@ -4,30 +4,25 @@ import { supabase } from 'src/lib/supabase';
 
 import { insertCategory, updateCategory } from './category';
 
-// Helper function to upload image from URL to Vercel Blob
+// Helper function to upload image from URL to Vercel Blob via API
 export async function uploadImageFromUrl(imageUrl: string, folder: 'category' | 'product' | 'assets' | 'news', filename: string) {
     try {
-        // Fetch the image from the URL
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch image: ${response.statusText}`);
-        }
-        
-        // Get the blob and create a stream
-        const blob = await response.blob();
-        const stream = blob.stream();
-        
-        // Upload to our API endpoint
-        const uploadResponse = await fetch(`/api/img/upload?folder=${folder}&filename=${filename}`, {
+        // Use our server-side API to download and upload the image (bypasses CORS)
+        const uploadResponse = await fetch('/api/img/upload-from-url', {
             method: 'POST',
-            body: stream,
             headers: {
-                'Content-Type': blob.type,
+                'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                imageUrl,
+                folder,
+                filename
+            }),
         });
         
         if (!uploadResponse.ok) {
-            throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+            const errorData = await uploadResponse.json();
+            throw new Error(`Upload failed: ${errorData.error || uploadResponse.statusText}`);
         }
         
         const result = await uploadResponse.json();
