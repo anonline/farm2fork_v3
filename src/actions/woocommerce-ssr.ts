@@ -33,6 +33,7 @@ export async function fetchWooProducts() {
     } while (true);
 
     log(`Total products fetched: ${allProducts.length}`);
+    console.log('allProducts', JSON.stringify(allProducts[0])); // Log first 500 chars of products for inspection
     return allProducts;
 }
 

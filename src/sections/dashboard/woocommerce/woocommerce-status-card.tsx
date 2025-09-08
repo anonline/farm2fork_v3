@@ -22,7 +22,7 @@ export default function WooImportStatusPage({ status, wooProducts, wooCategories
     const { products, productsLoading } = useGetProducts();
     const { categories, categoriesLoading } = useGetCategories();
     const { producers, producersLoading } = useGetProducers();
-    console.log(wooProducers);
+    
     return (
         <Stack spacing={3}>
             {status !== null && (
