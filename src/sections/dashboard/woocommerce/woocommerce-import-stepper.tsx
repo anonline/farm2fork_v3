@@ -14,11 +14,13 @@ import {
     Button,
     Stepper,
     Divider,
+    Checkbox,
     StepLabel,
     CardHeader,
     Typography,
     CardContent,
     StepContent,
+    FormControlLabel,
     LinearProgress,
     CircularProgress
 } from '@mui/material';
@@ -33,11 +35,12 @@ type ImportStep = {
     label: string;
     description: string;
     icon: string;
-    status: 'pending' | 'running' | 'completed' | 'error';
+    status: 'pending' | 'running' | 'completed' | 'error' | 'skipped';
     progress: number;
     processedCount: number;
     totalCount: number;
     details?: string;
+    enabled: boolean; // New field for checkbox state
 };
 
 type Props = {
@@ -61,7 +64,8 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             progress: 0,
             processedCount: 0,
             totalCount: wooCategories?.length || 0,
-            details: 'Várakozás az importálás indítására...'
+            details: 'Várakozás az importálás indítására...',
+            enabled: true
         },
         {
             id: 'producers',
@@ -72,7 +76,8 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             progress: 0,
             processedCount: 0,
             totalCount: wooProducers?.length || 0,
-            details: 'Várakozás az importálás indítására...'
+            details: 'Várakozás az importálás indítására...',
+            enabled: true
         },
         {
             id: 'products',
@@ -83,14 +88,60 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             progress: 0,
             processedCount: 0,
             totalCount: wooProducts?.length || 0,
-            details: 'Várakozás az importálás indítására...'
+            details: 'Várakozás az importálás indítására...',
+            enabled: true
         }
     ]);
+
+    // Handle step checkbox changes
+    const handleStepToggle = (stepId: string) => {
+        if (isImporting) return; // Prevent changes during import
+        
+        setSteps(prevSteps => 
+            prevSteps.map(step => 
+                step.id === stepId 
+                    ? { ...step, enabled: !step.enabled }
+                    : step
+            )
+        );
+    };
+
+    // Get next enabled step index
+    const getNextEnabledStep = (currentIndex: number): number => {
+        for (let i = currentIndex + 1; i < steps.length; i++) {
+            if (steps[i].enabled) {
+                return i;
+            }
+        }
+        return -1; // No more enabled steps
+    };
 
     // Real import process for categories, simulation for others
     const processStep = async (stepIndex: number) => {
         const step = steps[stepIndex];
         if (!step || step.status === 'completed') return;
+
+        // Skip if step is disabled
+        if (!step.enabled) {
+            setSteps(prevSteps => {
+                const newSteps = [...prevSteps];
+                newSteps[stepIndex].status = 'skipped';
+                newSteps[stepIndex].details = 'Lépés kihagyva';
+                return newSteps;
+            });
+
+            // Move to next enabled step
+            const nextStep = getNextEnabledStep(stepIndex);
+            if (nextStep !== -1) {
+                setTimeout(() => {
+                    setActiveStep(nextStep);
+                    processStep(nextStep);
+                }, 500);
+            } else {
+                setIsImporting(false);
+            }
+            return;
+        }
 
         if (step.id === 'categories') {
             // Real category synchronization
@@ -125,9 +176,10 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
 
                 // Move to next step after a short delay
                 setTimeout(() => {
-                    if (stepIndex < steps.length - 1) {
-                        setActiveStep(stepIndex + 1);
-                        processStep(stepIndex + 1);
+                    const nextStep = getNextEnabledStep(stepIndex);
+                    if (nextStep !== -1) {
+                        setActiveStep(nextStep);
+                        processStep(nextStep);
                     } else {
                         setIsImporting(false);
                     }
@@ -172,9 +224,10 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                     
                     // Move to next step after a short delay
                     setTimeout(() => {
-                        if (stepIndex < steps.length - 1) {
-                            setActiveStep(stepIndex + 1);
-                            processStep(stepIndex + 1);
+                        const nextStep = getNextEnabledStep(stepIndex);
+                        if (nextStep !== -1) {
+                            setActiveStep(nextStep);
+                            processStep(nextStep);
                         } else {
                             setIsImporting(false);
                         }
@@ -189,21 +242,34 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
     const startImport = () => {
         setIsImporting(true);
         setImportStarted(true);
-        setActiveStep(0);
+        
+        // Find first enabled step
+        const firstEnabledStep = steps.findIndex(step => step.enabled);
+        if (firstEnabledStep === -1) {
+            // No steps enabled
+            setIsImporting(false);
+            return;
+        }
+        
+        setActiveStep(firstEnabledStep);
         
         // Reset all steps
         setSteps(prevSteps => 
-            prevSteps.map(step => ({
+            prevSteps.map((step, index) => ({
                 ...step,
-                status: step.id === 'categories' ? 'running' : 'pending',
+                status: index === firstEnabledStep && step.enabled ? 'running' : step.enabled ? 'pending' : 'skipped',
                 progress: 0,
                 processedCount: 0,
-                details: step.id === 'categories' ? 'Importálás megkezdve...' : 'Várakozás...'
+                details: index === firstEnabledStep && step.enabled 
+                    ? 'Importálás megkezdve...' 
+                    : step.enabled 
+                        ? 'Várakozás...'
+                        : 'Lépés kihagyva'
             }))
         );
 
-        // Start first step
-        setTimeout(() => processStep(0), 500);
+        // Start first enabled step
+        setTimeout(() => processStep(firstEnabledStep), 500);
     };
 
     const getStepStatusColor = (status: ImportStep['status']) => {
@@ -211,6 +277,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             case 'completed': return themeConfig.palette.success.main;
             case 'running': return themeConfig.palette.primary.main;
             case 'error': return themeConfig.palette.error.main;
+            case 'skipped': return themeConfig.palette.grey[500];
             default: return themeConfig.palette.grey[400];
         }
     };
@@ -220,17 +287,25 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             case 'completed': return 'solar:check-circle-bold';
             case 'running': return 'solar:info-circle-bold';
             case 'error': return 'solar:close-circle-bold';
+            case 'skipped': return 'solar:forbidden-circle-bold';
             default: return 'solar:clock-circle-bold';
         }
     };
 
     const getTotalProgress = () => {
-        const totalItems = steps.reduce((sum, step) => sum + step.totalCount, 0);
-        const processedItems = steps.reduce((sum, step) => sum + step.processedCount, 0);
+        const enabledSteps = steps.filter(step => step.enabled);
+        const totalItems = enabledSteps.reduce((sum, step) => sum + step.totalCount, 0);
+        const processedItems = enabledSteps.reduce((sum, step) => sum + step.processedCount, 0);
         return totalItems > 0 ? (processedItems / totalItems) * 100 : 0;
     };
 
-    const getCompletedStepsCount = () => steps.filter(step => step.status === 'completed').length;
+    const getCompletedStepsCount = () => {
+        const enabledSteps = steps.filter(step => step.enabled);
+        const completedSteps = enabledSteps.filter(step => step.status === 'completed');
+        return completedSteps.length;
+    };
+
+    const getEnabledStepsCount = () => steps.filter(step => step.enabled).length;
 
     return (
         <Card sx={{ mt: 3 }}>
@@ -259,7 +334,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                         <Box>
                                             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {getCompletedStepsCount()}/{steps.length} lépés befejezve
+                                                    {getCompletedStepsCount()}/{getEnabledStepsCount()} lépés befejezve
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
                                                     {getTotalProgress().toFixed(1)}%
@@ -279,18 +354,18 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                             Státusz
                                         </Typography>
                                         <Chip
-                                            icon={<Iconify icon={isImporting ? "solar:info-circle-bold" : getCompletedStepsCount() === steps.length ? "solar:check-circle-bold" : "solar:clock-circle-bold"} />}
+                                            icon={<Iconify icon={isImporting ? "solar:info-circle-bold" : getCompletedStepsCount() === getEnabledStepsCount() ? "solar:check-circle-bold" : "solar:clock-circle-bold"} />}
                                             label={
                                                 isImporting 
                                                     ? "Importálás folyamatban..." 
-                                                    : getCompletedStepsCount() === steps.length 
+                                                    : getCompletedStepsCount() === getEnabledStepsCount() 
                                                         ? "Befejezve" 
                                                         : "Várakozik"
                                             }
                                             color={
                                                 isImporting 
                                                     ? "primary" 
-                                                    : getCompletedStepsCount() === steps.length 
+                                                    : getCompletedStepsCount() === getEnabledStepsCount() 
                                                         ? "success" 
                                                         : "default"
                                             }
@@ -302,16 +377,57 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                         </Paper>
                     )}
 
+                    {/* Step Selection */}
+                    {!importStarted && (
+                        <Paper sx={{ p: 3, bgcolor: 'background.neutral' }}>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                Válaszd ki a végrehajtandó lépéseket:
+                            </Typography>
+                            <Grid container spacing={2}>
+                                {steps.map((step) => (
+                                    <Grid key={step.id} size={{ xs: 12, md: 4 }}>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={step.enabled}
+                                                    onChange={() => handleStepToggle(step.id)}
+                                                    disabled={isImporting}
+                                                />
+                                            }
+                                            label={
+                                                <Box>
+                                                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                                        {step.label}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        {step.totalCount} elem
+                                                    </Typography>
+                                                </Box>
+                                            }
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                            {getEnabledStepsCount() === 0 && (
+                                <Alert severity="warning" sx={{ mt: 2 }}>
+                                    Legalább egy lépést ki kell választani az importálás megkezdéséhez.
+                                </Alert>
+                            )}
+                        </Paper>
+                    )}
+
                     {/* Start Import Button */}
                     {!importStarted && (
                         <Alert severity="info" sx={{ mb: 2 }}>
                             <Typography variant="body1" sx={{ mb: 2 }}>
-                                Az importálás megkezdéséhez kattintson az alábbi gombra. A folyamat automatikusan végighalad a következő lépéseken:
+                                Az importálás megkezdéséhez kattintson az alábbi gombra. A folyamat automatikusan végighalad a kiválasztott lépéseken:
                             </Typography>
                             <Box sx={{ ml: 2 }}>
-                                <Typography variant="body2">• {wooCategories?.length || 0} termék kategória</Typography>
-                                <Typography variant="body2">• {wooProducers?.length || 0} termelő</Typography>
-                                <Typography variant="body2">• {wooProducts?.length || 0} termék</Typography>
+                                {steps.filter(step => step.enabled).map(step => (
+                                    <Typography key={step.id} variant="body2">
+                                        • {step.totalCount} {step.label.toLowerCase()}
+                                    </Typography>
+                                ))}
                             </Box>
                         </Alert>
                     )}
@@ -321,7 +437,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                             variant="contained"
                             size="large"
                             onClick={startImport}
-                            disabled={isImporting}
+                            disabled={isImporting || getEnabledStepsCount() === 0}
                             startIcon={
                                 isImporting ? (
                                     <CircularProgress size={20} color="inherit" />
@@ -331,7 +447,12 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                             }
                             sx={{ px: 4, py: 1.5 }}
                         >
-                            {isImporting ? 'Importálás folyamatban...' : 'Szinkronizálás indítása'}
+                            {isImporting 
+                                ? 'Importálás folyamatban...' 
+                                : getEnabledStepsCount() === 0 
+                                    ? 'Válassz legalább egy lépést'
+                                    : 'Szinkronizálás indítása'
+                            }
                         </Button>
                     </Box>
 
@@ -354,7 +475,8 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                                 bgcolor: getStepStatusColor(step.status),
                                                 color: 'white',
                                                 border: step.status === 'running' ? '3px solid' : 'none',
-                                                borderColor: step.status === 'running' ? themeConfig.palette.primary.light : 'transparent'
+                                                borderColor: step.status === 'running' ? themeConfig.palette.primary.light : 'transparent',
+                                                opacity: step.status === 'skipped' ? 0.6 : 1
                                             }}
                                         >
                                             {step.status === 'running' ? (
@@ -370,16 +492,36 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                     )}
                                 >
                                     <Stack spacing={0.5}>
-                                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                        <Typography 
+                                            variant="h6" 
+                                            sx={{ 
+                                                fontWeight: 600,
+                                                opacity: step.status === 'skipped' ? 0.6 : 1,
+                                                textDecoration: step.status === 'skipped' ? 'line-through' : 'none'
+                                            }}
+                                        >
                                             {step.label}
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography 
+                                            variant="body2" 
+                                            color="text.secondary"
+                                            sx={{ opacity: step.status === 'skipped' ? 0.6 : 1 }}
+                                        >
                                             {step.description}
                                         </Typography>
                                     </Stack>
                                 </StepLabel>
                                 <StepContent>
-                                    <Paper sx={{ p: 3, mt: 2, mb: 2, bgcolor: 'background.neutral' }}>
+                                    {step.status === 'skipped' ? (
+                                        <Paper sx={{ p: 3, mt: 2, mb: 2, bgcolor: 'background.neutral', opacity: 0.6 }}>
+                                            <Alert severity="info">
+                                                <Typography variant="body2">
+                                                    Ez a lépés ki lett hagyva.
+                                                </Typography>
+                                            </Alert>
+                                        </Paper>
+                                    ) : (
+                                        <Paper sx={{ p: 3, mt: 2, mb: 2, bgcolor: 'background.neutral' }}>
                                         <Stack spacing={2}>
                                             {/* Progress Bar */}
                                             <Box>
@@ -441,14 +583,15 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                                 </Alert>
                                             )}
                                         </Stack>
-                                    </Paper>
+                                        </Paper>
+                                    )}
                                 </StepContent>
                             </Step>
                         ))}
                     </Stepper>
 
                     {/* Completion Message */}
-                    {importStarted && !isImporting && getCompletedStepsCount() === steps.length && (
+                    {importStarted && !isImporting && getCompletedStepsCount() === getEnabledStepsCount() && getEnabledStepsCount() > 0 && (
                         <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'success.lighter' }}>
                             <Stack spacing={2} alignItems="center">
                                 <Iconify icon="solar:check-circle-bold" width={48} height={48} color="success.main" />
