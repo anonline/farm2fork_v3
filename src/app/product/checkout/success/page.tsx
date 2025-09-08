@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { OrderHistoryEntry } from 'src/types/order-management';
 
 import { redirect } from 'next/navigation';
 
@@ -8,14 +9,13 @@ import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
-import { getOrderByIdSSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR, addOrderHistorySSR } from 'src/actions/order-ssr';
+import { getOrderByIdSSR, addOrderHistorySSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
 
 import { getSimplePayErrorMessage } from 'src/types/simplepay';
 
 import { CartClearer } from './cart-clearer';
-import { OrderHistoryEntry } from 'src/types/order-management';
 
 // ----------------------------------------------------------------------
 

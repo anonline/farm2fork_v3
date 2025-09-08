@@ -2,18 +2,19 @@ import type { CardProps } from '@mui/material/Card';
 import type { IOrderProductItem } from 'src/types/order';
 
 import Box from '@mui/material/Box';
+import { Link } from '@mui/material';
 import Card from '@mui/material/Card';
 import Avatar from '@mui/material/Avatar';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 
+import { paths } from 'src/routes/paths';
+
 import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { paths } from 'src/routes/paths';
-import { Link } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
