@@ -1,8 +1,10 @@
 import type { ICategoryItem } from 'src/types/category';
+import type { IProducerItem } from 'src/types/producer';
 
 import { supabase } from 'src/lib/supabase';
 
 import { insertCategory, updateCategory } from './category';
+import { insertProducer, updateProducer } from './producer';
 
 // Helper function to upload image from URL to Vercel Blob via API
 export async function uploadImageFromUrl(imageUrl: string, folder: 'category' | 'product' | 'assets' | 'news', filename: string) {
@@ -190,6 +192,126 @@ export async function syncCategories(
                 console.error(`Error updating parent relationship for ${wooCategory.name}:`, error);
                 results.details.push(`Error updating parent for ${wooCategory.name}: ${error}`);
             }
+        }
+    }
+
+    return results;
+}
+
+// WooCommerce Producer Interface
+interface WooProducer {
+    id: number;
+    title: string;
+    slug: string;
+    featured_img: string;
+    content: string;
+    post: any; // WP_Post object
+    link: string;
+    meta_data: Array<{
+        meta_key: string;
+        meta_value: string;
+    }>;
+}
+
+// Helper function to extract meta value by key
+function getMetaValue(metaData: Array<{meta_key: string; meta_value: string}>, key: string): string {
+    const meta = metaData.find(item => item.meta_key === key);
+    return meta ? meta.meta_value : '';
+}
+
+// Synchronize WooCommerce producers with our database
+export async function syncProducers(
+    wooProducers: WooProducer[], 
+    onProgress?: SyncProgressCallback
+): Promise<{ success: number; errors: number; details: string[] }> {
+    const results = {
+        success: 0,
+        errors: 0,
+        details: [] as string[]
+    };
+
+    // Get existing producers from database
+    const { data: existingProducers } = await supabase
+        .from('Producers')
+        .select('*');
+
+    const existingProducerMap = new Map<string, IProducerItem>();
+    existingProducers?.forEach(producer => {
+        existingProducerMap.set(producer.name.toLowerCase(), producer);
+    });
+
+    for (let i = 0; i < wooProducers.length; i++) {
+        const wooProducer = wooProducers[i];
+        
+        try {
+            onProgress?.(i + 1, wooProducers.length, wooProducer.title);
+            
+            const existingProducer = existingProducerMap.get(wooProducer.title.toLowerCase());
+            
+            // Extract data from meta fields
+            const location = getMetaValue(wooProducer.meta_data, 'telephely');
+            const shortDescription = getMetaValue(wooProducer.meta_data, 'felso_bemutatkozas');
+            const producingTags = getMetaValue(wooProducer.meta_data, 'termeny') || getMetaValue(wooProducer.meta_data, 'termeny_kartya');
+            const bioValue = getMetaValue(wooProducer.meta_data, 'bio');
+            const companyName = getMetaValue(wooProducer.meta_data, 'nev');
+
+            // Prepare producer data
+            const producerData: Partial<IProducerItem> = {
+                name: wooProducer.title,
+                slug: wooProducer.slug,
+                location: location || '',
+                shortDescription: shortDescription ? shortDescription.replace(/<[^>]*>/g, '') : '', // Strip HTML tags
+                producingTags: producingTags || '',
+                companyName: companyName || '',
+                bio: bioValue === '1' || bioValue === 'true',
+                galleryIds: [] // Initialize as empty array
+            };
+
+            // Handle featured image upload if present
+            if (wooProducer.featured_img) {
+                try {
+                    const filename = extractFilenameFromUrl(wooProducer.featured_img);
+                    const uploadedImageUrl = await uploadImageFromUrl(
+                        wooProducer.featured_img, 
+                        'assets', 
+                        `woo-producer-${wooProducer.id}-${filename}`
+                    );
+                    producerData.featuredImage = uploadedImageUrl;
+                } catch (imageError) {
+                    console.error(`Failed to upload image for producer ${wooProducer.title}:`, imageError);
+                    results.details.push(`Image upload failed for ${wooProducer.title}: ${imageError}`);
+                    // Continue without image
+                }
+            }
+
+            if (existingProducer) {
+                // Check if update is needed
+                const needsUpdate = 
+                    existingProducer.slug !== wooProducer.slug ||
+                    existingProducer.location !== (location || '') ||
+                    existingProducer.shortDescription !== (shortDescription ? shortDescription.replace(/<[^>]*>/g, '') : '') ||
+                    existingProducer.producingTags !== (producingTags || '') ||
+                    existingProducer.companyName !== (companyName || '') ||
+                    existingProducer.bio !== (bioValue === '1' || bioValue === 'true') ||
+                    wooProducer.featured_img; // Always update image if provided
+
+                if (needsUpdate) {
+                    await updateProducer(existingProducer.id, producerData);
+                    results.details.push(`Updated producer: ${wooProducer.title}`);
+                } else {
+                    results.details.push(`No changes needed for producer: ${wooProducer.title}`);
+                }
+            } else {
+                // Create new producer
+                await insertProducer(producerData);
+                results.details.push(`Created new producer: ${wooProducer.title}`);
+            }
+
+            results.success++;
+        } catch (error) {
+            console.error(`Error syncing producer ${wooProducer.title}:`, error);
+            results.errors++;
+            results.details.push(`Error syncing ${wooProducer.title}: ${error}`);
         }
     }
 

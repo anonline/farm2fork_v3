@@ -104,6 +104,12 @@ export async function createProducer(producerData: Partial<IProducerItem>) {
     return data;
 }
 
+export async function insertProducer(producerData: Partial<IProducerItem>) {
+    const { data, error } = await supabase.from('Producers').insert(producerData).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
 export async function updateProducer(id: number, producerData: Partial<IProducerItem>) {
     const { error } = await supabase.from('Producers').update(producerData).eq('id', id);
     if (error) throw new Error(error.message);
