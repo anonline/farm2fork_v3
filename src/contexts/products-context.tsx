@@ -70,15 +70,25 @@ export const useProductFilterCategory = (
 ) => {
     const context = useContext(ProductsContext);
     if (!context) throw new Error('useProducts csak a ProductsProvider-en belül használható');
-    if (categoryId != undefined && categoryId != 8) {
-        //8 = all products
-        let products = context.products.filter(
-            (p) => p.category?.filter((c) => c.id == categoryId).length ?? false
-        );
-        const loading = context.loading;
-        const error = context.loading;
-        if (sorting) {
-            products = products.sort((a, b) => {
+    
+    const products = useMemo(() => {
+        let filteredProducts = context.products;
+        
+        // Filter by category (if not "all products" category id 8)
+        if (categoryId !== undefined && categoryId !== 8) {
+            filteredProducts = filteredProducts.filter(
+                (p) => p.category?.some((c) => c.id === categoryId)
+            );
+        }
+        
+        // Filter by bio
+        if (isBio) {
+            filteredProducts = filteredProducts.filter((p) => p.bio);
+        }
+        
+        // Sort products
+        if (sorting && sorting !== 'default') {
+            filteredProducts = [...filteredProducts].sort((a, b) => {
                 if (sorting === 'name-asc') return a.name.localeCompare(b.name);
                 if (sorting === 'name-desc') return b.name.localeCompare(a.name);
                 if (sorting === 'price-asc') return a.netPrice - b.netPrice;
@@ -86,28 +96,15 @@ export const useProductFilterCategory = (
                 return 0;
             });
         }
+        
+        return filteredProducts;
+    }, [context.products, categoryId, isBio, sorting]);
 
-        if (isBio) {
-            products = products.filter((p) => p.bio);
-        }
-        return { products, loading, error };
-    }
-    if (sorting) {
-        let sortedProducts = context.products.sort((a, b) => {
-            if (sorting === 'name-asc') return a.name.localeCompare(b.name);
-            if (sorting === 'name-desc') return b.name.localeCompare(a.name);
-            if (sorting === 'price-asc') return a.netPrice - b.netPrice;
-            if (sorting === 'price-desc') return b.netPrice - a.netPrice;
-            return 0;
-        });
-        if (isBio) {
-            sortedProducts = sortedProducts.filter((p) => p.bio);
-        }
-
-        return { products: sortedProducts, loading: context.loading, error: context.error };
-    }
-
-    return context;
+    return { 
+        products, 
+        loading: context.loading, 
+        error: context.error 
+    };
 };
 
 //--------------------------------------------------------------------------------------

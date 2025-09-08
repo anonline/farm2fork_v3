@@ -81,7 +81,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
             <TableCell>
                 <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-                    <Avatar alt={row.customer.name} src={row.customer.avatarUrl} />
+                    {/*<Avatar alt={row.customer.name} src={row.customer.avatarUrl} />*/}
 
                     <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
                         <Box component="span">{row.customer.name}</Box>
@@ -109,7 +109,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
             <TableCell>
                 <ListItemText
                     primary={fDate(row.createdAt)}
-                    secondary={fTime(row.createdAt)}
+                    secondary={fTime(row.createdAt, "HH:mm")}
                     slotProps={{
                         primary: {
                             noWrap: true,

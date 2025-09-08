@@ -34,12 +34,12 @@ export default async function Page() {
     ] = await Promise.all(optionKeys.map(getOption));
 
     const HomeViewProps = {
-        heroImg: heroImg?.value,
-        heroHeight: heroHeight?.value,
-        heroTitle: heroTitle?.value,
-        heroPrimaryBtnText: heroPrimaryBtnText?.value,
-        heroSecondaryBtnText: heroSecondaryBtnText?.value,
-        heroImgOverlay: heroImgOverlay?.value,
+        heroImg: heroImg?.value || '',
+        heroHeight: heroHeight?.value || '',
+        heroTitle: heroTitle?.value || '',
+        heroPrimaryBtnText: heroPrimaryBtnText?.value || '',
+        heroSecondaryBtnText: heroSecondaryBtnText?.value || '',
+        heroImgOverlay: heroImgOverlay?.value || '',
     };
 
     return <HomeView {...HomeViewProps} />;

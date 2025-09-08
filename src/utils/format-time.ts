@@ -1,3 +1,5 @@
+import 'dayjs/locale/hu';
+
 import type { Dayjs, OpUnitType } from 'dayjs';
 
 import dayjs from 'dayjs';
@@ -81,7 +83,7 @@ export function fDate(date: DatePickerFormat, template?: string): string {
         return 'Invalid date';
     }
 
-    return dayjs(date).format(template ?? formatPatterns.date);
+    return dayjs(date).locale('hu').format(template ?? formatPatterns.date);
 }
 
 // ----------------------------------------------------------------------

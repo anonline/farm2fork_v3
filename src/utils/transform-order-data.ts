@@ -141,5 +141,11 @@ async function getUserType(customerId: string | null): Promise<'public' | 'vip' 
  * Transform multiple order data items to table items
  */
 export async function transformOrdersDataToTableItems(ordersData: IOrderData[]): Promise<IOrderItem[]> {
-    return Promise.all(ordersData.map(transformOrderDataToTableItem));
+    let orders = await Promise.all(ordersData.map(transformOrderDataToTableItem));
+    orders = orders.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+    });
+    return orders;
 }

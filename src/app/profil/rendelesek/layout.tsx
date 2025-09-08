@@ -14,7 +14,7 @@ export default function Layout({ children }: Readonly<Props>) {
     return (
         <ProfileGuard>
             <MainLayout>
-                <Container sx={{ margin: '0 auto', padding: '20px' }}>{children}</Container>
+                <Container sx={{ margin: '0 auto' }}>{children}</Container>
             </MainLayout>
         </ProfileGuard>
     );
