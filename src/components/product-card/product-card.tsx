@@ -587,6 +587,7 @@ function ProductCardButton({
                 minQuantity: product.mininumQuantity,
                 maxQuantity: product.maximumQuantity,
                 stepQuantity: product.stepQuantity,
+                slug: product.url
             });
             toast.success(`${qty.toFixed((qty%1===0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
             // if we want to open sidecart on addToCart we should use this: openSideCart();

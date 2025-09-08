@@ -18,7 +18,7 @@ export async function createOrder(orderData: ICreateOrderData): Promise<{ orderI
         const initialHistory: OrderHistoryEntry = {
             timestamp: now,
             status: 'pending',
-            note: 'Order created',
+            note: 'Rendelés létrehozva',
         };
 
         // Prepare the order object for database insertion
@@ -442,3 +442,5 @@ export async function getPendingOrdersCount(): Promise<{ count: number; error: s
         return { count: 0, error: 'Failed to fetch pending orders count' };
     }
 }
+
+

@@ -648,12 +648,14 @@ export function CheckoutPayment() {
                 subtotal: item.subtotal || (item.custom === true ? item.price : item.quantity * item.price),
                 note: item.note,
                 custom: item.custom,
+                slug: item.slug || '',  
             }));
 
+            console.log('Customer data', customerData);
             // Prepare order data
             const orderData: ICreateOrderData = {
                 customerId: user?.id || null,
-                customerName: user?.user_metadata?.full_name || user?.email || 'Guest User',
+                customerName: [customerData?.lastname, customerData?.firstname].join(' ') || user?.user_metadata?.full_name || user?.email || 'Guest User',
                 billingEmails: user?.email ? [user.email] : [],
                 notifyEmails: checkoutState.notificationEmails,
                 note: checkoutState.deliveryComment,

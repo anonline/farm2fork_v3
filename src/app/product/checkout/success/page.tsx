@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { OrderHistoryEntry } from 'src/types/order-management';
 
 import { redirect } from 'next/navigation';
 
@@ -8,7 +9,7 @@ import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
-import { getOrderByIdSSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
+import { getOrderByIdSSR, addOrderHistorySSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -17,8 +18,7 @@ import { getSimplePayErrorMessage } from 'src/types/simplepay';
 import { CartClearer } from './cart-clearer';
 
 // ----------------------------------------------------------------------
-//http://localhost:8082/product/checkout/success?orderId=ORD-1757249910543-8isyum1uq&r=eyJyIjoyMDEzLCJ0Ijo1MDY5NjAzODQsImUiOiJGQUlMIiwibSI6Ik9NUzUxMzI5MjA0IiwibyI6Ik9SRC0xNzU3MjQ5OTEwNTQzLThpc3l1bTF1cSJ9
-// &s=j2gOjL%2FfmLoHslEqMoGw261SObdLAk0gAiqocWfjgD4mya2JJ2iS%2FKjFg1l4wW5B
+
 export const metadata: Metadata = { title: `Payment Success - ${CONFIG.appName}` };
 type SimplePayResponse = {
     r: number, //válasz kód
@@ -83,19 +83,32 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
         // Decode base64 SimplePay response
         let simplePayResponse: SimplePayResponse;
+        let historyEntry: OrderHistoryEntry;
 
         try {
             const decodedString = Buffer.from(r, 'base64').toString('utf-8');
             simplePayResponse = JSON.parse(decodedString);
 
             console.log('Parsed SimplePay response:', simplePayResponse);
-
+            
             if (simplePayResponse.e === 'SUCCESS') {
                 isPaymentSuccess = true;
+                
+                historyEntry = {
+                    timestamp: new Date().toISOString(),
+                    status: 'pending',
+                    note: 'Fizetés sikeres a SimplePay-en keresztül',
+                };
             }
             else {
                 failMessage = getSimplePayErrorMessage(simplePayResponse.r as any);
                 console.error('SimplePay indicates payment failure:', { orderId, simplePayResponse });
+                
+                historyEntry = {
+                    timestamp: new Date().toISOString(),
+                    status: 'pending',
+                    note: `Fizetés sikertelen a SimplePay-en keresztül: ${failMessage}`,
+                };
             }
 
             await updateOrderPaymentSimpleStatusSSR(orderId, JSON.stringify(simplePayResponse));
@@ -103,7 +116,15 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
         } catch (parseError) {
             failMessage = 'Kommunikáció a SimplePay rendszerrel sikertelen';
             console.error('Failed to parse SimplePay response:', parseError);
+
+            historyEntry = {
+                timestamp: new Date().toISOString(),
+                status: 'pending',
+                note: `Fizetés hiba a SimplePay-en keresztül: ${failMessage}`,
+            };
         }
+
+        await addOrderHistorySSR(orderId, historyEntry);
     }
     else {
         // Determine if payment was successful or failed

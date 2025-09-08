@@ -1,4 +1,5 @@
 import type { SxProps } from '@mui/material';
+import type { IAddress } from 'src/types/address';
 
 import { useState } from 'react';
 
@@ -12,60 +13,68 @@ import {
     ToggleButtonGroup,
 } from '@mui/material';
 
+import { addAddress, useGetAddresses } from 'src/actions/address';
+
+import { toast } from 'src/components/snackbar';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import ProfilAddressKartya from './profil-address-kartya';
 import NewBillingAddressForm from './new-billing-address';
 import NewShippingAddressForm from './new-shipping-address';
 
-interface IAddress {
-    id: number;
-    type: 'shipping' | 'billing';
-    name: string;
-    address: string;
-    phone: string;
-    email?: string;
-    taxNumber?: string;
-    isDefault: boolean;
-}
-const exampleAddresses: IAddress[] = [
-    {
-        id: 1,
-        type: 'shipping',
-        name: 'Urbán Admin Erik',
-        address: '2942 Nagyigmánd Jókai u. 42',
-        phone: '06302751483',
-        isDefault: true,
-    },
-    {
-        id: 2,
-        type: 'shipping',
-        name: 'Urbán Tibor Erik',
-        address: '1111 Nagycsád Kert utca. 8',
-        phone: '+36302751483',
-        isDefault: false,
-    },
-    {
-        id: 3,
-        type: 'billing',
-        name: 'Urbán Tibor Erik (Urbán Tibor Erik e.v.)',
-        address: '2942 Nagyigmánd Jókai u. 38',
-        phone: '+36302751483',
-        email: 'tibor.urban+invoice@cryptonit.hu',
-        taxNumber: '55769466-9-31',
-        isDefault: true,
-    },
-];
-
 export default function ProfilEditAddress() {
+    const { user } = useAuthContext();
     const [addressType, setAddressType] = useState<'shipping' | 'billing'>('shipping');
     const [isAdding, setIsAdding] = useState(false);
 
-    const filteredAddresses = exampleAddresses.filter((addr) => addr.type === addressType);
+    const { addresses, addressesLoading, addressesMutate } = useGetAddresses(user?.id);
 
-    const handleAddNewAddress = (data: any) => {
-        console.log('Új cím mentése:', data);
-        setIsAdding(false);
+    // Get addresses for current type
+    const currentAddresses = addresses
+        ? addressType === 'shipping'
+            ? addresses.shippingAddresses
+            : addresses.billingAddresses
+        : [];
+
+    const handleAddNewAddress = async (data: any) => {
+        if (!user?.id) {
+            toast.error('Nincs bejelentkezve felhasználó');
+            return;
+        }
+
+        try {
+            // Convert form data to proper address format
+            const newAddress: IAddress = {
+                type: addressType,
+                fullName: data.fullName,
+                companyName: data.companyName || undefined,
+                postcode: data.postcode,
+                city: data.city,
+                street: data.street,
+                houseNumber: data.houseNumber,
+                phone: data.phone,
+                comment: data.comment || undefined,
+                isDefault: data.isDefault || false,
+                ...(addressType === 'shipping' && {
+                    floor: data.floor || undefined,
+                    doorbell: data.doorbell || undefined,
+                }),
+                ...(addressType === 'billing' && {
+                    taxNumber: data.taxNumber || undefined,
+                    email: data.email || undefined,
+                }),
+            } as IAddress;
+
+            await addAddress(user.id, newAddress);
+            await addressesMutate(); // Refresh the data
+            setIsAdding(false);
+            toast.success('Cím sikeresen hozzáadva');
+        } catch (error) {
+            console.error('Error adding address:', error);
+            toast.error('Hiba történt a cím mentése során');
+        }
     };
 
     const toggleButtonStyle: SxProps = {
@@ -131,9 +140,18 @@ export default function ProfilEditAddress() {
                     <Divider />
                 </Box>
                 <Stack spacing={2}>
-                    {filteredAddresses.map((addr) => (
-                        <ProfilAddressKartya key={addr.id} address={addr} />
-                    ))}
+                    {addressesLoading && (
+                        <Typography color="text.secondary">Címek betöltése...</Typography>
+                    )}
+                    {!addressesLoading && currentAddresses.length === 0 && (
+                        <Typography color="text.secondary">
+                            Még nincs mentett {addressType === 'shipping' ? 'szállítási' : 'számlázási'} cím.
+                        </Typography>
+                    )}
+                    {!addressesLoading &&
+                        currentAddresses.map((addr) => (
+                            <ProfilAddressKartya key={addr.id} address={addr} />
+                        ))}
                 </Stack>
             </>
         );
