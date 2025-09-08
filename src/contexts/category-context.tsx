@@ -38,10 +38,10 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
                 setLoadError(error.message);
                 setCategories([]);
             } else {
-                console.log('Fetched categories:', data);
+                //console.log('Fetched categories:', data);
                 const sortedCategories = sortCategoriesByChildren(data ?? []);
                 setCategories(sortedCategories);
-                console.log('sorted:', sortedCategories);
+                //console.log('sorted:', sortedCategories);
 
                 setLoadError(null);
             }

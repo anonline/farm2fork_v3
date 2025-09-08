@@ -127,7 +127,7 @@ export async function updateCategory(category: Partial<ICategoryItem>): Promise<
         .eq('id', category.id)
         .maybeSingle();
 
-    if (category.id == 8 && category.parentId != null) {
+    if (category.id == 42 && category.parentId != null) {
         category.parentId = null; // Prevent changing the root category's parent
     }
 

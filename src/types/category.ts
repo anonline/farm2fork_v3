@@ -16,4 +16,5 @@ export type ICategoryItem = {
     usageInformation: string;
     storingInformation: string;
     showHome: boolean;
+    showProductPage: boolean;
 };

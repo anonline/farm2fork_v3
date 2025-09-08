@@ -9,6 +9,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { CategoryNewEditForm } from '../category-new-edit-form';
+import Button from '@mui/material/Button';
+import { Iconify } from 'src/components/iconify';
+import { useRouter } from 'src/routes/hooks/use-router';
+import Link from 'next/link';
+
+
 
 // ----------------------------------------------------------------------
 
@@ -19,6 +25,8 @@ type Props = {
 };
 
 export default function CategoryEditView({ category, maxFileSize = 5, allCategories }: Props) {
+    const router = useRouter();
+
     return (
         <DashboardContent>
             <CustomBreadcrumbs
@@ -29,6 +37,16 @@ export default function CategoryEditView({ category, maxFileSize = 5, allCategor
                     { name: 'Termék kategóriák', href: paths.dashboard.product.categories.root },
                     { name: category?.name },
                 ]}
+                action={
+                    <Link href={paths.categories.list(category?.slug || '')} passHref target="_blank">
+                        <Button
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                        >
+                            Megnyitás
+                        </Button>
+                    </Link>
+                }
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 

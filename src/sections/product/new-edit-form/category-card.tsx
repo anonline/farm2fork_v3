@@ -89,7 +89,7 @@ function CategoryItem({ option, field }: Readonly<CategoryItemProps>) {
                     }}
                 />
             }
-            sx={{ ml: option.parent && option.parent !== 8 ? 4 : 0 }}
+            sx={{ ml: option.parent && option.parent !== 42 ? 4 : 0 }}
             label={option.label}
         />
     );

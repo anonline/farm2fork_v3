@@ -73,9 +73,9 @@ export const useProductFilterCategory = (
     
     const products = useMemo(() => {
         let filteredProducts = context.products;
-        
-        // Filter by category (if not "all products" category id 8)
-        if (categoryId !== undefined && categoryId !== 8) {
+
+        // Filter by category (if not "all products" category id 42)
+        if (categoryId !== undefined && categoryId !== 42) {
             filteredProducts = filteredProducts.filter(
                 (p) => p.category?.some((c) => c.id === categoryId)
             );

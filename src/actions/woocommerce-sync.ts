@@ -107,9 +107,10 @@ export async function syncCategories(
                 description: wooCategory.description || '',
                 order: wooCategory.menu_order || 0,
                 enabled: true,
-                showHome: true,
+                showHome: false,
                 usageInformation: '',
-                storingInformation: ''
+                storingInformation: '',
+                showProductPage: false
             };
 
             // Handle image upload if present

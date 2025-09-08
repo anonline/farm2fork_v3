@@ -25,7 +25,7 @@ import { insertCategory, updateCategory } from 'src/actions/category';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
-import { s } from 'node_modules/@fullcalendar/core/internal-common';
+
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +43,7 @@ export const NewProductCategorySchema = zod.object({
     usageInformation: zod.string().optional(),
     storingInformation: zod.string().optional(),
     slug: zod.string().optional(),
+    showProductPage: zod.boolean().default(true),
 });
 
 // ----------------------------------------------------------------------
@@ -58,7 +59,7 @@ export function CategoryNewEditForm({
     maxFileSize,
     allCategories,
 }: Readonly<Props>) {
-    const router = useRouter();
+    
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
 
@@ -73,6 +74,7 @@ export function CategoryNewEditForm({
         usageInformation: currentCategory?.usageInformation || '',
         storingInformation: currentCategory?.storingInformation || '',
         slug: currentCategory?.slug || '',
+        showProductPage: currentCategory?.showProductPage ?? true,
     };
 
     const methods = useForm<NewProductCategorySchemaType>({
@@ -90,6 +92,7 @@ export function CategoryNewEditForm({
                 usageInformation: currentCategory.usageInformation || '',
                 storingInformation: currentCategory.storingInformation || '',
                 slug: currentCategory.slug || '',
+                showProductPage: currentCategory.showProductPage ?? true,
             }
             : undefined,
     });
@@ -130,6 +133,7 @@ export function CategoryNewEditForm({
             showHome: data.showHome || false,
             usageInformation: data.usageInformation || '',
             storingInformation: data.storingInformation || '',
+            showProductPage: data.showProductPage || false,
         };
 
         try {
@@ -274,6 +278,13 @@ export function CategoryNewEditForm({
                         label="Főoldalon való megjelenítés"
                         defaultChecked={values.showHome}
                         value={values.showHome}
+                    />
+
+                    <Field.Switch
+                        name="showProductPage"
+                        label="Termékoldalon való megjelenítés"
+                        defaultChecked={values.showProductPage}
+                        value={values.showProductPage}
                     />
                 </Stack>
             </Collapse>
