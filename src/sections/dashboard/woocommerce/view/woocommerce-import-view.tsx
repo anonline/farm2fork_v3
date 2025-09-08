@@ -2,6 +2,7 @@ import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs/custom-brea
 import { DashboardContent } from "src/layouts/dashboard/content";
 import { paths } from "src/routes/paths";
 import WooImportStatusPage from "../woocommerce-status-card";
+import WooCommerceImportStepper from "../woocommerce-import-stepper";
 
 type Props = {
     status: any;
@@ -23,6 +24,12 @@ export default function WooImportPage({ status, products, categories, producers 
             />
 
             <WooImportStatusPage status={status} wooProducts={products} wooCategories={categories} wooProducers={producers} />
+
+            <WooCommerceImportStepper 
+                wooCategories={categories} 
+                wooProducers={producers} 
+                wooProducts={products} 
+            />
 
         </DashboardContent>
     );
