@@ -326,13 +326,9 @@ export interface SimplePayError {
 }
 
 // Helper functions
-export const getSimplePayErrorMessage = (code: SimplePayErrorCode): string => {
-  return SIMPLEPAY_ERROR_CODES[code] || 'Ismeretlen hiba';
-};
+export const getSimplePayErrorMessage = (code: SimplePayErrorCode): string => SIMPLEPAY_ERROR_CODES[code] || 'Ismeretlen hiba';
 
-export const isSimplePayErrorCode = (code: number): code is SimplePayErrorCode => {
-  return code in SIMPLEPAY_ERROR_CODES;
-};
+export const isSimplePayErrorCode = (code: number): code is SimplePayErrorCode => code in SIMPLEPAY_ERROR_CODES;
 
 export const createSimplePayError = (
   code: SimplePayErrorCode,
@@ -341,15 +337,13 @@ export const createSimplePayError = (
     orderRef?: string;
     timestamp?: string;
   }
-): SimplePayError => {
-  return {
+): SimplePayError => ({
     code,
     message: getSimplePayErrorMessage(code),
     timestamp: options?.timestamp || new Date().toISOString(),
     transactionId: options?.transactionId,
     orderRef: options?.orderRef,
-  };
-};
+  });
 
 // Error categories for easier handling
 export const SIMPLEPAY_ERROR_CATEGORIES = {

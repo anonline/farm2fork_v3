@@ -23,6 +23,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
+import { paths } from 'src/routes/paths';
+
 import { useGetCustomerData } from 'src/actions/customer';
 import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
@@ -44,7 +46,6 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
-import { paths } from 'src/routes/paths';
 
 
 // ----------------------------------------------------------------------

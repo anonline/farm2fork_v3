@@ -1,4 +1,3 @@
-import type { SWRConfiguration } from 'swr';
 import type { IArticleItem } from 'src/types/article';
 
 import { supabase } from 'src/lib/supabase';

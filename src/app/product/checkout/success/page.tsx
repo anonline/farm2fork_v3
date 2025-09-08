@@ -2,17 +2,19 @@ import type { Metadata } from 'next';
 
 import { redirect } from 'next/navigation';
 
-import { Alert, Box, Button, Container, Typography } from '@mui/material';
+import { Box, Alert, Button, Container, Typography } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
-import { getOrderByIdSSR, updateOrderPaymentSimpleStatusSSR, updateOrderPaymentStatusSSR } from 'src/actions/order-ssr';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
+import { getOrderByIdSSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
 
-import { CartClearer } from './cart-clearer';
 import { getSimplePayErrorMessage } from 'src/types/simplepay';
-import { paths } from 'src/routes/paths';
+
+import { CartClearer } from './cart-clearer';
 
 // ----------------------------------------------------------------------
 //http://localhost:8082/product/checkout/success?orderId=ORD-1757249910543-8isyum1uq&r=eyJyIjoyMDEzLCJ0Ijo1MDY5NjAzODQsImUiOiJGQUlMIiwibSI6Ik9NUzUxMzI5MjA0IiwibyI6Ik9SRC0xNzU3MjQ5OTEwNTQzLThpc3l1bTF1cSJ9

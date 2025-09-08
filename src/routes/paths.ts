@@ -1,4 +1,3 @@
-import { fail } from 'assert';
 import { kebabCase } from 'es-toolkit';
 
 import { _id, _postTitles } from 'src/_mock/assets';
@@ -66,7 +65,7 @@ export const paths = {
     },
     checkout: {
         success: (orderId?:string, status?: string, success?: string, failed?: string, error?: string) => {
-            let params = new URLSearchParams();
+            const params = new URLSearchParams();
             if (orderId) {
                 params.append('orderId', orderId);
             }
@@ -85,12 +84,12 @@ export const paths = {
             return `/product/checkout/success/?${params.toString()}`;
         },
         pay: (orderId:string) => {
-            let params = new URLSearchParams();
+            const params = new URLSearchParams();
             params.append('orderId', orderId);
             return `/product/checkout/pay/?${params.toString()}`;
         },
         fail: (orderId?:string, status?: string, success?: string, failed?: string, error?: string) => {
-            let params = new URLSearchParams();
+            const params = new URLSearchParams();
             if (orderId) {
                 params.append('orderId', orderId);
             }

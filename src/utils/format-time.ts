@@ -1,9 +1,10 @@
+import 'dayjs/locale/hu';
+
 import type { Dayjs, OpUnitType } from 'dayjs';
 
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import 'dayjs/locale/hu';
 
 // ----------------------------------------------------------------------
 

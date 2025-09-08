@@ -230,7 +230,7 @@ export async function updateOrderPaymentSimpleStatusSSR(
         const supabase = await createAdminClient();
         
         const updateData: any = {
-            simplepay_data_json: simplepay_data_json,
+            simplepay_data_json,
             updated_at: new Date().toISOString(),
         };
 
