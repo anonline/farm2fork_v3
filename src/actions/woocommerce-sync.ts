@@ -207,16 +207,12 @@ interface WooProducer {
     content: string;
     post: any; // WP_Post object
     link: string;
-    meta_data: Array<{
-        meta_key: string;
-        meta_value: string;
-    }>;
+    meta_data: Record<string, string>; // Changed from array to object
 }
 
 // Helper function to extract meta value by key
-function getMetaValue(metaData: Array<{meta_key: string; meta_value: string}>, key: string): string {
-    const meta = metaData.find(item => item.meta_key === key);
-    return meta ? meta.meta_value : '';
+function getMetaValue(metaData: Record<string, string>, key: string): string {
+    return metaData[key] || '';
 }
 
 // Synchronize WooCommerce producers with our database
@@ -242,22 +238,29 @@ export async function syncProducers(
 
     for (let i = 0; i < wooProducers.length; i++) {
         const wooProducer = wooProducers[i];
+        let producerDisplayName = wooProducer.title; // Initialize with default
         
         try {
-            onProgress?.(i + 1, wooProducers.length, wooProducer.title);
-            
-            const existingProducer = existingProducerMap.get(wooProducer.title.toLowerCase());
-            
-            // Extract data from meta fields
+            // Extract data from meta fields first
             const location = getMetaValue(wooProducer.meta_data, 'telephely');
-            const shortDescription = getMetaValue(wooProducer.meta_data, 'felso_bemutatkozas');
+            const shortDescription = getMetaValue(wooProducer.meta_data, 'felso_bemutatkozas') || getMetaValue(wooProducer.meta_data, 'rovid_bemutatkozas');
             const producingTags = getMetaValue(wooProducer.meta_data, 'termeny') || getMetaValue(wooProducer.meta_data, 'termeny_kartya');
-            const bioValue = getMetaValue(wooProducer.meta_data, 'bio');
-            const companyName = getMetaValue(wooProducer.meta_data, 'nev');
+            const bioValue = getMetaValue(wooProducer.meta_data, 'bio') || getMetaValue(wooProducer.meta_data, '_bio');
+            const companyName = getMetaValue(wooProducer.meta_data, 'cegnev');
+            const producerName = getMetaValue(wooProducer.meta_data, 'nev');
+            // Note: Additional fields available but not used yet:
+            // const startedYear = getMetaValue(wooProducer.meta_data, 'ev');
+            // const avatarImageId = getMetaValue(wooProducer.meta_data, 'avatar_kep');
+            // const coverImageId = getMetaValue(wooProducer.meta_data, 'boritokep');
+
+            producerDisplayName = producerName || wooProducer.title;
+            onProgress?.(i + 1, wooProducers.length, producerDisplayName);
+            
+            const existingProducer = existingProducerMap.get(producerDisplayName.toLowerCase());
 
             // Prepare producer data
             const producerData: Partial<IProducerItem> = {
-                name: wooProducer.title,
+                name: producerDisplayName, // Use the correctly determined name
                 slug: wooProducer.slug,
                 location: location || '',
                 shortDescription: shortDescription ? shortDescription.replace(/<[^>]*>/g, '') : '', // Strip HTML tags
@@ -297,21 +300,21 @@ export async function syncProducers(
 
                 if (needsUpdate) {
                     await updateProducer(existingProducer.id, producerData);
-                    results.details.push(`Updated producer: ${wooProducer.title}`);
+                    results.details.push(`Updated producer: ${producerDisplayName}`);
                 } else {
-                    results.details.push(`No changes needed for producer: ${wooProducer.title}`);
+                    results.details.push(`No changes needed for producer: ${producerDisplayName}`);
                 }
             } else {
                 // Create new producer
                 await insertProducer(producerData);
-                results.details.push(`Created new producer: ${wooProducer.title}`);
+                results.details.push(`Created new producer: ${producerDisplayName}`);
             }
 
             results.success++;
         } catch (error) {
-            console.error(`Error syncing producer ${wooProducer.title}:`, error);
+            console.error(`Error syncing producer ${producerDisplayName}:`, error);
             results.errors++;
-            results.details.push(`Error syncing ${wooProducer.title}: ${error}`);
+            results.details.push(`Error syncing ${producerDisplayName}: ${error}`);
         }
     }
 
