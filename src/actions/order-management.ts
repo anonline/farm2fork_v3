@@ -392,6 +392,36 @@ export async function updateOrderPaymentStatus(
 }
 
 /**
+ * Update order delivery guy (courier field)
+ */
+export async function updateOrderDeliveryGuy(
+    orderId: string, 
+    deliveryGuyId: number | null
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const updateData: any = {
+            courier: deliveryGuyId ? deliveryGuyId.toString() : null,
+            updated_at: new Date().toISOString(),
+        };
+
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order delivery guy:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order delivery guy:', error);
+        return { success: false, error: 'Failed to update order delivery guy' };
+    }
+}
+
+/**
  * Get the count of pending orders
  */
 export async function getPendingOrdersCount(): Promise<{ count: number; error: string | null }> {

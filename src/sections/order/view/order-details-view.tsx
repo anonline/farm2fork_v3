@@ -1,6 +1,7 @@
 'use client';
 
 import type { IOrderItem } from 'src/types/order';
+import type { IOrderData } from 'src/types/order-management';
 
 import { useState, useCallback } from 'react';
 
@@ -23,15 +24,17 @@ import { OrderDetailsPayment } from '../order-details-payment';
 import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
+import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 // ----------------------------------------------------------------------
 
 type Props = {
     readonly order?: IOrderItem;
+    readonly orderData?: IOrderData;
     readonly orderError?: string | null;
 };
 
-export function OrderDetailsView({ order, orderError }: Props) {
+export function OrderDetailsView({ order, orderData, orderError }: Props) {
     const [status, setStatus] = useState(order?.status);
 
     const handleChangeStatus = useCallback((newValue: string) => {
@@ -119,6 +122,16 @@ export function OrderDetailsView({ order, orderError }: Props) {
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsPayment payment={order?.payment} />
+
+                        {orderData && (
+                            <>
+                                <Divider sx={{ borderStyle: 'dashed' }} />
+                                <OrderDetailsDeliveryGuy 
+                                    orderId={orderData.id}
+                                    currentDeliveryGuyId={orderData.courier ? (Number.isNaN(parseInt(orderData.courier, 10)) ? null : parseInt(orderData.courier, 10)) : null}
+                                />
+                            </>
+                        )}
                     </Card>
                 </Grid>
             </Grid>

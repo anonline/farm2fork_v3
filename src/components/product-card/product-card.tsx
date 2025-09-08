@@ -6,7 +6,7 @@ import type { CheckoutContextValue } from 'src/types/checkout';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Box, Paper, Button, InputBase, IconButton } from '@mui/material';
+import { Box, Paper, Button, Tooltip, InputBase, IconButton } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -162,29 +162,50 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                     />
                 )}
                 <div style={productCardDetailsUpperLabelContainerStyle}>
-                    <button
-                        type="button"
-                        style={{
-                            ...productCardNameStyle,
-                            background: 'none',
-                            border: 'none',
-                            padding: 0,
-                            textAlign: 'left',
-                            width: '100%',
-                            cursor: 'pointer',
-                        }}
-                        onClick={openProductPage}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                openProductPage();
-                            }
-                        }}
-                        tabIndex={0}
-                        aria-label={product.name}
-                    >
-                        {product.name}
-                    </button>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                        <button
+                            type="button"
+                            style={{
+                                ...productCardNameStyle,
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                flex: 1,
+                                marginRight: product.cardText ? 8 : 0,
+                            }}
+                            onClick={openProductPage}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    openProductPage();
+                                }
+                            }}
+                            tabIndex={0}
+                            aria-label={product.name}
+                        >
+                            {product.name}
+                        </button>
+                        {product.cardText && (
+                            <Tooltip title={product.cardText} arrow placement="top">
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    cursor: 'help',
+                                    marginTop: 2,
+                                    flexShrink: 0
+                                }}>
+                                    <F2FIcons 
+                                        name="Info" 
+                                        width={16} 
+                                        height={16} 
+                                        style={{ color: '#BDB5A2' }} 
+                                    />
+                                </div>
+                            </Tooltip>
+                        )}
+                    </div>
                     <ProducerAvatar
                         avatarUrl={product.producer?.featuredImage ?? 'https://placehold.co/48'}
                         avatarAlt="Termelő"
