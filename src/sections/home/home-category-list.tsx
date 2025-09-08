@@ -60,7 +60,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
             <Stack direction="column" spacing={1}>
                 {categories.loading && <ListItemText primary={<CircularProgress size={20} />} />}
                 {categories.error && <ListItemText primary={`Error: ${categories.error}`} />}
-                {categories.categories.filter((category) => category.showHome).map((category) => {
+                {categories.categories.filter((category) => category.showHome).sort((a, b) => (a?.order ?? 0) > (b?.order ?? 0) ? 1 : -1).map((category) => {
                     const isHovered = hoveredId === category.id;
 
                     return (
