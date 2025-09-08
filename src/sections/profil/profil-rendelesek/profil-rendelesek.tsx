@@ -43,7 +43,7 @@ export default function ProfilRendelesek() {
         totalPrice: order.total,
         products: order.items.map((item) => ({
             id: item.id,
-            imageUrl: item.coverUrl || 'https://placehold.co/100',
+            imageUrl: item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
             name: item.name,
         })),
     }));
