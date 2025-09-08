@@ -291,5 +291,8 @@ export const paths = {
         pickup: {
             root: `${ROOTS.DASHBOARD}/pickup`,
         },
+        woocommerce: {
+            root: `${ROOTS.DASHBOARD}/woocommerce`,
+        },
     },
 };

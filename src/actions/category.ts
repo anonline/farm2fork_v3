@@ -182,3 +182,37 @@ export async function deleteCategoriesByIds(categoryIds: number[]): Promise<bool
         return false;
     }
 }
+
+
+
+// ----------------------------------------------------------------------
+
+type CategoriesData = {
+    categories: ICategoryItem[];
+};
+
+export function useGetCategories() {
+    const { data, isLoading, error, isValidating } = useSWR<CategoriesData>('categories', async () => {
+        const response = await supabase
+            .from('ProductCategories')
+            .select('*');
+
+        const { data: categories, error: responseError } = response;
+
+        if (responseError) throw responseError.message;
+        return { categories };
+    });
+
+    const memoizedValue = useMemo(
+        () => ({
+            categories: data?.categories || [],
+            categoriesLoading: isLoading,
+            categoriesError: error,
+            categoriesValidating: isValidating,
+            categoriesEmpty: !isLoading && !isValidating && !data?.categories.length,
+        }),
+        [data?.categories, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}

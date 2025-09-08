@@ -67,7 +67,7 @@ export const navData: NavSectionProps['data'] = [
         subheader: 'Statisztikák',
         items: [
             { title: 'Vezérlőpult', path: paths.dashboard.root, icon: ICONS.dashboard },
-            { title: 'Eladás', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
+            { title: 'Eladása', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
             //{ title: 'Analitika', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
             //{ title: 'Banking', path: paths.dashboard.general.banking, icon: ICONS.banking },
             //{ title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },

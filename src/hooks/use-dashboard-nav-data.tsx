@@ -61,7 +61,7 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                 subheader: 'Statisztikák',
                 items: [
                     { title: 'Vezérlőpult', path: paths.dashboard.root, icon: ICONS.dashboard },
-                    { title: 'Eladás', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
+                    { title: 'Eladások', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
                     { title: 'Összesítők', path: paths.dashboard.general.file, icon: ICONS.file },
                 ],
             },
@@ -145,14 +145,23 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                         path: '#/dashboard/menu_level',
                         icon: ICONS.parameter,
                         children: [
-                            { title: 'Kezdőképernyő beállításai', path: '#/dashboard/settings/home' },
+                            { 
+                                title: 'Kezdőképernyő beállításai', 
+                                path: '#/dashboard/settings/home' 
+                            },
                             {
                                 title: 'Vásárlás',
                                 path: paths.dashboard.settings.purchase,
                                 icon: ICONS.order,
                             },
-                            { title: 'Futárok', path: paths.dashboard.delivery.root, icon: ICONS.job },
-                            { title: 'Partnerek', path: paths.dashboard.partners.root, icon: ICONS.kanban },
+                            { 
+                                title: 'Futárok', 
+                                path: paths.dashboard.delivery.root, icon: ICONS.job 
+                            },
+                            { 
+                                title: 'Partnerek', 
+                                path: paths.dashboard.partners.root, icon: ICONS.kanban 
+                            },
                             {
                                 title: 'Szállítási Zónák',
                                 path: paths.dashboard.shipping.root,
@@ -174,6 +183,11 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                                 icon: ICONS.folder,
                             },
                             {
+                                title: 'Woocommerce API',
+                                path: paths.dashboard.woocommerce.root,
+                                icon: ICONS.external,
+                            }
+                            /*{
                                 title: 'Level 1a',
                                 path: '#/dashboard/menu_level/menu_level_1a',
                                 children: [
@@ -196,7 +210,7 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                                         ],
                                     },
                                 ],
-                            },
+                            },*/
                         ],
                     },
                 ],
