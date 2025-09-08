@@ -13,11 +13,12 @@ export default function HomeHighlight() {
     const router = useRouter();
 
     const h2Style = {
-        fontSize: { xs: '32px', md: '40px' },
+        fontSize: { xs: '32px', md: '38px' },
         lineHeight: { xs: '40px', md: '48px' },
         textTransform: 'uppercase',
         fontWeight: 600,
         mb: { xs: 4, md: 5 },
+        fontFamily: 'Bricolage Grotesque',
     };
 
     const buttonStyle = {
@@ -89,6 +90,7 @@ export default function HomeHighlight() {
                                     fontWeight: 600,
                                     fontSize: '24px',
                                     pt: 1,
+                                    fontFamily: 'Bricolage Grotesque'
                                 }}
                             >
                                 {card.title}

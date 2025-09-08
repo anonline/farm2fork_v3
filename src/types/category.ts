@@ -14,4 +14,5 @@ export type ICategoryItem = {
     level: number;
     usageInformation: string;
     storingInformation: string;
+    showHome: boolean;
 };

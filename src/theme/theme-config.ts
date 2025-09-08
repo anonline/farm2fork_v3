@@ -12,7 +12,7 @@ type ThemeConfig = {
     direction: ThemeDirection;
     defaultMode: ThemeColorScheme;
     cssVariables: ThemeCssVariables;
-    fontFamily: Record<'primary' | 'secondary', string>;
+    fontFamily: Record<'primary' | 'secondary' | 'bricolage', string>;
     textColor: Record<'default' | 'muted' | 'grey', string>;
     palette: Record<
         'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error',
@@ -41,6 +41,7 @@ export const themeConfig: ThemeConfig = {
     fontFamily: {
         primary: 'Inter Variable',
         secondary: 'Inter Variable',
+        bricolage: 'Bricolage Grotesque',
     },
     textColor: {
         default: '#262626',

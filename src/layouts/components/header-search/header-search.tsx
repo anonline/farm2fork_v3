@@ -21,6 +21,7 @@ type HeaderSearchBaseResultItem = {
 interface HeaderSearchProductResultItem extends HeaderSearchBaseResultItem {
     price: number;
     unit?: string;
+    isFromProducer?: boolean;
 }
 
 interface HeaderSearchProducerResultItem extends HeaderSearchBaseResultItem {
@@ -51,6 +52,7 @@ export default function HeaderSearch() {
         bio: product.bio ?? false,
         slug: product.url,
         unit: product.unit ?? 'db',
+        isFromProducer: (product as any).isFromProducer || false,
     });
 
     const dbProducerToSearchResult = (producer: IProducerItem): HeaderSearchProducerResultItem => ({
@@ -314,7 +316,9 @@ function HeaderSearchProductResultItem({
     price,
     bio,
     unit,
+    isFromProducer,
 }: Readonly<HeaderSearchProductResultItem>) {
+    console.log('isFromProducer', isFromProducer);
     return (
         <Box
             sx={{
@@ -327,9 +331,35 @@ function HeaderSearchProductResultItem({
                 width: '100%',
                 cursor: 'pointer',
                 backgroundColor: '#fff',
+                position: 'relative',
                 '&:hover': { transform: 'scale(1.01)' },
             }}
         >
+            
+            {isFromProducer && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        backgroundColor: '#e0f7e9',
+                        borderRadius: '4px',
+                        padding: '2px 4px',
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontSize: '10px',
+                            fontWeight: '600',
+                            lineHeight: '12px',
+                            color: '#2e7d32',
+                        }}
+                    >
+                        Termelői
+                    </Typography>
+                </Box>
+            )}
+
             <img
                 src={image ?? 'https://placehold.co/64x64'}
                 alt={name}

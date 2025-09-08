@@ -187,24 +187,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         >
                             {product.name}
                         </button>
-                        {product.cardText && (
-                            <Tooltip title={product.cardText} arrow placement="top">
-                                <div style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    cursor: 'help',
-                                    marginTop: 2,
-                                    flexShrink: 0
-                                }}>
-                                    <F2FIcons 
-                                        name="Info" 
-                                        width={16} 
-                                        height={16} 
-                                        style={{ color: '#BDB5A2' }} 
-                                    />
-                                </div>
-                            </Tooltip>
-                        )}
+
                     </div>
                     <ProducerAvatar
                         avatarUrl={product.producer?.featuredImage ?? 'https://placehold.co/48'}
@@ -215,7 +198,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             </div>
             <div style={productCardPriceContentStyle}>
                 <div className="productCardPriceDetails" style={productCardPriceDetailsStyle}>
-                    <ProductPriceDetails price={product.netPrice} unit={product.unit} />
+                    <ProductPriceDetails price={product.netPrice} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}
@@ -249,7 +232,8 @@ function ProducerAvatar({
 export function ProductPriceDetails({
     price = 2000,
     unit = 'db',
-}: Readonly<{ price?: number; unit?: string }>) {
+    cardText
+}: Readonly<{ price?: number; unit?: string; cardText?: string }>) {
     const priceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'row',
@@ -278,7 +262,23 @@ export function ProductPriceDetails({
             <span style={priceStyle}>
                 {fCurrency(price)} <span style={unitStyle}>/ {unit}</span>
             </span>
-            <F2FIcons name="Info" style={{ color: '#BDB5A2' }} />
+            {cardText && (
+                <Tooltip title={cardText} arrow placement="top">
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginTop: 2,
+                        flexShrink: 0
+                    }}>
+                        <F2FIcons
+                            name="Info"
+                            width={18}
+                            height={18}
+                            style={{ color: '#BDB5A2' }}
+                        />
+                    </div>
+                </Tooltip>
+            )}
         </div>
     );
 }
@@ -589,7 +589,7 @@ function ProductCardButton({
                 stepQuantity: product.stepQuantity,
                 slug: product.url
             });
-            toast.success(`${qty.toFixed((qty%1===0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
+            toast.success(`${qty.toFixed((qty % 1 === 0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
             // if we want to open sidecart on addToCart we should use this: openSideCart();
         }
     };

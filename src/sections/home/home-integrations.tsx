@@ -10,11 +10,12 @@ export default function HomeIntegrations() {
     const { partners } = usePartners();
 
     const h2Style = {
-        fontSize: { xs: '32px', md: '40px' },
+        fontSize: { xs: '32px', md: '38px' },
         lineHeight: { xs: '40px', md: '48px' },
         textTransform: 'uppercase',
         fontWeight: 600,
-        textAlign: 'center',
+        textAlign: 'left',
+        fontFamily: 'Bricolage Grotesque',
         mb: { xs: 4, md: 5 },
     };
 
