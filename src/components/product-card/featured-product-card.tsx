@@ -12,6 +12,7 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
+import { themeConfig } from 'src/theme';
 
 function ProducerInfo({ name, location, img }: Readonly<{ name: string; location: string; img: string }>) {
     return (
@@ -22,7 +23,7 @@ function ProducerInfo({ name, location, img }: Readonly<{ name: string; location
                 style={{ width: 40, height: 40, borderRadius: '50%' }}
             />
             <Box>
-                <Typography variant="subtitle2" fontWeight={700} fontSize={16} lineHeight="24px" fontFamily="Bricolage Grotesque">
+                <Typography variant="subtitle2" fontWeight={700} fontSize={16} lineHeight="24px" fontFamily={themeConfig.fontFamily.bricolage}>
                     {name}
                 </Typography>
                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ alignItems: 'center' }}>
@@ -117,7 +118,7 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                             lineHeight: '40px',
                             fontWeight: 600,
                             color: '#262626',
-                            fontFamily: 'Bricolage Grotesque',
+                            fontFamily: themeConfig.fontFamily.bricolage,
                         }}
                     >
                         {product.name}

@@ -5,6 +5,7 @@ import { Box, Grid, Link, Typography } from '@mui/material';
 import { usePartners } from 'src/contexts/partners-context';
 
 import { Image } from 'src/components/image';
+import { themeConfig } from 'src/theme';
 
 export default function HomeIntegrations() {
     const { partners } = usePartners();
@@ -15,7 +16,7 @@ export default function HomeIntegrations() {
         textTransform: 'uppercase',
         fontWeight: 600,
         textAlign: 'left',
-        fontFamily: 'Bricolage Grotesque',
+        fontFamily: themeConfig.fontFamily.bricolage,
         mb: { xs: 4, md: 5 },
     };
 

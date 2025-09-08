@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { themeConfig } from 'src/theme/theme-config';
 
 
 // ----------------------------------------------------------------------
@@ -95,7 +96,7 @@ export function HomeHero({
                                 md: '56px', 
                                 lg: '70px' 
                             },
-                            fontFamily: 'Bricolage Grotesque',
+                            fontFamily: themeConfig.fontFamily.bricolage,
                             letterSpacing: { xs: '-0.5px', md: '-1px' },
                         })}
                     >

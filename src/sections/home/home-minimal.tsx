@@ -8,6 +8,7 @@ import ProductCard from 'src/components/product-card/product-card';
 import FeaturedProductCard from 'src/components/product-card/featured-product-card';
 
 import HomeMinimalProductsRedirectButton from './home-minimal-products-redirect-button';
+import { themeConfig } from 'src/theme';
 
 export function HomeMinimal() {
     const h2Style = {
@@ -16,7 +17,7 @@ export function HomeMinimal() {
         textTransform: 'uppercase',
         fontWeight: 600,
         mb: 3,
-        fontFamily: 'Bricolage Grotesque',
+        fontFamily: themeConfig.fontFamily.bricolage,
     };
 
     return (

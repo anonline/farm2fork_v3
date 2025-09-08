@@ -41,7 +41,7 @@ export const themeConfig: ThemeConfig = {
     fontFamily: {
         primary: 'Inter Variable',
         secondary: 'Inter Variable',
-        bricolage: 'Bricolage Grotesque',
+        bricolage: 'Bricolage Grotesque Variable',
     },
     textColor: {
         default: '#262626',

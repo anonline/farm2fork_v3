@@ -8,6 +8,7 @@ import fooldal_rolunk from 'public/assets/images/home/fooldal_rolunk-1024x1024.w
 import { Box, Grid, Stack, Button, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
+import { themeConfig } from 'src/theme';
 
 export default function HomeHighlight() {
     const router = useRouter();
@@ -18,7 +19,7 @@ export default function HomeHighlight() {
         textTransform: 'uppercase',
         fontWeight: 600,
         mb: { xs: 4, md: 5 },
-        fontFamily: 'Bricolage Grotesque',
+        fontFamily: themeConfig.fontFamily.bricolage,
     };
 
     const buttonStyle = {
@@ -90,7 +91,7 @@ export default function HomeHighlight() {
                                     fontWeight: 600,
                                     fontSize: '24px',
                                     pt: 1,
-                                    fontFamily: 'Bricolage Grotesque'
+                                    fontFamily: themeConfig.fontFamily.bricolage
                                 }}
                             >
                                 {card.title}
