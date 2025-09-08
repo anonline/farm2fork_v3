@@ -21,6 +21,7 @@ import {
 
 import { useGetProducts } from 'src/actions/product';
 import { uploadFile } from 'src/lib/blob/blobClient';
+import BioBadge from 'src/components/bio-badge/bio-badge';
 import {
     createProducer,
     updateProducer,
@@ -258,8 +259,13 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                                                 if (!product) return null;
                                                 return (
                                                     <li {...props} key={product.id}>
-                                                        <Checkbox checked={selected} />
-                                                        {product.name}
+                                                        <Checkbox key={`checkbox-${product.id}`} checked={selected} />
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                                                            {product.name}
+                                                            {product.bio && (
+                                                                <BioBadge style={{ marginLeft: 4 }} width={30} height={20} />
+                                                            )}
+                                                        </Box>
                                                     </li>
                                                 );
                                             }}
