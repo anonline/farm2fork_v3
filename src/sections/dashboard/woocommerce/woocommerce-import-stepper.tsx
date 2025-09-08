@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import { Iconify } from 'src/components/iconify';
 import { themeConfig } from 'src/theme';
+import { syncCategories } from 'src/actions/woocommerce-sync';
 
 type ImportStep = {
     id: string;
@@ -52,7 +53,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             id: 'categories',
             label: 'Termék kategóriák importálása',
             description: 'WooCommerce termék kategóriák szinkronizálása a rendszerrel',
-            icon: 'solar:folder-bold-duotone',
+            icon: 'solar:file-text-bold',
             status: 'pending',
             progress: 0,
             processedCount: 0,
@@ -63,7 +64,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             id: 'producers',
             label: 'Termelők importálása',
             description: 'WooCommerce termelők adatainak szinkronizálása',
-            icon: 'solar:users-group-two-rounded-bold-duotone',
+            icon: 'solar:users-group-rounded-bold',
             status: 'pending',
             progress: 0,
             processedCount: 0,
@@ -74,7 +75,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             id: 'products',
             label: 'Termékek importálása',
             description: 'WooCommerce termékek részletes adatainak szinkronizálása',
-            icon: 'solar:box-bold-duotone',
+            icon: 'solar:box-minimalistic-bold',
             status: 'pending',
             progress: 0,
             processedCount: 0,
@@ -83,7 +84,69 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
         }
     ]);
 
-    // Simulate import process (will be replaced with actual implementation later)
+    // Real import process for categories, simulation for others
+    const processStep = async (stepIndex: number) => {
+        const step = steps[stepIndex];
+        if (!step || step.status === 'completed') return;
+
+        if (step.id === 'categories') {
+            // Real category synchronization
+            try {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    newSteps[stepIndex].status = 'running';
+                    newSteps[stepIndex].details = 'Kategóriák szinkronizálása megkezdve...';
+                    return newSteps;
+                });
+
+                const result = await syncCategories(wooCategories, (processed, total, currentItem) => {
+                    setSteps(prevSteps => {
+                        const newSteps = [...prevSteps];
+                        const currentStep = newSteps[stepIndex];
+                        currentStep.processedCount = processed;
+                        currentStep.progress = (processed / total) * 100;
+                        currentStep.details = `${currentItem} feldolgozása...`;
+                        return newSteps;
+                    });
+                });
+
+                // Update final status
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'completed';
+                    currentStep.progress = 100;
+                    currentStep.details = `Befejezve! ${result.success} sikeres, ${result.errors} hiba.`;
+                    return newSteps;
+                });
+
+                // Move to next step after a short delay
+                setTimeout(() => {
+                    if (stepIndex < steps.length - 1) {
+                        setActiveStep(stepIndex + 1);
+                        processStep(stepIndex + 1);
+                    } else {
+                        setIsImporting(false);
+                    }
+                }, 1000);
+
+            } catch (error) {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'error';
+                    currentStep.details = `Hiba történt: ${error}`;
+                    return newSteps;
+                });
+                setIsImporting(false);
+            }
+        } else {
+            // Simulation for producers and products (to be implemented later)
+            simulateStepProgress(stepIndex);
+        }
+    };
+
+    // Simulate import process for producers and products (will be replaced later)
     const simulateStepProgress = (stepIndex: number) => {
         const step = steps[stepIndex];
         if (!step || step.status === 'completed') return;
@@ -108,7 +171,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                     setTimeout(() => {
                         if (stepIndex < steps.length - 1) {
                             setActiveStep(stepIndex + 1);
-                            simulateStepProgress(stepIndex + 1);
+                            processStep(stepIndex + 1);
                         } else {
                             setIsImporting(false);
                         }
@@ -137,7 +200,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
         );
 
         // Start first step
-        setTimeout(() => simulateStepProgress(0), 500);
+        setTimeout(() => processStep(0), 500);
     };
 
     const getStepStatusColor = (status: ImportStep['status']) => {
@@ -152,7 +215,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
     const getStepStatusIcon = (status: ImportStep['status']) => {
         switch (status) {
             case 'completed': return 'solar:check-circle-bold';
-            case 'running': return 'solar:refresh-circle-bold';
+            case 'running': return 'solar:info-circle-bold';
             case 'error': return 'solar:close-circle-bold';
             default: return 'solar:clock-circle-bold';
         }
@@ -173,7 +236,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             <CardHeader
                 title={
                     <Stack direction="row" alignItems="center" spacing={2}>
-                        <Iconify icon="solar:cloud-download-bold-duotone" width={32} height={32} />
+                        <Iconify icon="solar:download-bold" width={32} height={32} />
                         <Typography variant="h5">
                             WooCommerce Szinkronizálás
                         </Typography>
@@ -215,7 +278,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                             Státusz
                                         </Typography>
                                         <Chip
-                                            icon={<Iconify icon={isImporting ? "solar:refresh-circle-bold" : getCompletedStepsCount() === steps.length ? "solar:check-circle-bold" : "solar:clock-circle-bold"} />}
+                                            icon={<Iconify icon={isImporting ? "solar:info-circle-bold" : getCompletedStepsCount() === steps.length ? "solar:check-circle-bold" : "solar:clock-circle-bold"} />}
                                             label={
                                                 isImporting 
                                                     ? "Importálás folyamatban..." 
@@ -297,7 +360,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                                 <CircularProgress size={20} color="inherit" />
                                             ) : (
                                                 <Iconify 
-                                                    icon={step.status === 'pending' ? step.icon : getStepStatusIcon(step.status)} 
+                                                    icon={step.status === 'pending' ? step.icon as any : getStepStatusIcon(step.status)} 
                                                     width={24} 
                                                     height={24} 
                                                 />
@@ -339,7 +402,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                             <Grid container spacing={2}>
                                                 <Grid size={{ xs: 6 }}>
                                                     <Stack direction="row" alignItems="center" spacing={1}>
-                                                        <Iconify icon="solar:list-check-minimalistic-bold" width={16} height={16} />
+                                                        <Iconify icon="solar:list-bold" width={16} height={16} />
                                                         <Typography variant="body2">
                                                             Feldolgozva: <strong>{step.processedCount}/{step.totalCount}</strong>
                                                         </Typography>
@@ -348,7 +411,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                                 <Grid size={{ xs: 6 }}>
                                                     <Stack direction="row" alignItems="center" spacing={1}>
                                                         <Iconify 
-                                                            icon={getStepStatusIcon(step.status)} 
+                                                            icon={getStepStatusIcon(step.status) as any} 
                                                             width={16} 
                                                             height={16} 
                                                             color={getStepStatusColor(step.status)}
@@ -398,7 +461,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                                     variant="outlined"
                                     color="success"
                                     onClick={() => window.location.reload()}
-                                    startIcon={<Iconify icon="solar:refresh-bold" />}
+                                    startIcon={<Iconify icon="solar:eye-bold" />}
                                 >
                                     Oldal frissítése
                                 </Button>
