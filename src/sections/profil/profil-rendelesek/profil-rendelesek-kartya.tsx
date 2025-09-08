@@ -4,7 +4,8 @@ import type { OrderStatusEnum } from 'src/types/order';
 
 import { useRouter } from 'next/navigation';
 
-import { Box, Chip, Grid, Paper, Stack, Avatar, Typography, Tooltip } from '@mui/material';
+import { Box, Chip, Grid, Paper, Stack, Avatar, Tooltip, Typography } from '@mui/material';
+
 import { fCurrency } from 'src/utils/format-number';
 
 interface IOrderProduct {
