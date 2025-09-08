@@ -217,3 +217,36 @@ export async function updateOrderPaymentStatusSSR(
         return { success: false, error: 'Failed to update order payment status' };
     }
 }
+
+/**
+ * Update order payment status - Server-side version
+ */
+export async function updateOrderPaymentSimpleStatusSSR(
+    orderId: string, 
+    simplepay_data_json: string,
+
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const supabase = await createAdminClient();
+        
+        const updateData: any = {
+            simplepay_data_json: simplepay_data_json,
+            updated_at: new Date().toISOString(),
+        };
+
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order payment data (SSR):', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order payment data (SSR):', error);
+        return { success: false, error: 'Failed to update order payment data' };
+    }
+}

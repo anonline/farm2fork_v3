@@ -3,6 +3,7 @@ import type { Dayjs, OpUnitType } from 'dayjs';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/hu';
 
 // ----------------------------------------------------------------------
 
@@ -81,7 +82,7 @@ export function fDate(date: DatePickerFormat, template?: string): string {
         return 'Invalid date';
     }
 
-    return dayjs(date).format(template ?? formatPatterns.date);
+    return dayjs(date).locale('hu').format(template ?? formatPatterns.date);
 }
 
 // ----------------------------------------------------------------------
