@@ -42,6 +42,15 @@ export default function PropertiesCard({ isOpen, control, producers, UNIT_OPTION
                     />
 
                     <RHFTextField
+                        name="cardText"
+                        label="Kártya szöveg"
+                        placeholder="Rövid leírás a termék kártyáján való megjelenítéshez"
+                        helperText="Ez a szöveg egy info ikonra kattintva jelenik meg a termék kártyáján"
+                        multiline
+                        minRows={2}
+                    />
+
+                    <RHFTextField
                         select
                         name="producerId"
                         label="Termelő"
