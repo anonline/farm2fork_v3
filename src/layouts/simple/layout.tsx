@@ -5,11 +5,7 @@ import type { Breakpoint } from '@mui/material/styles';
 import { merge } from 'es-toolkit';
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { Logo } from 'src/components/logo';
 
@@ -17,7 +13,6 @@ import { SimpleCompactContent } from './content';
 import { MainSection } from '../core/main-section';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { SettingsButton } from '../components/settings-button';
 
 import type { SimpleCompactContentProps } from './content';
 import type { MainSectionProps } from '../core/main-section';
@@ -57,17 +52,17 @@ export function SimpleLayout({
             rightArea: (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
                     {/** @slot Help link */}
-                    <Link
+                    {/*<Link
                         href={paths.faqs}
                         component={RouterLink}
                         color="inherit"
                         sx={{ typography: 'subtitle2' }}
                     >
                         Need help?
-                    </Link>
+                    </Link>*/}
 
                     {/** @slot Settings button */}
-                    <SettingsButton />
+                    {/*<SettingsButton />*/}
                 </Box>
             ),
         };

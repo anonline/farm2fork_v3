@@ -23,6 +23,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
+import { paths } from 'src/routes/paths';
+
 import { useGetCustomerData } from 'src/actions/customer';
 import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
@@ -44,6 +46,7 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
+
 
 // ----------------------------------------------------------------------
 
@@ -687,16 +690,24 @@ export function CheckoutPayment() {
             }
 
             if (orderId) {
-                toast.success('Rendelés sikeresen létrehozva!');
+                
                 console.info('Order created successfully:', orderId);
                 
                 // Store order ID in checkout context or local storage for the completion page
                 localStorage.setItem('last-order-id', orderId);
-                
+
+                toast.success('Rendelés sikeresen létrehozva!');
+                toast.warning('Átirányítás folyamatban...');
                 // Check if payment method is 'simple' (online payment)
                 if (selectedPaymentMethodData?.slug === 'simple' || selectedPaymentMethodData?.type === 'online') {
                     // For simple/online payment, redirect to payment page with orderId
-                    window.location.href = `/product/checkout/pay?orderId=${orderId}`;
+                    window.location.href = paths.checkout.pay(orderId);
+                    return;
+                }
+
+                if(selectedPaymentMethodData?.type === 'cod' || selectedPaymentMethodData?.type === 'wire') {
+                    console.info('Proceeding to order completion for payment method:', selectedPaymentMethodData, paths.checkout.success(orderId, undefined, 'true'));
+                    window.location.href = paths.checkout.success(orderId, undefined, 'true');
                     return;
                 }
                 

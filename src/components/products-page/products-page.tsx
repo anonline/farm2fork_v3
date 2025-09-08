@@ -62,7 +62,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
     useEffect(() => {
         setProductList(products);
         setSpinLoading(false);
-    }, [activeCategoryId, loading, sorting, isBio, products]);
+    }, [products]);
 
     return (
         <Box

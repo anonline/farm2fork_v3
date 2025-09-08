@@ -308,10 +308,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     );
 
     const onResetCart = useCallback(() => {
-        if (completed) {
-            resetState(initialState);
-        }
-    }, [completed, resetState]);
+        resetState(initialState);
+    }, [resetState]);
 
     const onAddNote = useCallback(
         (itemId: number, note: string) => {

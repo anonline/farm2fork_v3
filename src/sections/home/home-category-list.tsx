@@ -6,15 +6,18 @@ import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import { Typography, ListItemText } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { themeConfig } from 'src/theme';
 import { useCategories } from 'src/contexts/category-context';
 
 import { varFade, MotionViewport } from 'src/components/animate';
 
-import { CircleSvg } from './components/svg-elements';
 import { SectionTitle } from './components/section-title';
 
 export function HomeCategoryList({ sx, ...other }: BoxProps) {
@@ -47,20 +50,31 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                 {categories.loading && <ListItemText primary="Loading categories..." />}
                 {categories.error && <ListItemText primary={`Error: ${categories.error}`} />}
                 {categories.categories.map((category) => (
-                    <Typography
+                    <Link
                         key={category.id}
+                        component={RouterLink}
+                        href={paths.categories.list(category.slug)}
+                        color="inherit"
+                        underline="none"
                         onMouseEnter={() => setHovered(category.coverUrl)}
                         sx={{
-                            fontSize: '32px',
-                            cursor: 'pointer',
-                            fontWeight: 400,
-                            '&:hover': {
-                                fontWeight: '700',
-                            },
+                            display: 'block',
+                            transition: 'all 0.2s ease-in-out',
                         }}
                     >
-                        {category.name}
-                    </Typography>
+                        <Typography
+                            sx={{
+                                fontSize: '32px',
+                                cursor: 'pointer',
+                                fontWeight: 400,
+                                '&:hover': {
+                                    fontWeight: '700',
+                                },
+                            }}
+                        >
+                            {category.name}
+                        </Typography>
+                    </Link>
                 ))}
             </Stack>
         </>
@@ -115,8 +129,6 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                     <Grid size={{ xs: 12, md: 6, lg: 5 }}>{renderDescription()}</Grid>
                     <Grid size={{ xs: 12, md: 6, lg: 7 }}>{renderImage()}</Grid>
                 </Grid>
-
-                <CircleSvg variants={varFade('in')} sx={{ display: { xs: 'none', md: 'block' } }} />
             </MotionViewport>
         </Box>
     );

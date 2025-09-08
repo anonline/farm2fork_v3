@@ -4,6 +4,7 @@ import { startPayment } from 'simplepay-js-sdk'
 import { Container } from '@mui/material'
 
 import { getOrderByIdSSR } from 'src/actions/order-ssr'
+import { getCurrentUserSSR } from 'src/actions/auth-ssr'
 
 type SimplepayResponse = {
   transactionId: number,
@@ -27,12 +28,26 @@ export default async function PayPage({ searchParams }: Readonly<PayPageProps>) 
         redirect('/product/checkout');
     }
 
+    // Get current authenticated user
+    const { user: currentUser, error: authError } = await getCurrentUserSSR();
+    
+    if (authError || !currentUser) {
+        console.error('User not authenticated:', authError);
+        redirect('/auth/supabase/sign-in');
+    }
+
     // Fetch order data
     const { order, error } = await getOrderByIdSSR(orderId);
     
     if (error || !order) {
         console.error('Error fetching order:', error);
         redirect('/product/checkout');
+    }
+
+    // Check if the order belongs to the logged-in user
+    if (order.customerId !== currentUser.id) {
+        console.error('Order does not belong to current user:', { orderId, customerId: order.customerId, currentUserId: currentUser.id });
+        redirect('/error/403');
     }
 
     const initSimplepay = async () => {

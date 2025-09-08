@@ -116,7 +116,7 @@ export function CheckoutCartProduct({
                         >
                             <NumberInput
                                 hideDivider
-                                value={row.quantity}
+                                value={Math.round(row.quantity*100)/100}
                                 onChange={(event, quantity: number) =>
                                     onChangeItemQuantity(row.id, quantity)
                                 }

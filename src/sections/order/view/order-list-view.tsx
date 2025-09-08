@@ -76,7 +76,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 // ----------------------------------------------------------------------
 
 export function OrderListView() {
-    const table = useTable({ defaultOrderBy: 'orderNumber' });
+    const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
     const confirmDialog = useBoolean();
 
