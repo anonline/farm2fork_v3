@@ -1,12 +1,15 @@
 'use client';
-import { Alert, Card, CardContent, CardHeader, CircularProgress, Grid, Stack, Typography } from "@mui/material";
-import Link from "next/link";
-import { useGetCategories } from "src/actions/category";
-import { useGetProducers } from "src/actions/producer";
 
-import { useGetProducts } from "src/actions/product";
-import { Iconify } from "src/components/iconify";
+import Link from "next/link";
+
+import { Card, Grid, Alert, Stack, Typography, CardContent, CircularProgress } from "@mui/material";
+
 import { themeConfig } from "src/theme";
+import { useGetProducts } from "src/actions/product";
+import { useGetProducers } from "src/actions/producer";
+import { useGetCategories } from "src/actions/category";
+
+import { Iconify } from "src/components/iconify";
 
 type Props = {
     status: any;
@@ -45,7 +48,7 @@ export default function WooImportStatusPage({ status, wooProducts, wooCategories
                                 {productsLoading ? (
                                     <div>Loading products...</div>
                                 ) : (
-                                    <Stack direction={"row"} spacing={1} alignItems="center" justifyContent={"space-between"}>
+                                    <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                                         <Typography>Összes termék:</Typography>
                                         <Typography>{products?.length || 0}</Typography>
                                     </Stack>
@@ -54,7 +57,7 @@ export default function WooImportStatusPage({ status, wooProducts, wooCategories
                                 {categoriesLoading ? (
                                     <div>Loading categories...</div>
                                 ) : (
-                                    <Stack direction={"row"} spacing={1} alignItems="center" justifyContent={"space-between"}>
+                                    <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                                         <Typography>Összes termék kategória:</Typography>
                                         <Typography>{categories?.length || 0}</Typography>
                                     </Stack>
@@ -62,7 +65,7 @@ export default function WooImportStatusPage({ status, wooProducts, wooCategories
                                 {producersLoading ? (
                                     <div>Loading producers...</div>
                                 ) : (
-                                    <Stack direction={"row"} spacing={1} alignItems="center" justifyContent={"space-between"}>
+                                    <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                                         <Typography>Összes termelő:</Typography>
                                         <Typography>{producers?.length || 0}</Typography>
                                     </Stack>
@@ -101,15 +104,15 @@ export default function WooImportStatusPage({ status, wooProducts, wooCategories
                                 <Typography variant="h5" gutterBottom>
                                     Woocommerce státusz
                                 </Typography>
-                                <Stack direction={"row"} spacing={1} alignItems="center" justifyContent={"space-between"}>
+                                <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                                     <Typography>Összes termék:</Typography>
                                     <Typography>{wooProducts?.length || 0}</Typography>
                                 </Stack>
-                                <Stack direction={"row"} spacing={1} alignItems="center" justifyContent={"space-between"}>
+                                <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                                     <Typography>Összes termék kategória:</Typography>
                                     <Typography>{wooCategories?.length || 0}</Typography>
                                 </Stack>
-                                <Stack direction={"row"} spacing={1} alignItems="center" justifyContent={"space-between"}>
+                                <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                                     <Typography>Összes termelő:</Typography>
                                     <Typography>{wooProducers?.length || 0}</Typography>
                                 </Stack>

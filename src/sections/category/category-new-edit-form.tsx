@@ -9,16 +9,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import { Grid, MenuItem } from '@mui/material';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
+import { Grid, MenuItem } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { insertCategory, updateCategory } from 'src/actions/category';
 

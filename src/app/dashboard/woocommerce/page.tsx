@@ -1,5 +1,6 @@
 
-import { fetchWooCategories, fetchWooProducers, fetchWooProducts, pingWoocommerce } from 'src/actions/woocommerce-ssr';
+import { pingWoocommerce, fetchWooProducts, fetchWooProducers, fetchWooCategories } from 'src/actions/woocommerce-ssr';
+
 import WoocommerceImportView from 'src/sections/dashboard/woocommerce/view/woocommerce-import-view';
 
 

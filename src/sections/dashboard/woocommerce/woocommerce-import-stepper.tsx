@@ -1,29 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
 import {
-    Card,
-    CardContent,
-    CardHeader,
-    Stepper,
-    Step,
-    StepLabel,
-    StepContent,
-    Button,
-    Typography,
     Box,
-    LinearProgress,
-    Stack,
+    Card,
+    Step,
     Chip,
-    Alert,
-    CircularProgress,
-    Paper,
     Grid,
-    Divider
+    Stack,
+    Alert,
+    Paper,
+    Button,
+    Stepper,
+    Divider,
+    StepLabel,
+    CardHeader,
+    Typography,
+    CardContent,
+    StepContent,
+    LinearProgress,
+    CircularProgress
 } from '@mui/material';
-import { Iconify } from 'src/components/iconify';
+
 import { themeConfig } from 'src/theme';
 import { syncCategories } from 'src/actions/woocommerce-sync';
+
+import { Iconify } from 'src/components/iconify';
 
 type ImportStep = {
     id: string;
@@ -227,9 +230,7 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
         return totalItems > 0 ? (processedItems / totalItems) * 100 : 0;
     };
 
-    const getCompletedStepsCount = () => {
-        return steps.filter(step => step.status === 'completed').length;
-    };
+    const getCompletedStepsCount = () => steps.filter(step => step.status === 'completed').length;
 
     return (
         <Card sx={{ mt: 3 }}>
