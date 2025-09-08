@@ -55,7 +55,7 @@ export default function ProfilRendelesek() {
     const totalPages = Math.ceil(orderData.length / itemsPerPage);
 
     return (
-        <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
+        <Box sx={{ py: 2, mx: 'auto' }}>
             <Grid container spacing={{ xs: 3, md: 4 }}>
                 <Grid size={{ xs: 12, sm: 3 }}>
                     <ProfilNavigation />

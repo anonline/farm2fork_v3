@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 import { redirect } from 'next/navigation';
 
-import { Box, Button, Container, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Typography } from '@mui/material';
 
 import { CONFIG } from 'src/global-config';
 import { getOrderByIdSSR, updateOrderPaymentSimpleStatusSSR, updateOrderPaymentStatusSSR } from 'src/actions/order-ssr';
@@ -12,6 +12,7 @@ import { Iconify } from 'src/components/iconify';
 
 import { CartClearer } from './cart-clearer';
 import { getSimplePayErrorMessage } from 'src/types/simplepay';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 //http://localhost:8082/product/checkout/success?orderId=ORD-1757249910543-8isyum1uq&r=eyJyIjoyMDEzLCJ0Ijo1MDY5NjAzODQsImUiOiJGQUlMIiwibSI6Ik9NUzUxMzI5MjA0IiwibyI6Ik9SRC0xNzU3MjQ5OTEwNTQzLThpc3l1bTF1cSJ9
@@ -134,9 +135,9 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                     </Typography>
 
                     {failMessage && (
-                        <Typography variant="body2" sx={{ color: 'error.main', mb: 4 }}>
+                        <Alert severity="error" sx={{ mb: 3 }}>
                             {failMessage}
-                        </Typography>
+                        </Alert>
                     )}
 
                     <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4 }}>
@@ -198,7 +199,6 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                         variant="contained"
                         size="large"
                         href="/"
-                        startIcon={<Iconify icon="solar:home-2-outline" />}
                     >
                         Vissza a főoldalra
                     </Button>
@@ -206,7 +206,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                     <Button
                         variant="outlined"
                         size="large"
-                        href="/dashboard/orders"
+                        href={paths.profile.orders}
                         startIcon={<Iconify icon="solar:file-text-bold" />}
                     >
                         Rendelések megtekintése
