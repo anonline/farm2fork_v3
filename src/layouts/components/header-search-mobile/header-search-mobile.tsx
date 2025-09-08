@@ -22,10 +22,11 @@ import { paths } from 'src/routes/paths';
 
 import { fCurrency } from 'src/utils/format-number';
 
+import { themeConfig } from 'src/theme';
+
+import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
-import { themeConfig } from 'src/theme';
-import { Image } from 'src/components/image';
 
 type HeaderSearchBaseResultItem = {
     id: number;

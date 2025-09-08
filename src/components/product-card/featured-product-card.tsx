@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
-import { paths } from 'src/routes/paths';
 
 function ProducerInfo({ name, location, img }: Readonly<{ name: string; location: string; img: string }>) {
     return (
@@ -21,7 +22,7 @@ function ProducerInfo({ name, location, img }: Readonly<{ name: string; location
                 style={{ width: 40, height: 40, borderRadius: '50%' }}
             />
             <Box>
-                <Typography variant="subtitle2" fontWeight={700} fontSize={16} lineHeight={'24px'} fontFamily={'Bricolage Grotesque'}>
+                <Typography variant="subtitle2" fontWeight={700} fontSize={16} lineHeight="24px" fontFamily="Bricolage Grotesque">
                     {name}
                 </Typography>
                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ alignItems: 'center' }}>
