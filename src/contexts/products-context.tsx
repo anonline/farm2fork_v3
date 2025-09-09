@@ -188,6 +188,22 @@ export const useProductsInCategory = () => {
 
 //--------------------------------------------------------------------------------------
 
+// Month mapping constant - moved outside component to prevent re-creation
+const MONTH_NAMES: Record<string, string> = {
+    Jan: 'January',
+    Feb: 'February',
+    Mar: 'March',
+    Apr: 'April',
+    May: 'May',
+    Jun: 'June',
+    Jul: 'July',
+    Aug: 'August',
+    Sep: 'September',
+    Oct: 'October',
+    Nov: 'November',
+    Dec: 'December',
+};
+
 export const ProductsInMonthInCategoryContext = createContext<ProductsContextType>({
     products: [],
     loading: true,
@@ -209,21 +225,6 @@ export function ProductsInMonthInCategoryProvider({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const monthNames: Record<string, string> = {
-        Jan: 'January',
-        Feb: 'February',
-        Mar: 'March',
-        Apr: 'April',
-        May: 'May',
-        Jun: 'June',
-        Jul: 'July',
-        Aug: 'August',
-        Sep: 'September',
-        Oct: 'October',
-        Nov: 'November',
-        Dec: 'December',
-    };
-
     useEffect(() => {
         async function fetchFilteredProducts() {
             if (!categoryId && !month) {
@@ -243,7 +244,7 @@ export function ProductsInMonthInCategoryProvider({
                 query = query.eq('categoryId', categoryId);
             }
             if (month) {
-                query = query.contains('Products.seasonality', [monthNames[month]]);
+                query = query.contains('Products.seasonality', [MONTH_NAMES[month]]);
             }
 
             const { data, error: supabaseError } = await query;
@@ -261,7 +262,7 @@ export function ProductsInMonthInCategoryProvider({
         }
 
         fetchFilteredProducts();
-    }, [categoryId, month, monthNames]);
+    }, [categoryId, month]);
 
     const value = useMemo(
         () => ({

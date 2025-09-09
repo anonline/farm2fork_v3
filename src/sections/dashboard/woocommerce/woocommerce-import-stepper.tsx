@@ -20,13 +20,13 @@ import {
     Typography,
     CardContent,
     StepContent,
-    FormControlLabel,
     LinearProgress,
+    FormControlLabel,
     CircularProgress
 } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
-import { syncCategories, syncProducers } from 'src/actions/woocommerce-sync';
+import { syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
 
 import { Iconify } from 'src/components/iconify';
 
