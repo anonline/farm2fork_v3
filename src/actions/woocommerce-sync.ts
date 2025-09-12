@@ -495,7 +495,7 @@ export async function syncProducts(
             }
 
             // Handle main product image
-            let featuredImage = '';
+            const featuredImage = '';
             if (wooProduct.images && wooProduct.images.length > 0) {
                 try {
                     const mainImage = wooProduct.images[0];
@@ -537,7 +537,7 @@ export async function syncProducts(
                 sku: wooProduct.sku || `woo-${wooProduct.id}`,
                 shortDescription: wooProduct.short_description || '',
                 bio: bioValue === '1',
-                featuredImage,
+                //featuredImage,
                 producerId: producerId || undefined,
                 unit,
                 stepQuantity,
@@ -547,7 +547,7 @@ export async function syncProducts(
                 backorder: backorderAllowed,
                 usageInformation: usageInfo || '',
                 storingInformation: storingInfo || '',
-                images: additionalImages,
+                //images: additionalImages,
                 publish: publish || false,
                 netPrice,
                 netPriceVIP: vipPrice || netPrice,
