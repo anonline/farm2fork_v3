@@ -27,6 +27,7 @@ import { themeConfig } from 'src/theme';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 type HeaderSearchBaseResultItem = {
