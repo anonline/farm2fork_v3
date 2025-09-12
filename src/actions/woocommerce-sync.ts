@@ -246,7 +246,7 @@ export async function syncProducers(
 
     for (let i = 0; i < wooProducers.length; i++) {
         const wooProducer = wooProducers[i];
-        let producerDisplayName = wooProducer.title; // Initialize with default
+        const producerDisplayName = wooProducer.title; // Initialize with default
         
         try {
             // Extract data from meta fields first
@@ -547,7 +547,7 @@ export async function syncProducts(
                 usageInformation: usageInfo || '',
                 storingInformation: storingInfo || '',
                 images: additionalImages,
-                publish: publish,
+                publish,
                 netPrice,
                 netPriceVIP: vipPrice || netPrice,
                 netPriceCompany: companyPrice || netPrice,
