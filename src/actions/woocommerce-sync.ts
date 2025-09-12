@@ -500,11 +500,11 @@ export async function syncProducts(
                 try {
                     const mainImage = wooProduct.images[0];
                     const filename = extractFilenameFromUrl(mainImage.src);
-                    featuredImage = await uploadImageFromUrl(
+                    /*featuredImage = await uploadImageFromUrl(
                         mainImage.src, 
                         'product', 
                         `woo-product-${wooProduct.id}-${filename}`
-                    );
+                    );*/
                 } catch (imageError) {
                     console.error(`Failed to upload main image for product ${wooProduct.name}:`, imageError);
                     results.details.push(`Main image upload failed for ${wooProduct.name}: ${imageError}`);
