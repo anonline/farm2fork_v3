@@ -53,6 +53,8 @@ export function useInfiniteProducts({
         let query = supabase
             .from('Products')
             .select('*, producer:Producers(*), category:ProductCategories(*)', { count: 'exact' })
+            .eq('publish', true) // Only fetch published products
+            .or('stock.gt.0, stock.is.null, backorder.eq.true') // In stock or backorder allowed
             .range(offset, offset + limit - 1);
 
         // Apply category filter (if not "all products" category id 42)

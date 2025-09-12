@@ -20,6 +20,7 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
+import { useAuthContext } from 'src/auth/hooks';
 
 interface ProductCardProps {
     product: IProductItem;
@@ -27,13 +28,17 @@ interface ProductCardProps {
 
 export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { onAddToCart, state: checkoutState } = useCheckoutContext();
-
+    const { roles } = useAuthContext();
     const { product } = props;
     const router = useRouter();
 
     const openProductPage = () => {
         router.push(paths.product.details(product.url));
     };
+
+    const isVIP = roles?.isVip || false;
+    const isCORP = roles?.isCorp || false;
+    const isADMIN = roles?.isAdmin || false;
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
@@ -198,7 +203,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             </div>
             <div style={productCardPriceContentStyle}>
                 <div className="productCardPriceDetails" style={productCardPriceDetailsStyle}>
-                    <ProductPriceDetails price={product.netPrice} unit={product.unit} cardText={product.cardText} />
+                    <ProductPriceDetails price={(isVIP || isADMIN) ? product.netPrice : product.grossPrice} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}

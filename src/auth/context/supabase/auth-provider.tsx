@@ -8,7 +8,7 @@ import { supabase } from 'src/lib/supabase';
 
 import { AuthContext } from '../auth-context';
 
-import type { AuthState } from '../../types';
+import type { AuthState, UserRoles } from '../../types';
 
 // ----------------------------------------------------------------------
 
@@ -47,13 +47,20 @@ export function AuthProvider({ children }: Readonly<Props>) {
                 const accessToken = session?.access_token;
                 const payload = JSON.parse(atob(accessToken.split('.')[1]));
 
+                const roles = {
+                    isAdmin: payload.user_metadata?.admin ?? false,
+                    isCorp: payload.user_metadata?.corp ?? false,
+                    isVip: payload.user_metadata?.vip ?? false,
+                    isPublic: !(payload.user_metadata?.admin || payload.user_metadata?.corp || payload.user_metadata?.vip) || true,
+                } as UserRoles;
+
                 if (session?.user?.user_metadata) {
                     session.user.user_metadata.is_admin = payload.user_metadata?.admin ?? false;
                     session.user.user_metadata.is_corp = payload.user_metadata?.corp ?? false;
                     session.user.user_metadata.is_vip = payload.user_metadata?.vip ?? false;
                 }
 
-                setState({ user: { ...session, ...session?.user }, loading: false });
+                setState({ user: { ...session, ...session?.user }, loading: false, roles: roles });
                 axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
             } else {
                 setState({ user: null, loading: false });
@@ -89,6 +96,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
                   }
                 : null,
             checkUserSession,
+            role: state.roles ?? { isAdmin: false, isVip: false, isCorp: false, isPublic: true },
             loading: status === 'loading',
             authenticated: status === 'authenticated',
             unauthenticated: status === 'unauthenticated',

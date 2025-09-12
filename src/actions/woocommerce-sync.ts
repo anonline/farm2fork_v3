@@ -547,7 +547,7 @@ export async function syncProducts(
                 usageInformation: usageInfo || '',
                 storingInformation: storingInfo || '',
                 images: additionalImages,
-                publish,
+                publish: publish || false,
                 netPrice,
                 netPriceVIP: vipPrice || netPrice,
                 netPriceCompany: companyPrice || netPrice,
