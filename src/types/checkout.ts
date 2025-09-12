@@ -20,6 +20,7 @@ export type ICheckoutItem = {
     stepQuantity?: number;
     custom?: boolean;
     slug?: string;
+    vat?: number;
 };
 
 export type ICheckoutDeliveryOption = {

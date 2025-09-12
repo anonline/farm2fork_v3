@@ -27,6 +27,7 @@ import { themeConfig } from 'src/theme';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+import { useAuthContext } from 'src/auth/hooks';
 
 type HeaderSearchBaseResultItem = {
     id: number;
@@ -57,6 +58,10 @@ export default function HeaderSearchMobile() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const searchTextLimit = 3;
+    const {roles} = useAuthContext();
+    const isVIP = roles?.isVip || false;
+    const isCORP = roles?.isCorp || false;
+    const isADMIN = roles?.isAdmin || false;
 
     const searchIcon = <F2FIcons name="Search2" width={22} height={22} />;
     const loadingIcon = <F2FIcons name="Loading" width={20} height={20} />;
@@ -77,7 +82,7 @@ export default function HeaderSearchMobile() {
         id: product.id,
         name: product.name ?? 'Termék',
         image: product.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
-        price: product.netPrice ?? 99999,
+        price: (isVIP || isADMIN || isCORP) ? product.netPrice : product.grossPrice,
         bio: product.bio ?? false,
         slug: product.url,
         unit: product.unit ?? 'db',

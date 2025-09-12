@@ -554,7 +554,10 @@ function ProductCardButton({
     sx,
 }: Readonly<ProductCardButtonProps>) {
     // if we want to open sidecart on addToCart we should use this: const { openSideCart } = useSideCart();
-
+    const { roles } = useAuthContext();
+    const isVIP = roles?.isVip || false;
+    const isCORP = roles?.isCorp || false;
+    const isADMIN = roles?.isAdmin || false;
     const baseStyle: SxProps = {
         ...sx,
         padding: '10px 16px',
@@ -584,12 +587,13 @@ function ProductCardButton({
             onAddToCart({
                 id: product.id,
                 name: product.name,
-                price: product.netPrice,
+                price: (isVIP || isADMIN || isCORP ) ? product.netPrice : product.grossPrice,
                 coverUrl: product.featuredImage,
                 quantity: qty,
+                vat: product.vat,
                 unit: product.unit,
                 available: product.maximumQuantity,
-                subtotal: product.netPrice,
+                subtotal: (isVIP || isADMIN || isCORP) ? product.netPrice : product.grossPrice,
                 minQuantity: product.mininumQuantity,
                 maxQuantity: product.maximumQuantity,
                 stepQuantity: product.stepQuantity,

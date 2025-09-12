@@ -340,6 +340,7 @@ interface WooProduct {
     regular_price: string;
     sale_price: string;
     stock_quantity: number | null;
+    stock_status: string;
     manage_stock: boolean;
     backorders: string;
     tax_status: string;
@@ -420,8 +421,8 @@ export async function syncProducts(
 
     const producerMap = new Map<string, IProducerItem>();
     producersResponse.data?.forEach(producer => {
-        if (producer.name) {
-            producerMap.set(producer.name.toString(), producer);
+        if (producer.id) {
+            producerMap.set(producer.id.toString(), producer);
         }
     });
 
@@ -463,7 +464,7 @@ export async function syncProducts(
             const salePrice = wooProduct.sale_price ? parsePrice(wooProduct.sale_price) : null; //neet to be gross?
 
             // Stock handling
-            const stockQuantity = wooProduct.manage_stock ? (wooProduct.stock_quantity || 0) : null;
+            const stockQuantity = wooProduct.manage_stock ? (wooProduct.stock_quantity || 0) : (wooProduct.stock_status != 'instock' ? 0 : null);
             const backorderAllowed = wooProduct.backorders !== 'no';
 
             // Minimum/Maximum quantity from WooCommerce Bulk Order plugin
