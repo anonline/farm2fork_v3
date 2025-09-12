@@ -1,10 +1,9 @@
 'use client';
 
-import type { IProductItem } from 'src/types/product';
 import type { ICategoryItem } from 'src/types/category';
 import type { SelectChangeEvent } from '@mui/material/Select';
 
-import { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 import {
     Box,
@@ -18,10 +17,14 @@ import {
     IconButton,
     Typography,
     InputAdornment,
+    CircularProgress,
 } from '@mui/material';
 
+import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
+import { useInfiniteProducts } from 'src/hooks/use-infinite-products';
+
+import { CONFIG } from 'src/global-config';
 import { useCategories } from 'src/contexts/category-context';
-import { useProductFilterCategory } from 'src/contexts/products-context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import ProductCard from '../product-card/product-card';
@@ -29,28 +32,49 @@ import ProductCard from '../product-card/product-card';
 type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 
 export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>) {
-    const { categories, loading:categoryLoading } = useCategories();
-    const [spinLoading, setSpinLoading] = useState(false);
-    const [productList, setProductList] = useState<IProductItem[]>([]);
-    const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(8);
+    const { categories, loading: categoryLoading } = useCategories();
+    const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(42);
     const [sorting, setSorting] = useState<SortingOption>('default');
     const [isBio, setIsBio] = useState(false);
+    const [searchText, setSearchText] = useState('');
 
+    // Initialize category from URL slug
     useEffect(() => {
         if (urlSlug && categories.length > 0) {
             const category = categories.find((c) => c.slug === urlSlug);
-
             if (category) {
                 setActiveCategoryId(category.id ?? 42);
             }
-        }
-        else{
+        } else {
             setActiveCategoryId(42);
         }
     }, [urlSlug, categories]);
 
+    // Use infinite products hook
+    const {
+        products,
+        loading,
+        loadingMore,
+        error,
+        hasMore,
+        loadMore,
+        totalCount,
+    } = useInfiniteProducts({
+        categoryId: activeCategoryId,
+        isBio,
+        sorting,
+        searchText,
+    });
+
+    // Set up infinite scroll
+    useInfiniteScroll({
+        hasMore,
+        loading: loadingMore,
+        onLoadMore: loadMore,
+        threshold: CONFIG.pagination.infiniteScrollThreshold,
+    });
+
     const handleCategoryChange = (newCategoryId: number | undefined) => {
-        setSpinLoading(true);
         if (newCategoryId !== activeCategoryId) {
             setActiveCategoryId(newCategoryId);
             const category = categories.find((c) => c.id === newCategoryId);
@@ -60,12 +84,25 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
         }
     };
 
-    const { products, loading } = useProductFilterCategory(activeCategoryId, isBio, sorting);
+    const handleSearchChange = (text: string) => {
+        setSearchText(text);
+    };
 
-    useEffect(() => {
-        setProductList(products);
-        setSpinLoading(false);
-    }, [products]);
+    const handleSortingChange = (newSorting: SortingOption) => {
+        setSorting(newSorting);
+    };
+
+    const handleBioChange = (newIsBio: boolean) => {
+        setIsBio(newIsBio);
+    };
+
+    // Filter products by search text (client-side for better UX)
+    const filteredProducts = useMemo(() => {
+        if (!searchText.trim()) return products;
+        return products.filter((p) =>
+            p.name.toLowerCase().includes(searchText.toLowerCase())
+        );
+    }, [products, searchText]);
 
     return (
         <Box
@@ -100,53 +137,89 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
                 categories={categories}
                 selectedCategory={activeCategoryId}
                 isBio={isBio}
-                isLoading={spinLoading}
-                orderChangeAction={(order) => {
-                    setSorting(order);
-                }}
-                bioChangeAction={(bio) => {
-                    setIsBio(bio);
-                }}
+                isLoading={loading}
+                orderChangeAction={handleSortingChange}
+                bioChangeAction={handleBioChange}
                 onCategoryChangeAction={handleCategoryChange}
-                filterChangeAction={(text) => {
-                    if (text.length > 0) {
-                        const filteredProducts = products.filter((p) =>
-                            p.name.toLowerCase().includes(text.toLowerCase())
-                        );
-                        setProductList(filteredProducts);
-                    } else {
-                        setProductList(products);
-                    }
-                }}
+                filterChangeAction={handleSearchChange}
             />
+
+            {/* Results summary */}
+            {!loading && (
+                <Typography variant="body2" color="text.secondary">
+                    {filteredProducts.length} termék található{totalCount > filteredProducts.length && ` (${totalCount} összesen)`}
+                    {searchText && ` "${searchText}" keresésre`}
+                </Typography>
+            )}
+
             <Grid
                 container
                 spacing={2}
                 justifyContent="start"
                 style={{ marginTop: '20px', width: '100%' }}
             >
-                {categoryLoading !== false || loading !== false ? (
-                    Array.from({ length: 5 }, (__, cellIndex) => (
-                        <Skeleton key={cellIndex} height={513} width={235} />
+                {categoryLoading || loading ? (
+                    Array.from({ length: CONFIG.pagination.productsPerPage }, (__, cellIndex) => (
+                        <Grid size={{ xs: 12, sm: 4, md: 3, lg: 2.4 }} key={cellIndex}>
+                            <Skeleton 
+                                variant="rectangular" 
+                                height={513} 
+                                width="100%" 
+                                sx={{ borderRadius: 1 }} 
+                            />
+                        </Grid>
                     ))
                 ) : (
                     <>
-                        {productList.length > 0 ? (
-                            productList.map((product) => (
+                        {filteredProducts.length > 0 ? (
+                            filteredProducts.map((product, index) => (
                                 <Grid
                                     size={{ xs: 12, sm: 4, md: 3, lg: 2.4 }}
-                                    key={product.id}
+                                    key={`product-${product.id}-${index}`}
                                     sx={{ transition: 'all 0.3s ease' }}
                                 >
                                     <ProductCard product={product} />
                                 </Grid>
                             ))
                         ) : (
-                            <Typography>Nem találtunk terméket.</Typography>
+                            <Grid size={12}>
+                                <Box sx={{ textAlign: 'center', py: 4 }}>
+                                    <Typography variant="h6" color="text.secondary">
+                                        {error ? 'Hiba történt a termékek betöltése során' : 'Nem találtunk terméket.'}
+                                    </Typography>
+                                    {searchText && (
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                            Próbáld meg módosítani a keresési feltételeket.
+                                        </Typography>
+                                    )}
+                                </Box>
+                            </Grid>
                         )}
                     </>
                 )}
             </Grid>
+
+            {/* Loading more indicator */}
+            {loadingMore && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', py: 3 }}>
+                    <CircularProgress size={32} />
+                </Box>
+            )}
+
+            {/* Load more button (fallback for users without scroll) */}
+            {!loading && !loadingMore && hasMore && filteredProducts.length > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', py: 2 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        size="large"
+                        sx={{ minWidth: 200 }}
+                    >
+                        Több termék betöltése
+                    </Button>
+                </Box>
+            )}
         </Box>
     );
 }
@@ -216,13 +289,25 @@ export function ProductPageTextFilter({
     const loadingIcon = <F2FIcons name="Loading" width={20} height={20} />;
 
     const [searchText, setSearchText] = useState('');
+    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setSearchText(value);
 
-        if (value.replace(/\s/g, '').length < 3 && value !== '') return;
-        filterChangeAction(value);
+        // Clear existing timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        // Debounce search to avoid too many API calls
+        const timeout = setTimeout(() => {
+            if (value.replace(/\s/g, '').length >= 3 || value === '') {
+                filterChangeAction(value);
+            }
+        }, 500);
+
+        setSearchTimeout(timeout);
     };
 
     const [order, setOrder] = useState<SortingOption>('default');
@@ -238,13 +323,23 @@ export function ProductPageTextFilter({
         bioChangeAction(!bioActive);
     };
 
-    const [newSelectedCategory, setNewSelectedCategory] = useState<number | undefined>(undefined);
+    const [newSelectedCategory, setNewSelectedCategory] = useState<number | undefined>(selectedCategory);
     const handleCategoryChange = (event: SelectChangeEvent<number>) => {
         const value = event.target.value;
         const categoryId = value === 'default' ? undefined : Number(value);
         setNewSelectedCategory(categoryId);
         onCategoryChangeAction(categoryId);
     };
+
+    // Update bio state when prop changes
+    React.useEffect(() => {
+        setBioActive(isBio);
+    }, [isBio]);
+
+    // Update category when prop changes
+    React.useEffect(() => {
+        setNewSelectedCategory(selectedCategory);
+    }, [selectedCategory]);
 
     return (
         <Box

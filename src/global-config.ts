@@ -30,6 +30,10 @@ export type ConfigValue = {
     auth0: { clientId: string; domain: string; callbackUrl: string };
     supabase: { url: string; key: string; service_key: string };
     blob: { readWriteToken: string };
+    pagination: {
+        productsPerPage: number;
+        infiniteScrollThreshold: number;
+    };
 };
 
 // ----------------------------------------------------------------------
@@ -92,5 +96,12 @@ export const CONFIG: ConfigValue = {
     },
     blob: {
         readWriteToken: process.env.NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN ?? '',
+    },
+    /**
+     * Pagination
+     */
+    pagination: {
+        productsPerPage: 25, // Number of products to load per page
+        infiniteScrollThreshold: 1500, // Distance from bottom in pixels to trigger load more
     },
 };
