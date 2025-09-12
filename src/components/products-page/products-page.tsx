@@ -29,7 +29,7 @@ import ProductCard from '../product-card/product-card';
 type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 
 export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>) {
-    const { categories } = useCategories();
+    const { categories, loading:categoryLoading } = useCategories();
     const [spinLoading, setSpinLoading] = useState(false);
     const [productList, setProductList] = useState<IProductItem[]>([]);
     const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(8);
@@ -43,6 +43,9 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
             if (category) {
                 setActiveCategoryId(category.id ?? 42);
             }
+        }
+        else{
+            setActiveCategoryId(42);
         }
     }, [urlSlug, categories]);
 
@@ -122,7 +125,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
                 justifyContent="start"
                 style={{ marginTop: '20px', width: '100%' }}
             >
-                {loading !== false ? (
+                {categoryLoading !== false || loading !== false ? (
                     Array.from({ length: 5 }, (__, cellIndex) => (
                         <Skeleton key={cellIndex} height={513} width={235} />
                     ))
