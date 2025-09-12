@@ -443,4 +443,79 @@ export async function getPendingOrdersCount(): Promise<{ count: number; error: s
     }
 }
 
+/**
+ * Update order items and recalculate totals
+ */
+export async function updateOrderItems(
+    orderId: string,
+    items: Array<{
+        id: number;
+        name: string;
+        size?: string;
+        price: number;
+        unit?: string;
+        coverUrl: string;
+        quantity: number;
+        subtotal: number;
+        note?: string;
+        custom?: boolean;
+        slug?: string;
+    }>,
+    note?: string,
+    userId?: string,
+    userName?: string,
+    surchargeAmount?: number
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        // Calculate new totals
+        const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+        const newSurchargeAmount = surchargeAmount !== undefined ? surchargeAmount : order.surchargeAmount;
+        const total = subtotal + order.shippingCost + order.vatTotal + newSurchargeAmount - order.discountTotal;
+
+        // Create new history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: new Date().toISOString(),
+            status: order.orderStatus, // Keep the same status
+            note: note || 'Rendelés tételek frissítve',
+            userId,
+            userName,
+        };
+
+        // Update order with new items, totals, and history
+        const updateData: any = {
+            items,
+            subtotal,
+            total,
+            history: [...order.history, historyEntry],
+            updated_at: new Date().toISOString(),
+        };
+
+        // Only update surcharge_amount if a new value was provided
+        if (surchargeAmount !== undefined) {
+            updateData.surcharge_amount = newSurchargeAmount;
+        }
+
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order items:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order items:', error);
+        return { success: false, error: 'Failed to update order items' };
+    }
+}
+
 

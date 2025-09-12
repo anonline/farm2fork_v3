@@ -31,6 +31,8 @@ type Props = {
     readonly order?: IOrderItem;
     readonly onChangeStatus: (newValue: string) => void;
     readonly statusOptions: { value: string; label: string }[];
+    readonly onStartEdit?: () => void;
+    readonly isEditing?: boolean;
 };
 
 export function OrderDetailsToolbar({
@@ -41,6 +43,8 @@ export function OrderDetailsToolbar({
     statusOptions,
     onChangeStatus,
     order,
+    onStartEdit,
+    isEditing,
 }: Props) {
     const menuActions = usePopover();
 
@@ -149,14 +153,6 @@ export function OrderDetailsToolbar({
                         disabled={!order}
                     >
                         Szállítólevél
-                    </Button>
-
-                    <Button
-                        color="inherit"
-                        variant="contained"
-                        startIcon={<Iconify icon="solar:pen-bold" />}
-                    >
-                        Szerkesztés
                     </Button>
                 </Box>
             </Box>

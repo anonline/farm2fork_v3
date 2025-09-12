@@ -1,10 +1,15 @@
 import type { CardProps } from '@mui/material/Card';
 import type { IOrderProductItem } from 'src/types/order';
 
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import { Link } from '@mui/material';
 import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -25,7 +30,15 @@ type Props = CardProps & {
     subtotal?: number;
     totalAmount?: number;
     surcharge?: number;
+    payed_amount?: number;
     items?: IOrderProductItem[];
+    isEditing?: boolean;
+    onItemChange?: (itemId: string, field: 'price' | 'quantity', value: number) => void;
+    onItemDelete?: (itemId: string) => void;
+    onSurchargeChange?: (value: number) => void;
+    onSave?: () => void;
+    onCancel?: () => void;
+    onStartEdit?: () => void;
 };
 
 export function OrderDetailsItems({
@@ -35,10 +48,59 @@ export function OrderDetailsItems({
     discount,
     subtotal,
     surcharge,
+    payed_amount,
     items = [],
     totalAmount,
+    isEditing,
+    onItemChange,
+    onItemDelete,
+    onSurchargeChange,
+    onSave,
+    onCancel,
+    onStartEdit,
     ...other
 }: Props) {
+    const [editErrors, setEditErrors] = useState<Record<string, { price?: string; quantity?: string }>>({});
+    const [surchargeError, setSurchargeError] = useState<string>('');
+
+    const handleFieldChange = (itemId: string, field: 'price' | 'quantity', value: string) => {
+        const numValue = parseFloat(value);
+        
+        // Validate the input
+        const errors = { ...editErrors };
+        if (!errors[itemId]) errors[itemId] = {};
+        
+        if (isNaN(numValue) || numValue <= 0) {
+            errors[itemId][field] = `${field === 'price' ? 'Ár' : 'Mennyiség'} nem lehet nulla vagy negatív`;
+        } else {
+            delete errors[itemId][field];
+            if (Object.keys(errors[itemId]).length === 0) {
+                delete errors[itemId];
+            }
+        }
+        
+        setEditErrors(errors);
+        
+        // Call the parent handler if the value is valid
+        if (!isNaN(numValue) && numValue > 0 && onItemChange) {
+            onItemChange(itemId, field, numValue);
+        }
+    };
+
+    const handleSurchargeChange = (value: string) => {
+        const numValue = parseFloat(value);
+        
+        if (isNaN(numValue) || numValue < 0) {
+            setSurchargeError('Zárolási felár nem lehet negatív');
+        } else {
+            setSurchargeError('');
+            if (onSurchargeChange) {
+                onSurchargeChange(numValue);
+            }
+        }
+    };
+
+    const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError;
     const renderTotal = () => (
         <Box
             sx={{
@@ -78,8 +140,28 @@ export function OrderDetailsItems({
 
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ color: 'text.secondary' }}>Zárolási felár</Box>
+                
+                {isEditing ? (
+                    <Box sx={{ width: 160 }}>
+                        <TextField
+                            size="small"
+                            type="number"
+                            value={surcharge || 0}
+                            onChange={(e) => handleSurchargeChange(e.target.value)}
+                            error={!!surchargeError}
+                            helperText={surchargeError}
+                            sx={{ width: '100%' }}
+                            inputProps={{ min: 0, step: 0.01 }}
+                        />
+                    </Box>
+                ) : (
+                    <Box sx={{ width: 160 }}>{surcharge ? fCurrency(surcharge) : '-'}</Box>
+                )}
+            </Box>
 
-                <Box sx={{ width: 160 }}>{surcharge ? fCurrency(surcharge) : '-'}</Box>
+            <Box sx={{ display: 'flex' }}>
+                <Box sx={{ color: 'text.secondary' }}>Már kifizetett összeg</Box>
+                <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(payed_amount) || '-'}</Box>
             </Box>
 
             <Box sx={{ display: 'flex', typography: 'subtitle1' }}>
@@ -94,9 +176,31 @@ export function OrderDetailsItems({
             <CardHeader
                 title="Részletek"
                 action={
-                    <IconButton>
-                        <Iconify icon="solar:pen-bold" />
-                    </IconButton>
+                    isEditing ? (
+                        <Stack direction="row" spacing={1}>
+                            <Button
+                                variant="outlined"
+                                color="inherit"
+                                size="small"
+                                onClick={onCancel}
+                            >
+                                Mégse
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={onSave}
+                                disabled={hasErrors}
+                            >
+                                Mentés
+                            </Button>
+                        </Stack>
+                    ) : (
+                        <IconButton onClick={onStartEdit}>
+                            <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                    )
                 }
             />
 
@@ -122,27 +226,76 @@ export function OrderDetailsItems({
 
                         <ListItemText
                             primary={
-                                <Link 
-                                    href={paths.dashboard.product.edit(item.slug)} 
+                                <Link
+                                    href={paths.dashboard.product.edit(item.slug)}
                                     sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
                                 >
                                     {item.name}
                                 </Link>
                             }
-                            secondary={`${fCurrency(item.price)} / ${item.unit}`}
+                            secondary={
+                                isEditing ? (
+                                    <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+                                        <TextField
+                                            size="small"
+                                            type="number"
+                                            label="Ár"
+                                            defaultValue={item.price}
+                                            onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
+                                            error={!!editErrors[item.id]?.price}
+                                            helperText={editErrors[item.id]?.price}
+                                            sx={{ width: 100 }}
+                                            inputProps={{ min: 0, step: 0.01 }}
+                                        />
+                                        <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit}</Box>
+                                    </Box>
+                                ) : (
+                                    `${fCurrency(item.price)} / ${item.unit}`
+                                )
+                            }
                             slotProps={{
-                                primary: { sx: { typography: 'body2' }},
+                                primary: { sx: { typography: 'body2' } },
                                 secondary: {
-                                    sx: { mt: 0.5, color: 'text.disabled' },
+                                    sx: { mt: 0.5, color: isEditing ? 'inherit' : 'text.disabled' },
                                 },
                             }}
                         />
 
-                        <Box sx={{ typography: 'subtitle2' }}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0:2)} {item.unit}</Box>
+                        {isEditing ? (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, width: 110 }}>
+                                <TextField
+                                    size="small"
+                                    type="number"
+                                    label="Mennyiség"
+                                    defaultValue={item.quantity}
+                                    onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
+                                    error={!!editErrors[item.id]?.quantity}
+                                    helperText={editErrors[item.id]?.quantity}
+                                    sx={{ width: '100%' }}
+                                    inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
+                                />
+                                <Box sx={{ typography: 'caption', color: 'text.disabled' }}>{item.unit}</Box>
+                            </Box>
+                        ) : (
+                            <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
+                                {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                            </Box>
+                        )}
 
                         <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
                             {fCurrency(item.subtotal)}
                         </Box>
+
+                        {isEditing && (
+                            <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => onItemDelete?.(item.id)}
+                                sx={{ ml: 1 }}
+                            >
+                                <Iconify icon="solar:trash-bin-trash-bold" width={20} />
+                            </IconButton>
+                        )}
                     </Box>
                 ))}
             </Scrollbar>
