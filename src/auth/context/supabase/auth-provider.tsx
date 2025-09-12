@@ -6,6 +6,8 @@ import { useMemo, useEffect, useCallback } from 'react';
 import axios from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
 
+import { isAuthSessionError, handleAuthSessionError } from 'src/auth/utils/supabase-error-handler';
+
 import { AuthContext } from '../auth-context';
 
 import type { AuthState, UserRoles } from '../../types';
@@ -33,12 +35,19 @@ export function AuthProvider({ children }: Readonly<Props>) {
             } = await supabase.auth.getSession();
 
             if (error) {
-                setState({ user: null, loading: false });
                 console.error('Session check error:', error);
+                
+                // Handle specific refresh token errors
+                if (isAuthSessionError(error)) {
+                    await handleAuthSessionError(error);
+                }
+                
+                setState({ user: null, loading: false });
+                delete axios.defaults.headers.common.Authorization;
                 
                 // Don't throw for auth session missing errors as this is expected when not logged in
                 if (!error.message?.includes('Auth session missing')) {
-                    throw error;
+                    console.warn('Authentication error handled:', error.message);
                 }
                 return;
             }
@@ -70,11 +79,50 @@ export function AuthProvider({ children }: Readonly<Props>) {
             console.error('Unexpected session check error:', error);
             setState({ user: null, loading: false });
             delete axios.defaults.headers.common.Authorization;
+            
+            // Handle auth session errors
+            await handleAuthSessionError(error);
         }
     }, [setState]);
 
     useEffect(() => {
         checkUserSession();
+
+        // Listen for auth state changes (token refresh, sign out, etc.)
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                setState({ user: null, loading: false });
+                delete axios.defaults.headers.common.Authorization;
+            } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                if (session) {
+                    const accessToken = session.access_token;
+                    
+                    try {
+                        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+
+                        if (session.user?.user_metadata) {
+                            session.user.user_metadata.is_admin = payload.user_metadata?.admin ?? false;
+                            session.user.user_metadata.is_corp = payload.user_metadata?.corp ?? false;
+                            session.user.user_metadata.is_vip = payload.user_metadata?.vip ?? false;
+                        }
+
+                        setState({ user: { ...session, ...session.user }, loading: false });
+                        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+                    } catch (error) {
+                        console.error('Error processing auth token:', error);
+                        setState({ user: null, loading: false });
+                        delete axios.defaults.headers.common.Authorization;
+                    }
+                }
+            }
+        });
+
+        // Cleanup function to unsubscribe
+        return () => {
+            subscription.unsubscribe();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
