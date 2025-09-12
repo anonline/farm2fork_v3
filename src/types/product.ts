@@ -76,7 +76,7 @@ export type IProductItem = {
     taxes: number;
     tags: string[];
     sizes: string[];
-    publish: string;
+    publish: boolean;
     gender: string[];
     coverUrl: string;
     images: string[];

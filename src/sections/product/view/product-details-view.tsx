@@ -59,7 +59,8 @@ export function ProductDetailsView({ product }: Readonly<Props>) {
 
     useEffect(() => {
         if (product) {
-            setPublish(product?.publish);
+            // Convert boolean to string for UI
+            setPublish(product?.publish ? 'published' : 'draft');
         }
     }, [product]);
 

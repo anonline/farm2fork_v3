@@ -8,9 +8,9 @@ import {
     Step,
     Chip,
     Grid,
-    Stack,
     Alert,
     Paper,
+    Stack,
     Button,
     Stepper,
     Divider,
@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
-import { syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
+import { syncProducts, syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -246,8 +246,59 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                 });
                 setIsImporting(false);
             }
+        } else if (step.id === 'products') {
+            // Real products sync implementation
+            try {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    newSteps[stepIndex].status = 'running';
+                    newSteps[stepIndex].details = 'Termékek szinkronizálása megkezdve...';
+                    return newSteps;
+                });
+                const result = await syncProducts(wooProducts, (processed, total, currentItem) => {
+                    setSteps(prevSteps => {
+                        const newSteps = [...prevSteps];
+                        const currentStep = newSteps[stepIndex];
+                        currentStep.processedCount = processed;
+                        currentStep.progress = (processed / total) * 100;
+                        currentStep.details = `${currentItem} feldolgozása...`;
+                        return newSteps;
+                    });
+                });
+
+                // Update final status
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'completed';
+                    currentStep.progress = 100;
+                    currentStep.details = `Befejezve! ${result.success} sikeres, ${result.errors} hiba.`;
+                    return newSteps;
+                });
+
+                // Move to next step after a short delay
+                setTimeout(() => {
+                    const nextStep = getNextEnabledStep(stepIndex);
+                    if (nextStep !== -1) {
+                        setActiveStep(nextStep);
+                        processStep(nextStep);
+                    } else {
+                        setIsImporting(false);
+                    }
+                }, 1000);
+
+            } catch (error) {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'error';
+                    currentStep.details = `Hiba történt: ${error}`;
+                    return newSteps;
+                });
+                setIsImporting(false);
+            }
         } else {
-            // Simulation for products (to be implemented later)
+            // Simulation for other steps (shouldn't happen now)
             simulateStepProgress(stepIndex);
         }
     };

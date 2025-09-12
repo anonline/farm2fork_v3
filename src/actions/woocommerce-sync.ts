@@ -1,3 +1,4 @@
+import type { IProductItem } from 'src/types/product';
 import type { ICategoryItem } from 'src/types/category';
 import type { IProducerItem } from 'src/types/producer';
 
@@ -5,6 +6,7 @@ import { supabase } from 'src/lib/supabase';
 
 import { insertCategory, updateCategory } from './category';
 import { insertProducer, updateProducer } from './producer';
+import { createProduct, updateProduct, updateProductCategoryRelations } from './product';
 
 // Helper function to upload image from URL to Vercel Blob via API
 export async function uploadImageFromUrl(imageUrl: string, folder: 'category' | 'product' | 'assets' | 'news', filename: string) {
@@ -210,9 +212,15 @@ interface WooProducer {
     meta_data: Record<string, string>; // Changed from array to object
 }
 
-// Helper function to extract meta value by key
+// Helper function to extract meta value by key (for producers - object format)
 function getMetaValue(metaData: Record<string, string>, key: string): string {
     return metaData[key] || '';
+}
+
+// Helper function to extract meta value by key (for products - array format)
+function getProductMetaValue(metaData: Array<{id: number; key: string; value: any}>, key: string): string {
+    const meta = metaData.find(item => item.key === key);
+    return meta ? String(meta.value) : '';
 }
 
 // Synchronize WooCommerce producers with our database
@@ -246,14 +254,13 @@ export async function syncProducers(
             const shortDescription = getMetaValue(wooProducer.meta_data, 'felso_bemutatkozas') || getMetaValue(wooProducer.meta_data, 'rovid_bemutatkozas');
             const producingTags = getMetaValue(wooProducer.meta_data, 'termeny') || getMetaValue(wooProducer.meta_data, 'termeny_kartya');
             const bioValue = getMetaValue(wooProducer.meta_data, 'bio') || getMetaValue(wooProducer.meta_data, '_bio');
-            const companyName = getMetaValue(wooProducer.meta_data, 'cegnev');
-            const producerName = getMetaValue(wooProducer.meta_data, 'nev');
+            const companyName = getMetaValue(wooProducer.meta_data, 'nev');
+            const producerName = wooProducer.title;
             // Note: Additional fields available but not used yet:
             // const startedYear = getMetaValue(wooProducer.meta_data, 'ev');
             // const avatarImageId = getMetaValue(wooProducer.meta_data, 'avatar_kep');
             // const coverImageId = getMetaValue(wooProducer.meta_data, 'boritokep');
 
-            producerDisplayName = producerName || wooProducer.title;
             onProgress?.(i + 1, wooProducers.length, producerDisplayName);
             
             const existingProducer = existingProducerMap.get(producerDisplayName.toLowerCase());
@@ -267,7 +274,7 @@ export async function syncProducers(
                 producingTags: producingTags || '',
                 companyName: companyName || '',
                 bio: bioValue === '1' || bioValue === 'true',
-                galleryIds: [] // Initialize as empty array
+                galleryIds: [], // Initialize as empty array
             };
 
             // Handle featured image upload if present
@@ -315,6 +322,284 @@ export async function syncProducers(
             console.error(`Error syncing producer ${producerDisplayName}:`, error);
             results.errors++;
             results.details.push(`Error syncing ${producerDisplayName}: ${error}`);
+        }
+    }
+
+    return results;
+}
+
+// WooCommerce Product Interface
+interface WooProduct {
+    id: number;
+    name: string;
+    slug: string;
+    status: string;
+    featured: boolean;
+    sku: string;
+    price: string;
+    regular_price: string;
+    sale_price: string;
+    stock_quantity: number | null;
+    manage_stock: boolean;
+    backorders: string;
+    tax_status: string;
+    tax_class: string;
+    short_description: string;
+    description: string;
+    categories: Array<{
+        id: number;
+        name: string;
+        slug: string;
+    }>;
+    images: Array<{
+        id: number;
+        src: string;
+        name: string;
+        alt: string;
+    }>;
+    meta_data: Array<{
+        id: number;
+        key: string;
+        value: string | number | any;
+    }>;
+}
+
+// Helper function to convert WooCommerce price to number
+function parsePrice(price: string): number {
+    const parsed = parseFloat(price);
+    return isNaN(parsed) ? 0 : parsed;
+}
+
+// Helper function to map unit from WooCommerce to our system
+function mapUnit(wooUnit: string): string {
+    const unitMap: Record<string, string> = {
+        'box': 'box',
+        'kg': 'kg',
+        'g': 'g',
+        'l': 'l',
+        'ml': 'ml',
+        'db': 'db',
+        'csomag': 'csomag',
+        'darab': 'darab',
+        'üveg': 'üveg',
+        'csokor': 'csokor',
+        'doboz': 'doboz',
+        'köteg': 'köteg',
+        'csomó': 'csomó',
+        'rekesz': 'rekesz',
+        'tálca': 'tálca',
+        'zsák': 'zsák'
+    };
+    
+    return unitMap[wooUnit?.toLowerCase()] || wooUnit || 'db';
+}
+
+// Synchronize WooCommerce products with our database
+export async function syncProducts(
+    wooProducts: WooProduct[], 
+    onProgress?: SyncProgressCallback
+): Promise<{ success: number; errors: number; details: string[] }> {
+    const results = {
+        success: 0,
+        errors: 0,
+        details: [] as string[]
+    };
+
+    // Get existing data from database for mapping
+    const [categoriesResponse, producersResponse, productsResponse] = await Promise.all([
+        supabase.from('ProductCategories').select('*'),
+        supabase.from('Producers').select('*'),
+        supabase.from('Products').select('*')
+    ]);
+
+    // Create lookup maps
+    const categoryMap = new Map<string, ICategoryItem>();
+    categoriesResponse.data?.forEach(cat => {
+        categoryMap.set(cat.slug, cat);
+    });
+
+    const producerMap = new Map<string, IProducerItem>();
+    producersResponse.data?.forEach(producer => {
+        if (producer.name) {
+            producerMap.set(producer.name.toString(), producer);
+        }
+    });
+
+    const existingProductMap = new Map<string, IProductItem>();
+    productsResponse.data?.forEach(product => {
+        if (product.name) {
+            existingProductMap.set(product.name.toLowerCase(), product);
+        }
+        if (product.sku) {
+            existingProductMap.set(`sku:${product.sku}`, product);
+        }
+    });
+
+    for (let i = 0; i < wooProducts.length; i++) {
+        const wooProduct = wooProducts[i];
+        
+        try {
+            onProgress?.(i + 1, wooProducts.length, wooProduct.name);
+            
+            let publish = true;
+            if (wooProduct.status !== 'publish') {
+                publish = false;
+            }
+
+            // Extract meta data
+            const bioValue = getProductMetaValue(wooProduct.meta_data, 'bio_termek');
+            const producerIdMeta = getProductMetaValue(wooProduct.meta_data, 'termelo');
+            const unit = mapUnit(getProductMetaValue(wooProduct.meta_data, 'unit'));
+            const usageInfo = getProductMetaValue(wooProduct.meta_data, 'felhasznalas');
+            const storingInfo = getProductMetaValue(wooProduct.meta_data, 'tarolas');
+            const homeFeature = getProductMetaValue(wooProduct.meta_data, 'home_featured') === '1';
+            const specialInfo = getProductMetaValue(wooProduct.meta_data, 'special_info');
+
+            // Price handling
+            const netPrice = parsePrice(wooProduct.regular_price);
+            const vipPrice = parsePrice(getProductMetaValue(wooProduct.meta_data, 'product_role_based_price_vsrl_-_vip'));
+            const companyPrice = parsePrice(getProductMetaValue(wooProduct.meta_data, 'product_role_based_price_Company_Customer'));
+            const grossPrice = parsePrice(getProductMetaValue(wooProduct.meta_data, '_gross_price') || wooProduct.price);
+            const salePrice = wooProduct.sale_price ? parsePrice(wooProduct.sale_price) : null; //neet to be gross?
+
+            // Stock handling
+            const stockQuantity = wooProduct.manage_stock ? (wooProduct.stock_quantity || 0) : null;
+            const backorderAllowed = wooProduct.backorders !== 'no';
+
+            // Minimum/Maximum quantity from WooCommerce Bulk Order plugin
+            const minQuantity = parseFloat(getProductMetaValue(wooProduct.meta_data, '_wpbo_minimum')) || 1;
+            const maxQuantity = parseFloat(getProductMetaValue(wooProduct.meta_data, '_wpbo_maximum')) || null;
+            const stepQuantity = parseFloat(getProductMetaValue(wooProduct.meta_data, '_wpbo_step')) || 0.1;
+
+            // Find producer by meta ID
+            let producerId: number | null = null;
+            if (producerIdMeta) {
+                const producer = producerMap.get(producerIdMeta);
+                if (producer) {
+                    producerId = producer.id;
+                } else {
+                    results.details.push(`Producer not found for ID ${producerIdMeta} in product: ${wooProduct.name}`);
+                }
+            }
+
+            // Find categories by slug
+            const categoryIds: number[] = [];
+            for (const wooCategory of wooProduct.categories) {
+                const category = categoryMap.get(wooCategory.slug);
+                if (category && category.id) {
+                    categoryIds.push(category.id);
+                } else {
+                    results.details.push(`Category not found for slug "${wooCategory.slug}" in product: ${wooProduct.name}`);
+                }
+            }
+
+            // Handle main product image
+            let featuredImage = '';
+            if (wooProduct.images && wooProduct.images.length > 0) {
+                try {
+                    const mainImage = wooProduct.images[0];
+                    const filename = extractFilenameFromUrl(mainImage.src);
+                    featuredImage = await uploadImageFromUrl(
+                        mainImage.src, 
+                        'product', 
+                        `woo-product-${wooProduct.id}-${filename}`
+                    );
+                } catch (imageError) {
+                    console.error(`Failed to upload main image for product ${wooProduct.name}:`, imageError);
+                    results.details.push(`Main image upload failed for ${wooProduct.name}: ${imageError}`);
+                }
+            }
+
+            // Handle additional images
+            const additionalImages: string[] = [];
+            if (wooProduct.images && wooProduct.images.length > 1) {
+                for (let imgIndex = 1; imgIndex < wooProduct.images.length; imgIndex++) {
+                    try {
+                        const image = wooProduct.images[imgIndex];
+                        const filename = extractFilenameFromUrl(image.src);
+                        const uploadedUrl = await uploadImageFromUrl(
+                            image.src, 
+                            'product', 
+                            `woo-product-${wooProduct.id}-${imgIndex}-${filename}`
+                        );
+                        additionalImages.push(uploadedUrl);
+                    } catch (imageError) {
+                        console.error(`Failed to upload additional image ${imgIndex} for product ${wooProduct.name}:`, imageError);
+                        results.details.push(`Additional image ${imgIndex} upload failed for ${wooProduct.name}: ${imageError}`);
+                    }
+                }
+            }
+
+            // Prepare product data
+            const productData: Partial<IProductItem> & { categoryIds?: number[] } = {
+                name: wooProduct.name,
+                sku: wooProduct.sku || `woo-${wooProduct.id}`,
+                shortDescription: wooProduct.short_description || '',
+                bio: bioValue === '1',
+                featuredImage,
+                producerId: producerId || undefined,
+                unit,
+                stepQuantity,
+                mininumQuantity: minQuantity,
+                maximumQuantity: maxQuantity || undefined,
+                stock: stockQuantity,
+                backorder: backorderAllowed,
+                usageInformation: usageInfo || '',
+                storingInformation: storingInfo || '',
+                images: additionalImages,
+                publish: publish,
+                netPrice,
+                netPriceVIP: vipPrice || netPrice,
+                netPriceCompany: companyPrice || netPrice,
+                grossPrice,
+                salegrossPrice: salePrice,
+                featured: homeFeature || false,
+                star: wooProduct.featured || false, // Could be mapped from meta if needed
+                vat: wooProduct.tax_status == "taxable" ? parseInt(wooProduct.tax_class) || 27 : 0, // Default VAT, could be extracted from tax settings
+                cardText: specialInfo,
+                url: wooProduct.slug,
+                // Add categoryIds for the relationship handling
+                categoryIds
+            };
+
+            // Check if product exists (by name or SKU)
+            const existingProduct = existingProductMap.get(wooProduct.name.toLowerCase()) || 
+                                  existingProductMap.get(`sku:${wooProduct.sku}`);
+
+            if (existingProduct) {
+                // Check if update is needed
+                const needsUpdate = 
+                    existingProduct.sku !== productData.sku ||
+                    existingProduct.shortDescription !== productData.shortDescription ||
+                    existingProduct.bio !== productData.bio ||
+                    existingProduct.producerId !== productData.producerId ||
+                    existingProduct.unit !== productData.unit ||
+                    existingProduct.stock !== productData.stock ||
+                    existingProduct.netPrice !== productData.netPrice ||
+                    existingProduct.grossPrice !== productData.grossPrice ||
+                    featuredImage; // Always update if we have a new image
+
+                if (needsUpdate) {
+                    await updateProduct(existingProduct.id, productData);
+                    results.details.push(`Updated product: ${wooProduct.name}`);
+                } else {
+                    // Still update category relationships
+                    if (categoryIds.length > 0) {
+                        await updateProductCategoryRelations(existingProduct.id, categoryIds);
+                    }
+                    results.details.push(`No changes needed for product: ${wooProduct.name}`);
+                }
+            } else {
+                // Create new product
+                await createProduct(productData);
+                results.details.push(`Created new product: ${wooProduct.name}`);
+            }
+
+            results.success++;
+        } catch (error) {
+            console.error(`Error syncing product ${wooProduct.name}:`, error);
+            results.errors++;
+            results.details.push(`Error syncing ${wooProduct.name}: ${error}`);
         }
     }
 

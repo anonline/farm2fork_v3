@@ -138,6 +138,37 @@ export async function createProduct(productData: Partial<IProductItem>) {
 export async function updateProduct(id: number, productData: Partial<IProductItem>) {
     const { categoryIds, ...restProductData } = productData as any;
 
+    // Check if featured image has changed and delete old one if needed
+    if (restProductData.featured_image) {
+        const { data: currentProduct, error: fetchError } = await supabase
+            .from('Products')
+            .select('featuredImage')
+            .eq('id', id)
+            .single();
+
+        if (!fetchError && currentProduct?.featuredImage && currentProduct.featuredImage !== restProductData.featuredImage) {
+            try {
+                // Delete the old image using our API endpoint
+                const response = await fetch('/api/img/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: currentProduct.featuredImage
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error(`Failed to delete image: ${response.statusText}`);
+                }
+            } catch (deleteError) {
+                console.warn('Failed to fetch old featured image:', deleteError);
+                // Don't throw here - we still want to update the product even if blob deletion fails
+            }
+        }
+    }
+
     const { error } = await supabase.from('Products').update(restProductData).eq('id', id);
     if (error) {
         console.error('Supabase update error:', error);
