@@ -60,7 +60,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
                     session.user.user_metadata.is_vip = payload.user_metadata?.vip ?? false;
                 }
 
-                setState({ user: { ...session, ...session?.user }, loading: false, roles: roles });
+                setState({ user: { ...session, ...session?.user }, loading: false, roles });
                 axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
             } else {
                 setState({ user: null, loading: false });

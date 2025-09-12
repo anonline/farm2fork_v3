@@ -18,9 +18,10 @@ import { toast } from 'src/components/snackbar';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
-import { useAuthContext } from 'src/auth/hooks';
 
 interface ProductCardProps {
     product: IProductItem;
