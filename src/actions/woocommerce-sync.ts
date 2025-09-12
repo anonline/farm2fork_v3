@@ -518,12 +518,12 @@ export async function syncProducts(
                     try {
                         const image = wooProduct.images[imgIndex];
                         const filename = extractFilenameFromUrl(image.src);
-                        const uploadedUrl = await uploadImageFromUrl(
+                        /*const uploadedUrl = await uploadImageFromUrl(
                             image.src, 
                             'product', 
                             `woo-product-${wooProduct.id}-${imgIndex}-${filename}`
                         );
-                        additionalImages.push(uploadedUrl);
+                        additionalImages.push(uploadedUrl);*/
                     } catch (imageError) {
                         console.error(`Failed to upload additional image ${imgIndex} for product ${wooProduct.name}:`, imageError);
                         results.details.push(`Additional image ${imgIndex} upload failed for ${wooProduct.name}: ${imageError}`);
