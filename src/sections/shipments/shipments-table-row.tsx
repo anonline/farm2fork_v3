@@ -14,7 +14,7 @@ type ParamsProps = {
 export function RenderCellDate({ params }: ParamsProps) {
     return (
         <Box sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>
-            <span>{fDate(params.row.date)}</span>
+            <span>{fDate(params.row.date, 'YYYY. MMMM DD. - dddd')}</span>
         </Box>
     );
 }

@@ -139,7 +139,7 @@ export function ShipmentsListView() {
     const columns: GridColDef[] = useMemo(() => [
         {
             field: 'date',
-            headerName: 'Dátum',
+            headerName: 'Szállítás dátuma',
             flex: 1,
             minWidth: 160,
             hideable: false,

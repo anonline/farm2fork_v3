@@ -189,7 +189,7 @@ export const paths = {
         },
         shipments: {
             root: `${ROOTS.DASHBOARD}/shipments`,
-            details: (id: string) => `${ROOTS.DASHBOARD}/shipments/${id}`,
+            details: (id: number) => `${ROOTS.DASHBOARD}/shipments/${id}`,
         },
         general: {
             app: `${ROOTS.DASHBOARD}/app`,

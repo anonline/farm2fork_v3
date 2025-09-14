@@ -20,6 +20,7 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -153,8 +154,19 @@ export function OrderDetailsToolbar({
                         {renderStatusLabel()}
                     </Button>
 
+                    {order?.shipmentId && (
+                        <Button
+                            color="inherit"
+                            variant="outlined"
+                            href={paths.dashboard.shipments.details(order.shipmentId)}
+                            startIcon={<Iconify icon="solar:file-text-bold" />}
+                        >
+                            Összesítő
+                        </Button>
+                    )}
+
                     <Button
-                        color="inherit"
+                        color="error"
                         variant="outlined"
                         startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
                         onClick={handleGeneratePDF}
@@ -162,6 +174,9 @@ export function OrderDetailsToolbar({
                     >
                         Szállítólevél
                     </Button>
+
+
+
                 </Box>
             </Box>
 
