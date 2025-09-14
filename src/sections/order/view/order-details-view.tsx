@@ -1,7 +1,6 @@
 'use client';
 
-import type { IOrderData } from 'src/types/order-management';
-import type { IOrderItem, IOrderProductItem } from 'src/types/order';
+import type { IOrderProductItem } from 'src/types/order';
 
 import { useState, useCallback, useEffect } from 'react';
 
@@ -15,12 +14,14 @@ import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { getOrderById, updateOrderItems } from 'src/actions/order-management';
+import { updateOrderItems } from 'src/actions/order-management';
+import { useOrderContext } from 'src/contexts/order-context';
 
 import { toast } from 'src/components/snackbar';
 
@@ -36,12 +37,13 @@ import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 // ----------------------------------------------------------------------
 
 type Props = {
-    readonly order?: IOrderItem;
-    readonly orderData?: IOrderData;
-    readonly orderError?: string | null;
+  readonly orderId: string;
 };
 
-export function OrderDetailsView({ order, orderData, orderError }: Props) {
+export function OrderDetailsView({ orderId }: Props) {
+    const { state, updateOrder, updateOrderData, refreshOrderHistory, fetchOrder } = useOrderContext();
+    const { order, orderData, loading, error } = state;
+    
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
@@ -49,13 +51,26 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
     const [showPaymentAlert, setShowPaymentAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
 
-    // Local state to track updated order data after save
-    const [localOrder, setLocalOrder] = useState(order);
-    const [localOrderData, setLocalOrderData] = useState(orderData);
+    // Fetch order data when component mounts or orderId changes
+    useEffect(() => {
+        if (orderId) {
+            fetchOrder(orderId);
+        }
+    }, [orderId, fetchOrder]);
 
-    // Use local state if available, otherwise fall back to props
-    const currentOrder = localOrder || order;
-    const currentOrderData = localOrderData || orderData;
+    // Update local state when order data changes from context
+    useEffect(() => {
+        if (order) {
+            setStatus(order.status);
+            setEditedItems([...order.items || []]);
+        }
+    }, [order]);
+
+    useEffect(() => {
+        if (orderData) {
+            setEditedSurcharge(orderData.surchargeAmount || 0);
+        }
+    }, [orderData]);
 
     const handleChangeStatus = useCallback((newValue: string) => {
         setStatus(newValue);
@@ -70,8 +85,8 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
 
     const handleStartEdit = useCallback(() => {
         setIsEditing(true);
-        setEditedItems([...currentOrder?.items || []]);
-    }, [currentOrder?.items]);
+        setEditedItems([...order?.items || []]);
+    }, [order?.items]);
 
     const handleCancelEdit = useCallback(() => {
         setIsEditing(false);
@@ -80,18 +95,18 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
     }, [order?.items, orderData?.surchargeAmount]);
 
     const handleSaveEdit = useCallback(async () => {
-        if (!currentOrderData?.id) {
+        if (!orderData?.id) {
             toast.error('Hiányzó rendelési azonosító');
             return;
         }
 
         // Calculate new total
         const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-        const newTotal = newSubtotal + (currentOrderData?.shippingCost || 0) + (currentOrderData?.vatTotal || 0) + editedSurcharge - (currentOrderData?.discountTotal || 0);
+        const newTotal = newSubtotal + (orderData?.shippingCost || 0) + (orderData?.vatTotal || 0) + editedSurcharge - (orderData?.discountTotal || 0);
 
         // Check if payment method is 'simple' and if new total exceeds paid amount
-        const isSimplePayment = currentOrderData?.paymentMethod?.slug === 'simple';
-        const payedAmount = currentOrderData?.payedAmount || 0;
+        const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
+        const payedAmount = orderData?.payedAmount || 0;
 
         if (isSimplePayment && newTotal > payedAmount) {
             setShowPaymentAlert(true);
@@ -101,10 +116,10 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
 
         // Proceed with save
         await performSave();
-    }, [editedItems, currentOrderData]);
+    }, [editedItems, orderData]);
 
     const performSave = useCallback(async () => {
-        if (!currentOrderData?.id) return;
+        if (!orderData?.id) return;
 
         try {
             // Transform edited items to the format expected by the API
@@ -120,7 +135,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
             }));
 
             const { success, error } = await updateOrderItems(
-                currentOrderData.id,
+                orderData.id,
                 itemsToSave,
                 'Rendelés tételek módosítva a dashboard-ról',
                 undefined, // userId
@@ -131,21 +146,21 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
             if (success) {
                 // Calculate new totals
                 const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-                const newTotal = newSubtotal + (currentOrderData?.shippingCost || 0) + (currentOrderData?.vatTotal || 0) + editedSurcharge - (currentOrderData?.discountTotal || 0);
+                const newTotal = newSubtotal + (orderData?.shippingCost || 0) + (orderData?.vatTotal || 0) + editedSurcharge - (orderData?.discountTotal || 0);
 
-                // Update local order state with new data
-                if (currentOrder) {
-                    setLocalOrder({
-                        ...currentOrder,
+                // Update context with new data
+                if (order) {
+                    updateOrder({
+                        ...order,
                         items: editedItems,
                         subtotal: newSubtotal,
                         totalAmount: newTotal,
                     });
                 }
 
-                if (currentOrderData) {
-                    setLocalOrderData({
-                        ...currentOrderData,
+                if (orderData) {
+                    updateOrderData({
+                        ...orderData,
                         items: itemsToSave,
                         subtotal: newSubtotal,
                         total: newTotal,
@@ -164,7 +179,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
             console.error('Error saving order changes:', error);
             toast.error('Hiba történt a rendelés mentése során');
         }
-    }, [editedItems, currentOrderData, currentOrder]);
+    }, [editedItems, orderData, order, updateOrder, updateOrderData]);
 
     const handlePaymentAlertConfirm = useCallback(async () => {
         await performSave();
@@ -198,33 +213,25 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
     }, []);
 
     const handleRefreshOrderHistory = useCallback(async () => {
-        if (!currentOrderData?.id) return;
-        
         try {
-            // You'll need to import the appropriate action to fetch order data
-            // Replace 'getOrderById' with your actual data fetching function
-            const { order: refreshedOrder } = await getOrderById(currentOrderData.id);
-
-            if (refreshedOrder) {
-                setLocalOrderData(refreshedOrder);
-                toast.success('Rendelési előzmények frissítve!');
-            }
+            await refreshOrderHistory();
+            toast.success('Rendelési előzmények frissítve!');
         } catch (error) {
             console.error('Error refreshing order history:', error);
             toast.error('Hiba történt az adatok frissítése során');
         }
-    }, [currentOrderData?.id]);
+    }, [refreshOrderHistory]);
 
     // Calculate updated totals when in edit mode
-    const displayItems = isEditing ? editedItems : currentOrder?.items || [];
+    const displayItems = isEditing ? editedItems : order?.items || [];
     const updatedSubtotal = isEditing
         ? editedItems.reduce((sum, item) => sum + item.subtotal, 0)
-        : currentOrder?.subtotal || 0;
+        : order?.subtotal || 0;
     const updatedTotalAmount = isEditing
-        ? updatedSubtotal + (currentOrderData?.shippingCost || 0) + (currentOrderData?.vatTotal || 0) + editedSurcharge - (currentOrderData?.discountTotal || 0)
-        : currentOrder?.totalAmount || 0;
+        ? updatedSubtotal + (orderData?.shippingCost || 0) + (orderData?.vatTotal || 0) + editedSurcharge - (orderData?.discountTotal || 0)
+        : order?.totalAmount || 0;
 
-    if (orderError) {
+    if (error) {
         return (
             <DashboardContent>
                 <Card sx={{ p: 3, textAlign: 'center' }}>
@@ -233,7 +240,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                             Hiba történt a rendelés betöltése során
                         </Typography>
                         <Typography variant="body2" sx={{ mt: 1 }}>
-                            {orderError}
+                            {error}
                         </Typography>
                     </Box>
                     <Button variant="contained" href={paths.dashboard.order.root}>
@@ -244,7 +251,20 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
         );
     }
 
-    if (!currentOrder) {
+    if (loading) {
+        return (
+            <DashboardContent>
+                <Card sx={{ p: 3, textAlign: 'center' }}>
+                    <CircularProgress />
+                    <Typography variant="body2" sx={{ mt: 2 }}>
+                        Rendelés betöltése...
+                    </Typography>
+                </Card>
+            </DashboardContent>
+        );
+    }
+
+    if (!order) {
         return (
             <DashboardContent>
                 <Card sx={{ p: 3, textAlign: 'center' }}>
@@ -263,12 +283,12 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
         <DashboardContent>
             <OrderDetailsToolbar
                 status={status}
-                createdAt={currentOrder?.createdAt}
-                orderNumber={currentOrder?.orderNumber}
+                createdAt={order?.createdAt}
+                orderNumber={order?.orderNumber}
                 backHref={paths.dashboard.order.root}
                 onChangeStatus={handleChangeStatus}
                 statusOptions={ORDER_STATUS_OPTIONS}
-                order={currentOrder}
+                order={order}
                 onStartEdit={handleStartEdit}
                 isEditing={isEditing}
             />
@@ -284,13 +304,13 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                     >
                         <OrderDetailsItems
                             items={displayItems}
-                            taxes={currentOrder?.taxes}
-                            shipping={currentOrder?.shipping}
-                            payed_amount={currentOrderData?.payedAmount || 0}
-                            discount={currentOrder?.discount}
+                            taxes={order?.taxes}
+                            shipping={order?.shipping}
+                            payed_amount={orderData?.payedAmount || 0}
+                            discount={order?.discount}
                             subtotal={updatedSubtotal}
                             totalAmount={updatedTotalAmount}
-                            surcharge={isEditing ? editedSurcharge : (currentOrderData?.surchargeAmount || 0)}
+                            surcharge={isEditing ? editedSurcharge : (orderData?.surchargeAmount || 0)}
                             isEditing={isEditing}
                             onItemChange={handleItemChange}
                             onItemDelete={handleItemDelete}
@@ -300,34 +320,38 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                             onStartEdit={handleStartEdit}
                         />
 
-                        <OrderDetailsHistory history={currentOrder?.history} />
+                        <OrderDetailsHistory history={order?.history} />
                     </Box>
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Card>
-                        <OrderDetailsCustomer customer={currentOrder?.customer} />
+                        <OrderDetailsCustomer customer={order?.customer} />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsDelivery delivery={currentOrder?.delivery} />
+                        <OrderDetailsDelivery delivery={order?.delivery} />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsShipping 
-                            shippingAddress={currentOrder?.shippingAddress} 
-                            requestedShippingDate={currentOrder.planned_shipping_date_time}
-                            orderId={currentOrderData?.id}
+                            shippingAddress={order?.shippingAddress} 
+                            requestedShippingDate={order.planned_shipping_date_time}
+                            orderId={orderData?.id}
                             onRefreshOrder={handleRefreshOrderHistory}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsPayment payment={currentOrder?.payment} />
+                        <OrderDetailsPayment payment={order?.payment} />
 
-                        {currentOrderData && (
+                        {orderData && (
                             <>
                                 <Divider sx={{ borderStyle: 'dashed' }} />
                                 <OrderDetailsDeliveryGuy
-                                    orderId={currentOrderData.id}
-                                    currentDeliveryGuyId={currentOrderData.courier ? (Number.isNaN(parseInt(currentOrderData.courier, 10)) ? null : parseInt(currentOrderData.courier, 10)) : null}
+                                    orderId={orderData.id}
+                                    currentDeliveryGuyId={(() => {
+                                        if (!orderData.courier) return null;
+                                        const parsedId = parseInt(orderData.courier, 10);
+                                        return Number.isNaN(parsedId) ? null : parsedId;
+                                    })()}
                                 />
                             </>
                         )}
@@ -344,13 +368,13 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                     </Typography>
                     <Box sx={{ mt: 2 }}>
                         <Typography variant="body2" color="text.secondary">
-                            Befizetett összeg: <strong>{currentOrderData?.payedAmount ? `${currentOrderData.payedAmount.toLocaleString()} Ft` : '0 Ft'}</strong>
+                            Befizetett összeg: <strong>{orderData?.payedAmount ? `${orderData.payedAmount.toLocaleString()} Ft` : '0 Ft'}</strong>
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             Új rendelési összeg: <strong>{updatedTotalAmount.toLocaleString()} Ft</strong>
                         </Typography>
                         <Typography variant="body2" color="error.main" sx={{ mt: 1 }}>
-                            Különbség: <strong>+{(updatedTotalAmount - (currentOrderData?.payedAmount || 0)).toLocaleString()} Ft</strong>
+                            Különbség: <strong>+{(updatedTotalAmount - (orderData?.payedAmount || 0)).toLocaleString()} Ft</strong>
                         </Typography>
                     </Box>
                     <Typography sx={{ mt: 2 }}>

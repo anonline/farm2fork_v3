@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 
-import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
-
 import { CONFIG } from 'src/global-config';
-import { getOrderByIdSSR } from 'src/actions/order-ssr';
+import { OrderProvider } from 'src/contexts/order-context';
 
 import { OrderDetailsView } from 'src/sections/order/view';
 
@@ -18,15 +16,9 @@ type Props = {
 export default async function Page({ params }: Props) {
     const { id } = await params;
 
-    const { order: orderData, error } = await getOrderByIdSSR(id);
-    
-    // Transform the order data to match the expected format
-    const currentOrder = orderData ? await transformOrderDataToTableItem(orderData) : undefined;
-
-    if (error) {
-        // Handle error case - could redirect to error page or show error message
-        console.error('Error fetching order:', error);
-    }
-
-    return <OrderDetailsView order={currentOrder} orderData={orderData || undefined} orderError={error} />;
+    return (
+        <OrderProvider>
+            <OrderDetailsView orderId={id} />
+        </OrderProvider>
+    );
 }

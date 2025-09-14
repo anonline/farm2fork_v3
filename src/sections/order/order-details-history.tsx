@@ -65,7 +65,7 @@ export function OrderDetailsHistory({ history }: Props) {
             {history?.timeline.sort((a, b) => {
                 const timeA = a.time ? new Date(a.time).getTime() : 0;
                 const timeB = b.time ? new Date(b.time).getTime() : 0;
-                return timeA - timeB;
+                return timeB - timeA;
             }).map((item, index) => {
                 const firstTime = index === 0;
                 const lastTime = index === history.timeline.length - 1;

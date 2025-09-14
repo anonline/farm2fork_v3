@@ -90,7 +90,7 @@ export function OrderDetailsShipping({
             />
         );
     };
-    
+
     const formatDate = (date: Date | string | null | undefined): string => {
         if (!date) return 'N/A';
         try {
@@ -294,7 +294,7 @@ export function OrderDetailsShipping({
                     horizontal: 'center',
                 }}
             >
-                <Box sx={{ p: 2 }}>
+                <Box sx={{ p: 0 }}>
                     <StaticDatePicker
                         value={selectedDate}
                         onChange={handleDateChange}
