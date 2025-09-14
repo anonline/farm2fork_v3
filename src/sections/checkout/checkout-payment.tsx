@@ -104,6 +104,7 @@ export function CheckoutPayment() {
         onChangeStep,
         onApplyShipping,
         onCreateDeliveryAddress,
+        onCreateBillingAddress,
         onUpdateNotificationEmails,
         onUpdateDeliveryComment,
         onUpdateDeliveryDateTime,
@@ -289,7 +290,11 @@ export function CheckoutPayment() {
         if (!checkoutState.selectedDeliveryDateTime) return false;
 
         // Must have payment method selected
+        console.log(checkoutState.selectedPaymentMethod);
         if (!checkoutState.selectedPaymentMethod) return false;
+
+        // Must have billing address selected
+        if (selectedBillingAddressIndex === null) return false;
 
         // Must accept terms
         if (!termsAccepted) return false;
@@ -303,6 +308,7 @@ export function CheckoutPayment() {
         isDeliveryDetailsComplete,
         checkoutState.selectedDeliveryDateTime,
         checkoutState.selectedPaymentMethod,
+        selectedBillingAddressIndex,
         termsAccepted,
         dataTransferAccepted,
     ]);
@@ -417,6 +423,20 @@ export function CheckoutPayment() {
         }
     };
 
+    const updateBillingAddressInContext = (index: number) => {
+        if (customerData?.billingAddress?.[index]) {
+            const selectedAddress = customerData.billingAddress[index];
+            const addressItem: IAddressItem = {
+                name: selectedAddress.fullName,
+                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.street}`,
+                phoneNumber: selectedAddress.phone || '',
+                addressType: 'billing',
+                company: selectedAddress.companyName || '',
+            };
+            onCreateBillingAddress(addressItem);
+        }
+    };
+
     const handleDeliveryAddressChange = (index: number) => {
         setSelectedDeliveryAddressIndex(index);
         setValue('deliveryAddressIndex', index);
@@ -492,6 +512,7 @@ export function CheckoutPayment() {
 
     const handleBillingAddressChange = (index: number) => {
         setSelectedBillingAddressIndex(index);
+        updateBillingAddressInContext(index);
     };
 
     const handleAddNewBillingAddress = async (newAddress: any) => {
@@ -510,6 +531,7 @@ export function CheckoutPayment() {
             // Set the new address as selected
             const newIndex = updatedAddresses.length - 1;
             setSelectedBillingAddressIndex(newIndex);
+            updateBillingAddressInContext(newIndex);
             
             toast.success('Számlázási cím sikeresen hozzáadva');
         } catch (error) {
@@ -532,6 +554,11 @@ export function CheckoutPayment() {
             
             await updateCustomerBillingAddress(user.id, updatedAddresses);
             await customerDataMutate();
+            
+            // Update the context if this was the selected address
+            if (selectedBillingAddressIndex === index) {
+                updateBillingAddressInContext(index);
+            }
             
             toast.success('Számlázási cím sikeresen frissítve');
         } catch (error) {
