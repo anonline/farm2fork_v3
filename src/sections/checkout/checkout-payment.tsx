@@ -25,11 +25,11 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
-import { useGetCustomerData, updateCustomerDeliveryAddress, updateCustomerBillingAddress } from 'src/actions/customer';
 import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
+import { useGetCustomerData, updateCustomerBillingAddress, updateCustomerDeliveryAddress } from 'src/actions/customer';
 
 import { Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
@@ -39,6 +39,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';
+import { BillingAddressSelector } from './components/billing-address-selector';
 import {
     DeliveryTimeSelector,
     PickupLocationSelector,
@@ -46,7 +47,6 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
-import { BillingAddressSelector } from './components/billing-address-selector';
 
 
 // ----------------------------------------------------------------------
@@ -981,7 +981,7 @@ export function CheckoutPayment() {
                                                 onSaveEditedAddress={handleSaveEditedAddress}
                                                 onShippingZoneError={handleShippingZoneError}
                                                 isHomeDelivery
-                                                hideDefaultChip={true}
+                                                hideDefaultChip
                                             />
                                         </Box>
                                     )}
@@ -1341,7 +1341,7 @@ export function CheckoutPayment() {
                                     }}
                                     onAddNewAddress={handleAddNewBillingAddress}
                                     onSaveEditedAddress={handleSaveEditedBillingAddress}
-                                    hideDefaultChip={true}
+                                    hideDefaultChip
                                 />
                             </Box>
 

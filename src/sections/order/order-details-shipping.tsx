@@ -1,24 +1,25 @@
-import type { IOrderShippingAddress } from 'src/types/order';
 import type { IDatePickerControl } from 'src/types/common';
+import type { IOrderShippingAddress } from 'src/types/order';
 import type { OrderHistoryEntry } from 'src/types/order-management';
+import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 
 import dayjs from 'dayjs';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
+import { Chip } from '@mui/material';
 import Stack from '@mui/material/Stack';
+import Popover from '@mui/material/Popover';
+import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
-import Popover from '@mui/material/Popover';
-import { Chip } from '@mui/material';
-
-import { Iconify } from 'src/components/iconify';
-import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
-import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { styled } from '@mui/material/styles';
-import { toast } from 'src/components/snackbar';
+import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
+
 import { supabase } from 'src/lib/supabase';
+
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

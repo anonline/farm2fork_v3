@@ -1,21 +1,20 @@
 import type { IBillingAddress } from 'src/types/customer';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import {
     Box,
     Card,
+    Chip,
     Radio,
-    Stack,
-    Alert,
     Button,
     Typography,
     IconButton,
     CardActionArea,
-    Chip,
 } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
+
 import NewBillingAddressForm from 'src/sections/profil/profil-edit-address/new-billing-address';
 
 // ----------------------------------------------------------------------
@@ -214,8 +213,8 @@ export function BillingAddressSelector({
                     <EditableBillingAddressForm
                         onSave={handleAddNewAddress}
                         onCancel={handleCancelForm}
-                        hideDeleteButton={true}
-                        hideDefaultCheckbox={true}
+                        hideDeleteButton
+                        hideDefaultCheckbox
                     />
                 )}
             </Box>
@@ -339,8 +338,8 @@ export function BillingAddressSelector({
                 <EditableBillingAddressForm
                     onSave={handleAddNewAddress}
                     onCancel={handleCancelForm}
-                    hideDeleteButton={true}
-                    hideDefaultCheckbox={true}
+                    hideDeleteButton
+                    hideDefaultCheckbox
                 />
             )}
 
@@ -350,8 +349,8 @@ export function BillingAddressSelector({
                     initialData={addressToFormData(billingAddresses[editingIndex])}
                     onSave={handleSaveEditedAddress}
                     onCancel={handleCancelForm}
-                    hideDeleteButton={true}
-                    hideDefaultCheckbox={true}
+                    hideDeleteButton
+                    hideDefaultCheckbox
                 />
             )}
         </Box>

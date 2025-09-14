@@ -6,6 +6,7 @@ import {
     Box,
     Card,
     Grid,
+    Chip,
     Radio,
     Stack,
     Alert,
@@ -17,13 +18,12 @@ import {
     IconButton,
     CardActionArea,
     FormControlLabel,
-    Chip,
 } from '@mui/material';
 
 import { checkShippingZoneAvailable } from 'src/actions/shipping-zone';
 
 import { Iconify } from 'src/components/iconify';
-import NewShippingAddressForm from 'src/sections/profil/profil-edit-address/new-shipping-address';
+
 
 // ----------------------------------------------------------------------
 
@@ -437,8 +437,8 @@ export function DeliveryAddressSelector({
                     <EditableShippingAddressForm
                         onSave={handleAddNewAddress}
                         onCancel={handleCancelForm}
-                        hideDeleteButton={true}
-                        hideDefaultCheckbox={true}
+                        hideDeleteButton
+                        hideDefaultCheckbox
                     />
                 )}
             </Box>
@@ -564,8 +564,8 @@ export function DeliveryAddressSelector({
                 <EditableShippingAddressForm
                     onSave={handleAddNewAddress}
                     onCancel={handleCancelForm}
-                    hideDeleteButton={true}
-                    hideDefaultCheckbox={true}
+                    hideDeleteButton
+                    hideDefaultCheckbox
                 />
             )}
 
@@ -575,8 +575,8 @@ export function DeliveryAddressSelector({
                     initialData={addressToFormData(deliveryAddresses[editingIndex])}
                     onSave={handleSaveEditedAddress}
                     onCancel={handleCancelForm}
-                    hideDeleteButton={true}
-                    hideDefaultCheckbox={true}
+                    hideDeleteButton
+                    hideDefaultCheckbox
                 />
             )}
 

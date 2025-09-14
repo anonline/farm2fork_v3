@@ -1,16 +1,14 @@
-import type { IDatePickerControl } from 'src/types/common';
+import type dayjs from 'dayjs';
 import type { Theme } from '@mui/material/styles';
+import type { IDatePickerControl } from 'src/types/common';
 import type { DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 
-import dayjs from 'dayjs';
-
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled } from '@mui/material/styles';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 
 // ----------------------------------------------------------------------
 

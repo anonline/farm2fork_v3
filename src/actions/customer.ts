@@ -100,7 +100,7 @@ export async function updateCustomerDeliveryAddress(uid: string, deliveryAddress
     const { data, error } = await supabase
         .from('CustomerDatas')
         .update({
-            deliveryAddress: deliveryAddress,
+            deliveryAddress,
         })
         .eq('uid', uid)
         .select()
@@ -114,7 +114,7 @@ export async function updateCustomerBillingAddress(uid: string, billingAddress: 
     const { data, error } = await supabase
         .from('CustomerDatas')
         .update({
-            billingAddress: billingAddress,
+            billingAddress,
         })
         .eq('uid', uid)
         .select()
