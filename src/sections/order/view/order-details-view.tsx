@@ -3,7 +3,7 @@
 import type { IOrderData } from 'src/types/order-management';
 import type { IOrderItem, IOrderProductItem } from 'src/types/order';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,11 +17,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { updateOrderItems } from 'src/actions/order-management';
+import { getOrderById, updateOrderItems } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -43,7 +42,6 @@ type Props = {
 };
 
 export function OrderDetailsView({ order, orderData, orderError }: Props) {
-    const router = useRouter();
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
@@ -62,6 +60,13 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
     const handleChangeStatus = useCallback((newValue: string) => {
         setStatus(newValue);
     }, []);
+
+    useEffect(() => {
+        if (pendingSave && !showPaymentAlert) {
+            // If there was a pending save and the payment alert is no longer shown, proceed with save
+            toast.loading('Mentés folyamatban...');
+        }
+    }, [pendingSave]);
 
     const handleStartEdit = useCallback(() => {
         setIsEditing(true);
@@ -192,10 +197,23 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
         setEditedItems(prev => prev.filter(item => item.id !== itemId));
     }, []);
 
-    const handleRefreshOrder = useCallback(() => {
-        // Refresh the page to get updated order data from server
-        router.refresh();
-    }, [router]);
+    const handleRefreshOrderHistory = useCallback(async () => {
+        if (!currentOrderData?.id) return;
+        
+        try {
+            // You'll need to import the appropriate action to fetch order data
+            // Replace 'getOrderById' with your actual data fetching function
+            const { order: refreshedOrder } = await getOrderById(currentOrderData.id);
+
+            if (refreshedOrder) {
+                setLocalOrderData(refreshedOrder);
+                toast.success('Rendelési előzmények frissítve!');
+            }
+        } catch (error) {
+            console.error('Error refreshing order history:', error);
+            toast.error('Hiba történt az adatok frissítése során');
+        }
+    }, [currentOrderData?.id]);
 
     // Calculate updated totals when in edit mode
     const displayItems = isEditing ? editedItems : currentOrder?.items || [];
@@ -298,7 +316,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                             shippingAddress={currentOrder?.shippingAddress} 
                             requestedShippingDate={currentOrder.planned_shipping_date_time}
                             orderId={currentOrderData?.id}
-                            onRefreshOrder={handleRefreshOrder}
+                            onRefreshOrder={handleRefreshOrderHistory}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />

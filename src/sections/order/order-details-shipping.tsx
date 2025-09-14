@@ -41,7 +41,7 @@ export function OrderDetailsShipping({
     onShippingDateChange,
     orderId,
     onRefreshOrder
-}: Props) {
+}: Readonly<Props>) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
@@ -90,6 +90,7 @@ export function OrderDetailsShipping({
             />
         );
     };
+    
     const formatDate = (date: Date | string | null | undefined): string => {
         if (!date) return 'N/A';
         try {
