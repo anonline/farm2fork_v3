@@ -177,10 +177,10 @@ export function StepThree() {
                         <RHFTextField name="stepThree.houseNumber" label="Házszám" />
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <RHFTextField name="stepThree.floorDoor" label="Emelet, ajtó" />
+                        <RHFTextField name="stepThree.floor" label="Emelet, ajtó" />
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <RHFTextField name="stepThree.doorBell" label="Kapucsengő" />
+                        <RHFTextField name="stepThree.doorbell" label="Kapucsengő" />
                     </Grid>
                 </Grid>
                 <RHFTextField

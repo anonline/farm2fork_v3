@@ -8,7 +8,7 @@ import { UserAuthGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Checkout - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Rendelés - ${CONFIG.appName}` };
 
 export default function Page() {
     return (

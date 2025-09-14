@@ -63,7 +63,7 @@ const getRegistrationSchema = () => {
             .optional(),
         city: zod.string().optional(),
         street: zod.string().optional(),
-        floorDoor: zod.string().optional(),
+        floor: zod.string().optional(),
         houseNumber: zod.string().optional(),
         phone: zod
             .string()
@@ -78,7 +78,7 @@ const getRegistrationSchema = () => {
             )
             .optional(),
         comment: zod.string().optional(),
-        doorBell: zod.string().optional(),
+        doorbell: zod.string().optional(),
         source: zod.string().optional(),
     });
 
@@ -134,8 +134,8 @@ export function SignUpWizard() {
             city: '',
             street: '',
             houseNumber: '',
-            doorBell: '',
-            floorDoor: '',
+            doorbell: '',
+            floor: '',
             phone: '',
             comment: '',
             source: '',

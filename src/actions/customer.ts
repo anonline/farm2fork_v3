@@ -35,6 +35,15 @@ export function useGetCustomerData(uid?: string) {
                         typeof customerData.deliveryAddress === 'string'
                             ? JSON.parse(customerData.deliveryAddress)
                             : customerData.deliveryAddress;
+                    
+                    // Ensure all addresses have IDs and type (for backward compatibility)
+                    if (Array.isArray(deliveryAddress)) {
+                        deliveryAddress = deliveryAddress.map((addr: any) => ({
+                            ...addr,
+                            id: addr.id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                            type: addr.type || 'shipping', // Default to 'shipping' for existing addresses
+                        }));
+                    }
                 } catch (parseError) {
                     console.error('Error parsing delivery addresses:', parseError);
                     deliveryAddress = [];
@@ -66,10 +75,10 @@ export function useGetCustomerData(uid?: string) {
 export async function updateCustomerDeliveryAddress(uid: string, deliveryAddress: any[]) {
     const { data, error } = await supabase
         .from('CustomerDatas')
-        .upsert({
-            uid,
-            deliveryAddress: JSON.stringify(deliveryAddress),
+        .update({
+            deliveryAddress: deliveryAddress,
         })
+        .eq('uid', uid)
         .select()
         .single();
 

@@ -1,16 +1,17 @@
 export interface IDeliveryAddress {
+    id?: string; // Unique identifier for the address
     fullName: string;
     zipCode: string;
     city: string;
-    streetAddress: string;
     street: string;
     houseNumber: string;
-    doorBell?: string;
+    doorbell?: string;
     isDefault?: boolean;
     postcode?: string;
-    floorDoor?: string;
+    floor?: string;
     comment?: string;
     phone: string;
+    type?: 'shipping' | 'billing'; // Address type
 }
 
 export interface ICustomerData {

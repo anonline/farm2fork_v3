@@ -25,7 +25,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
-import { useGetCustomerData } from 'src/actions/customer';
+import { useGetCustomerData, updateCustomerDeliveryAddress } from 'src/actions/customer';
 import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
@@ -93,7 +93,7 @@ export function CheckoutPayment() {
     const { locations: pickupLocations } = useGetPickupLocations();
     const { methods: shippingMethods } = useGetShippingCostMethods();
     const { methods: paymentMethods } = useGetPaymentMethods();
-    const { customerData } = useGetCustomerData(user?.id);
+    const { customerData, customerDataMutate } = useGetCustomerData(user?.id);
 
     const {
         onResetCart,
@@ -403,8 +403,8 @@ export function CheckoutPayment() {
             const selectedAddress = customerData.deliveryAddress[index];
             const addressItem: IAddressItem = {
                 name: selectedAddress.fullName,
-                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.streetAddress}${
-                    selectedAddress.floorDoor ? `, ${selectedAddress.floorDoor}` : ''
+                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.street}${
+                    selectedAddress.floor ? `, ${selectedAddress.floor}` : ''
                 }`,
                 phoneNumber: selectedAddress.phone,
                 addressType: 'delivery',
@@ -430,6 +430,60 @@ export function CheckoutPayment() {
 
     const handleDeliveryCommentChange = (comment: string) => {
         onUpdateDeliveryComment(comment);
+    };
+
+    const handleAddNewAddress = async (newAddress: any) => {
+        if (!user?.id) {
+            toast.error('Bejelentkezés szükséges a cím mentéséhez');
+            return;
+        }
+
+        try {
+            
+            const currentAddresses = customerData?.deliveryAddress || [];
+            const updatedAddresses = [...currentAddresses, {...newAddress, type:'shipping'}];
+
+            await updateCustomerDeliveryAddress(user.id, updatedAddresses);
+            await customerDataMutate();
+            
+            // Set the new address as selected
+            const newIndex = updatedAddresses.length - 1;
+            setSelectedDeliveryAddressIndex(newIndex);
+            setValue('deliveryAddressIndex', newIndex);
+            updateDeliveryAddressInContext(newIndex);
+            
+            toast.success('Cím sikeresen hozzáadva');
+        } catch (error) {
+            console.error('Error adding new address:', error);
+            toast.error('Hiba történt a cím hozzáadása során');
+        }
+    };
+
+    const handleSaveEditedAddress = async (index: number, editedAddress: any) => {
+        if (!user?.id) {
+            toast.error('Bejelentkezés szükséges a cím mentéséhez');
+            return;
+        }
+
+        try {
+            const currentAddresses = customerData?.deliveryAddress || [];
+            const updatedAddresses = [...currentAddresses];
+            // Ensure the edited address has the correct type
+            updatedAddresses[index] = {...editedAddress, type: 'shipping'};
+            
+            await updateCustomerDeliveryAddress(user.id, updatedAddresses);
+            await customerDataMutate();
+            
+            // Update the context if this was the selected address
+            if (selectedDeliveryAddressIndex === index) {
+                updateDeliveryAddressInContext(index);
+            }
+            
+            toast.success('Cím sikeresen frissítve');
+        } catch (error) {
+            console.error('Error updating address:', error);
+            toast.error('Hiba történt a cím frissítése során');
+        }
     };
 
     const handleContinueToDeliveryTime = () => {
@@ -629,7 +683,7 @@ export function CheckoutPayment() {
                         id: data.deliveryAddressIndex.toString(),
                         primary: false,
                         name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
-                        fullAddress: `${addr.zipCode} ${addr.city}, ${addr.streetAddress}${addr.floorDoor ? `, ${addr.floorDoor}` : ''}`,
+                        fullAddress: `${addr.zipCode} ${addr.city}, ${addr.street} ${addr.floor ? `, ${addr.floor}` : ''}`,
                         phoneNumber: addr.phone || '',
                         company: customerData.companyName || '',
                     };
@@ -834,8 +888,11 @@ export function CheckoutPayment() {
                                                 onEditAddress={(index) => {
                                                     console.log('Edit address at index:', index);
                                                 }}
+                                                onAddNewAddress={handleAddNewAddress}
+                                                onSaveEditedAddress={handleSaveEditedAddress}
                                                 onShippingZoneError={handleShippingZoneError}
                                                 isHomeDelivery
+                                                hideDefaultChip={true}
                                             />
                                         </Box>
                                     )}
@@ -1186,6 +1243,9 @@ export function CheckoutPayment() {
                                     A számlázási cím adatai fognak megjelenni a számlán. Ezek az
                                     adatok a fizetés feldolgozásához szükségesek.
                                 </Typography>
+                                {
+                                //TODO: Billing address selector and edit and new form
+                                }
                             </Box>
 
                             {/* Terms and Conditions Checkboxes */}
