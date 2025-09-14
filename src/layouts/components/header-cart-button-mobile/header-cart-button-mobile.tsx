@@ -43,14 +43,18 @@ export default function HeaderCartButtonMobile() {
                 <Badge
                     badgeContent={checkoutState.items.length}
                     color="primary"
-                    sx={{ marginRight: '10px' }}
+                    sx={{ marginRight: '10px',
+                        "& .MuiBadge-badge": {
+                            backgroundColor: '#000',
+                        }
+                     }}
                 >
                     <F2FIcons name="Bag" width={24} height={24} style={{ color: 'inherit' }} />
                 </Badge>
             }
             variant={checkoutState.totalItems > 0 ? 'soft' : 'text'}
             color={checkoutState.totalItems > 0 ? 'success' : 'primary'}
-            sx={{ textTransform: 'none', fontWeight: 500, color: '#262626 !important' }}
+            sx={{ textTransform: 'none', fontWeight: 500, color: '#262626 !important', backgroundColor: (checkoutState.totalItems > 0 ? '#e4ebc2 !important' : 'transparent') }}
         >
             {checkoutState.totalItems > 0 ? fCurrency(checkoutState.subtotal + checkoutState.surcharge) : 'Kosár'}
         </Button>
