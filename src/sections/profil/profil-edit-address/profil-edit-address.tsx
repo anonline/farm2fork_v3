@@ -183,7 +183,7 @@ export default function ProfilEditAddress() {
                 flexWrap="wrap"
                 gap={2}
             >
-                <Typography fontWeight={700} sx={{ fontSize: '32px', lineHeight: '44px' }}>
+                <Typography fontWeight={700} sx={{ fontSize: '28px', lineHeight: '44px' }}>
                     Címadatok
                 </Typography>
                 <Button

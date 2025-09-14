@@ -30,7 +30,7 @@ export default function ProfilNavigation() {
     ];
 
     return (
-        <Box sx={{ p: 2, borderRadius: '4px' }}>
+        <Box sx={{ p: 0, borderRadius: '4px' }}>
             <Stack spacing={1}>
                 {navData.map((navItem) => {
                     const isActive = pathname.startsWith(navItem.path);
