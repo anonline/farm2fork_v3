@@ -1,5 +1,6 @@
 import type { IOrderShippingAddress } from 'src/types/order';
 import type { IDatePickerControl } from 'src/types/common';
+import type { OrderHistoryEntry } from 'src/types/order-management';
 
 import dayjs from 'dayjs';
 import { useState, useRef } from 'react';
@@ -16,6 +17,8 @@ import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 import { styled } from '@mui/material/styles';
+import { toast } from 'src/components/snackbar';
+import { supabase } from 'src/lib/supabase';
 
 // ----------------------------------------------------------------------
 
@@ -27,14 +30,19 @@ type Props = {
     shippingAddress?: IOrderShippingAddress;
     requestedShippingDate?: Date | string | null;
     onShippingDateChange?: (newDate: Date | null) => void;
+    orderId?: string; // Add orderId prop for database updates
+    onRefreshOrder?: () => void; // Add callback to refresh order data
 };
 
 export function OrderDetailsShipping({ 
     shippingAddress, 
     requestedShippingDate,
-    onShippingDateChange 
+    onShippingDateChange,
+    orderId,
+    onRefreshOrder
 }: Props) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const [isUpdating, setIsUpdating] = useState(false);
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
         if (!requestedShippingDate) return null;
         try {
@@ -92,14 +100,101 @@ export function OrderDetailsShipping({
         }
     };
 
+    // Format selectedDate for display
+    const formatSelectedDate = (date: IDatePickerControl): string => {
+        if (!date) return 'N/A';
+        try {
+            return date.format('YYYY.MM.DD');
+        } catch {
+            return 'N/A';
+        }
+    };
+
+    // Use selectedDate if available, otherwise fall back to original prop
+    const displayDate = selectedDate ? formatSelectedDate(selectedDate) : formatDate(requestedShippingDate);
+
     const handleChipClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleDateChange = (newDate: IDatePickerControl) => {
+    const handleDateChange = async (newDate: IDatePickerControl) => {
         setSelectedDate(newDate);
         const dateToSave = newDate ? newDate.toDate() : null;
-        onShippingDateChange?.(dateToSave);
+        
+        // Update in Supabase if orderId is provided
+        if (orderId) {
+            setIsUpdating(true);
+            try {
+                // First, get the current order to access existing history
+                const { data: currentOrder, error: fetchError } = await supabase
+                    .from('orders')
+                    .select('history, history_for_user, planned_shipping_date_time')
+                    .eq('id', orderId)
+                    .single();
+
+                if (fetchError) {
+                    toast.error('Hiba történt a rendelés adatok lekérése során');
+                    console.error('Supabase fetch error:', fetchError);
+                    return;
+                }
+
+                // Format dates for history message
+                const oldDate = currentOrder.planned_shipping_date_time 
+                    ? new Date(currentOrder.planned_shipping_date_time).toLocaleDateString('hu-HU')
+                    : 'nincs megadva';
+                const newDateFormatted = dateToSave 
+                    ? dateToSave.toLocaleDateString('hu-HU')
+                    : 'nincs megadva';
+
+                // Create history entry
+                const historyEntry: OrderHistoryEntry = {
+                    timestamp: new Date().toISOString(),
+                    status: 'pending', // Keep current status, this is just a date change
+                    note: `A kiszállítási dátum ${oldDate}-ről ${newDateFormatted}-ra változott.`,
+                };
+
+                // Prepare update data
+                const updateData: any = {
+                    planned_shipping_date_time: dateToSave ? dateToSave.toISOString() : null,
+                    updated_at: new Date().toISOString(),
+                    history: [...(currentOrder.history || []), historyEntry],
+                };
+
+                // Add to history_for_user if the field exists
+                if (currentOrder.history_for_user !== undefined) {
+                    updateData.history_for_user = [...(currentOrder.history_for_user || []), historyEntry];
+                }
+
+                const { error } = await supabase
+                    .from('orders')
+                    .update(updateData)
+                    .eq('id', orderId);
+
+                if (error) {
+                    toast.error('Hiba történt a szállítási dátum mentése során');
+                    console.error('Supabase update error:', error);
+                    return;
+                }
+
+                // Show success toast
+                toast.success('Szállítási dátum sikeresen frissítve!', { position: 'bottom-right' });
+
+                // Call parent callback if provided
+                onShippingDateChange?.(dateToSave);
+                
+                // Refresh order data to update history timeline
+                onRefreshOrder?.();
+            } catch (error) {
+                toast.error('Hiba történt a szállítási dátum mentése során');
+                console.error('Error updating shipping date:', error);
+            } finally {
+                setIsUpdating(false);
+            }
+        } else {
+            // Fallback to just calling parent callback
+            onShippingDateChange?.(dateToSave);
+        }
+        
         setAnchorEl(null); // Close popover after selection
     };
 
@@ -141,9 +236,13 @@ export function OrderDetailsShipping({
 
                     <Chip 
                         size='small' 
-                        label={formatDate(requestedShippingDate)} 
+                        label={displayDate} 
                         onClick={handleChipClick}
-                        sx={{ cursor: 'pointer' }}
+                        sx={{ 
+                            cursor: 'pointer',
+                            opacity: isUpdating ? 0.6 : 1
+                        }}
+                        disabled={isUpdating}
                     />
                 </Box>
 

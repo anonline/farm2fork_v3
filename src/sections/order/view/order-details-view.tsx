@@ -17,6 +17,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -42,6 +43,7 @@ type Props = {
 };
 
 export function OrderDetailsView({ order, orderData, orderError }: Props) {
+    const router = useRouter();
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
@@ -190,6 +192,11 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
         setEditedItems(prev => prev.filter(item => item.id !== itemId));
     }, []);
 
+    const handleRefreshOrder = useCallback(() => {
+        // Refresh the page to get updated order data from server
+        router.refresh();
+    }, [router]);
+
     // Calculate updated totals when in edit mode
     const displayItems = isEditing ? editedItems : currentOrder?.items || [];
     const updatedSubtotal = isEditing
@@ -287,7 +294,12 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                         <OrderDetailsDelivery delivery={currentOrder?.delivery} />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsShipping shippingAddress={currentOrder?.shippingAddress} requestedShippingDate={currentOrder.planned_shipping_date_time} />
+                        <OrderDetailsShipping 
+                            shippingAddress={currentOrder?.shippingAddress} 
+                            requestedShippingDate={currentOrder.planned_shipping_date_time}
+                            orderId={currentOrderData?.id}
+                            onRefreshOrder={handleRefreshOrder}
+                        />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsPayment payment={currentOrder?.payment} />
