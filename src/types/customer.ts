@@ -14,6 +14,23 @@ export interface IDeliveryAddress {
     type?: 'shipping' | 'billing'; // Address type
 }
 
+export interface IBillingAddress {
+    id?: string; // Unique identifier for the address
+    fullName: string;
+    companyName?: string;
+    zipCode: string;
+    city: string;
+    street: string;
+    houseNumber: string;
+    phone?: string;
+    taxNumber?: string;
+    email?: string;
+    comment?: string;
+    isDefault?: boolean;
+    postcode?: string;
+    type: 'billing'; // Always billing for this interface
+}
+
 export interface ICustomerData {
     id: number;
     created_at: string;
@@ -23,6 +40,6 @@ export interface ICustomerData {
     uid: string | null;
     newsletterConsent: boolean;
     deliveryAddress: IDeliveryAddress[] | null;
-    billingAddress: any | null;
+    billingAddress: IBillingAddress[] | null; // Updated to be array of IBillingAddress
     acquisitionSource: string | null;
 }

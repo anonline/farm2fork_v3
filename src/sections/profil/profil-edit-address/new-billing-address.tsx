@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import {
     Grid,
     Stack,
+    Alert,
     Button,
     Checkbox,
     TextField,
@@ -13,24 +14,62 @@ import {
 export default function NewBillingAddressForm({
     onSave,
     onCancel,
-}: Readonly<{ onSave: (data: any) => void; onCancel: () => void }>) {
+    initialData,
+    hideDeleteButton = false,
+    hideDefaultCheckbox = false,
+    onChange,
+    errors = [],
+}: Readonly<{ 
+    onSave: (data: any) => void; 
+    onCancel: () => void;
+    initialData?: any;
+    hideDeleteButton?: boolean;
+    hideDefaultCheckbox?: boolean;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    errors?: string[];
+}>) {
     const [formData, setFormData] = useState({
-        fullName: '',
-        companyName: '',
-        postcode: '',
-        city: '',
-        street: '',
-        houseNumber: '',
-        phone: '',
-        taxNumber: '',
-        email: '',
-        comment: '',
-        isDefault: false,
+        fullName: initialData?.fullName || '',
+        companyName: initialData?.companyName || '',
+        postcode: initialData?.postcode || '',
+        city: initialData?.city || '',
+        street: initialData?.street || '',
+        houseNumber: initialData?.houseNumber || '',
+        phone: initialData?.phone || '',
+        taxNumber: initialData?.taxNumber || '',
+        email: initialData?.email || '',
+        comment: initialData?.comment || '',
+        isDefault: initialData?.isDefault || false,
     });
+
+    // Update form data when initialData changes
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                fullName: initialData.fullName || '',
+                companyName: initialData.companyName || '',
+                postcode: initialData.postcode || '',
+                city: initialData.city || '',
+                street: initialData.street || '',
+                houseNumber: initialData.houseNumber || '',
+                phone: initialData.phone || '',
+                taxNumber: initialData.taxNumber || '',
+                email: initialData.email || '',
+                comment: initialData.comment || '',
+                isDefault: initialData.isDefault || false,
+            });
+        }
+    }, [initialData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+        const newValue = type === 'checkbox' ? checked : value;
+        setFormData((prev) => ({ ...prev, [name]: newValue }));
+        
+        // Call external onChange if provided (for error clearing)
+        if (onChange) {
+            onChange(e);
+        }
     };
 
     const handleSave = () => {
@@ -57,22 +96,38 @@ export default function NewBillingAddressForm({
     return (
         <Stack spacing={3} sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: '4px' }}>
             <Typography variant="h6" fontWeight={600}>
-                Új cím hozzáadása
+                {initialData ? 'Számlázási cím szerkesztése' : 'Új számlázási cím hozzáadása'}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-                Jelenleg csak bizonyos kerületekbe szállítunk. Az irányítószám megadásával
-                ellenőrizheted, hogy szállítunk-e hozzád.
+                A számlázási cím adatai fognak megjelenni a számlán. Ezek az adatok a fizetés feldolgozásához szükségesek.
             </Typography>
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        name="isDefault"
-                        checked={formData.isDefault}
-                        onChange={handleChange}
-                    />
-                }
-                label="Alapértelmezett cím"
-            />
+            
+            {/* Error messages */}
+            {errors.length > 0 && (
+                <Alert severity="error">
+                    <Typography variant="body2" component="div">
+                        Hiányzó kötelező mezők:
+                        <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+                            {errors.map((error, index) => (
+                                <li key={index}>{error}</li>
+                            ))}
+                        </ul>
+                    </Typography>
+                </Alert>
+            )}
+
+            {!hideDefaultCheckbox && (
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            name="isDefault"
+                            checked={formData.isDefault}
+                            onChange={handleChange}
+                        />
+                    }
+                    label="Alapértelmezett cím"
+                />
+            )}
             <TextField
                 name="companyName"
                 label="Cégnév"
@@ -176,8 +231,8 @@ export default function NewBillingAddressForm({
                 rows={3}
             />
             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Button color="error">Törlés</Button>
-                <Stack direction="row" spacing={1}>
+                {!hideDeleteButton && <Button color="error">Törlés</Button>}
+                <Stack direction="row" spacing={1} sx={{ marginLeft: hideDeleteButton ? 'auto' : 0 }}>
                     <Button variant="text" onClick={onCancel}>
                         Mégse
                     </Button>

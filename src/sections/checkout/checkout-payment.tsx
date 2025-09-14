@@ -25,7 +25,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
-import { useGetCustomerData, updateCustomerDeliveryAddress } from 'src/actions/customer';
+import { useGetCustomerData, updateCustomerDeliveryAddress, updateCustomerBillingAddress } from 'src/actions/customer';
 import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
@@ -46,6 +46,7 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
+import { BillingAddressSelector } from './components/billing-address-selector';
 
 
 // ----------------------------------------------------------------------
@@ -80,6 +81,9 @@ export function CheckoutPayment() {
     const [selectedShippingMethod, setSelectedShippingMethod] = useState<number | null>(null);
     const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(
+        null
+    );
+    const [selectedBillingAddressIndex, setSelectedBillingAddressIndex] = useState<number | null>(
         null
     );
     const [deliveryAccordionExpanded, setDeliveryAccordionExpanded] = useState(true);
@@ -486,6 +490,56 @@ export function CheckoutPayment() {
         }
     };
 
+    const handleBillingAddressChange = (index: number) => {
+        setSelectedBillingAddressIndex(index);
+    };
+
+    const handleAddNewBillingAddress = async (newAddress: any) => {
+        if (!user?.id) {
+            toast.error('Bejelentkezés szükséges a cím mentéséhez');
+            return;
+        }
+
+        try {
+            const currentAddresses = customerData?.billingAddress || [];
+            const updatedAddresses = [...currentAddresses, {...newAddress, type: 'billing'}];
+
+            await updateCustomerBillingAddress(user.id, updatedAddresses);
+            await customerDataMutate();
+            
+            // Set the new address as selected
+            const newIndex = updatedAddresses.length - 1;
+            setSelectedBillingAddressIndex(newIndex);
+            
+            toast.success('Számlázási cím sikeresen hozzáadva');
+        } catch (error) {
+            console.error('Error adding new billing address:', error);
+            toast.error('Hiba történt a számlázási cím hozzáadása során');
+        }
+    };
+
+    const handleSaveEditedBillingAddress = async (index: number, editedAddress: any) => {
+        if (!user?.id) {
+            toast.error('Bejelentkezés szükséges a cím mentéséhez');
+            return;
+        }
+
+        try {
+            const currentAddresses = customerData?.billingAddress || [];
+            const updatedAddresses = [...currentAddresses];
+            // Ensure the edited address has the correct type
+            updatedAddresses[index] = {...editedAddress, type: 'billing'};
+            
+            await updateCustomerBillingAddress(user.id, updatedAddresses);
+            await customerDataMutate();
+            
+            toast.success('Számlázási cím sikeresen frissítve');
+        } catch (error) {
+            console.error('Error updating billing address:', error);
+            toast.error('Hiba történt a számlázási cím frissítése során');
+        }
+    };
+
     const handleContinueToDeliveryTime = () => {
         setDeliveryAccordionExpanded(false);
         setDeliveryTimeAccordionExpanded(true);
@@ -636,6 +690,14 @@ export function CheckoutPayment() {
         setValue,
         onUpdatePaymentMethod,
     ]);
+
+    // Initialize default billing address when customer data is loaded
+    useEffect(() => {
+        if (customerData?.billingAddress?.length && selectedBillingAddressIndex === null) {
+            // Set first billing address as default
+            setSelectedBillingAddressIndex(0);
+        }
+    }, [customerData?.billingAddress, selectedBillingAddressIndex]);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -1239,13 +1301,21 @@ export function CheckoutPayment() {
                                     mb: 3,
                                 }}
                             >
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                     A számlázási cím adatai fognak megjelenni a számlán. Ezek az
                                     adatok a fizetés feldolgozásához szükségesek.
                                 </Typography>
-                                {
-                                //TODO: Billing address selector and edit and new form
-                                }
+                                <BillingAddressSelector
+                                    billingAddresses={customerData?.billingAddress || []}
+                                    selectedAddressIndex={selectedBillingAddressIndex}
+                                    onAddressChange={handleBillingAddressChange}
+                                    onEditAddress={(index) => {
+                                        console.log('Edit billing address at index:', index);
+                                    }}
+                                    onAddNewAddress={handleAddNewBillingAddress}
+                                    onSaveEditedAddress={handleSaveEditedBillingAddress}
+                                    hideDefaultChip={true}
+                                />
                             </Box>
 
                             {/* Terms and Conditions Checkboxes */}

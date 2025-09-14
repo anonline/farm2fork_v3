@@ -50,9 +50,33 @@ export function useGetCustomerData(uid?: string) {
                 }
             }
 
+            // Parse the JSON billing addresses
+            let billingAddress = null;
+            if (customerData.billingAddress) {
+                try {
+                    billingAddress =
+                        typeof customerData.billingAddress === 'string'
+                            ? JSON.parse(customerData.billingAddress)
+                            : customerData.billingAddress;
+                    
+                    // Ensure all billing addresses have IDs and type (for backward compatibility)
+                    if (Array.isArray(billingAddress)) {
+                        billingAddress = billingAddress.map((addr: any) => ({
+                            ...addr,
+                            id: addr.id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                            type: 'billing', // Always set to 'billing' for billing addresses
+                        }));
+                    }
+                } catch (parseError) {
+                    console.error('Error parsing billing addresses:', parseError);
+                    billingAddress = [];
+                }
+            }
+
             return {
                 ...customerData,
                 deliveryAddress,
+                billingAddress,
             } as ICustomerData;
         },
         {
@@ -77,6 +101,20 @@ export async function updateCustomerDeliveryAddress(uid: string, deliveryAddress
         .from('CustomerDatas')
         .update({
             deliveryAddress: deliveryAddress,
+        })
+        .eq('uid', uid)
+        .select()
+        .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export async function updateCustomerBillingAddress(uid: string, billingAddress: any[]) {
+    const { data, error } = await supabase
+        .from('CustomerDatas')
+        .update({
+            billingAddress: billingAddress,
         })
         .eq('uid', uid)
         .select()
