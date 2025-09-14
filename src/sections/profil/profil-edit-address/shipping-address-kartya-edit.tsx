@@ -60,17 +60,18 @@ export default function ShippingAddressKartyaEdit({
         ) {
             const updatedAddress: IAddress = {
                 id: address.id,
+                type: 'shipping',
                 fullName: formData.fullName,
-                companyName: formData.companyName || '',
+                companyName: formData.companyName || undefined,
                 postcode: formData.postcode,
                 city: formData.city,
                 street: formData.street,
                 houseNumber: formData.houseNumber,
                 phone: formData.phone,
-                comment: formData.comment || '',
+                comment: formData.comment || undefined,
                 isDefault: formData.isDefault,
-                floor: formData.floor || '',
-                doorbell: formData.doorbell || '',
+                floor: formData.floor || undefined,
+                doorbell: formData.doorbell || undefined,
             } as IAddress;
             onSave(updatedAddress);
         } else {

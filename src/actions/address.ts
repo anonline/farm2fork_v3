@@ -290,7 +290,8 @@ export async function updateAddress(uid: string, addressId: string, updates: Par
     } else {
         throw new Error('Address not found');
     }
-
+    console.log('billingIndex:', billingIndex);
+    console.log('Updated Addresses:', { currentShipping, currentBilling });
     // Update database
     const { error } = await supabase
         .from('CustomerDatas')

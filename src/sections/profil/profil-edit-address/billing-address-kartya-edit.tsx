@@ -53,20 +53,20 @@ export default function BillingAddressEditForm({
             formData.houseNumber
         ) {
             const updatedAddress: IAddress = {
-                ...address,
+                id: address.id,
+                type: 'billing',
                 fullName: formData.fullName,
                 companyName: formData.companyName || undefined,
                 postcode: formData.postcode,
                 city: formData.city,
                 street: formData.street,
                 houseNumber: formData.houseNumber,
-                phone: formData.phone,
+                phone: formData.phone || undefined,
                 comment: formData.comment || undefined,
                 isDefault: formData.isDefault,
-                ...(address.type === 'billing' && {
-                    taxNumber: formData.taxNumber || undefined,
-                    email: formData.email || undefined,
-                }),
+                taxNumber: formData.taxNumber || undefined,
+                email: formData.email || undefined,
+                
             } as IAddress;
             onSave(updatedAddress);
         } else {
@@ -86,7 +86,7 @@ export default function BillingAddressEditForm({
     return (
         <Stack spacing={3} sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: '4px' }}>
             <Typography variant="h6" fontWeight={600}>
-                {address.fullName}
+                Számlázási név: {address.fullName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
                 Jelenleg csak bizonyos kerületekbe szállítunk. Az irányítószám megadásával
@@ -104,14 +104,6 @@ export default function BillingAddressEditForm({
             />
 
             <TextField
-                label="Cégnév"
-                name="companyName"
-                value={formData.companyName ?? ''}
-                onChange={handleChange}
-                fullWidth
-            />
-
-            <TextField
                 label="Teljes név"
                 name="fullName"
                 value={formData.fullName}
@@ -120,6 +112,14 @@ export default function BillingAddressEditForm({
                 required
                 error={!formData.fullName}
                 sx={requiredFieldSx}
+            />
+
+            <TextField
+                label="Cégnév"
+                name="companyName"
+                value={formData.companyName ?? ''}
+                onChange={handleChange}
+                fullWidth
             />
 
             <Grid container spacing={2}>
@@ -200,7 +200,7 @@ export default function BillingAddressEditForm({
             />
             <TextField
                 label="Megjegyzés"
-                placeholder="TSZ mögött"
+                placeholder=""
                 name="comment"
                 value={formData.comment}
                 onChange={handleChange}
