@@ -92,6 +92,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             quantity: item.quantity,
             unit: item.unit || 'db',
             subtotal: item.subtotal,
+            note: item.note || '',
             slug: item.slug || '',
         })),
         history: {

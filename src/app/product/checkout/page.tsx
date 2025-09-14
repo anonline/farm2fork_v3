@@ -5,6 +5,7 @@ import { CONFIG } from 'src/global-config';
 import { CheckoutView } from 'src/sections/checkout/view';
 
 import { UserAuthGuard } from 'src/auth/guard';
+import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +14,9 @@ export const metadata: Metadata = { title: `Rendelés - ${CONFIG.appName}` };
 export default function Page() {
     return (
         <UserAuthGuard>
-            <CheckoutView />
+            <ShipmentsProvider>
+                <CheckoutView />
+            </ShipmentsProvider>
         </UserAuthGuard>
     );
 }

@@ -88,6 +88,14 @@ export function OrderDetailsToolbar({
         </CustomPopover>
     );
 
+    const renderStatusLabel = () => {
+        if (status === 'pending') return 'Új';
+        if (status === 'inprogress') return 'Feldolgozva';
+        if (status === 'completed') return 'Teljesítve';
+        if (status === 'cancelled') return 'Törölve';
+        return 'Ismeretlen';
+    };
+
     return (
         <>
             <Box
@@ -116,7 +124,7 @@ export function OrderDetailsToolbar({
                                     'default'
                                 }
                             >
-                                {status}
+                                {renderStatusLabel()}
                             </Label>
                         </Box>
 
@@ -142,7 +150,7 @@ export function OrderDetailsToolbar({
                         onClick={menuActions.onOpen}
                         sx={{ textTransform: 'capitalize' }}
                     >
-                        {status}
+                        {renderStatusLabel()}
                     </Button>
 
                     <Button

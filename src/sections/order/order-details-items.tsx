@@ -4,7 +4,7 @@ import type { IOrderProductItem } from 'src/types/order';
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import { Link } from '@mui/material';
+import { Chip, Link, Typography } from '@mui/material';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
@@ -226,12 +226,16 @@ export function OrderDetailsItems({
 
                         <ListItemText
                             primary={
+                                item.slug.length > 0 ? 
                                 <Link
+                                    target="_blank"
                                     href={paths.dashboard.product.edit(item.slug)}
                                     sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
                                 >
                                     {item.name}
                                 </Link>
+                                : 
+                                <Typography sx={{textDecoration: 'none', color: 'inherit'}}>{item.name} <Chip label={'Egyedi termék'} size="small" sx={{ ml: 1, mb:0.3 }} color='primary' /></Typography>
                             }
                             secondary={
                                 isEditing ? (
@@ -247,10 +251,10 @@ export function OrderDetailsItems({
                                             sx={{ width: 100 }}
                                             inputProps={{ min: 0, step: 0.01 }}
                                         />
-                                        <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit}</Box>
+                                        <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
                                     </Box>
                                 ) : (
-                                    `${fCurrency(item.price)} / ${item.unit}`
+                                    `${fCurrency(item.price)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
                                 )
                             }
                             slotProps={{

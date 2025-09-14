@@ -47,6 +47,7 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 
 // ----------------------------------------------------------------------
@@ -78,6 +79,7 @@ export const PaymentSchema = zod
 // ----------------------------------------------------------------------
 
 export function CheckoutPayment() {
+    const { setOrderToShipmentByDate } = useShipments();
     const [selectedShippingMethod, setSelectedShippingMethod] = useState<number | null>(null);
     const [selectedPickupLocation, setSelectedPickupLocation] = useState<number | null>(null);
     const [selectedDeliveryAddressIndex, setSelectedDeliveryAddressIndex] = useState<number | null>(
@@ -794,7 +796,6 @@ export function CheckoutPayment() {
                 slug: item.slug || '',  
             }));
 
-            console.log('Customer data', customerData);
             // Prepare order data
             const orderData: ICreateOrderData = {
                 customerId: user?.id || null,
@@ -835,6 +836,9 @@ export function CheckoutPayment() {
             }
 
             if (orderId) {
+                if(orderData.plannedShippingDateTime){
+                    setOrderToShipmentByDate(orderId, new Date(orderData.plannedShippingDateTime) );
+                }
                 
                 console.info('Order created successfully:', orderId);
                 

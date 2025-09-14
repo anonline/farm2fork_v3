@@ -50,6 +50,7 @@ export type IOrderProductItem = {
     coverUrl: string;
     quantity: number;
     unit: string;
+    note: string;
     subtotal: number;
     slug: string;
 };
