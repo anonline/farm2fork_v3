@@ -40,7 +40,7 @@ export async function registerUser(data: RegistrationSchemaType) {
         acquisitionSource: data.stepThree.source || null,
         deliveryAddress: [
             {
-                id: 0,
+                id: `${Date.now()}-${Math.random()}`,
                 companyName: data.stepTwo.companyName || null,
                 fullName: data.stepThree.fullName,
                 postcode: data.stepThree.zipCode,
@@ -51,11 +51,12 @@ export async function registerUser(data: RegistrationSchemaType) {
                 comment: data.stepThree.comment,
                 doorBell: data.stepThree.doorBell || null,
                 phone: data.stepThree.phone,
+                type: 'shipping'
             },
         ],
         billingAddress: [
             {
-                id: 0,
+                id: `${Date.now()}-${Math.random()}`,
                 fullName: data.stepThree.fullName,
                 postcode: data.stepThree.zipCode,
                 city: data.stepThree.city,
@@ -66,6 +67,7 @@ export async function registerUser(data: RegistrationSchemaType) {
                 phone: data.stepThree.phone,
                 companyName: data.stepTwo.companyName || null,
                 taxNumber: data.stepTwo.taxNumber || null,
+                type: 'billing'
             },
         ],
     };

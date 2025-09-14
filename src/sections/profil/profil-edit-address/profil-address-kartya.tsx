@@ -118,7 +118,7 @@ export default function ProfilAddressKartya({
         >
             <Stack spacing={0.5}>
                 <Typography sx={{ fontSize: '20px', fontWeight: 700, fontFamily: themeConfig.fontFamily.bricolage }}>
-                    {address.fullName}
+                    {address.fullName} {address.companyName && ` - ${address.companyName}`}
                 </Typography>
                 <Typography sx={{ fontSize: '13px', color: 'rgb(75, 75, 74)' }}>
                     {address.postcode} {address.city}, {address.street} {address.houseNumber}

@@ -59,7 +59,7 @@ export function DeliveryAddressSelector({
 
             try {
                 const selectedAddress = deliveryAddresses[selectedAddressIndex];
-                const isAvailable = await checkShippingZoneAvailable(selectedAddress.zipCode);
+                const isAvailable = await checkShippingZoneAvailable(selectedAddress.postcode || '0000');
 
                 if (!isAvailable) {
                     const errorMessage =
@@ -170,8 +170,9 @@ export function DeliveryAddressSelector({
                                             <Iconify icon="eva:info-outline" height={16} />
                                         </Tooltip>
                                     )}
-                                    {address.zipCode} {address.city} {address.streetAddress}
+                                    {address.postcode} {address.city} {address.street} {address.houseNumber}
                                     {address.floorDoor && `, ${address.floorDoor}`}
+                                    {address.doorBell && `, csengő: ${address.doorBell}`}
                                 </Typography>
 
                                 <Typography variant="body2" color="text.secondary">

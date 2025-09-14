@@ -3,6 +3,11 @@ export interface IDeliveryAddress {
     zipCode: string;
     city: string;
     streetAddress: string;
+    street: string;
+    houseNumber: string;
+    doorBell?: string;
+    isDefault?: boolean;
+    postcode?: string;
     floorDoor?: string;
     comment?: string;
     phone: string;
