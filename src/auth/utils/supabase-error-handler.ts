@@ -1,4 +1,5 @@
 import { supabase } from 'src/lib/supabase';
+import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 // ----------------------------------------------------------------------
 
@@ -28,8 +29,12 @@ export async function handleAuthSessionError(error: any): Promise<void> {
         try {
             // Sign out to clear the invalid session
             await supabase.auth.signOut();
+            // Remove all Supabase auth token cookies
+            removeSupabaseAuthCookies();
         } catch (signOutError) {
             console.error('Error during session cleanup:', signOutError);
+            // Still try to remove cookies even if signOut fails
+            removeSupabaseAuthCookies();
         }
     }
 }

@@ -5,6 +5,7 @@ import { useMemo, useEffect, useCallback } from 'react';
 
 import axios from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
+import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { isAuthSessionError, handleAuthSessionError } from 'src/auth/utils/supabase-error-handler';
 
@@ -95,6 +96,8 @@ export function AuthProvider({ children }: Readonly<Props>) {
             if (event === 'SIGNED_OUT' || !session) {
                 setState({ user: null, loading: false });
                 delete axios.defaults.headers.common.Authorization;
+                // Remove all Supabase auth token cookies when signing out
+                removeSupabaseAuthCookies();
             } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                 if (session) {
                     const accessToken = session.access_token;

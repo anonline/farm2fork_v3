@@ -9,6 +9,8 @@ import type {
     SignUpWithPasswordCredentials,
 } from '@supabase/supabase-js';
 
+import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
+
 import { paths } from 'src/routes/paths';
 
 import { supabase } from 'src/lib/supabase';
@@ -105,10 +107,15 @@ export const signOut = async (): Promise<{
 
         // If no session exists, consider the logout successful
         if (!session) {
+            // Still remove any remaining auth cookies
+            removeSupabaseAuthCookies();
             return { error: null };
         }
 
         const { error } = await supabase.auth.signOut();
+
+        // Remove all Supabase auth token cookies regardless of signOut result
+        removeSupabaseAuthCookies();
 
         if (error) {
             // Handle specific auth session missing error gracefully
@@ -122,6 +129,9 @@ export const signOut = async (): Promise<{
 
         return { error };
     } catch (error) {
+        // Remove cookies even if there's an error
+        removeSupabaseAuthCookies();
+        
         // Handle any other errors gracefully
         if (error instanceof Error && error.message?.includes('Auth session missing')) {
             console.warn('No active session to sign out from');
