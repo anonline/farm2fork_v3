@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Grid, Container } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
 import ProfilEditAddress from '../profil-edit-address';
 import ProfilNavigation from '../../profil-navigation';

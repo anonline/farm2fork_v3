@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 
 import { Chip, Paper, Stack, Button, Typography } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
 import { deleteAddress, updateAddress, useGetAddresses } from 'src/actions/address';
 
 import { toast } from 'src/components/snackbar';
@@ -13,7 +14,6 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import BillingAddressKartyaEdit from './billing-address-kartya-edit';
 import ShippingAddressKartyaEdit from './shipping-address-kartya-edit';
-import { themeConfig } from 'src/theme';
 
 export default function ProfilAddressKartya({
     address: initialAddress,

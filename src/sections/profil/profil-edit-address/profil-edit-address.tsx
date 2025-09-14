@@ -10,10 +10,11 @@ import {
     Divider,
     Typography,
     ToggleButton,
-    ToggleButtonGroup,
     CircularProgress,
+    ToggleButtonGroup,
 } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
 import { addAddress, useGetAddresses } from 'src/actions/address';
 
 import { toast } from 'src/components/snackbar';
@@ -24,7 +25,6 @@ import { useAuthContext } from 'src/auth/hooks';
 import ProfilAddressKartya from './profil-address-kartya';
 import NewBillingAddressForm from './new-billing-address';
 import NewShippingAddressForm from './new-shipping-address';
-import { themeConfig } from 'src/theme';
 
 export default function ProfilEditAddress() {
     const { user } = useAuthContext();

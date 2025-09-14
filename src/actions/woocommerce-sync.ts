@@ -513,7 +513,7 @@ export async function syncProducts(
             }
 
             // Handle additional images
-            let additionalImages: string[] = [];
+            const additionalImages: string[] = [];
             if (wooProduct.images && wooProduct.images.length > 1) {
                 for (let imgIndex = 1; imgIndex < wooProduct.images.length; imgIndex++) {
                     try {

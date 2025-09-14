@@ -11,10 +11,12 @@ import House from 'public/assets/icons/f2f/House.svg';
 import Apple from 'public/assets/icons/f2f/Apple.svg';
 import InfoIcon from 'public/assets/icons/f2f/Info.svg';
 import Profil from 'public/assets/icons/f2f/Profil.svg';
+import Delete from 'public/assets/icons/f2f/Delete.svg';
 import MinusIcon from 'public/assets/icons/f2f/Minus.svg';
 import CheckIcon from 'public/assets/icons/f2f/Check.svg';
 import Loading from 'public/assets/icons/f2f/Loading.svg';
 import Comment from 'public/assets/icons/f2f/Comment.svg';
+import Warning from 'public/assets/icons/f2f/Warning.svg';
 import EditPen from 'public/assets/icons/f2f/Edit-pen.svg';
 import SliderIcon from 'public/assets/icons/f2f/Slider.svg';
 import FileIcon from 'public/assets/icons/f2f/FileIcon.svg';
@@ -24,8 +26,6 @@ import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
-import Delete from 'public/assets/icons/f2f/Delete.svg';
-import Warning from 'public/assets/icons/f2f/Warning.svg';
 
 interface F2FIconsSvgProps {
     name:

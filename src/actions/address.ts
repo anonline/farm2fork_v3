@@ -260,7 +260,7 @@ export async function updateAddress(uid: string, addressId: string, updates: Par
         currentShipping[shippingIndex] = { ...currentShipping[shippingIndex], ...updates } as IShippingAddress;
         
         // If unsetting default (isDefault: false), ensure at least one is default
-        if (updates.hasOwnProperty('isDefault') && !updates.isDefault) {
+        if (Object.prototype.hasOwnProperty.call(updates, 'isDefault') && !updates.isDefault) {
             const hasOtherDefault = currentShipping.some((addr, index) => index !== shippingIndex && addr.isDefault);
             if (!hasOtherDefault && currentShipping.length > 0) {
                 // Make the first address default if no other default exists
@@ -280,7 +280,7 @@ export async function updateAddress(uid: string, addressId: string, updates: Par
         currentBilling[billingIndex] = { ...currentBilling[billingIndex], ...updates } as IBillingAddress;
         
         // If unsetting default (isDefault: false), ensure at least one is default
-        if (updates.hasOwnProperty('isDefault') && !updates.isDefault) {
+        if (Object.prototype.hasOwnProperty.call(updates, 'isDefault') && !updates.isDefault) {
             const hasOtherDefault = currentBilling.some((addr, index) => index !== billingIndex && addr.isDefault);
             if (!hasOtherDefault && currentBilling.length > 0) {
                 // Make the first address default if no other default exists
@@ -290,8 +290,7 @@ export async function updateAddress(uid: string, addressId: string, updates: Par
     } else {
         throw new Error('Address not found');
     }
-    console.log('billingIndex:', billingIndex);
-    console.log('Updated Addresses:', { currentShipping, currentBilling });
+
     // Update database
     const { error } = await supabase
         .from('CustomerDatas')
