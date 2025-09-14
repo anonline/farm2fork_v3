@@ -1,7 +1,8 @@
 'use client';
 
+import type { IShipment } from 'src/types/shipments';
+
 import { useContext, createContext } from 'react';
-import { IShipment } from 'src/types/shipments';
 
 // ----------------------------------------------------------------------
 

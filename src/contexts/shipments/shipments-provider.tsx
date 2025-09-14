@@ -1,9 +1,14 @@
 'use client';
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+
+import type { ReactNode} from "react";
+import type { IShipment } from "src/types/shipments";
+import type { IOrderData } from "src/types/order-management";
+
+import { useMemo, useState, useEffect, useCallback } from "react";
+
 import { supabase } from "src/lib/supabase";
+
 import { ShipmentsContext } from "./shipments-context";
-import { IOrderData } from "src/types/order-management";
-import { IShipment } from "src/types/shipments";
 
 export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [shipments, setShipments] = useState<IShipment[]>([]);
@@ -168,7 +173,7 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
             return;
         }
 
-        let shipmentId = order.shipmentId;
+        const shipmentId = order.shipmentId;
 
         //update order with null shipmentId
         const { error: updateError } = await supabase
@@ -198,7 +203,7 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
             //create new shipment
             const { data: newShipment, error: shipmentError } = await supabase
                 .from('Shipments')
-                .insert([{ date: date, productCount: 0, productAmount: 0, orderCount: 0 } as IShipment])
+                .insert([{ date, productCount: 0, productAmount: 0, orderCount: 0 } as IShipment])
                 .select()
                 .single();
 

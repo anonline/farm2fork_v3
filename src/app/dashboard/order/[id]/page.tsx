@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import { OrderProvider } from 'src/contexts/order-context';
+import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 import { OrderDetailsView } from 'src/sections/order/view';
-import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 // ----------------------------------------------------------------------
 

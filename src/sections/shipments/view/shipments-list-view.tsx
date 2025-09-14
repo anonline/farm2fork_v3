@@ -11,8 +11,8 @@ import type {
     GridColumnVisibilityModel,
 } from '@mui/x-data-grid';
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { memo, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -23,7 +23,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import {
     DataGrid,
     gridClasses,
-    GridToolbarExport,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,

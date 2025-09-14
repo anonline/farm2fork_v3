@@ -2,7 +2,7 @@
 
 import type { IOrderProductItem } from 'src/types/order';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -20,8 +20,9 @@ import { paths } from 'src/routes/paths';
 
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { updateOrderItems } from 'src/actions/order-management';
 import { useOrderContext } from 'src/contexts/order-context';
+import { updateOrderItems } from 'src/actions/order-management';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 import { toast } from 'src/components/snackbar';
 
@@ -33,7 +34,6 @@ import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
-import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 // ----------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 slug: item.slug,
             }));
 
-            const { success, error } = await updateOrderItems(
+            const { success, error: updateError } = await updateOrderItems(
                 orderData.id,
                 itemsToSave,
                 'Rendelés tételek módosítva a dashboard-ról',
@@ -180,10 +180,10 @@ export function OrderDetailsView({ orderId }: Props) {
                 setShowPaymentAlert(false);
                 setPendingSave(false);
             } else {
-                toast.error(error || 'Hiba történt a rendelés mentése során');
+                toast.error(updateError || 'Hiba történt a rendelés mentése során');
             }
-        } catch (error) {
-            console.error('Error saving order changes:', error);
+        } catch (ex) {
+            console.error('Error saving order changes:', ex);
             toast.error('Hiba történt a rendelés mentése során');
         }
     }, [editedItems, orderData, order, updateOrder, updateOrderData]);
@@ -223,8 +223,8 @@ export function OrderDetailsView({ orderId }: Props) {
         try {
             await refreshOrderHistory();
             toast.success('Rendelési előzmények frissítve!');
-        } catch (error) {
-            console.error('Error refreshing order history:', error);
+        } catch (ex) {
+            console.error('Error refreshing order history:', ex);
             toast.error('Hiba történt az adatok frissítése során');
         }
     }, [refreshOrderHistory]);

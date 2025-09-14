@@ -2,8 +2,8 @@ import type { GridCellParams } from '@mui/x-data-grid';
 
 import Box from '@mui/material/Box';
 
-import { fCurrency, fNumber } from 'src/utils/format-number';
 import { fTime, fDate } from 'src/utils/format-time';
+import { fNumber, fCurrency } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
