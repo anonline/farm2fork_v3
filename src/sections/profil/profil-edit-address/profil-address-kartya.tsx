@@ -1,6 +1,6 @@
 import type { IAddress } from 'src/types/address';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Chip, Paper, Stack, Button, Typography } from '@mui/material';
 
@@ -13,6 +13,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import BillingAddressKartyaEdit from './billing-address-kartya-edit';
 import ShippingAddressKartyaEdit from './shipping-address-kartya-edit';
+import { themeConfig } from 'src/theme';
 
 export default function ProfilAddressKartya({
     address: initialAddress,
@@ -22,17 +23,24 @@ export default function ProfilAddressKartya({
     const [address, setAddress] = useState(initialAddress);
     const { addressesMutate } = useGetAddresses(user?.id);
 
+    // Sync local state with prop changes
+    useEffect(() => {
+        setAddress(initialAddress);
+    }, [initialAddress]);
+
     const handleSave = async (updatedAddress: IAddress) => {
-        if (!user?.id || !address.id) {
+        console.log('Updating address:', updatedAddress);
+        if (!user?.id || address.id === undefined) {
             toast.error('Hiba a cím mentésekor');
             return;
         }
 
         try {
+            // Pass the updated address data to updateAddress
             await updateAddress(user.id, address.id, updatedAddress);
-            setAddress(updatedAddress);
             setIsEditing(false);
-            await addressesMutate(); // Refresh the data
+            // Refresh the data first, then update local state
+            await addressesMutate(); 
             toast.success('Cím sikeresen frissítve');
         } catch (error) {
             console.error('Error updating address:', error);
@@ -91,38 +99,39 @@ export default function ProfilAddressKartya({
             }}
         >
             <Stack spacing={0.5}>
-                <Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{address.fullName}</Typography>
-                <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                <Typography sx={{ fontSize: '20px', fontWeight: 700, fontFamily: themeConfig.fontFamily.bricolage }}>
+                    {address.fullName}
+                </Typography>
+                <Typography sx={{ fontSize: '13px', color: 'rgb(75, 75, 74)' }}>
                     {address.postcode} {address.city}, {address.street} {address.houseNumber}
                     {address.type === 'shipping' && address.floor && `, ${address.floor}`}
                 </Typography>
                 {address.phone && (
-                    <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                    <Typography sx={{ fontSize: '13px', color: 'rgb(75, 75, 74)' }}>
                         {address.phone}
                     </Typography>
                 )}
                 {address.type === 'billing' && address.email && (
-                    <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                    <Typography sx={{ fontSize: '13px', color: 'rgb(75, 75, 74)' }}>
                         {address.email}
                     </Typography>
                 )}
                 {address.type === 'billing' && address.taxNumber && (
-                    <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                    <Typography sx={{ fontSize: '13px', color: 'rgb(75, 75, 74)' }}>
                         Adószám: {address.taxNumber}
                     </Typography>
                 )}
                 {address.companyName && (
-                    <Typography sx={{ fontSize: '16px', color: 'rgb(75, 75, 74)' }}>
+                    <Typography sx={{ fontSize: '13px', color: 'rgb(75, 75, 74)' }}>
                         {address.companyName}
                     </Typography>
                 )}
             </Stack>
             <Stack spacing={1} alignItems="flex-end">
-                {address.isDefault && <Chip label="Alapértelmezett cím" size="small" />}
                 <Button
                     variant="outlined"
                     onClick={() => setIsEditing(true)}
-                    startIcon={<F2FIcons name="EditPen" height={16} width={16} />}
+                    startIcon={<F2FIcons name="EditPen" height={24} width={24} />}
                     sx={{
                         borderColor: '#E0E0E0',
                         color: 'rgb(38, 38, 38)',
@@ -135,6 +144,7 @@ export default function ProfilAddressKartya({
                 >
                     Szerkesztés
                 </Button>
+                {address.isDefault && <Chip label="Alapértelmezett cím" size="small" color='primary'/>}
             </Stack>
         </Paper>
     );

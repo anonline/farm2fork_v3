@@ -7,8 +7,7 @@ import ProfilNavigation from '../../profil-navigation';
 
 export default function ProfilEditAddressView() {
     return (
-        <Container maxWidth="lg">
-            <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto' }}>
+            <Box sx={{ p: 0 }}>
                 <Grid container spacing={{ xs: 3, md: 4 }}>
                     <Grid size={{ xs: 12, md: 3 }}>
                         <ProfilNavigation />
@@ -18,6 +17,5 @@ export default function ProfilEditAddressView() {
                     </Grid>
                 </Grid>
             </Box>
-        </Container>
     );
 }

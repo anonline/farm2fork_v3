@@ -156,6 +156,7 @@ export function HomeHero({
                                     color: theme.vars.palette.common.black,
                                 },
                             })}
+                            href={paths.rendelesMenete}
                         >
                             {heroSecondaryBtnText}
                         </Button>

@@ -23,6 +23,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import ProfilAddressKartya from './profil-address-kartya';
 import NewBillingAddressForm from './new-billing-address';
 import NewShippingAddressForm from './new-shipping-address';
+import { themeConfig } from 'src/theme';
 
 export default function ProfilEditAddress() {
     const { user } = useAuthContext();
@@ -82,6 +83,7 @@ export default function ProfilEditAddress() {
         fontWeight: 500,
         lineHeight: '24px',
         textTransform: 'none',
+        fontFamily: themeConfig.fontFamily.bricolage,
         border: '1px solid rgba(0,0,0,0)',
         borderRadius: '0px',
         px: 1,
@@ -131,7 +133,7 @@ export default function ProfilEditAddress() {
                         }}
                     >
                         <ToggleButton value="shipping" sx={toggleButtonStyle}>
-                            Szállítási cím
+                            Kiszállítási cím
                         </ToggleButton>
                         <ToggleButton value="billing" sx={toggleButtonStyle}>
                             Számlázási cím
@@ -191,7 +193,6 @@ export default function ProfilEditAddress() {
                 </Button>
             </Stack>
 
-            {/* A feltételes logika most már itt, tisztán hívódik meg */}
             {renderContent()}
         </Stack>
     );
