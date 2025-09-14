@@ -12,16 +12,17 @@ export default function SupabaseSignUpView() {
             <Box
                 display="flex"
                 sx={{
-                    gap: { xs: 4, md: 8 },
+                    gap: { xs: 4, md: 6 },
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}
             >
                 <Stack
                     sx={{
-                        width: 1,
+                        width: '100%',
                         mx: 'auto',
-                        maxWidth: 480,
+                        p: 0,
+                        
                     }}
                 >
                     <SignUpWizard />
@@ -40,14 +41,14 @@ export function Illustration() {
                 display: { xs: 'none', lg: 'flex' },
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingLeft: 5,
+                
                 color: 'common.white',
                 backgroundColor: 'common.white',
             }}
         >
             <Box
                 component="img"
-                alt="Sign Up Picture"
+                alt="Farm2Fork regisztráció"
                 src="/assets/images/sign-up/SignUp.webp"
                 sx={{ maxWidth: 600 }}
             />

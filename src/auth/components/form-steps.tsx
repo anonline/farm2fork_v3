@@ -1,8 +1,8 @@
 'use client';
 
-import router from 'next/router';
 import { useState, useEffect } from 'react';
 import { useWatch, useFormContext } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 
 import Step from '@mui/material/Step';
 import MuiStepper from '@mui/material/Stepper';
@@ -51,13 +51,13 @@ export function Stepper({ steps, activeStep, sx }: Readonly<StepperProps>) {
 export function StepOne() {
     return (
         <>
-            <Typography variant="h4" sx={{ mb: 1 }}>
+            <Typography sx={{ mb: 1, textTransform: 'uppercase', fontWeight: 700, fontSize: 36 }}>
                 Szia!
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 3 }}>
                 Kérjük add meg a szerepkörödet.
             </Typography>
-            <RHFSelect name="stepOne.role" label="Szerepkör">
+            <RHFSelect name="stepOne.role" label="Magánszemély vagy cég?">
                 <MenuItem value="private">Magánszemély</MenuItem>
                 <MenuItem value="company">Cég</MenuItem>
             </RHFSelect>
@@ -73,13 +73,22 @@ export function StepTwo() {
 
     return (
         <>
-            <Typography variant="h4" sx={{ mb: 1 }}>
+            <Typography variant="h4" sx={{ mb: 1, textTransform: 'uppercase', fontWeight: 700, fontSize: 36 }}>
                 Add meg az adataid
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 3 }}>
                 Kérjük add meg az alapadataid a regisztrációhoz.
             </Typography>
+
             <Stack spacing={2.5}>
+                <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center', px: 2 }}>
+                    A "Tovább" gomb megnyomásával elfogadod az <Link underline="always" color="text.primary" href="/#" target="_blank" sx={{ fontWeight: 600 }}>
+                        Általános szerződési feltételeket
+                    </Link> és az <Link underline="always" color="text.primary" href="/#" target="_blank" sx={{ fontWeight: 600 }}>
+                        Adatvédelmi nyilatkozatot
+                    </Link>.
+                </Typography>
+
                 {isCompany && (
                     <>
                         <RHFTextField name="stepTwo.companyName" label="Cég neve" />
@@ -89,6 +98,7 @@ export function StepTwo() {
                 <RHFTextField name="stepTwo.firstName" label="Vezetéknév" />
                 <RHFTextField name="stepTwo.lastName" label="Keresztnév" />
                 <RHFTextField name="stepTwo.email" label="E-mail cím" />
+                <RHFTextField name="stepTwo.email2" label="E-mail cím még egyszer" />
                 <RHFTextField name="stepTwo.password" type="password" label="Jelszó" />
                 <RHFTextField
                     name="stepTwo.passwordConfirm"
@@ -101,20 +111,7 @@ export function StepTwo() {
                 />
             </Stack>
 
-            <Typography
-                variant="caption"
-                sx={{ color: 'text.secondary', mt: 3, textAlign: 'center' }}
-            >
-                A &quot;Tovább&quot; gomb megnyomásával elfogadod az{' '}
-                <Link underline="always" color="text.primary" href="/#" target="_blank">
-                    Általános szerződési feltételeket
-                </Link>{' '}
-                és az{' '}
-                <Link underline="always" color="text.primary" href="/#" target="_blank">
-                    Adatvédelmi nyilatkozatot
-                </Link>
-                .
-            </Typography>
+
         </>
     );
 }
@@ -146,8 +143,8 @@ export function StepThree() {
 
     return (
         <>
-            <Typography variant="h4" sx={{ mb: 1 }}>
-                Szállítási adatok
+            <Typography variant="h4" sx={{ mb: 1, textTransform: 'uppercase', fontWeight: 700, fontSize: 36 }}>
+                Cím adatok
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 3 }}>
                 Kérjük add meg a címadataid a kiszállításhoz.
@@ -161,29 +158,36 @@ export function StepThree() {
                 )}
                 <RHFTextField name="stepThree.fullName" label="Teljes név" />
                 <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                         <RHFTextField
                             name="stepThree.zipCode"
                             label="Irányítószám"
-                            type="tel" // HOZZÁADVA
+                            type="tel"
                             inputProps={{ maxLength: 4 }}
                             onBlur={handleZipCodeBlur}
                         />
                     </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid size={{ xs: 12, md: 9 }}>
                         <RHFTextField name="stepThree.city" label="Település" />
                     </Grid>
+                    <Grid size={{ xs: 12, md: 9 }}>
+                        <RHFTextField name="stepThree.street" label="Közterület neve" />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                        <RHFTextField name="stepThree.houseNumber" label="Házszám" />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <RHFTextField name="stepThree.floorDoor" label="Emelet, ajtó" />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <RHFTextField name="stepThree.doorBell" label="Kapucsengő" />
+                    </Grid>
                 </Grid>
-                <RHFTextField name="stepThree.streetAddress" label="Utca, házszám" />
-                <RHFTextField
-                    name="stepThree.floorDoor"
-                    label="Emelet, ajtó, egyéb (nem kötelező)"
-                />
                 <RHFTextField
                     name="stepThree.phone"
                     label="Telefonszám"
                     type="tel"
-                    placeholder="+36..."
+                    placeholder="+36"
                 />
                 <RHFTextField
                     name="stepThree.comment"
@@ -199,10 +203,16 @@ export function StepThree() {
 
 // --- Befejező lépés: Sikeres regisztráció ---
 export function StepCompleted({ onReset }: Readonly<{ onReset: () => void }>) {
+    const router = useRouter();
+
+    const handleGoToLogin = () => {
+        router.push(paths.auth.supabase.signIn);
+    };
+
     return (
         <Stack alignItems="center" justifyContent="center" spacing={3} sx={{ flexGrow: 1 }}>
             <Typography variant="h4">Köszönjük a regisztrációt!</Typography>
-            <Button variant="outlined" color="inherit" onClick={()=>{router.push(paths.auth.supabase.signIn);}}>
+            <Button variant="outlined" color="inherit" onClick={handleGoToLogin}>
                 Bejelentkezés
             </Button>
         </Stack>

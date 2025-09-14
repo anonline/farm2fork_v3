@@ -35,6 +35,10 @@ const getRegistrationSchema = () => {
                 .string()
                 .min(1, { message: 'E-mail cím megadása kötelező!' })
                 .email({ message: 'Érvénytelen e-mail cím formátum!' }),
+            email2: zod
+                .string()
+                .min(1, { message: 'E-mail cím megadása kötelező!' })
+                .email({ message: 'Érvénytelen e-mail cím formátum!' }),
             password: zod
                 .string()
                 .min(8, { message: 'A jelszónak legalább 8 karakter hosszúnak kell lennie!' }),
@@ -44,6 +48,10 @@ const getRegistrationSchema = () => {
         .refine((data) => data.password === data.passwordConfirm, {
             message: 'A két jelszó nem egyezik!',
             path: ['passwordConfirm'],
+        })
+        .refine((data) => data.email === data.email2, {
+            message: 'A két e-mail cím nem egyezik!',
+            path: ['email2'],
         });
 
     const StepThreeSchema = zod.object({
@@ -54,8 +62,9 @@ const getRegistrationSchema = () => {
             .max(4, { message: 'Az irányítószám maximum 4 karakter lehet.' })
             .optional(),
         city: zod.string().optional(),
-        streetAddress: zod.string().optional(),
+        street: zod.string().optional(),
         floorDoor: zod.string().optional(),
+        houseNumber: zod.string().optional(),
         phone: zod
             .string()
             .refine(
@@ -69,6 +78,7 @@ const getRegistrationSchema = () => {
             )
             .optional(),
         comment: zod.string().optional(),
+        doorBell: zod.string().optional(),
         source: zod.string().optional(),
     });
 
@@ -113,6 +123,7 @@ export function SignUpWizard() {
             firstName: '',
             lastName: '',
             email: '',
+            email2: '',
             password: '',
             passwordConfirm: '',
             newsletter: false,
@@ -121,7 +132,9 @@ export function SignUpWizard() {
             fullName: '',
             zipCode: '',
             city: '',
-            streetAddress: '',
+            street: '',
+            houseNumber: '',
+            doorBell: '',
             floorDoor: '',
             phone: '',
             comment: '',

@@ -148,6 +148,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
             loading: status === 'loading',
             authenticated: status === 'authenticated',
             unauthenticated: status === 'unauthenticated',
+            displayName: state.user?.user_metadata?.display_name ?? undefined,
         }),
         [checkUserSession, state.user, status]
     );
