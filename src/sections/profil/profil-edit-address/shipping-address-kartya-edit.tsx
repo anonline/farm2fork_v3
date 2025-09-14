@@ -14,6 +14,8 @@ import {
     FormControlLabel,
 } from '@mui/material';
 
+import AddressDeleteConfirmModal from './address-delete-confirm-modal';
+
 interface AddressFormProps {
     address: IAddress;
     onSave: (updatedAddress: IAddress) => void;
@@ -40,6 +42,8 @@ export default function ShippingAddressKartyaEdit({
         comment: address.comment || '',
         isDefault: address.isDefault || false,
     });
+
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -77,6 +81,19 @@ export default function ShippingAddressKartyaEdit({
         } else {
             console.error('Hiányzó kötelező mezők!');
         }
+    };
+
+    const handleDeleteClick = () => {
+        setShowDeleteConfirm(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        setShowDeleteConfirm(false);
+        onDelete();
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirm(false);
     };
 
     const requiredFieldSx = {
@@ -212,7 +229,7 @@ export default function ShippingAddressKartyaEdit({
                 rows={3}
             />
             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Button color="error" onClick={onDelete}>
+                <Button color="error" onClick={handleDeleteClick}>
                     Törlés
                 </Button>
                 <Stack direction="row" spacing={1}>
@@ -231,6 +248,13 @@ export default function ShippingAddressKartyaEdit({
                     </Button>
                 </Stack>
             </Stack>
+
+            <AddressDeleteConfirmModal
+                open={showDeleteConfirm}
+                address={address}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+            />
         </Stack>
     );
 }

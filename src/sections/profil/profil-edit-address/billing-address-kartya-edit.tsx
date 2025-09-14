@@ -12,6 +12,8 @@ import {
     FormControlLabel,
 } from '@mui/material';
 
+import AddressDeleteConfirmModal from './address-delete-confirm-modal';
+
 interface AddressFormProps {
     address: IAddress;
     onSave: (updatedAddress: IAddress) => void;
@@ -39,9 +41,24 @@ export default function BillingAddressEditForm({
         isDefault: address.isDefault || false,
     });
 
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    };
+
+    const handleDeleteClick = () => {
+        setShowDeleteConfirm(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        setShowDeleteConfirm(false);
+        onDelete();
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirm(false);
     };
 
     const handleSave = () => {
@@ -66,7 +83,7 @@ export default function BillingAddressEditForm({
                 isDefault: formData.isDefault,
                 taxNumber: formData.taxNumber || undefined,
                 email: formData.email || undefined,
-                
+
             } as IAddress;
             onSave(updatedAddress);
         } else {
@@ -210,7 +227,7 @@ export default function BillingAddressEditForm({
             />
 
             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Button color="error" onClick={onDelete}>
+                <Button color="error" onClick={handleDeleteClick}>
                     Törlés
                 </Button>
                 <Stack direction="row" spacing={1}>
@@ -229,6 +246,13 @@ export default function BillingAddressEditForm({
                     </Button>
                 </Stack>
             </Stack>
+
+            <AddressDeleteConfirmModal
+                open={showDeleteConfirm}
+                address={address}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+            />
         </Stack>
     );
 }

@@ -24,6 +24,8 @@ import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
+import Delete from 'public/assets/icons/f2f/Delete.svg';
+import Warning from 'public/assets/icons/f2f/Warning.svg';
 
 interface F2FIconsSvgProps {
     name:
@@ -51,7 +53,9 @@ interface F2FIconsSvgProps {
         | 'CommentOn'
         | 'Comment'
         | 'House'
-        | 'Apple'; // vagy dinamikusan generált union type
+        | 'Apple'
+        | 'Delete'
+        | 'Warning'
     width?: number;
     height?: number;
     style?: React.CSSProperties;
@@ -83,6 +87,8 @@ const iconMap = {
     Comment,
     House,
     Apple,
+    Delete,
+    Warning
 } as const;
 
 export default function F2FIcons({

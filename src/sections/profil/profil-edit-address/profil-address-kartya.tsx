@@ -28,6 +28,13 @@ export default function ProfilAddressKartya({
         setAddress(initialAddress);
     }, [initialAddress]);
 
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
     const handleSave = async (updatedAddress: IAddress) => {
         console.log('Updating address:', updatedAddress);
         if (!user?.id || address.id === undefined) {
@@ -42,10 +49,19 @@ export default function ProfilAddressKartya({
             // Refresh the data first, then update local state
             await addressesMutate(); 
             toast.success('Cím sikeresen frissítve');
+            // Scroll to top after successful save
+            scrollToTop();
         } catch (error) {
             console.error('Error updating address:', error);
             toast.error('Hiba történt a cím frissítése során');
         }
+    };
+
+    const handleCancel = async () => {
+        setIsEditing(false);
+        // Refresh the data to discard unsaved changes
+        await addressesMutate();
+        scrollToTop();
     };
 
     const handleDelete = async () => {
@@ -58,6 +74,8 @@ export default function ProfilAddressKartya({
             await deleteAddress(user.id, address.id);
             await addressesMutate(); // Refresh the data
             toast.success('Cím sikeresen törölve');
+            // Scroll to top after successful delete
+            scrollToTop();
         } catch (error) {
             console.error('Error deleting address:', error);
             toast.error('Hiba történt a cím törlése során');
@@ -70,7 +88,7 @@ export default function ProfilAddressKartya({
                 <BillingAddressKartyaEdit
                     address={address}
                     onSave={handleSave}
-                    onCancel={() => setIsEditing(false)}
+                    onCancel={handleCancel}
                     onDelete={handleDelete}
                 />
             );
@@ -79,7 +97,7 @@ export default function ProfilAddressKartya({
             <ShippingAddressKartyaEdit
                 address={address}
                 onSave={handleSave}
-                onCancel={() => setIsEditing(false)}
+                onCancel={handleCancel}
                 onDelete={handleDelete}
             />
         );

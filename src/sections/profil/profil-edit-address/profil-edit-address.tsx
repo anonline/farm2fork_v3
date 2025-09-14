@@ -40,6 +40,13 @@ export default function ProfilEditAddress() {
             : addresses.billingAddresses
         : [];
 
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
     const handleAddNewAddress = async (data: any) => {
         if (!user?.id) {
             toast.error('Nincs bejelentkezve felhasználó');
@@ -73,6 +80,8 @@ export default function ProfilEditAddress() {
             await addressesMutate(); // Refresh the data
             setIsAdding(false);
             toast.success('Cím sikeresen hozzáadva');
+            // Scroll to top after successful add
+            scrollToTop();
         } catch (error) {
             console.error('Error adding address:', error);
             toast.error('Hiba történt a cím mentése során');
@@ -86,13 +95,13 @@ export default function ProfilEditAddress() {
         textTransform: 'none',
         fontFamily: themeConfig.fontFamily.bricolage,
         border: '1px solid rgba(0,0,0,0)',
-        borderRadius: '0px',
+        borderRadius: '0px !important',
         px: 1,
         py: 1.5,
         color: 'text.secondary',
         '&.Mui-selected': {
             fontWeight: 700,
-            borderBottom: '3px solid rgb(0, 0, 0)',
+            borderBottom: '3px solid rgb(0, 0, 0) !important',
             backgroundColor: 'rgba(0, 0, 0, 0)',
         },
     };
@@ -129,6 +138,7 @@ export default function ProfilEditAddress() {
                             }
                         }}
                         sx={{
+                            padding:0,
                             border: 'none',
                             '& .MuiToggleButtonGroup-grouped': { border: 0 },
                         }}
@@ -179,8 +189,8 @@ export default function ProfilEditAddress() {
                         display: 'flex',
                         flexDirection: 'row',
                         letterSpacing: '0.16px',
-                        fontWeight: 700,
-                        fontSize: '16px',
+                        fontWeight: 600,
+                        fontSize: '14px',
                         lineHeight: '20px',
                         bgcolor: 'rgb(70, 110, 80)',
                         gap: 1,
@@ -190,7 +200,9 @@ export default function ProfilEditAddress() {
                     <Box sx={{ pt: 0.5 }}>
                         <F2FIcons name="Add" height={14} width={16} style={{ color: 'white' }} />
                     </Box>
-                    <Box>Új cím hozzáadása</Box>
+                    <Box>
+                        Új cím hozzáadása
+                    </Box>
                 </Button>
             </Stack>
 
