@@ -3,6 +3,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "src/lib/supabase";
 import { ShipmentsContext } from "./shipments-context";
 import { IOrderData } from "src/types/order-management";
+import { IShipment } from "src/types/shipments";
 
 export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [shipments, setShipments] = useState<IShipment[]>([]);

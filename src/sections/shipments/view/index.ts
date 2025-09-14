@@ -1,0 +1,1 @@
+export { ShipmentsListView } from './shipments-list-view';
