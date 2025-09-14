@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useWatch, useFormContext } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { useWatch, useFormContext } from 'react-hook-form';
 
 import Step from '@mui/material/Step';
 import MuiStepper from '@mui/material/Stepper';
@@ -82,7 +82,7 @@ export function StepTwo() {
 
             <Stack spacing={2.5}>
                 <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center', px: 2 }}>
-                    A "Tovább" gomb megnyomásával elfogadod az <Link underline="always" color="text.primary" href="/#" target="_blank" sx={{ fontWeight: 600 }}>
+                    A &quot;Tovább&quot; gomb megnyomásával elfogadod az <Link underline="always" color="text.primary" href="/#" target="_blank" sx={{ fontWeight: 600 }}>
                         Általános szerződési feltételeket
                     </Link> és az <Link underline="always" color="text.primary" href="/#" target="_blank" sx={{ fontWeight: 600 }}>
                         Adatvédelmi nyilatkozatot

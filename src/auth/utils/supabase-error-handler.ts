@@ -1,5 +1,6 @@
-import { supabase } from 'src/lib/supabase';
 import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
+
+import { supabase } from 'src/lib/supabase';
 
 // ----------------------------------------------------------------------
 

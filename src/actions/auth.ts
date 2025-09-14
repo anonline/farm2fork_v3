@@ -1,4 +1,3 @@
-import { co } from 'node_modules/@fullcalendar/core/internal-common';
 import type { RegistrationSchemaType } from 'src/auth/components/sign-up-wizard';
 
 import { supabase } from 'src/lib/supabase';

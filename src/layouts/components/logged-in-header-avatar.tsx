@@ -2,10 +2,13 @@ import Link from 'next/link';
 
 import { Avatar, Tooltip } from '@mui/material';
 
-import { Iconify } from 'src/components/iconify';
 import { paths } from 'src/routes/paths';
-import { useAuthContext } from 'src/auth/hooks';
+
 import { useGetCustomerData } from 'src/actions/customer';
+
+import { Iconify } from 'src/components/iconify';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 export default function LoggedInHeaderAvatar() {
     const { user } = useAuthContext();
@@ -25,7 +28,7 @@ export default function LoggedInHeaderAvatar() {
     const tooltipText = hasName ? customerName : tooltipFallback;
 
     const getInitials = (name: string) => {
-        let names = name.split(' ');
+        const names = name.split(' ');
         let initialsArray = names.map(n => n.charAt(0).toUpperCase());
         if(initialsArray.length > 2) {
             initialsArray = initialsArray.splice(0, 2);

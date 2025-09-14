@@ -3,9 +3,10 @@
 import { useSetState } from 'minimal-shared/hooks';
 import { useMemo, useEffect, useCallback } from 'react';
 
+import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
+
 import axios from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
-import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { isAuthSessionError, handleAuthSessionError } from 'src/auth/utils/supabase-error-handler';
 

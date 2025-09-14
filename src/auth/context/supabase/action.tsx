@@ -9,9 +9,9 @@ import type {
     SignUpWithPasswordCredentials,
 } from '@supabase/supabase-js';
 
-import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
-
 import { paths } from 'src/routes/paths';
+
+import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { supabase } from 'src/lib/supabase';
 
