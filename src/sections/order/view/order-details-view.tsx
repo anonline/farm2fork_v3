@@ -287,7 +287,7 @@ export function OrderDetailsView({ order, orderData, orderError }: Props) {
                         <OrderDetailsDelivery delivery={currentOrder?.delivery} />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsShipping shippingAddress={currentOrder?.shippingAddress} />
+                        <OrderDetailsShipping shippingAddress={currentOrder?.shippingAddress} requestedShippingDate={currentOrder.planned_shipping_date_time} />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsPayment payment={currentOrder?.payment} />

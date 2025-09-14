@@ -61,6 +61,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         discount: orderData.discountTotal,
         deposit: orderData.surchargeAmount || 0,
         createdAt: orderData.dateCreated,
+        planned_shipping_date_time: orderData.plannedShippingDateTime,
         customer: {
             id: orderData.customerId || 'guest',
             name: customerName,
@@ -96,8 +97,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         history: {
             orderTime: orderData.dateCreated,
             paymentTime: orderData.paymentStatus === 'paid' ? orderData.dateCreated : null,
-            deliveryTime: orderData.orderStatus === 'delivered' ? orderData.plannedShippingDateTime || null : null,
-            completionTime: orderData.orderStatus === 'delivered' ? orderData.plannedShippingDateTime || null : null,
+            deliveryTime: orderData.orderStatus === 'delivered' ? orderData.plannedShippingDateTime?.toLocaleDateString('hu-HU') || null : null,
+            completionTime: orderData.orderStatus === 'delivered' ? orderData.plannedShippingDateTime?.toLocaleDateString('hu-HU') || null : null,
             timeline: orderData.history.map(h => ({
                 title: `Status: ${h.status}${h.note ? ` - ${h.note}` : ''}`,
                 time: h.timestamp,

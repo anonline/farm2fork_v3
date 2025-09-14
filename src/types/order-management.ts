@@ -74,7 +74,7 @@ export type IOrderData = {
     orderStatus: OrderStatus;
     paymentDueDays: number;
     courier: string | null;
-    plannedShippingDateTime: string | null;
+    plannedShippingDateTime: Date | null;
     simplepayDataJson: Record<string, any> | null;
     invoiceDataJson: Record<string, any> | null;
     history: OrderHistoryEntry[];

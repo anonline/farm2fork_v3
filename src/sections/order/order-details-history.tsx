@@ -62,12 +62,16 @@ export function OrderDetailsHistory({ history }: Props) {
         <Timeline
             sx={{ p: 0, m: 0, [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 } }}
         >
-            {history?.timeline.map((item, index) => {
+            {history?.timeline.sort((a, b) => {
+                const timeA = a.time ? new Date(a.time).getTime() : 0;
+                const timeB = b.time ? new Date(b.time).getTime() : 0;
+                return timeA - timeB;
+            }).map((item, index) => {
                 const firstTime = index === 0;
                 const lastTime = index === history.timeline.length - 1;
 
                 return (
-                    <TimelineItem key={item.title}>
+                    <TimelineItem key={`${index}-${item.time}`}>
                         <TimelineSeparator>
                             <TimelineDot color={(firstTime && 'primary') || 'grey'} />
                             {lastTime ? null : <TimelineConnector />}
