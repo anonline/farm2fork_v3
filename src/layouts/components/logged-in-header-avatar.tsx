@@ -4,28 +4,46 @@ import { Avatar, Tooltip } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 import { paths } from 'src/routes/paths';
+import { useAuthContext } from 'src/auth/hooks';
+import { useGetCustomerData } from 'src/actions/customer';
 
-export default function LoggedInHeaderAvatar({ name }: Readonly<{ name?: string }>) {
+export default function LoggedInHeaderAvatar() {
+    const { user } = useAuthContext();
+    const { customerData, customerDataLoading } = useGetCustomerData(user?.id);
+    
     const initialsFallback = <Iconify icon="solar:user-rounded-bold" />;
     const tooltipFallback = 'Profil megtekintése';
     const profileUrl = paths.profile.orders; //TODO: Use paths.profil.rendelesek when available
     
-    const hasName = !!name && name.trim().length > 0;
+    // Construct name from CustomerDatas table
+    const customerName = customerData 
+        ? `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim()
+        : '';
+    
+    const hasName = !!customerName && customerName.length > 0;
 
-    const tooltipText = hasName ? name : tooltipFallback;
+    const tooltipText = hasName ? customerName : tooltipFallback;
+
+    const getInitials = (name: string) => {
+        let names = name.split(' ');
+        let initialsArray = names.map(n => n.charAt(0).toUpperCase());
+        if(initialsArray.length > 2) {
+            initialsArray = initialsArray.splice(0, 2);
+        }
+        return initialsArray.join('');
+    }
+
     const initialsContent = hasName
-        ? name
-              .split(' ')
-              .map((n) => n[0]?.toUpperCase())
-              .join('')
+        ? getInitials(customerName)
         : initialsFallback;
 
     return (
         <Tooltip title={tooltipText}>
             <Link href={profileUrl} style={{ textDecoration: 'none' }}>
                 <Avatar
-                    alt={name || 'User Avatar'}
+                    alt={customerName || 'Profil megtekintése'}
                     sx={{
+                        bgcolor: '#C4CDD5',
                         fontSize: '16px',
                         '&:hover': {
                             boxShadow: 3,

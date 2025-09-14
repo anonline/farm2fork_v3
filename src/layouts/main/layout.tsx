@@ -191,7 +191,7 @@ function MainLayoutContent({
                     {/* Authentication */}
                     {!authContext.loading && authContext.authenticated ? (
                         <>
-                            <LoggedInHeaderAvatar name={authContext.displayName} />
+                            <LoggedInHeaderAvatar />
                             {/* Hide admin/corp/vip chips on mobile */}
                             <Box
                                 sx={{
@@ -271,13 +271,8 @@ function MainLayoutContent({
     };
 
     const renderFooter = () => (
-        /*isHomePage ? (
-            <HomeFooter sx={slotProps?.footer?.sx} />
-        ) : (*/
         <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
     );
-
-    //);
 
     const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
 

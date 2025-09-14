@@ -1,3 +1,4 @@
+import { co } from 'node_modules/@fullcalendar/core/internal-common';
 import type { RegistrationSchemaType } from 'src/auth/components/sign-up-wizard';
 
 import { supabase } from 'src/lib/supabase';
@@ -34,11 +35,14 @@ export async function registerUser(data: RegistrationSchemaType) {
         uid: authData.user.id,
         firstname: data.stepTwo.firstName,
         lastname: data.stepTwo.lastName,
-        companyName: null,
+        companyName: data.stepTwo.companyName || null,
+        isCompany: data.stepOne.role === 'company',
         newsletterConsent: data.stepTwo.newsletter,
         acquisitionSource: data.stepThree.source || null,
-        deliveryAddress: JSON.stringify([
+        deliveryAddress: [
             {
+                id: 0,
+                companyName: data.stepTwo.companyName || null,
                 fullName: data.stepThree.fullName,
                 postcode: data.stepThree.zipCode,
                 city: data.stepThree.city,
@@ -49,9 +53,10 @@ export async function registerUser(data: RegistrationSchemaType) {
                 doorBell: data.stepThree.doorBell || null,
                 phone: data.stepThree.phone,
             },
-        ]),
-        billingAddress: JSON.stringify([
+        ],
+        billingAddress: [
             {
+                id: 0,
                 fullName: data.stepThree.fullName,
                 postcode: data.stepThree.zipCode,
                 city: data.stepThree.city,
@@ -63,7 +68,7 @@ export async function registerUser(data: RegistrationSchemaType) {
                 companyName: data.stepTwo.companyName || null,
                 taxNumber: data.stepTwo.taxNumber || null,
             },
-        ]),
+        ],
     };
 
     const { error: dbError } = await supabase.from('CustomerDatas').insert(customerDataObject);
