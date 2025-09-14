@@ -187,6 +187,10 @@ export const paths = {
                 edit: (id: number) => `${ROOTS.DASHBOARD}/faqs/categories/${id}/edit`,
             },
         },
+        shipments: {
+            root: `${ROOTS.DASHBOARD}/shipments`,
+            details: (id: string) => `${ROOTS.DASHBOARD}/shipments/${id}`,
+        },
         general: {
             app: `${ROOTS.DASHBOARD}/app`,
             ecommerce: `${ROOTS.DASHBOARD}/ecommerce`,

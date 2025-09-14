@@ -62,7 +62,7 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                 items: [
                     { title: 'Vezérlőpult', path: paths.dashboard.root, icon: ICONS.dashboard },
                     { title: 'Eladások', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-                    { title: 'Összesítők', path: paths.dashboard.general.file, icon: ICONS.file },
+                    { title: 'Összesítők', path: paths.dashboard.shipments.root, icon: ICONS.file },
                 ],
             },
             /**
