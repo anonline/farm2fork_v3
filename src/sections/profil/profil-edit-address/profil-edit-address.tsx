@@ -11,6 +11,7 @@ import {
     Typography,
     ToggleButton,
     ToggleButtonGroup,
+    CircularProgress,
 } from '@mui/material';
 
 import { addAddress, useGetAddresses } from 'src/actions/address';
@@ -143,7 +144,7 @@ export default function ProfilEditAddress() {
                 </Box>
                 <Stack spacing={2}>
                     {addressesLoading && (
-                        <Typography color="text.secondary">Címek betöltése...</Typography>
+                        <CircularProgress size={24} sx={{ alignSelf: 'center', mt: 2 }} />
                     )}
                     {!addressesLoading && currentAddresses.length === 0 && (
                         <Typography color="text.secondary">
