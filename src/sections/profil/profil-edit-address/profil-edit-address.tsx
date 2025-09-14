@@ -94,14 +94,18 @@ export default function ProfilEditAddress() {
         lineHeight: '24px',
         textTransform: 'none',
         fontFamily: themeConfig.fontFamily.bricolage,
-        border: '1px solid rgba(0,0,0,0)',
+        borderBottom: '2px solid rgba(0,0,0,0) !important',
         borderRadius: '0px !important',
         px: 1,
         py: 1.5,
         color: 'text.secondary',
+        '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            borderBottom: '2px solid rgb(0, 0, 0) !important'
+        },
         '&.Mui-selected': {
             fontWeight: 700,
-            borderBottom: '3px solid rgb(0, 0, 0) !important',
+            borderBottom: '2px solid rgb(0, 0, 0) !important',
             backgroundColor: 'rgba(0, 0, 0, 0)',
         },
     };
