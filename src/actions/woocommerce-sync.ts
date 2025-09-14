@@ -495,16 +495,17 @@ export async function syncProducts(
             }
 
             // Handle main product image
-            const featuredImage = '';
+            let featuredImage = '';
             if (wooProduct.images && wooProduct.images.length > 0) {
                 try {
                     const mainImage = wooProduct.images[0];
                     const filename = extractFilenameFromUrl(mainImage.src);
-                    /*featuredImage = await uploadImageFromUrl(
+
+                    featuredImage = await uploadImageFromUrl(
                         mainImage.src, 
                         'product', 
-                        `woo-product-${wooProduct.id}-${filename}`
-                    );*/
+                        `${filename}`
+                    );
                 } catch (imageError) {
                     console.error(`Failed to upload main image for product ${wooProduct.name}:`, imageError);
                     results.details.push(`Main image upload failed for ${wooProduct.name}: ${imageError}`);
@@ -512,18 +513,18 @@ export async function syncProducts(
             }
 
             // Handle additional images
-            const additionalImages: string[] = [];
+            let additionalImages: string[] = [];
             if (wooProduct.images && wooProduct.images.length > 1) {
                 for (let imgIndex = 1; imgIndex < wooProduct.images.length; imgIndex++) {
                     try {
                         const image = wooProduct.images[imgIndex];
                         const filename = extractFilenameFromUrl(image.src);
-                        /*const uploadedUrl = await uploadImageFromUrl(
+                        const uploadedUrl = await uploadImageFromUrl(
                             image.src, 
                             'product', 
-                            `woo-product-${wooProduct.id}-${imgIndex}-${filename}`
+                            `${filename}`
                         );
-                        additionalImages.push(uploadedUrl);*/
+                        additionalImages.push(uploadedUrl);
                     } catch (imageError) {
                         console.error(`Failed to upload additional image ${imgIndex} for product ${wooProduct.name}:`, imageError);
                         results.details.push(`Additional image ${imgIndex} upload failed for ${wooProduct.name}: ${imageError}`);
