@@ -15,6 +15,8 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Scrollbar } from 'src/components/scrollbar';
 import { SideCartItem } from 'src/components/sidecart/sidecart';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
+import { Tooltip } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -88,13 +90,13 @@ export function CheckoutSummary({
                 </Box>
 
                 {surcharge > 0 && (
-                    <Box sx={{ ...rowStyles }}>
+                    <Box sx={{ ...rowStyles, alignItems: 'center', display: 'flex' }}>
                         <Typography
                             component="span"
                             variant="body2"
                             sx={{ flexGrow: 1, color: 'text.secondary' }}
                         >
-                            Zárolási felár
+                            Zárolási felár <Tooltip title="A végleges árat a rendelés feldolgozása után tudjuk pontosítani."><F2FIcons name="InfoCircle" width={18} height={18} style={{ marginLeft: '4px' }} /></Tooltip>
                         </Typography>
                         <Typography component="span" variant="subtitle2">
                             {fCurrency(surcharge)}

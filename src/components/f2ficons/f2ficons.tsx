@@ -26,6 +26,7 @@ import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
 import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
+import InfoCircle from 'public/assets/icons/f2f/InfoCircle.svg'; 
 
 interface F2FIconsSvgProps {
     name:
@@ -56,6 +57,7 @@ interface F2FIconsSvgProps {
         | 'Apple'
         | 'Delete'
         | 'Warning'
+        | 'InfoCircle';
     width?: number;
     height?: number;
     style?: React.CSSProperties;
@@ -88,7 +90,8 @@ const iconMap = {
     House,
     Apple,
     Delete,
-    Warning
+    Warning,
+    InfoCircle,
 } as const;
 
 export default function F2FIcons({
