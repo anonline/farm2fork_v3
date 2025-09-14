@@ -11,9 +11,10 @@ export type ShipmentsContextType = {
     shipmentsError: string | null;
     shipmentsMutate: () => Promise<void>;
     addShipment: (newShipment: Omit<IShipment, 'date' | 'updatedAt'>) => Promise<void>;
-    refreshCounts: (shipmentId: string) => Promise<void>;
-    setOrderToShipment: (orderId: string, shipmentId: string) => Promise<void>;
+    refreshCounts: (shipmentId: number) => Promise<void>;
+    setOrderToShipment: (orderId: string, shipmentId: number) => Promise<void>;
     removeOrderFromShipment: (orderId: string) => Promise<void>;
+    setOrderToShipmentByDate: (orderId: string, date: Date) => Promise<void>;
 };
 
 export const ShipmentsContext = createContext<ShipmentsContextType | undefined>(undefined);

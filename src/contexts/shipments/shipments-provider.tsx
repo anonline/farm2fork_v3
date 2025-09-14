@@ -42,16 +42,16 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         setShipments((prev) => [...prev, data]);
     }, []);
 
-    const refreshCounts = useCallback(async (shipmentId: string) => {
+    const refreshCounts = useCallback(async (shipmentId: number) => {
         const { data: orders, error: ordersError } = await supabase
             .from('orders')
             .select('*')
             .eq('shipmentId', shipmentId);
 
-            if (ordersError) {
-                console.error('Error fetching orders:', ordersError);
-                return;
-            }
+        if (ordersError) {
+            console.error('Error fetching orders:', ordersError);
+            return;
+        }
 
         let productCount = 0;
         let productAmount = 0;
@@ -59,11 +59,12 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
 
         orders.forEach((order: IOrderData) => {
             productCount += order.items.length;
-            if(order.items.length > 0) {
+            if (order.items.length > 0) {
                 order.items.forEach(item => {
                     productAmount += item.subtotal;
                 });
             };
+            productAmount += order.surchargeAmount || 0;
             orderCount += 1;
         });
 
@@ -84,27 +85,43 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         fetchShipments();
     }, []);
 
-    const setOrderToShipment = useCallback(async (orderId: string, shipmentId: string) => {
+    const setOrderToShipment = useCallback(async (orderId: string, newShipmentId: number) => {
         //get order
         const { data: order, error: orderError } = await supabase
             .from('orders')
-            .select('*')
+            .select('shipmentId')
             .eq('id', orderId)
             .single();
+
         if (orderError) {
             console.error('Error fetching order:', orderError);
             return;
         }
 
+        //if it already in this shipment, do nothing
+        if (order.shipmentId === newShipmentId) {
+            return;
+        }
+
         //if it has a shipmentId already, remove it from that shipment first
-        if (order.shipmentId) {
-            removeOrderFromShipment(orderId);
+        if (order.shipmentId !== null) {
+            const { error: updateError } = await supabase
+                .from('orders')
+                .update({ shipmentId: null })
+                .eq('id', orderId);
+
+            if (updateError) {
+                console.error('Error updating order with null shipmentId:', updateError);
+                return;
+            }
+
+            refreshCounts(order.shipmentId);
         }
 
         //update order with shipmentId
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ shipmentId })
+            .update({ shipmentId: newShipmentId })
             .eq('id', orderId);
 
         if (updateError) {
@@ -112,10 +129,10 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
             return;
         }
 
-        refreshCounts(shipmentId);
+        refreshCounts(newShipmentId);
     }, []);
 
-    
+
     /**
      * Removes an order from its associated shipment by setting the order's shipmentId to null.
      * 
@@ -167,6 +184,42 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         refreshCounts(shipmentId);
     }, []);
 
+    const setOrderToShipmentByDate = useCallback(async (orderId: string, date: Date | null) => {
+        //get shipment by date
+        let shipmentId = null;
+
+        const { data: existingShipment, error: shipmentFetchError } = await supabase
+            .from('Shipments')
+            .select('*')
+            .eq('date', date ? date.toISOString() : null)
+            .single();
+
+        if (shipmentFetchError) { // PGRST116 = No rows found
+            //create new shipment
+            const { data: newShipment, error: shipmentError } = await supabase
+                .from('Shipments')
+                .insert([{ date: date, productCount: 0, productAmount: 0, orderCount: 0 } as IShipment])
+                .select()
+                .single();
+
+            if (shipmentError) {
+                console.error('Error creating new shipment:', shipmentError);
+                return;
+            }
+
+            shipmentId = newShipment.id;
+        } else if (existingShipment) {
+            shipmentId = existingShipment.id;
+        }
+
+        if (shipmentId) {
+            setOrderToShipment(orderId, shipmentId);
+            return;
+        }
+
+        console.error('No shipment found or created for date:', date);
+    }, []);
+
     useEffect(() => {
         fetchShipments();
     }, [fetchShipments]);
@@ -179,7 +232,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         addShipment,
         refreshCounts,
         setOrderToShipment,
-        removeOrderFromShipment
+        removeOrderFromShipment,
+        setOrderToShipmentByDate
     }), [
         shipments,
         shipmentsLoading,
@@ -188,7 +242,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         addShipment,
         refreshCounts,
         setOrderToShipment,
-        removeOrderFromShipment
+        removeOrderFromShipment,
+        setOrderToShipmentByDate
     ]);
 
     return <ShipmentsContext.Provider value={memoizedValue}>{children}</ShipmentsContext.Provider>;

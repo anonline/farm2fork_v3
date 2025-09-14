@@ -20,6 +20,7 @@ import { supabase } from 'src/lib/supabase';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,7 @@ export function OrderDetailsShipping({
     orderId,
     onRefreshOrder
 }: Readonly<Props>) {
+    const { shipments, shipmentsLoading, setOrderToShipmentByDate } = useShipments();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
@@ -59,7 +61,11 @@ export function OrderDetailsShipping({
     const isPopoverOpen = Boolean(anchorEl);
     
     // Example highlighted dates - can be passed as props
-    const highlightedDates = [dayjs().add(3, 'day'), dayjs().add(7, 'day')];
+    const highlightedDates = shipmentsLoading 
+    ? [] 
+    : shipments
+        .slice(0, shipments.length > 14 ? 14 : shipments.length)
+        .map(shipment => dayjs(shipment.date));
 
     // Create a component for custom day rendering
     const CustomDay = (props: PickersDayProps<dayjs.Dayjs>) => {
@@ -183,6 +189,11 @@ export function OrderDetailsShipping({
 
                 // Call parent callback if provided
                 onShippingDateChange?.(dateToSave);
+
+                // Update shipment context
+                if(dateToSave){
+                    setOrderToShipmentByDate(orderId, new Date(dateToSave));
+                }
                 
                 // Refresh order data to update history timeline
                 onRefreshOrder?.();

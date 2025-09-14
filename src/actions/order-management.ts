@@ -123,6 +123,7 @@ export async function getOrderById(orderId: string): Promise<{ order: IOrderData
             simplepayDataJson: data.simplepay_data_json,
             invoiceDataJson: data.invoice_data_json,
             history: data.history || [],
+            shipmentId: data.shipmentId || null,
         };
 
         return { order, error: null };
@@ -303,6 +304,7 @@ export async function getAllOrders(params?: {
             simplepayDataJson: row.simplepay_data_json,
             invoiceDataJson: row.invoice_data_json,
             history: row.history || [],
+            shipmentId: row.shipmentId || null,
         }));
 
         return { orders, total: count || 0, error: null };

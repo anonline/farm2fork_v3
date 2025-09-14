@@ -4,6 +4,7 @@ import { CONFIG } from 'src/global-config';
 import { OrderProvider } from 'src/contexts/order-context';
 
 import { OrderDetailsView } from 'src/sections/order/view';
+import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 // ----------------------------------------------------------------------
 
@@ -17,8 +18,10 @@ export default async function Page({ params }: Props) {
     const { id } = await params;
 
     return (
-        <OrderProvider>
-            <OrderDetailsView orderId={id} />
-        </OrderProvider>
+        <ShipmentsProvider>
+            <OrderProvider>
+                <OrderDetailsView orderId={id} />
+            </OrderProvider>
+        </ShipmentsProvider>
     );
 }

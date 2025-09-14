@@ -78,6 +78,7 @@ export type IOrderData = {
     simplepayDataJson: Record<string, any> | null;
     invoiceDataJson: Record<string, any> | null;
     history: OrderHistoryEntry[];
+    shipmentId: number | null;
 };
 
 export type ICreateOrderData = {

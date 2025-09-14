@@ -104,6 +104,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
                 time: h.timestamp,
             })),
         },
+        shipmentId: orderData.shipmentId || null,
     };
 }
 

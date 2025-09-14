@@ -33,6 +33,7 @@ import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,7 @@ type Props = {
 
 export function OrderDetailsView({ orderId }: Props) {
     const { state, updateOrder, updateOrderData, refreshOrderHistory, fetchOrder } = useOrderContext();
+    const { refreshCounts } = useShipments();
     const { order, orderData, loading, error } = state;
     
     const [status, setStatus] = useState(order?.status);
@@ -166,6 +168,11 @@ export function OrderDetailsView({ orderId }: Props) {
                         total: newTotal,
                         surchargeAmount: editedSurcharge,
                     });
+                }
+
+                console.log('order.shipmentId', order?.shipmentId);
+                if (order?.shipmentId) {
+                    refreshCounts(order.shipmentId);
                 }
 
                 toast.success('Rendelés sikeresen frissítve!');

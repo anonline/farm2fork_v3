@@ -96,7 +96,7 @@ type OrderProviderProps = {
   children: ReactNode;
 };
 
-export function OrderProvider({ children }: OrderProviderProps) {
+export function OrderProvider({ children }: Readonly<OrderProviderProps>) {
   const [state, dispatch] = useReducer(orderReducer, initialState);
 
   const fetchOrder = useCallback(async (orderId: string) => {
