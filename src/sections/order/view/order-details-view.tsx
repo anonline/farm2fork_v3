@@ -2,6 +2,7 @@
 
 import type { IOrderProductItem } from 'src/types/order';
 import type { OrderStatus } from 'src/types/order-management';
+import type { ProductForOrder } from '../product-selection-modal';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -354,6 +355,24 @@ export function OrderDetailsView({ orderId }: Props) {
         setEditedItems(prev => prev.filter(item => item.id !== itemId));
     }, []);
 
+    const handleItemAdd = useCallback((products: ProductForOrder[]) => {
+        // Transform ProductForOrder[] to IOrderProductItem[] and add to edited items
+        const newOrderItems = products.map(product => ({
+            id: product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            sku: product.sku,
+            name: product.name,
+            price: product.netPrice, // Use net price as the base price
+            coverUrl: product.coverUrl,
+            quantity: product.quantity,
+            unit: product.unit,
+            note: product.isCustom ? 'Egyedi termék' : '',
+            subtotal: product.netPrice * product.quantity,
+            slug: product.isCustom ? '' : product.id, // Use product ID as slug for existing products
+        }));
+
+        setEditedItems(prev => [...prev, ...newOrderItems]);
+    }, []);
+
     const handleRefreshOrderHistory = useCallback(async () => {
         try {
             await refreshOrderHistory();
@@ -459,6 +478,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             editable={status === 'pending'}
                             onItemChange={handleItemChange}
                             onItemDelete={handleItemDelete}
+                            onItemAdd={handleItemAdd}
                             onSurchargeChange={handleSurchargeChange}
                             onSave={handleSaveEdit}
                             onCancel={handleCancelEdit}
