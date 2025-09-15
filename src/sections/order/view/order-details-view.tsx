@@ -431,6 +431,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 onChangeStatus={handleChangeStatus}
                 statusOptions={ORDER_STATUS_OPTIONS}
                 order={order}
+                orderData={orderData}
                 onStartEdit={handleStartEdit}
                 isEditing={isEditing}
             />

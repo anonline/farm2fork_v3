@@ -1,5 +1,6 @@
 import type { IOrderItem } from 'src/types/order';
 import type { IDateValue } from 'src/types/common';
+import type { IOrderData } from 'src/types/order-management';
 
 import { usePopover } from 'minimal-shared/hooks';
 
@@ -30,6 +31,7 @@ type Props = {
     readonly orderNumber?: string;
     readonly createdAt?: IDateValue;
     readonly order?: IOrderItem;
+    readonly orderData?: IOrderData;
     readonly onChangeStatus: (newValue: string) => void;
     readonly statusOptions: { value: string; label: string }[];
     readonly onStartEdit?: () => void;
@@ -44,6 +46,7 @@ export function OrderDetailsToolbar({
     statusOptions,
     onChangeStatus,
     order,
+    orderData,
     onStartEdit,
     isEditing,
 }: Props) {
@@ -64,6 +67,21 @@ export function OrderDetailsToolbar({
             toast.error('PDF generálása sikertelen volt');
         }
     };
+
+    const handleInvoiceDownload = () => {
+        const invoiceData = orderData?.invoiceDataJson;
+        if (invoiceData?.downloadUrl) {
+            window.open(invoiceData.downloadUrl, '_blank');
+            toast.success('Számla megnyitva új ablakban');
+        } else {
+            toast.error('Számla letöltési link nem elérhető');
+        }
+    };
+
+    // Check if invoice data exists
+    const hasInvoiceData = orderData?.invoiceDataJson && 
+                          orderData.invoiceDataJson.success && 
+                          orderData.invoiceDataJson.invoiceNumber;
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -174,6 +192,17 @@ export function OrderDetailsToolbar({
                     >
                         Szállítólevél
                     </Button>
+
+                    {hasInvoiceData && (
+                        <Button
+                            color="success"
+                            variant="outlined"
+                            startIcon={<Iconify icon="solar:file-text-bold" />}
+                            onClick={handleInvoiceDownload}
+                        >
+                            {orderData?.invoiceDataJson?.invoiceNumber || 'Számla'}
+                        </Button>
+                    )}
 
 
 
