@@ -21,6 +21,8 @@ import { fCurrency } from 'src/utils/format-number';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
+import { ProductSelectionModal, type ProductForOrder } from './product-selection-modal';
+
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
@@ -37,6 +39,7 @@ type Props = CardProps & {
     editable?: boolean;
     onItemChange?: (itemId: string, field: 'price' | 'quantity', value: number) => void;
     onItemDelete?: (itemId: string) => void;
+    onItemAdd?: (products: ProductForOrder[]) => void;
     onSurchargeChange?: (value: number) => void;
     onSave?: () => void;
     onCancel?: () => void;
@@ -58,6 +61,7 @@ export function OrderDetailsItems({
     editable,
     onItemChange,
     onItemDelete,
+    onItemAdd,
     onSurchargeChange,
     onSave,
     onCancel,
@@ -66,6 +70,7 @@ export function OrderDetailsItems({
 }: Props) {
     const [editErrors, setEditErrors] = useState<Record<string, { price?: string; quantity?: string }>>({});
     const [surchargeError, setSurchargeError] = useState<string>('');
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
     const handleFieldChange = (itemId: string, field: 'price' | 'quantity', value: string) => {
         const numValue = parseFloat(value);
@@ -102,6 +107,13 @@ export function OrderDetailsItems({
                 onSurchargeChange(numValue);
             }
         }
+    };
+
+    const handleAddProducts = (products: ProductForOrder[]) => {
+        if (onItemAdd) {
+            onItemAdd(products);
+        }
+        setIsProductModalOpen(false);
     };
 
     const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError;
@@ -178,141 +190,158 @@ export function OrderDetailsItems({
     );
 
     return (
-        <Card sx={sx} {...other}>
-            <CardHeader
-                title="Részletek"
-                action={
-                    editable === true && (
-                        isEditing ? (
-                            <Stack direction="row" spacing={1}>
-                                <Button
-                                    variant="outlined"
-                                    color="inherit"
-                                    size="small"
-                                    onClick={onCancel}
-                                >
-                                    Mégse
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    size="small"
-                                    onClick={onSave}
-                                    disabled={hasErrors}
-                                >
-                                    Mentés
-                                </Button>
-                            </Stack>
-                        ) : (
-                            <IconButton onClick={onStartEdit}>
-                                <Iconify icon="solar:pen-bold" />
-                            </IconButton>
-                        )
-                    )
-                }
-            />
-
-            <Scrollbar>
-                {items.map((item) => (
-                    <Box
-                        key={item.id}
-                        sx={[
-                            (theme) => ({
-                                p: 3,
-                                minWidth: 640,
-                                display: 'flex',
-                                alignItems: 'center',
-                                borderBottom: `dashed 2px ${theme.vars.palette.background.neutral}`,
-                            }),
-                        ]}
-                    >
-                        <Avatar
-                            src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
-                            variant="rounded"
-                            sx={{ width: 48, height: 48, mr: 2 }}
-                        />
-
-                        <ListItemText
-                            primary={
-                                item.slug.length > 0 ?
-                                    <Link
-                                        target="_blank"
-                                        href={paths.dashboard.product.edit(item.slug)}
-                                        sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
+        <>
+            <Card sx={sx} {...other}>
+                <CardHeader
+                    title="Részletek"
+                    action={
+                        editable === true && (
+                            isEditing ? (
+                                <Stack direction="row" spacing={1}>
+                                    <Button
+                                        variant="outlined"
+                                        color="success"
+                                        size="small"
+                                        startIcon={<Iconify icon="mingcute:add-line" />}
+                                        onClick={() => setIsProductModalOpen(true)}
                                     >
-                                        {item.name}
-                                    </Link>
-                                    :
-                                    <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>{item.name} <Chip label="Egyedi termék" size="small" sx={{ ml: 1, mb: 0.3 }} color='primary' /></Typography>
-                            }
-                            secondary={
-                                isEditing ? (
-                                    <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
-                                        <TextField
-                                            size="small"
-                                            type="number"
-                                            label="Ár"
-                                            defaultValue={item.price}
-                                            onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
-                                            error={!!editErrors[item.id]?.price}
-                                            helperText={editErrors[item.id]?.price}
-                                            sx={{ width: 100 }}
-                                            inputProps={{ min: 0, step: 0.01 }}
-                                        />
-                                        <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
-                                    </Box>
-                                ) : (
-                                    `${fCurrency(item.price)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
-                                )
-                            }
-                            slotProps={{
-                                primary: { sx: { typography: 'body2' } },
-                                secondary: {
-                                    sx: { mt: 0.5, color: isEditing ? 'inherit' : 'text.disabled' },
-                                },
-                            }}
-                        />
+                                        Termék hozzáadása
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="inherit"
+                                        size="small"
+                                        onClick={onCancel}
+                                    >
+                                        Mégse
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        size="small"
+                                        onClick={onSave}
+                                        disabled={hasErrors}
+                                    >
+                                        Mentés
+                                    </Button>
+                                </Stack>
+                            ) : (
+                                <IconButton onClick={onStartEdit}>
+                                    <Iconify icon="solar:pen-bold" />
+                                </IconButton>
+                            )
+                        )
+                    }
+                />
 
-                        {isEditing ? (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, width: 110 }}>
-                                <TextField
-                                    size="small"
-                                    type="number"
-                                    label="Mennyiség"
-                                    defaultValue={item.quantity}
-                                    onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
-                                    error={!!editErrors[item.id]?.quantity}
-                                    helperText={editErrors[item.id]?.quantity}
-                                    sx={{ width: '100%' }}
-                                    inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
-                                />
-                                <Box sx={{ typography: 'caption', color: 'text.disabled' }}>{item.unit}</Box>
-                            </Box>
-                        ) : (
+                <Scrollbar>
+                    {items.map((item) => (
+                        <Box
+                            key={item.id}
+                            sx={[
+                                (theme) => ({
+                                    p: 3,
+                                    minWidth: 640,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderBottom: `dashed 2px ${theme.vars.palette.background.neutral}`,
+                                }),
+                            ]}
+                        >
+                            <Avatar
+                                src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                                variant="rounded"
+                                sx={{ width: 48, height: 48, mr: 2 }}
+                            />
+
+                            <ListItemText
+                                primary={
+                                    item.slug.length > 0 ?
+                                        <Link
+                                            target="_blank"
+                                            href={paths.dashboard.product.edit(item.slug)}
+                                            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                        :
+                                        <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>{item.name} <Chip label="Egyedi termék" size="small" sx={{ ml: 1, mb: 0.3 }} color='primary' /></Typography>
+                                }
+                                secondary={
+                                    isEditing ? (
+                                        <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+                                            <TextField
+                                                size="small"
+                                                type="number"
+                                                label="Ár"
+                                                defaultValue={item.price}
+                                                onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
+                                                error={!!editErrors[item.id]?.price}
+                                                helperText={editErrors[item.id]?.price}
+                                                sx={{ width: 100 }}
+                                                inputProps={{ min: 0, step: 0.01 }}
+                                            />
+                                            <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
+                                        </Box>
+                                    ) : (
+                                        `${fCurrency(item.price)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
+                                    )
+                                }
+                                slotProps={{
+                                    primary: { sx: { typography: 'body2' } },
+                                    secondary: {
+                                        sx: { mt: 0.5, color: isEditing ? 'inherit' : 'text.disabled' },
+                                    },
+                                }}
+                            />
+
+                            {isEditing ? (
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, width: 110 }}>
+                                    <TextField
+                                        size="small"
+                                        type="number"
+                                        label="Mennyiség"
+                                        defaultValue={item.quantity}
+                                        onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
+                                        error={!!editErrors[item.id]?.quantity}
+                                        helperText={editErrors[item.id]?.quantity}
+                                        sx={{ width: '100%' }}
+                                        inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
+                                    />
+                                    <Box sx={{ typography: 'caption', color: 'text.disabled' }}>{item.unit}</Box>
+                                </Box>
+                            ) : (
+                                <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
+                                    {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                </Box>
+                            )}
+
                             <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                                {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                {fCurrency(item.subtotal)}
                             </Box>
-                        )}
 
-                        <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                            {fCurrency(item.subtotal)}
+                            {isEditing && (
+                                <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => onItemDelete?.(item.id)}
+                                    sx={{ ml: 1 }}
+                                >
+                                    <Iconify icon="solar:trash-bin-trash-bold" width={20} />
+                                </IconButton>
+                            )}
                         </Box>
+                    ))}
+                </Scrollbar>
 
-                        {isEditing && (
-                            <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => onItemDelete?.(item.id)}
-                                sx={{ ml: 1 }}
-                            >
-                                <Iconify icon="solar:trash-bin-trash-bold" width={20} />
-                            </IconButton>
-                        )}
-                    </Box>
-                ))}
-            </Scrollbar>
+                {renderTotal()}
+            </Card>
 
-            {renderTotal()}
-        </Card>
+            <ProductSelectionModal
+                open={isProductModalOpen}
+                onClose={() => setIsProductModalOpen(false)}
+                onAddProducts={handleAddProducts}
+            />
+        </>
     );
 }

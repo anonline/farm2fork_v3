@@ -114,27 +114,47 @@ export async function fetchGetProductsByIds(productIds: number[]): Promise<{ pro
 
 // ----------------------------------------------------------------------
 
-type SearchResultsData = {
-    results: IProductItem[];
-};
-
 export function useSearchProducts(query: string) {
-    const url = query ? [endpoints.product.search, { params: { query } }] : '';
+    const url = query ? [endpoints.product.search, { params: { q: query } }] : '';
 
-    const { data, isLoading, error, isValidating } = useSWR<SearchResultsData>(url, fetcher, {
+    const { data, isLoading, error, isValidating } = useSWR<IProductItem[]>(url, fetcher, {
         ...swrOptions,
         keepPreviousData: true,
     });
 
     const memoizedValue = useMemo(
         () => ({
-            searchResults: data?.results || [],
+            searchResults: data || [],
             searchLoading: isLoading,
             searchError: error,
             searchValidating: isValidating,
-            searchEmpty: !isLoading && !isValidating && !data?.results.length,
+            searchEmpty: !isLoading && !isValidating && !data?.length,
         }),
-        [data?.results, error, isLoading, isValidating]
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export function useSearchProductsAdmin(query: string) {
+    const url = query ? [endpoints.product.adminSearch, { params: { q: query } }] : '';
+
+    const { data, isLoading, error, isValidating } = useSWR<IProductItem[]>(url, fetcher, {
+        ...swrOptions,
+        keepPreviousData: true,
+    });
+
+    const memoizedValue = useMemo(
+        () => ({
+            searchResults: data || [],
+            searchLoading: isLoading,
+            searchError: error,
+            searchValidating: isValidating,
+            searchEmpty: !isLoading && !isValidating && !data?.length,
+        }),
+        [data, error, isLoading, isValidating]
     );
 
     return memoizedValue;
