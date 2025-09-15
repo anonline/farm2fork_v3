@@ -22,11 +22,12 @@ import SliderIcon from 'public/assets/icons/f2f/Slider.svg';
 import FileIcon from 'public/assets/icons/f2f/FileIcon.svg';
 import Search2Icon from 'public/assets/icons/f2f/Search2.svg';
 import CommentOn from 'public/assets/icons/f2f/Comment-on.svg';
+import ArrowLeft from 'public/assets/icons/f2f/Arrow left.svg';
 import ScreenIcon from 'public/assets/icons/f2f/ScreenIcon.svg';
 import PointHouse from 'public/assets/icons/f2f/PointHouse.svg';
 import InfoCircle from 'public/assets/icons/f2f/InfoCircle.svg';
 import CommentAdd from 'public/assets/icons/f2f/Comment-add.svg';
-import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg'; 
+import RendelesDate from 'public/assets/icons/f2f/RendelesDate.svg';
 
 interface F2FIconsSvgProps {
     name:
@@ -57,7 +58,8 @@ interface F2FIconsSvgProps {
         | 'Apple'
         | 'Delete'
         | 'Warning'
-        | 'InfoCircle';
+        | 'InfoCircle'
+        | 'ArrowLeft';
     width?: number;
     height?: number;
     style?: React.CSSProperties;
@@ -92,7 +94,9 @@ const iconMap = {
     Delete,
     Warning,
     InfoCircle,
+    ArrowLeft,
 } as const;
+
 
 export default function F2FIcons({
     name,

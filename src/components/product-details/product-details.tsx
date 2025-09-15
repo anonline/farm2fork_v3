@@ -29,12 +29,13 @@ export default function ProductDetails() {
         <Typography
             variant="h1"
             sx={{
-                fontSize: { sx: '30px', md: '64px' },
+                fontSize: { sx: '30px', md: '56px' },
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 lineHeight: { sm: '40px', md: '56px' },
                 letterSpacing: '-0.01em',
                 color: themeConfig.textColor.default,
+                fontFamily: themeConfig.fontFamily.bricolage
             }}
         >
             {product?.name}
@@ -229,7 +230,32 @@ export default function ProductDetails() {
 
     return (
         <>
-            <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
+            <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '0px' }}>
+                <Typography
+                    component="button"
+                    onClick={() => window.history.back()}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontFamily: themeConfig.fontFamily.primary,
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        color: themeConfig.textColor.default,
+                        textDecoration: 'none',
+                        '&:hover': {
+                            color: themeConfig.palette.primary.main,
+                        },
+                    }}
+                >
+                    <F2FIcons name="ArrowLeft" width={16} height={16} />
+                    Vissza
+                </Typography>
+            </Container>
+            <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '20px' }}>
                 {renderHead()}
 
                 <ProductDetailsSmallInfo product={product} />
@@ -241,28 +267,31 @@ export default function ProductDetails() {
                 />
             </Container>
 
-            <Container
-                maxWidth={false}
-                sx={{
-                    padding: '0px',
-                    backgroundColor: '#f5f5f5',
-                }}
-            >
-                <Container maxWidth="lg" sx={{ padding: '32px' }}>
-                    {product?.producerId !== undefined && (
+
+            {product?.producerId !== undefined && product?.producerId !== null && (
+                <Container
+                    maxWidth={false}
+                    sx={{
+                        padding: '0px',
+                        backgroundColor: '#f5f5f5',
+                    }}
+                >
+                    <Container maxWidth="lg" sx={{ padding: '32px' }}>
                         <ProducersProvider>
                             <FeaturedProducerCard producerId={product.producerId} />
                         </ProducersProvider>
-                    )}
+                    </Container>
                 </Container>
-            </Container>
-            <Container maxWidth="lg" sx={{ padding: '20px' }}>
-                {product?.producerId !== undefined && (
+            )}
+
+
+            {product?.producerId !== undefined && product?.producerId !== null && (
+                <Container maxWidth="lg" sx={{ padding: '20px' }}>
                     <ProductsProvider>
                         <ProducerProducts producerId={product.producerId} />
                     </ProductsProvider>
-                )}
-            </Container>
+                </Container>
+            )}
         </>
     );
 }
