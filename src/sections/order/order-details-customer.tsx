@@ -1,16 +1,15 @@
 import type { IOrderCustomer } from 'src/types/order';
 import type { IOrderData } from 'src/types/order-management';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import { FormControlLabel, Switch, TextField } from '@mui/material';
+import { Switch, TextField, FormControlLabel } from '@mui/material';
 
 import { updateOrderInvoiceSettings } from 'src/actions/order-management';
 
@@ -152,7 +151,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate }: Rea
                     {/* Invoice switch - inverted logic since it asks "Számla kiállítása" */}
                     <FormControlLabel
                         checked={!denyInvoice} // Show checked when invoice is NOT denied
-                        label={'Számla kiállítása'}
+                        label="Számla kiállítása"
                         disabled={isUpdating}
                         control={
                             <Switch 

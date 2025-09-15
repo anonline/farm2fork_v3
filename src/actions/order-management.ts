@@ -633,4 +633,55 @@ export async function updateOrderInvoiceSettings(
     }
 }
 
+/**
+ * Update order invoice data JSON (Billingo response)
+ */
+export async function updateOrderInvoiceData(
+    orderId: string,
+    invoiceDataJson: any,
+    note?: string,
+    userId?: string,
+    userName?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        // Create new history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: new Date().toISOString(),
+            status: order.orderStatus,
+            note: note || `Billingo számla adatok frissítve`,
+            userId,
+            userName,
+        };
+
+        // Prepare update data
+        const updateData: any = {
+            invoice_data_json: invoiceDataJson,
+            history: [...order.history, historyEntry],
+            updated_at: new Date().toISOString(),
+        };
+
+        // Update order
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order invoice data:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order invoice data:', error);
+        return { success: false, error: 'Failed to update order invoice data' };
+    }
+}
+
 

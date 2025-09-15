@@ -22,8 +22,9 @@ import { paths } from 'src/routes/paths';
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
+import { createBillingoInvoice } from 'src/lib/billingo-invoice';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
-import { updateOrderItems, updateOrderStatus } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -35,7 +36,6 @@ import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
-import { or } from 'firebase/firestore';
 
 // ----------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ export function OrderDetailsView({ orderId }: Props) {
             }
 
             // Update the status
-            const { success, error } = await updateOrderStatus(
+            const { success, error: statusUpdateError } = await updateOrderStatus(
                 orderData.id,
                 newValue as OrderStatus,
                 `Státusz változtatás: ${oldStatus} -> ${newValue}`
@@ -157,13 +157,51 @@ export function OrderDetailsView({ orderId }: Props) {
                     });
                 }
 
+                // Create invoice in Billingo if status changed to 'processing' and deny_invoice is false
+                if (newValue === 'processing' && orderData && !orderData.denyInvoice) {
+                    try {
+                        console.log('Creating Billingo invoice for order:', orderData.id);
+                        const invoiceResult = await createBillingoInvoice(orderData);
+                        
+                        if (invoiceResult.success) {
+                            toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
+                            console.log('Billingo invoice created successfully:', invoiceResult.invoiceId);
+                            
+                            // Save the invoice response to the database
+                            try {
+                                const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
+                                    orderData.id,
+                                    invoiceResult,
+                                    `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}`
+                                );
+                                
+                                if (saveSuccess) {
+                                    console.log('Invoice data saved to database successfully');
+                                } else {
+                                    console.error('Failed to save invoice data to database:', saveError);
+                                    toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
+                                }
+                            } catch (saveErr) {
+                                console.error('Error saving invoice data:', saveErr);
+                                toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
+                            }
+                        } else {
+                            console.error('Failed to create Billingo invoice:', invoiceResult.error);
+                            toast.warning(`Számla létrehozása sikertelen: ${invoiceResult.error}`);
+                        }
+                    } catch (invoiceError) {
+                        console.error('Error creating Billingo invoice:', invoiceError);
+                        toast.warning('Hiba történt a számla létrehozása során');
+                    }
+                }
+
                 // Refresh order history to show the new entry
                 await refreshOrderHistory();
                 
                 toast.success('Rendelés státusza sikeresen frissítve!');
             } else {
                 setStatus(oldStatus); // Revert status change
-                toast.error(error || 'Hiba történt a státusz frissítése során');
+                toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
             }
         } catch (ex) {
             console.error('Error updating order status:', ex);

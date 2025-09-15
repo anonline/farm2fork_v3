@@ -85,7 +85,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
             result.orders
               .flatMap(order => order.items)
               .map(item => item.id)
-              .filter((id): id is number => typeof id === 'number')
+              .filter((oid): oid is number => typeof oid === 'number')
           )
         );
         
