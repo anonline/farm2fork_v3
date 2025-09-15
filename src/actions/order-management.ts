@@ -520,4 +520,61 @@ export async function updateOrderItems(
     }
 }
 
+/**
+ * Get all orders by shipment ID
+ */
+export async function getOrdersByShipmentId(shipmentId: number): Promise<{ orders: IOrderData[]; error: string | null }> {
+    try {
+        const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('shipmentId', shipmentId)
+            .order('date_created', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching orders by shipment ID:', error);
+            return { orders: [], error: error.message };
+        }
+
+        // Transform database fields to match our interface
+        const orders: IOrderData[] = (data || []).map((row: any) => ({
+            id: row.id,
+            dateCreated: row.date_created,
+            customerId: row.customer_id,
+            customerName: row.customer_name,
+            billingEmails: row.billing_emails || [],
+            notifyEmails: row.notify_emails || [],
+            note: row.note || '',
+            shippingAddress: row.shipping_address,
+            billingAddress: row.billing_address,
+            denyInvoice: row.deny_invoice || false,
+            needVAT: row.need_vat || false,
+            surchargeAmount: row.surcharge_amount || 0,
+            items: row.items || [],
+            subtotal: row.subtotal || 0,
+            shippingCost: row.shipping_cost || 0,
+            vatTotal: row.vat_total || 0,
+            discountTotal: row.discount_total || 0,
+            total: row.total || 0,
+            payedAmount: row.payed_amount || 0,
+            shippingMethod: row.shipping_method,
+            paymentMethod: row.payment_method,
+            paymentStatus: row.payment_status || 'pending',
+            orderStatus: row.order_status || 'pending',
+            paymentDueDays: row.payment_due_days || 0,
+            courier: row.courier,
+            plannedShippingDateTime: row.planned_shipping_date_time ? new Date(row.planned_shipping_date_time) : null,
+            simplepayDataJson: row.simplepay_data_json,
+            invoiceDataJson: row.invoice_data_json,
+            history: row.history || [],
+            shipmentId: row.shipment_id || null,
+        }));
+
+        return { orders, error: null };
+    } catch (error) {
+        console.error('Error fetching orders by shipment ID:', error);
+        return { orders: [], error: 'Failed to fetch orders by shipment ID' };
+    }
+}
+
 

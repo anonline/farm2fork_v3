@@ -84,6 +84,34 @@ export async function fetchGetProductBySlug(slug: string) {
     return { product: data as IProductItem | null };
 }
 
+/**
+ * Fetch multiple products by their IDs
+ */
+export async function fetchGetProductsByIds(productIds: number[]): Promise<{ products: IProductItem[]; error: string | null }> {
+    try {
+        if (!productIds.length) {
+            return { products: [], error: null };
+        }
+
+        const response = await supabase
+            .from('Products')
+            .select('*, ProductCategories_Products(ProductCategories(*))')
+            .in('id', productIds);
+
+        const { data, error: responseError } = response;
+
+        if (responseError) {
+            console.error('Error fetching products by IDs:', responseError);
+            return { products: [], error: responseError.message };
+        }
+
+        return { products: data as IProductItem[] || [], error: null };
+    } catch (error) {
+        console.error('Error fetching products by IDs:', error);
+        return { products: [], error: 'Failed to fetch products' };
+    }
+}
+
 // ----------------------------------------------------------------------
 
 type SearchResultsData = {

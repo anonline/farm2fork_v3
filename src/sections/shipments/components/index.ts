@@ -1,0 +1,1 @@
+export { ShipmentItemsTable } from './shipment-items-table';
