@@ -197,7 +197,7 @@ export function OrderDetailsItems({
                     action={
                         editable === true && (
                             isEditing ? (
-                                <Stack direction={{ xs: 'row', sm: 'row' }} alignItems={'center'} justifyContent={'center'} spacing={1}>
+                                <Stack direction={{ xs: 'row', sm: 'row' }} alignItems="center" justifyContent="center" spacing={1}>
                                     <IconButton
                                         color="primary"
                                         size="small"

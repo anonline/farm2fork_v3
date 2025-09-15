@@ -461,7 +461,7 @@ export function OrderDetailsView({ orderId }: Props) {
                         sx={{
                             gap: 3,
                             display: 'flex',
-                            flexDirection: { xs: 'column-reverse', md: 'column' },
+                            flexDirection: 'column',
                         }}
                     >
                         <OrderDetailsItems
@@ -485,7 +485,10 @@ export function OrderDetailsView({ orderId }: Props) {
                             onStartEdit={handleStartEdit}
                         />
 
-                        <OrderDetailsHistory history={order?.history} />
+                        {/* Show history only on desktop */}
+                        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                            <OrderDetailsHistory history={order?.history} />
+                        </Box>
                     </Box>
                 </Grid>
 
@@ -526,6 +529,11 @@ export function OrderDetailsView({ orderId }: Props) {
                             </>
                         )}
                     </Card>
+
+                    {/* Show history on mobile as the last card */}
+                    <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 3 }}>
+                        <OrderDetailsHistory history={order?.history} />
+                    </Box>
                 </Grid>
             </Grid>
 
