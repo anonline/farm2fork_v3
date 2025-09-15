@@ -213,7 +213,20 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
     );
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog 
+            open={open} 
+            onClose={handleClose} 
+            maxWidth="md" 
+            fullWidth
+            sx={{
+                '& .MuiDialog-paper': {
+                    margin: { xs: 1, sm: 2 },
+                    maxHeight: { xs: 'calc(100vh - 16px)', sm: 'calc(100vh - 64px)' },
+                    borderRadius: { xs: 2, sm: 1 },
+                    width: { xs: 'calc(100vw - 16px)', sm: 'auto' }
+                }
+            }}
+        >
             <DialogTitle>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Typography variant="h6">Termék hozzáadása</Typography>
@@ -315,7 +328,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                     required
                                     fullWidth
                                 />
-                                <Stack direction="row" spacing={2}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                                     <TextField
                                         label="Nettó ár"
                                         type="number"
@@ -323,6 +336,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                         onChange={(e) => setCustomProduct(prev => ({ ...prev, netPrice: parseFloat(e.target.value) || 0 }))}
                                         inputProps={{ min: 0, step: 0.01 }}
                                         required
+                                        fullWidth
                                     />
                                     <TextField
                                         label="ÁFA (%)"
@@ -331,12 +345,14 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                         onChange={(e) => setCustomProduct(prev => ({ ...prev, vat: parseInt(e.target.value) || 0 }))}
                                         inputProps={{ min: 0, max: 100 }}
                                         required
+                                        fullWidth
                                     />
                                     <TextField
                                         label="Egység"
                                         value={customProduct.unit}
                                         onChange={(e) => setCustomProduct(prev => ({ ...prev, unit: e.target.value }))}
                                         required
+                                        fullWidth
                                     />
                                     <TextField
                                         label="Mennyiség"
@@ -345,6 +361,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                         onChange={(e) => setCustomProduct(prev => ({ ...prev, quantity: parseFloat(e.target.value) || 1 }))}
                                         inputProps={{ min: 0.01, step: 0.01 }}
                                         required
+                                        fullWidth
                                     />
                                 </Stack>
                                 <Button
@@ -377,30 +394,51 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                             borderRadius: 1,
                                         }}
                                     >
-                                        <Stack direction="row" spacing={2} alignItems="flex-start">
-                                            <Avatar
-                                                src={product.coverUrl}
-                                                variant="rounded"
-                                                sx={{ width: 48, height: 48 }}
-                                            />
-                                            <Box sx={{ flex: 1 }}>
-                                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                                                    <Typography variant="body2" fontWeight="medium">
-                                                        {product.name}
-                                                    </Typography>
-                                                    {product.bio && (
-                                                        <BioBadge style={{ marginLeft: 4 }} width={28} height={28} />
+                                        {/* Mobile Layout */}
+                                        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                                            {/* Row 1: Avatar + Product Info + Delete Button */}
+                                            <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
+                                                <Avatar
+                                                    src={product.coverUrl}
+                                                    variant="rounded"
+                                                    sx={{ width: 48, height: 48 }}
+                                                />
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                                                        <Typography variant="body2" fontWeight="medium">
+                                                            {product.name}
+                                                        </Typography>
+                                                        {product.bio && (
+                                                            <BioBadge style={{ marginLeft: 4 }} width={28} height={28} />
+                                                        )}
+                                                        {product.isCustom && (
+                                                            <Chip
+                                                                label="Egyedi"
+                                                                size="small"
+                                                                color="primary"
+                                                                variant="outlined"
+                                                            />
+                                                        )}
+                                                    </Stack>
+                                                    {product.manageStock && product.stock !== null && (
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            Jelenlegi készlet: {product.stock}
+                                                        </Typography>
                                                     )}
-                                                    {product.isCustom && (
-                                                        <Chip
-                                                            label="Egyedi"
-                                                            size="small"
-                                                            color="primary"
-                                                            variant="outlined"
-                                                        />
-                                                    )}
-                                                </Stack>
-                                                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                                                </Box>
+                                                <Button
+                                                    size="small"
+                                                    color="error"
+                                                    onClick={() => handleRemoveProduct(index)}
+                                                    sx={{ minWidth: 'auto', p: 1 }}
+                                                >
+                                                    <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                                                </Button>
+                                            </Stack>
+
+                                            {/* Row 2: Form Fields (2x2 grid) */}
+                                            <Stack spacing={2}>
+                                                <Stack direction="row" spacing={2}>
                                                     <TextField
                                                         label="Nettó egységár"
                                                         type="number"
@@ -410,14 +448,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                         error={!!errors[`${index}_netPrice`]}
                                                         helperText={errors[`${index}_netPrice`]}
                                                         inputProps={{ min: 0, step: 0.01 }}
-                                                        sx={{ width: 120 }}
-                                                    />
-                                                    <TextField
-                                                        label="Egység"
-                                                        size="small"
-                                                        value={product.unit}
-                                                        onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
-                                                        sx={{ width: 80 }}
+                                                        sx={{ flex: 1 }}
                                                     />
                                                     <TextField
                                                         label="ÁFA (%)"
@@ -428,7 +459,16 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                         error={!!errors[`${index}_vat`]}
                                                         helperText={errors[`${index}_vat`]}
                                                         inputProps={{ min: 0, max: 100 }}
-                                                        sx={{ width: 80 }}
+                                                        sx={{ flex: 1 }}
+                                                    />
+                                                </Stack>
+                                                <Stack direction="row" spacing={2}>
+                                                    <TextField
+                                                        label="Egység"
+                                                        size="small"
+                                                        value={product.unit}
+                                                        onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
+                                                        sx={{ flex: 1 }}
                                                     />
                                                     <TextField
                                                         label="Mennyiség"
@@ -439,24 +479,95 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                         error={!!errors[`${index}_quantity`]}
                                                         helperText={errors[`${index}_quantity`]}
                                                         inputProps={{ min: 0.01, step: 0.01 }}
-                                                        sx={{ width: 100 }}
+                                                        sx={{ flex: 1 }}
                                                     />
                                                 </Stack>
-                                                {product.manageStock && product.stock !== null && (
-                                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                                                        Jelenlegi készlet: {product.stock}
-                                                    </Typography>
-                                                )}
-                                            </Box>
-                                            <Button
-                                                size="small"
-                                                color="error"
-                                                onClick={() => handleRemoveProduct(index)}
-                                                sx={{ minWidth: 'auto', p: 1 }}
-                                            >
-                                                <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-                                            </Button>
-                                        </Stack>
+                                            </Stack>
+                                        </Box>
+
+                                        {/* Desktop Layout */}
+                                        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                                            <Stack direction="row" spacing={2} alignItems="flex-start">
+                                                <Avatar
+                                                    src={product.coverUrl}
+                                                    variant="rounded"
+                                                    sx={{ width: 48, height: 48 }}
+                                                />
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                                                        <Typography variant="body2" fontWeight="medium">
+                                                            {product.name}
+                                                        </Typography>
+                                                        {product.bio && (
+                                                            <BioBadge style={{ marginLeft: 4 }} width={28} height={28} />
+                                                        )}
+                                                        {product.isCustom && (
+                                                            <Chip
+                                                                label="Egyedi"
+                                                                size="small"
+                                                                color="primary"
+                                                                variant="outlined"
+                                                            />
+                                                        )}
+                                                    </Stack>
+                                                    <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                                                        <TextField
+                                                            label="Nettó egységár"
+                                                            type="number"
+                                                            size="small"
+                                                            value={product.netPrice}
+                                                            onChange={(e) => handleProductChange(index, 'netPrice', parseFloat(e.target.value) || 0)}
+                                                            error={!!errors[`${index}_netPrice`]}
+                                                            helperText={errors[`${index}_netPrice`]}
+                                                            inputProps={{ min: 0, step: 0.01 }}
+                                                            sx={{ width: 120 }}
+                                                        />
+                                                        <TextField
+                                                            label="Egység"
+                                                            size="small"
+                                                            value={product.unit}
+                                                            onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
+                                                            sx={{ width: 80 }}
+                                                        />
+                                                        <TextField
+                                                            label="ÁFA (%)"
+                                                            type="number"
+                                                            size="small"
+                                                            value={product.vat}
+                                                            onChange={(e) => handleProductChange(index, 'vat', parseInt(e.target.value) || 0)}
+                                                            error={!!errors[`${index}_vat`]}
+                                                            helperText={errors[`${index}_vat`]}
+                                                            inputProps={{ min: 0, max: 100 }}
+                                                            sx={{ width: 80 }}
+                                                        />
+                                                        <TextField
+                                                            label="Mennyiség"
+                                                            type="number"
+                                                            size="small"
+                                                            value={product.quantity}
+                                                            onChange={(e) => handleProductChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                                                            error={!!errors[`${index}_quantity`]}
+                                                            helperText={errors[`${index}_quantity`]}
+                                                            inputProps={{ min: 0.01, step: 0.01 }}
+                                                            sx={{ width: 100 }}
+                                                        />
+                                                    </Stack>
+                                                    {product.manageStock && product.stock !== null && (
+                                                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                                                            Jelenlegi készlet: {product.stock}
+                                                        </Typography>
+                                                    )}
+                                                </Box>
+                                                <Button
+                                                    size="small"
+                                                    color="error"
+                                                    onClick={() => handleRemoveProduct(index)}
+                                                    sx={{ minWidth: 'auto', p: 1 }}
+                                                >
+                                                    <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                                                </Button>
+                                            </Stack>
+                                        </Box>
                                     </Box>
                                 ))}
                             </Stack>
@@ -465,14 +576,23 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                 </Stack>
             </DialogContent>
 
-            <DialogActions>
-                <Button onClick={handleClose} color="inherit">
+            <DialogActions sx={{ 
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 1, sm: 0 },
+                p: { xs: 2, sm: 3 }
+            }}>
+                <Button 
+                    onClick={handleClose} 
+                    color="inherit"
+                    sx={{ width: { xs: '100%', sm: 'auto' } }}
+                >
                     Mégse
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="contained"
                     disabled={selectedProducts.length === 0 || Object.keys(errors).length > 0}
+                    sx={{ width: { xs: '100%', sm: 'auto' } }}
                 >
                     Termékek hozzáadása ({selectedProducts.length})
                 </Button>
