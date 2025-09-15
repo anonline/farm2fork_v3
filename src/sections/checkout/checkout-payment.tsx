@@ -838,7 +838,7 @@ export function CheckoutPayment() {
                 notifyEmails: checkoutState.notificationEmails,
                 note: checkoutState.deliveryComment,
                 shippingAddress: deliveryAddress,
-                billingAddress: billingAddress,
+                billingAddress,
                 denyInvoice: false, // You might want to add this to checkout state
                 needVAT: false, // You might want to add this to checkout state
                 surchargeAmount: checkoutState.surcharge,
