@@ -347,10 +347,10 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
 
 type SideCartItemProps = {
     item: any;
-    onDeleteCartItem?: (itemId: number) => void;
-    onChangeItemQuantity?: (itemId: number, quantity: number) => void;
-    onAddNote?: (itemId: number, note: string) => void;
-    onDeleteNote?: (itemId: number) => void;
+    onDeleteCartItem?: (itemId: string) => void;
+    onChangeItemQuantity?: (itemId: string, quantity: number) => void;
+    onAddNote?: (itemId: string, note: string) => void;
+    onDeleteNote?: (itemId: string) => void;
     hideControl?: boolean;
 };
 

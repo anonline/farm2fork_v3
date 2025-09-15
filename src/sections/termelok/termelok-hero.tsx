@@ -7,7 +7,7 @@ import { useProducers } from 'src/contexts/producers-context';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 interface ProducerCardProps {
-    producerId: number;
+    producerId: string;
 }
 
 export default function TermelokHero({ producerId }: Readonly<ProducerCardProps>) {

@@ -31,7 +31,7 @@ import F2FIcons from 'src/components/f2ficons/f2ficons';
 import { useAuthContext } from 'src/auth/hooks';
 
 type HeaderSearchBaseResultItem = {
-    id: number;
+    id: string;
     name: string;
     image?: string;
     bio: boolean;

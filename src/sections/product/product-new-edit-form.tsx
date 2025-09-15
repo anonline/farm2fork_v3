@@ -56,7 +56,7 @@ export const NewProductSchema = zod.object({
     unit: zod.string().min(1, { message: 'Mértékegység választása kötelező.' }),
     producerId: zod.preprocess(
         (value) => (value === '' ? null : value),
-        zod.number().nullable().optional()
+        zod.string().nullable().optional()
     ),
     mininumQuantity: zod.number({ coerce: true }).min(0, 'Minimum 0 lehet.').nullable(),
     maximumQuantity: zod.number({ coerce: true }).min(0, 'Minimum 0 lehet.').nullable(),

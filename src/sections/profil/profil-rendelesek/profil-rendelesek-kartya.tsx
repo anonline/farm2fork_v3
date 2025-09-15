@@ -9,7 +9,7 @@ import { Box, Chip, Grid, Paper, Stack, Avatar, Tooltip, Typography } from '@mui
 import { fCurrency } from 'src/utils/format-number';
 
 interface IOrderProduct {
-    id: number;
+    id: string;
     imageUrl: string;
     name: string;
 }

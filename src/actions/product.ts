@@ -87,7 +87,7 @@ export async function fetchGetProductBySlug(slug: string) {
 /**
  * Fetch multiple products by their IDs
  */
-export async function fetchGetProductsByIds(productIds: number[]): Promise<{ products: IProductItem[]; error: string | null }> {
+export async function fetchGetProductsByIds(productIds: string[]): Promise<{ products: IProductItem[]; error: string | null }> {
     try {
         if (!productIds.length) {
             return { products: [], error: null };
@@ -183,7 +183,7 @@ export async function createProduct(productData: Partial<IProductItem>) {
     return newProduct;
 }
 
-export async function updateProduct(id: number, productData: Partial<IProductItem>) {
+export async function updateProduct(id: string, productData: Partial<IProductItem>) {
     const { categoryIds, ...restProductData } = productData as any;
 
     // Check if featured image has changed and delete old one if needed
@@ -230,7 +230,7 @@ export async function updateProduct(id: number, productData: Partial<IProductIte
     return { success: true };
 }
 
-export async function updateProductCategoryRelations(productId: number, categoryIds: number[]) {
+export async function updateProductCategoryRelations(productId: string, categoryIds: number[]) {
     const { error: deleteError } = await supabase
         .from('ProductCategories_Products')
         .delete()

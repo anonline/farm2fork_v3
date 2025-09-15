@@ -9,7 +9,7 @@ import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material'
 import { useProducers } from 'src/contexts/producers-context';
 
 interface ProducerCardProps {
-    producerId: number;
+    producerId: string;
 }
 
 export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCardProps>) {

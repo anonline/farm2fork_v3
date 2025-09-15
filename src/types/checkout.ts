@@ -72,18 +72,18 @@ export type CheckoutContextValue = {
     activeStep: number | null;
     onChangeStep: (type: 'back' | 'next' | 'go', step?: number) => void;
     /********/
-    onChangeItemQuantity: (itemId: number, quantity: number) => void;
+    onChangeItemQuantity: (itemId: string, quantity: number) => void;
     /********/
     onResetCart: () => void;
     onAddToCart: (newItem: ICheckoutItem) => void;
-    onDeleteCartItem: (itemId: number) => void;
+    onDeleteCartItem: (itemId: string) => void;
     onApplyDiscount: (discount: number) => void;
     onApplyShipping: (discount: number) => void;
     onApplySurcharge: (surcharge: number) => void;
     onCreateBillingAddress: (address: IAddressItem) => void;
     onCreateDeliveryAddress: (address: IAddressItem) => void;
-    onAddNote: (itemId: number, note: string) => void;
-    onDeleteNote: (itemId: number) => void;
+    onAddNote: (itemId: string, note: string) => void;
+    onDeleteNote: (itemId: string) => void;
     onUpdateNotificationEmails: (emails: string[]) => void;
     onUpdateDeliveryComment: (comment: string) => void;
     onUpdateDeliveryDateTime: (dateTime: string | null) => void;

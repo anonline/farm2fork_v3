@@ -93,7 +93,7 @@ export function ProducerListView() {
     });
 
     const handleDeleteRow = useCallback(
-        async (id: number) => {
+        async (id: string) => {
             try {
                 await deleteProducer(id);
 
@@ -111,7 +111,7 @@ export function ProducerListView() {
 
     const handleDeleteRows = useCallback(async () => {
         try {
-            await Promise.all(selectedRowIds.map((id) => deleteProducer(Number(id))));
+            await Promise.all(selectedRowIds.map((id) => deleteProducer(id.toString())));
 
             const updatedProducers = tableData.filter((row) => !selectedRowIds.includes(row.id));
             setTableData(updatedProducers);

@@ -473,7 +473,7 @@ export async function syncProducts(
             const stepQuantity = parseFloat(getProductMetaValue(wooProduct.meta_data, '_wpbo_step')) || 0.1;
 
             // Find producer by meta ID
-            let producerId: number | null = null;
+            let producerId: string | null = null;
             if (producerIdMeta) {
                 const producer = producerMap.get(producerIdMeta);
                 if (producer) {

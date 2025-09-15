@@ -227,7 +227,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     );
 
     const onDeleteCartItem = useCallback(
-        (itemId: number) => {
+        (itemId: string) => {
             const updatedItems = state.items.filter((item) => item.id !== itemId);
 
             setField('items', updatedItems);
@@ -237,7 +237,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     );
 
     const onChangeItemQuantity = useCallback(
-        (itemId: number, quantity: number) => {
+        (itemId: string, quantity: number) => {
             const updatedItems = state.items.map((item) => {
                 if (item.id === itemId) {
                     if (quantity < (item.minQuantity ?? 1)) {
@@ -312,7 +312,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     }, [resetState]);
 
     const onAddNote = useCallback(
-        (itemId: number, note: string) => {
+        (itemId: string, note: string) => {
             if (note.trim().length > 0) {
                 const updatedItems = state.items.map((item) => {
                     if (item.id === itemId) {
@@ -330,7 +330,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     );
 
     const onDeleteNote = useCallback(
-        (itemId: number) => {
+        (itemId: string) => {
             const updatedItems = state.items.map((item) => {
                 if (item.id === itemId) {
                     item.note = undefined;

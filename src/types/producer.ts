@@ -1,5 +1,5 @@
 export type IProducerItem = {
-    id: number;
+    id: string;
     name: string;
     bio: boolean;
     shortDescription: string;

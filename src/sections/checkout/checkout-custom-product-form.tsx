@@ -78,7 +78,7 @@ export function CheckoutCustomProductForm({ onAddCustomProduct }: CustomProductF
 
         // Create a custom product item
         const customItem: ICheckoutItem = {
-            id: Date.now(), // Temporary ID for custom products
+            id: Date.now().toString(), // Temporary ID for custom products
             name: formData.name.trim(),
             price: basePrice,
             unit,

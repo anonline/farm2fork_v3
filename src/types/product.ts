@@ -49,7 +49,7 @@ export type MonthKeys = keyof typeof Months;
 export type IProductItem = {
     storingInformation: any;
     usageInformation: any;
-    id: number;
+    id: string;
     sku: string;
     name: string;
     shortDescription: string;
@@ -93,7 +93,7 @@ export type IProductItem = {
     subDescription: string;
     priceSale: number | null;
     reviews: IProductReview[];
-    producerId: number;
+    producerId: string;
     producer?: IProducerItem;
     newLabel: {
         content: string;
@@ -125,6 +125,6 @@ export type IProductCategory = {
 };
 
 export type IProductCategoryConnection = {
-    productId: number;
+    productId: string;
     categoryId: number;
 };

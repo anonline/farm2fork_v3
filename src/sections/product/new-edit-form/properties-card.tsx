@@ -14,7 +14,7 @@ import type { NewProductSchemaType } from "../product-new-edit-form";
 type PropertiesCardProps = {
     isOpen: UseBooleanReturn;
     control: Control<NewProductSchemaType>;
-    producers: { id: number; name: string }[];
+    producers: { id: string; name: string }[];
     UNIT_OPTIONS: { value: string; label: string }[];
 }
 

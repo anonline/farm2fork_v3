@@ -12,7 +12,7 @@ import { fCurrency } from 'src/utils/format-number';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 type HeaderSearchBaseResultItem = {
-    id: number;
+    id: string;
     name: string;
     image?: string;
     bio: boolean;

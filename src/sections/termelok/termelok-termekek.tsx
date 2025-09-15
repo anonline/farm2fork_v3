@@ -9,7 +9,7 @@ import { useProducts } from 'src/contexts/products-context';
 import ProductCard from 'src/components/product-card/product-card';
 
 interface ProducerProductsProps {
-    producerId: number;
+    producerId: string;
 }
 
 export default function TermelokTermekek({ producerId }: Readonly<ProducerProductsProps>) {

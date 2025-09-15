@@ -45,7 +45,7 @@ type ShipmentItemSummary = {
   orderCount: number;
   customersCount: number;
   customers: string[];
-  productId?: number;
+  productId?: string;
   isBio?: boolean;
   productData?: IProductItem;
 };
@@ -85,7 +85,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
             result.orders
               .flatMap(order => order.items)
               .map(item => item.id)
-              .filter((oid): oid is number => typeof oid === 'number')
+              .filter((oid): oid is string => typeof oid === 'string')
           )
         );
         

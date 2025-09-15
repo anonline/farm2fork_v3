@@ -87,7 +87,7 @@ export async function fetchGetProducerBySlug(slug: string) {
         throw new Error(error.message);
     }
 
-    return { producer: data as { id: number } | null };
+    return { producer: data as { id: string } | null };
 }
 
 // ----------------------------------------------------------------------
@@ -110,19 +110,19 @@ export async function insertProducer(producerData: Partial<IProducerItem>) {
     return data;
 }
 
-export async function updateProducer(id: number, producerData: Partial<IProducerItem>) {
+export async function updateProducer(id: string, producerData: Partial<IProducerItem>) {
     const { error } = await supabase.from('Producers').update(producerData).eq('id', id);
     if (error) throw new Error(error.message);
     return { success: true };
 }
 
-export async function deleteProducer(id: number) {
+export async function deleteProducer(id: string) {
     const { error } = await supabase.from('Producers').delete().eq('id', id);
     if (error) throw new Error(error.message);
     return { success: true };
 }
 
-export async function updateProductAssignments(producerId: number, newProductIds: number[]) {
+export async function updateProductAssignments(producerId: string, newProductIds: string[]) {
     const { data: currentProducts, error: fetchError } = await supabase
         .from('Products')
         .select('id')

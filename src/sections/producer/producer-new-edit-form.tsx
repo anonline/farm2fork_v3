@@ -46,7 +46,7 @@ const ProducerSchema = zod.object({
         .union([zod.string(), zod.instanceof(File)])
         .nullable()
         .optional(),
-    productIds: zod.array(zod.number()).optional(),
+    productIds: zod.array(zod.string()).optional(),
 });
 
 type ProducerSchemaType = zod.infer<typeof ProducerSchema>;

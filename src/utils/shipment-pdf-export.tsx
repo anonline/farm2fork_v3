@@ -18,7 +18,7 @@ type ShipmentItemSummary = {
   orderCount: number;
   customersCount: number;
   customers: string[];
-  productId?: number;
+  productId?: string;
   isBio?: boolean;
 };
 
