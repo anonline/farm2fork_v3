@@ -2,7 +2,6 @@
 
 import type { IOrderProductItem } from 'src/types/order';
 import type { OrderStatus } from 'src/types/order-management';
-import type { ProductForOrder } from '../product-selection-modal';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -37,6 +36,8 @@ import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
+
+import type { ProductForOrder } from '../product-selection-modal';
 
 // ----------------------------------------------------------------------
 
@@ -94,7 +95,7 @@ export function OrderDetailsView({ orderId }: Props) {
             if (shouldRemoveSurcharge && editedSurcharge > 0) {
                 // Update both status and remove surcharge
                 const itemsToSave = editedItems.map(item => ({
-                    id: parseInt(item.id, 10),
+                    id: item.id,
                     name: item.name,
                     price: item.price,
                     unit: item.unit,
@@ -266,7 +267,7 @@ export function OrderDetailsView({ orderId }: Props) {
         try {
             // Transform edited items to the format expected by the API
             const itemsToSave = editedItems.map(item => ({
-                id: parseInt(item.id, 10),
+                id: item.id,
                 name: item.name,
                 price: item.price,
                 unit: item.unit,
@@ -358,7 +359,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const handleItemAdd = useCallback((products: ProductForOrder[]) => {
         // Transform ProductForOrder[] to IOrderProductItem[] and add to edited items
         const newOrderItems = products.map(product => ({
-            id: product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            id: !product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             sku: product.sku,
             name: product.name,
             price: product.netPrice, // Use net price as the base price
@@ -369,7 +370,6 @@ export function OrderDetailsView({ orderId }: Props) {
             subtotal: product.netPrice * product.quantity,
             slug: product.isCustom ? '' : product.id, // Use product ID as slug for existing products
         }));
-
         setEditedItems(prev => [...prev, ...newOrderItems]);
     }, []);
 

@@ -21,7 +21,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
-import { ProductSelectionModal, type ProductForOrder } from './product-selection-modal';
+import { type ProductForOrder, ProductSelectionModal } from './product-selection-modal';
 
 // ----------------------------------------------------------------------
 
@@ -237,7 +237,7 @@ export function OrderDetailsItems({
                 <Scrollbar>
                     {items.map((item) => (
                         <Box
-                            key={item.id}
+                            key={item.id + '_' + item.name}
                             sx={[
                                 (theme) => ({
                                     p: 3,
@@ -265,7 +265,12 @@ export function OrderDetailsItems({
                                             {item.name}
                                         </Link>
                                         :
-                                        <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>{item.name} <Chip label="Egyedi termék" size="small" sx={{ ml: 1, mb: 0.3 }} color='primary' /></Typography>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Typography component="span" sx={{ textDecoration: 'none', color: 'inherit' }}>
+                                                {item.name}
+                                            </Typography>
+                                            <Chip label="Egyedi termék" size="small" color='primary' />
+                                        </Stack>
                                 }
                                 secondary={
                                     isEditing ? (
@@ -296,7 +301,7 @@ export function OrderDetailsItems({
                             />
 
                             {isEditing ? (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, width: 110 }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, width: 140 }}>
                                     <TextField
                                         size="small"
                                         type="number"

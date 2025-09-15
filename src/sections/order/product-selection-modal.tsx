@@ -1,6 +1,6 @@
 import type { IProductItem } from 'src/types/product';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -15,13 +15,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Autocomplete from '@mui/material/Autocomplete';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { Alert, FormControlLabel, Switch } from '@mui/material';
+import { Alert, Switch, FormControlLabel } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Iconify } from 'src/components/iconify';
-
 import { useSearchProductsAdmin } from 'src/actions/product';
+
+import { Iconify } from 'src/components/iconify';
 import BioBadge from 'src/components/bio-badge/bio-badge';
 
 // ----------------------------------------------------------------------

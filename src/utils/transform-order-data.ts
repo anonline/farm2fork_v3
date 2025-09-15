@@ -93,7 +93,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             phoneNumber: orderData.shippingAddress?.phoneNumber || '',
         },
         items: orderData.items.map(item => ({
-            id: item.id.toString(),
+            id: item.id?.toString() || '',
             sku: `SKU-${item.id}`,
             name: item.name,
             price: item.price,

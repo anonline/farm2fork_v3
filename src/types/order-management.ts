@@ -35,7 +35,7 @@ export type OrderHistoryEntry = {
 };
 
 export type IOrderItem = {
-    id: number;
+    id: string;
     name: string;
     size?: string;
     price: number;

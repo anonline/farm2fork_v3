@@ -451,7 +451,7 @@ export async function getPendingOrdersCount(): Promise<{ count: number; error: s
 export async function updateOrderItems(
     orderId: string,
     items: Array<{
-        id: number;
+        id: string;
         name: string;
         size?: string;
         price: number;
