@@ -22,6 +22,8 @@ export interface IBillingAddress {
     city: string;
     street: string;
     houseNumber: string;
+    floor?: string;
+    doorbell?: string;
     phone?: string;
     taxNumber?: string;
     email?: string;

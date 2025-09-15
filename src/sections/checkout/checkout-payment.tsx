@@ -62,6 +62,7 @@ export const PaymentSchema = zod
         shippingMethod: zod.number().min(1, { message: 'Shipping method is required!' }),
         pickupLocation: zod.number().optional(),
         deliveryAddressIndex: zod.number().optional(),
+        billingAddressIndex: zod.number().optional(),
         notificationEmails: zod.array(zod.string().email()).optional(),
     })
     .refine(
@@ -333,6 +334,7 @@ export function CheckoutPayment() {
         shippingMethod: selectedShippingMethod || 0,
         pickupLocation: selectedPickupLocation || undefined,
         deliveryAddressIndex: selectedDeliveryAddressIndex || undefined,
+        billingAddressIndex: selectedBillingAddressIndex || undefined,
         notificationEmails: checkoutState.notificationEmails,
     };
 
@@ -774,9 +776,41 @@ export function CheckoutPayment() {
                         id: data.deliveryAddressIndex.toString(),
                         primary: false,
                         name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
+                        postcode: addr.postcode,
+                        city: addr.city,
+                        street: addr.street,
+                        floor: addr.floor || '',
+                        houseNumber: addr.houseNumber || '',
+                        doorbell: addr.doorbell || '',
+                        note: addr.comment || '',
                         fullAddress: `${addr.zipCode} ${addr.city}, ${addr.street} ${addr.floor ? `, ${addr.floor}` : ''}`,
                         phoneNumber: addr.phone || '',
                         company: customerData.companyName || '',
+                    };
+                }
+            }
+
+            // Get billing address
+            let billingAddress: IAddressItem | null = null;
+            if (data.billingAddressIndex !== undefined && data.billingAddressIndex !== null && customerData) {
+                const addresses = customerData.billingAddress;
+                if (addresses && addresses[data.billingAddressIndex]) {
+                    const addr = addresses[data.billingAddressIndex];
+                    billingAddress = {
+                        id: data.billingAddressIndex.toString(),
+                        primary: false,
+                        name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
+                        postcode: addr.postcode,
+                        city: addr.city,
+                        street: addr.street,
+                        floor: addr.floor || '',
+                        houseNumber: addr.houseNumber || '',
+                        doorbell: addr.doorbell || '',
+                        note: addr.comment || '',
+                        fullAddress: `${addr.zipCode} ${addr.city}, ${addr.street} ${addr.floor ? `, ${addr.floor}` : ''}`,
+                        phoneNumber: addr.phone || '',
+                        company: addr.companyName || '',
+                        taxNumber: addr.taxNumber || '',
                     };
                 }
             }
@@ -804,7 +838,7 @@ export function CheckoutPayment() {
                 notifyEmails: checkoutState.notificationEmails,
                 note: checkoutState.deliveryComment,
                 shippingAddress: deliveryAddress,
-                billingAddress: checkoutState.billing,
+                billingAddress: billingAddress,
                 denyInvoice: false, // You might want to add this to checkout state
                 needVAT: false, // You might want to add this to checkout state
                 surchargeAmount: checkoutState.surcharge,

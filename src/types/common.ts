@@ -17,6 +17,14 @@ export type IAddressItem = {
     fullAddress: string;
     phoneNumber?: string;
     addressType?: string;
+    postcode?: string;
+    city?: string;
+    street?: string;
+    floor?: string;
+    houseNumber?: string;
+    doorbell?: string;
+    note?: string;
+    taxNumber?: string;
 };
 
 export type IDateValue = string | number | null;

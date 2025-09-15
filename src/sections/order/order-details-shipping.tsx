@@ -267,7 +267,7 @@ export function OrderDetailsShipping({
                         Cím
                     </Box>
 
-                    {shippingAddress?.fullAddress}
+                    {shippingAddress?.postcode} {shippingAddress?.city}, {shippingAddress?.street} {shippingAddress?.floor ? `, ${shippingAddress.floor}` : ''} {shippingAddress?.houseNumber} {shippingAddress?.doorbell ? `, ${shippingAddress.doorbell}` : ''}
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between'  }}>
@@ -287,7 +287,7 @@ export function OrderDetailsShipping({
                     >
                         Megjegyzés
                     </Box>
-                    -
+                    {shippingAddress?.note || '-'}
                 </Box>
             </Stack>
 

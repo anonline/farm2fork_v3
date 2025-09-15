@@ -20,6 +20,17 @@ export type IOrderHistory = {
 export type IOrderShippingAddress = {
     fullAddress: string;
     phoneNumber: string;
+    postcode?: string;
+    city?: string;
+    street?: string;
+    floor?: string;
+    houseNumber?: string;
+    doorbell?: string;
+    note?: string;
+    name: string;
+    company?: string;
+    taxNumber?: string;
+    email?: string;
 };
 
 export type IOrderPayment = {
