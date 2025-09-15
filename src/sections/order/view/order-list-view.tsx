@@ -54,8 +54,8 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 const STATUS_OPTIONS = [
     { value: 'all', label: 'Összes' },
-    { value: 'pending', label: 'Függőben' },
-    { value: 'inprogress', label: 'Feldolgozás alatt' },
+    { value: 'pending', label: 'Új rendelés' },
+    { value: 'inprogress', label: 'Feldolgozva' },
     { value: 'completed', label: 'Teljesítve' },
     { value: 'cancelled', label: 'Visszamondva' },
 ];

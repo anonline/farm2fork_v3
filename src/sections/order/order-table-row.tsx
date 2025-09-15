@@ -75,7 +75,15 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                         'default'
                     }
                 >
-                    {row.status}
+                    {(row.status === 'completed' && 'success') ||
+                        (row.status === 'pending' && 'Új rendelés') ||
+                        (row.status === 'processing' || row.status === 'inprogress' && 'Feldolgozva') ||
+                        (row.status === 'cancelled' && 'Visszamondva') ||
+                        (row.status === 'shipping' && 'Szállítás alatt') ||
+                        (row.status === 'delivered' && 'Kiszállítva') ||
+                        (row.status === 'refunded' && 'Visszatérítve') ||
+                        row.status
+                    }
                 </Label>
             </TableCell>
 
