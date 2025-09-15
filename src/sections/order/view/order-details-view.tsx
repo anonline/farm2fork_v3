@@ -22,8 +22,8 @@ import { paths } from 'src/routes/paths';
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
-import { createBillingoInvoice } from 'src/lib/billingo-invoice';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
+import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
@@ -161,18 +161,18 @@ export function OrderDetailsView({ orderId }: Props) {
                 if (newValue === 'processing' && orderData && !orderData.denyInvoice) {
                     try {
                         console.log('Creating Billingo invoice for order:', orderData.id);
-                        const invoiceResult = await createBillingoInvoice(orderData);
+                        const invoiceResult = await createBillingoInvoiceSSR(orderData);
                         
                         if (invoiceResult.success) {
                             toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
-                            console.log('Billingo invoice created successfully:', invoiceResult.invoiceId);
+                            console.log('Billingo invoice created successfully:', invoiceResult);
                             
-                            // Save the invoice response to the database
+                            // Save the complete invoice result (including download URL) to the database
                             try {
                                 const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
                                     orderData.id,
                                     invoiceResult,
-                                    `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}`
+                                    `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}${invoiceResult.downloadUrl ? `, URL: ${invoiceResult.downloadUrl}` : ''}`
                                 );
                                 
                                 if (saveSuccess) {
