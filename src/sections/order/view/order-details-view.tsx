@@ -1,6 +1,7 @@
 'use client';
 
 import type { IOrderProductItem } from 'src/types/order';
+import type { OrderStatus } from 'src/types/order-management';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -21,8 +22,8 @@ import { paths } from 'src/routes/paths';
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
-import { updateOrderItems } from 'src/actions/order-management';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
+import { updateOrderItems, updateOrderStatus } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -34,6 +35,7 @@ import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
+import { or } from 'firebase/firestore';
 
 // ----------------------------------------------------------------------
 
@@ -74,9 +76,101 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [orderData]);
 
-    const handleChangeStatus = useCallback((newValue: string) => {
+    const handleChangeStatus = useCallback(async (newValue: string) => {
+        if (!orderData?.id) {
+            toast.error('Hiányzó rendelési azonosító');
+            return;
+        }
+
+        const oldStatus = status;
         setStatus(newValue);
-    }, []);
+
+        try {
+            // Check if we're changing from pending to another status
+            const shouldRemoveSurcharge = oldStatus === 'pending' && newValue !== 'pending';
+            
+            // If we need to remove surcharge, do it as part of the status update
+            if (shouldRemoveSurcharge && editedSurcharge > 0) {
+                // Update both status and remove surcharge
+                const itemsToSave = editedItems.map(item => ({
+                    id: parseInt(item.id, 10),
+                    name: item.name,
+                    price: item.price,
+                    unit: item.unit,
+                    coverUrl: item.coverUrl,
+                    quantity: item.quantity,
+                    subtotal: item.subtotal,
+                    slug: item.slug,
+                }));
+
+                const { success: itemsSuccess, error: itemsUpdateError } = await updateOrderItems(
+                    orderData.id,
+                    itemsToSave,
+                    `Státusz változtatás: ${oldStatus} -> ${newValue}, pótdíj eltávolítva`,
+                    undefined, // userId
+                    undefined, // userName
+                    0 // Remove surcharge
+                );
+
+                if (!itemsSuccess) {
+                    setStatus(oldStatus); // Revert status change
+                    toast.error(itemsUpdateError || 'Hiba történt a pótdíj eltávolítása során');
+                    return;
+                }
+
+                // Update local state
+                setEditedSurcharge(0);
+                if (orderData) {
+                    const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
+                    const newTotal = newSubtotal + (orderData.shippingCost || 0) + (orderData.vatTotal || 0) - (orderData.discountTotal || 0);
+                    
+                    updateOrderData({
+                        ...orderData,
+                        surchargeAmount: 0,
+                        subtotal: newSubtotal,
+                        total: newTotal,
+                        orderStatus: newValue as OrderStatus,
+                    });
+                }
+            }
+
+            // Update the status
+            const { success, error } = await updateOrderStatus(
+                orderData.id,
+                newValue as OrderStatus,
+                `Státusz változtatás: ${oldStatus} -> ${newValue}`
+            );
+
+            if (success) {
+                // Update order context
+                if (order) {
+                    updateOrder({
+                        ...order,
+                        status: newValue,
+                    });
+                }
+
+                if (orderData && !shouldRemoveSurcharge) {
+                    updateOrderData({
+                        ...orderData,
+                        orderStatus: newValue as OrderStatus,
+                    });
+                }
+
+                // Refresh order history to show the new entry
+                await refreshOrderHistory();
+                
+                toast.success('Rendelés státusza sikeresen frissítve!');
+            } else {
+                setStatus(oldStatus); // Revert status change
+                toast.error(error || 'Hiba történt a státusz frissítése során');
+            }
+        } catch (ex) {
+            console.error('Error updating order status:', ex);
+            setStatus(oldStatus); // Revert status change
+            toast.error('Hiba történt a státusz frissítése során');
+        }
+    }, [status, orderData, editedItems, editedSurcharge, order, updateOrder, updateOrderData, refreshOrderHistory]);
 
     useEffect(() => {
         if (pendingSave && !showPaymentAlert) {
@@ -86,6 +180,9 @@ export function OrderDetailsView({ orderId }: Props) {
     }, [pendingSave]);
 
     const handleStartEdit = useCallback(() => {
+        if(order?.status !== 'pending') {
+            return;
+        }
         setIsEditing(true);
         setEditedItems([...order?.items || []]);
     }, [order?.items]);
@@ -118,7 +215,11 @@ export function OrderDetailsView({ orderId }: Props) {
 
         // Proceed with save
         await performSave();
-    }, [editedItems, orderData]);
+    }, [editedItems, orderData, editedSurcharge]);
+
+    const handlePaymentAlertConfirm = useCallback(async () => {
+        await performSave();
+    }, []);
 
     const performSave = useCallback(async () => {
         if (!orderData?.id) return;
@@ -186,11 +287,7 @@ export function OrderDetailsView({ orderId }: Props) {
             console.error('Error saving order changes:', ex);
             toast.error('Hiba történt a rendelés mentése során');
         }
-    }, [editedItems, orderData, order, updateOrder, updateOrderData]);
-
-    const handlePaymentAlertConfirm = useCallback(async () => {
-        await performSave();
-    }, [performSave]);
+    }, [editedItems, orderData, order, updateOrder, updateOrderData, editedSurcharge, refreshCounts]);
 
     const handlePaymentAlertCancel = useCallback(() => {
         setShowPaymentAlert(false);
@@ -319,6 +416,8 @@ export function OrderDetailsView({ orderId }: Props) {
                             totalAmount={updatedTotalAmount}
                             surcharge={isEditing ? editedSurcharge : (orderData?.surchargeAmount || 0)}
                             isEditing={isEditing}
+                            isSurchargeEditable={status === 'pending'}
+                            editable={status === 'pending'}
                             onItemChange={handleItemChange}
                             onItemDelete={handleItemDelete}
                             onSurchargeChange={handleSurchargeChange}

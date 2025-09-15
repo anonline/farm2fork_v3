@@ -4,11 +4,11 @@ import { _mock } from './_mock';
 
 export const ORDER_STATUS_OPTIONS = [
     { value: 'pending', label: 'Új rendelés' },
-    { value: 'inprogress', label: 'Folyamatban' },
-    { value: 'completed', label: 'Kész' },
-    { value: 'cancelled', label: 'Visszamondott' },
+    { value: 'processing', label: 'Folyamatban' },
+    { value: 'shipping', label: 'Szállítás alatt' },
+    { value: 'delivered', label: 'Kézbesítve' },
     { value: 'refunded', label: 'Visszatérített' },
-    { value: 'deleted', label: 'Törölt' },
+    { value: 'cancelled', label: 'Visszamondva' },
 ];
 
 const ITEMS = Array.from({ length: 3 }, (_, index) => ({

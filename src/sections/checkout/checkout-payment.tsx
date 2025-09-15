@@ -29,6 +29,7 @@ import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { useGetCustomerData, updateCustomerBillingAddress, updateCustomerDeliveryAddress } from 'src/actions/customer';
 
 import { Form } from 'src/components/hook-form';
@@ -47,7 +48,6 @@ import {
     DeliveryCommentSelector,
     EmailNotificationSelector,
 } from './components';
-import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 
 // ----------------------------------------------------------------------

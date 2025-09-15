@@ -4,6 +4,7 @@ import type { CheckoutContextValue } from 'src/types/checkout';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import { Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
@@ -14,9 +15,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Scrollbar } from 'src/components/scrollbar';
-import { SideCartItem } from 'src/components/sidecart/sidecart';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
-import { Tooltip } from '@mui/material';
+import { SideCartItem } from 'src/components/sidecart/sidecart';
 
 // ----------------------------------------------------------------------
 

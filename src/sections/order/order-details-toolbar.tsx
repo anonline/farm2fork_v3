@@ -11,6 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
+import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
@@ -20,7 +21,6 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
-import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 

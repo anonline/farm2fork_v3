@@ -6,12 +6,9 @@ import { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import AvatarGroup from '@mui/material/AvatarGroup';
-import { alpha, useTheme } from '@mui/material/styles';
-
 import { DataGrid } from '@mui/x-data-grid';
+import Typography from '@mui/material/Typography';
+import { alpha, useTheme } from '@mui/material/styles';
 
 import { fCurrency } from 'src/utils/format-number';
 

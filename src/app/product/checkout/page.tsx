@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
+import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 import { CheckoutView } from 'src/sections/checkout/view';
 
 import { UserAuthGuard } from 'src/auth/guard';
-import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 // ----------------------------------------------------------------------
 

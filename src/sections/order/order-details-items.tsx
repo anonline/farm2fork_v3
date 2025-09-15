@@ -4,7 +4,6 @@ import type { IOrderProductItem } from 'src/types/order';
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import { Chip, Link, Typography } from '@mui/material';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
@@ -13,6 +12,7 @@ import TextField from '@mui/material/TextField';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import { Chip, Link, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -20,6 +20,7 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { orderBy } from 'firebase/firestore';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +34,8 @@ type Props = CardProps & {
     payed_amount?: number;
     items?: IOrderProductItem[];
     isEditing?: boolean;
+    isSurchargeEditable?: boolean;
+    editable?: boolean;
     onItemChange?: (itemId: string, field: 'price' | 'quantity', value: number) => void;
     onItemDelete?: (itemId: string) => void;
     onSurchargeChange?: (value: number) => void;
@@ -52,6 +55,8 @@ export function OrderDetailsItems({
     items = [],
     totalAmount,
     isEditing,
+    isSurchargeEditable = true,
+    editable,
     onItemChange,
     onItemDelete,
     onSurchargeChange,
@@ -65,11 +70,11 @@ export function OrderDetailsItems({
 
     const handleFieldChange = (itemId: string, field: 'price' | 'quantity', value: string) => {
         const numValue = parseFloat(value);
-        
+
         // Validate the input
         const errors = { ...editErrors };
         if (!errors[itemId]) errors[itemId] = {};
-        
+
         if (isNaN(numValue) || numValue <= 0) {
             errors[itemId][field] = `${field === 'price' ? 'Ár' : 'Mennyiség'} nem lehet nulla vagy negatív`;
         } else {
@@ -78,9 +83,9 @@ export function OrderDetailsItems({
                 delete errors[itemId];
             }
         }
-        
+
         setEditErrors(errors);
-        
+
         // Call the parent handler if the value is valid
         if (!isNaN(numValue) && numValue > 0 && onItemChange) {
             onItemChange(itemId, field, numValue);
@@ -89,7 +94,7 @@ export function OrderDetailsItems({
 
     const handleSurchargeChange = (value: string) => {
         const numValue = parseFloat(value);
-        
+
         if (isNaN(numValue) || numValue < 0) {
             setSurchargeError('Zárolási felár nem lehet negatív');
         } else {
@@ -140,8 +145,8 @@ export function OrderDetailsItems({
 
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ color: 'text.secondary' }}>Zárolási felár</Box>
-                
-                {isEditing ? (
+
+                {isEditing && isSurchargeEditable ? (
                     <Box sx={{ width: 160 }}>
                         <TextField
                             size="small"
@@ -155,7 +160,9 @@ export function OrderDetailsItems({
                         />
                     </Box>
                 ) : (
-                    <Box sx={{ width: 160 }}>{surcharge ? fCurrency(surcharge) : '-'}</Box>
+                    <Box sx={{ width: 160 }}>
+                        {surcharge ? fCurrency(surcharge) : '-'}
+                    </Box>
                 )}
             </Box>
 
@@ -176,30 +183,32 @@ export function OrderDetailsItems({
             <CardHeader
                 title="Részletek"
                 action={
-                    isEditing ? (
-                        <Stack direction="row" spacing={1}>
-                            <Button
-                                variant="outlined"
-                                color="inherit"
-                                size="small"
-                                onClick={onCancel}
-                            >
-                                Mégse
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                size="small"
-                                onClick={onSave}
-                                disabled={hasErrors}
-                            >
-                                Mentés
-                            </Button>
-                        </Stack>
-                    ) : (
-                        <IconButton onClick={onStartEdit}>
-                            <Iconify icon="solar:pen-bold" />
-                        </IconButton>
+                    editable === true && (
+                        isEditing ? (
+                            <Stack direction="row" spacing={1}>
+                                <Button
+                                    variant="outlined"
+                                    color="inherit"
+                                    size="small"
+                                    onClick={onCancel}
+                                >
+                                    Mégse
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={onSave}
+                                    disabled={hasErrors}
+                                >
+                                    Mentés
+                                </Button>
+                            </Stack>
+                        ) : (
+                            <IconButton onClick={onStartEdit}>
+                                <Iconify icon="solar:pen-bold" />
+                            </IconButton>
+                        )
                     )
                 }
             />
@@ -226,16 +235,16 @@ export function OrderDetailsItems({
 
                         <ListItemText
                             primary={
-                                item.slug.length > 0 ? 
-                                <Link
-                                    target="_blank"
-                                    href={paths.dashboard.product.edit(item.slug)}
-                                    sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
-                                >
-                                    {item.name}
-                                </Link>
-                                : 
-                                <Typography sx={{textDecoration: 'none', color: 'inherit'}}>{item.name} <Chip label={'Egyedi termék'} size="small" sx={{ ml: 1, mb:0.3 }} color='primary' /></Typography>
+                                item.slug.length > 0 ?
+                                    <Link
+                                        target="_blank"
+                                        href={paths.dashboard.product.edit(item.slug)}
+                                        sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
+                                    >
+                                        {item.name}
+                                    </Link>
+                                    :
+                                    <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>{item.name} <Chip label="Egyedi termék" size="small" sx={{ ml: 1, mb: 0.3 }} color='primary' /></Typography>
                             }
                             secondary={
                                 isEditing ? (

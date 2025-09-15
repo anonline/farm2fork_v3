@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 import { CONFIG } from 'src/global-config';
+import { ShipmentsProvider } from 'src/contexts/shipments/shipments-provider';
 
 import { ShipmentDetailsView } from 'src/sections/shipments/view';
 
