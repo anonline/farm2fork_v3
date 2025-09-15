@@ -18,9 +18,12 @@ import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 
 import { supabase } from 'src/lib/supabase';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
+import { updateOrderShippingAddress } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+
+import { OrderShippingAddressModal } from './components/order-shipping-address-modal';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +36,7 @@ type Props = {
     requestedShippingDate?: Date | string | null;
     onShippingDateChange?: (newDate: Date | null) => void;
     orderId?: string; // Add orderId prop for database updates
+    customerId?: string; // Add customerId prop for fetching customer addresses
     onRefreshOrder?: () => void; // Add callback to refresh order data
 };
 
@@ -41,11 +45,13 @@ export function OrderDetailsShipping({
     requestedShippingDate,
     onShippingDateChange,
     orderId,
+    customerId,
     onRefreshOrder
 }: Readonly<Props>) {
     const { shipments, shipmentsLoading, setOrderToShipmentByDate } = useShipments();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
         if (!requestedShippingDate) return null;
         try {
@@ -228,12 +234,44 @@ export function OrderDetailsShipping({
         setAnchorEl(null);
     };
 
+    const handleEditAddressClick = () => {
+        setIsAddressModalOpen(true);
+    };
+
+    const handleSaveShippingAddress = async (updatedAddress: IOrderShippingAddress) => {
+        if (!orderId) {
+            toast.error('Hiányzó rendelés azonosító');
+            return;
+        }
+
+        try {
+            const result = await updateOrderShippingAddress(
+                orderId,
+                updatedAddress,
+                'Szállítási cím módosítva az admin felületen keresztül'
+            );
+
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
+
+            // Refresh order data to update the display
+            onRefreshOrder?.();
+            
+            toast.success('Szállítási cím sikeresen frissítve!');
+        } catch (error) {
+            console.error('Error saving shipping address:', error);
+            toast.error('Hiba történt a szállítási cím mentése során');
+        }
+    };
+
     return (
         <>
             <CardHeader
                 title="Szállítási adatok"
                 action={
-                    <IconButton>
+                    <IconButton onClick={handleEditAddressClick}>
                         <Iconify icon="solar:pen-bold" />
                     </IconButton>
                 }
@@ -267,7 +305,7 @@ export function OrderDetailsShipping({
                         Cím
                     </Box>
 
-                    {shippingAddress?.postcode} {shippingAddress?.city}, {shippingAddress?.street} {shippingAddress?.floor ? `, ${shippingAddress.floor}` : ''} {shippingAddress?.houseNumber} {shippingAddress?.doorbell ? `, ${shippingAddress.doorbell}` : ''}
+                    {shippingAddress?.postcode} {shippingAddress?.city} {shippingAddress?.street} {shippingAddress?.houseNumber}{shippingAddress?.floor ? `, ${shippingAddress.floor}` : ''}{shippingAddress?.doorbell ? `, ${shippingAddress.doorbell}` : ''}
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between'  }}>
@@ -318,6 +356,15 @@ export function OrderDetailsShipping({
                     />
                 </Box>
             </Popover>
+
+            {/* Shipping Address Modal */}
+            <OrderShippingAddressModal
+                open={isAddressModalOpen}
+                onClose={() => setIsAddressModalOpen(false)}
+                currentAddress={shippingAddress}
+                customerId={customerId}
+                onSave={handleSaveShippingAddress}
+            />
         </>
     );
 }

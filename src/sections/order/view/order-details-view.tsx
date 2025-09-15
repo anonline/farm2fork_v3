@@ -485,6 +485,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             shippingAddress={order?.shippingAddress} 
                             requestedShippingDate={order.planned_shipping_date_time}
                             orderId={orderData?.id}
+                            customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
                         />
 
