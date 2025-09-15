@@ -432,7 +432,11 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Card>
-                        <OrderDetailsCustomer customer={order?.customer} />
+                        <OrderDetailsCustomer 
+                            customer={order?.customer} 
+                            orderData={orderData || undefined}
+                            onOrderUpdate={handleRefreshOrderHistory}
+                        />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsDelivery delivery={order?.delivery} />

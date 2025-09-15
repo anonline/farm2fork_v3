@@ -577,4 +577,60 @@ export async function getOrdersByShipmentId(shipmentId: number): Promise<{ order
     }
 }
 
+/**
+ * Update order invoice and payment settings
+ */
+export async function updateOrderInvoiceSettings(
+    orderId: string,
+    denyInvoice: boolean,
+    paymentDueDays?: number,
+    note?: string,
+    userId?: string,
+    userName?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        // Create new history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: new Date().toISOString(),
+            status: order.orderStatus,
+            note: note || `Számla beállítások frissítve: ${denyInvoice ? 'Számla tiltva' : 'Számla engedélyezve'}${paymentDueDays !== undefined ? `, Fizetési határidő: ${paymentDueDays} nap` : ''}`,
+            userId,
+            userName,
+        };
+
+        // Prepare update data
+        const updateData: any = {
+            deny_invoice: denyInvoice,
+            history: [...order.history, historyEntry],
+        };
+
+        // Only update payment due days if provided
+        if (paymentDueDays !== undefined) {
+            updateData.payment_due_days = paymentDueDays;
+        }
+
+        // Update order
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order invoice settings:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order invoice settings:', error);
+        return { success: false, error: 'Failed to update order invoice settings' };
+    }
+}
+
 
