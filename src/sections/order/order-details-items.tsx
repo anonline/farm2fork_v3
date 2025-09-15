@@ -129,36 +129,36 @@ export function OrderDetailsItems({
                 flexDirection: 'column',
             }}
         >
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Termék végösszeg</Box>
-                <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
             </Box>
 
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Szállítás</Box>
-                <Box sx={{ width: 160 }}>
+                <Box sx={{ width: { xs: 'auto', md: 160 } }}>
                     {shipping ? fCurrency(shipping) : '-'}
                 </Box>
             </Box>
 
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Kedvezmény</Box>
-                <Box sx={{ width: 160, ...(discount && { color: 'error.main' }) }}>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, ...(discount && { color: 'error.main' }) }}>
                     {discount ? `- ${fCurrency(discount)}` : '-'}
                 </Box>
             </Box>
 
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Adó</Box>
 
-                <Box sx={{ width: 160 }}>{taxes ? fCurrency(taxes) : '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{taxes ? fCurrency(taxes) : '-'}</Box>
             </Box>
 
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Zárolási felár</Box>
 
                 {isEditing && isSurchargeEditable ? (
-                    <Box sx={{ width: 160 }}>
+                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
                         <TextField
                             size="small"
                             type="number"
@@ -166,25 +166,25 @@ export function OrderDetailsItems({
                             onChange={(e) => handleSurchargeChange(e.target.value)}
                             error={!!surchargeError}
                             helperText={surchargeError}
-                            sx={{ width: '100%' }}
+                            sx={{ width: '100%', maxWidth: { xs: 120, md: 'none' } }}
                             inputProps={{ min: 0, step: 0.01 }}
                         />
                     </Box>
                 ) : (
-                    <Box sx={{ width: 160 }}>
+                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
                         {surcharge ? fCurrency(surcharge) : '-'}
                     </Box>
                 )}
             </Box>
 
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Már kifizetett összeg</Box>
-                <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(payed_amount) || '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(payed_amount) || '-'}</Box>
             </Box>
 
-            <Box sx={{ display: 'flex', typography: 'subtitle1' }}>
+            <Box sx={{ display: 'flex', typography: 'subtitle1', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <div>Br. végösszeg</div>
-                <Box sx={{ width: 160 }}>{fCurrency(totalAmount) || '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{fCurrency(totalAmount) || '-'}</Box>
             </Box>
         </Box>
     );
@@ -197,21 +197,22 @@ export function OrderDetailsItems({
                     action={
                         editable === true && (
                             isEditing ? (
-                                <Stack direction="row" spacing={1}>
-                                    <Button
-                                        variant="outlined"
-                                        color="success"
+                                <Stack direction={{ xs: 'row', sm: 'row' }} alignItems={'center'} justifyContent={'center'} spacing={1}>
+                                    <IconButton
+                                        color="primary"
                                         size="small"
-                                        startIcon={<Iconify icon="mingcute:add-line" />}
+                                        href='#'
+                                        //startIcon={<Iconify icon="mingcute:add-line" />}
                                         onClick={() => setIsProductModalOpen(true)}
                                     >
-                                        Termék hozzáadása
-                                    </Button>
+                                        <Iconify icon="solar:add-circle-bold" color='primary' width={24} height={24}/>
+                                    </IconButton>
                                     <Button
                                         variant="outlined"
                                         color="inherit"
                                         size="small"
                                         onClick={onCancel}
+                                        sx={{ width: { xs: '100%', sm: 'auto' } }}
                                     >
                                         Mégse
                                     </Button>
@@ -221,6 +222,7 @@ export function OrderDetailsItems({
                                         size="small"
                                         onClick={onSave}
                                         disabled={hasErrors}
+                                        sx={{ width: { xs: '100%', sm: 'auto' } }}
                                     >
                                         Mentés
                                     </Button>
@@ -241,40 +243,53 @@ export function OrderDetailsItems({
                             sx={[
                                 (theme) => ({
                                     p: 3,
-                                    minWidth: 640,
-                                    display: 'flex',
-                                    alignItems: 'center',
                                     borderBottom: `dashed 2px ${theme.vars.palette.background.neutral}`,
                                 }),
                             ]}
                         >
-                            <Avatar
-                                src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
-                                variant="rounded"
-                                sx={{ width: 48, height: 48, mr: 2 }}
-                            />
-
-                            <ListItemText
-                                primary={
-                                    item.slug.length > 0 ?
-                                        <Link
-                                            target="_blank"
-                                            href={paths.dashboard.product.edit(item.slug)}
-                                            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                        :
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Typography component="span" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                                                {item.name}
+                            {/* Mobile Layout */}
+                            <Box sx={{ 
+                                display: { xs: 'block', md: 'none' },
+                                width: '100%'
+                            }}>
+                                {/* Row 1: Avatar + Title */}
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                    <Avatar
+                                        src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                                        variant="rounded"
+                                        sx={{ width: 48, height: 48, mr: 2 }}
+                                    />
+                                    <Box sx={{ flex: 1 }}>
+                                        {item.slug.length > 0 ? (
+                                            <Link
+                                                target="_blank"
+                                                href={paths.dashboard.product.edit(item.slug)}
+                                                sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
+                                            >
+                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                                    {item.name}
+                                                </Typography>
+                                            </Link>
+                                        ) : (
+                                            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                                    {item.name}
+                                                </Typography>
+                                                <Chip label="Egyedi termék" size="small" color='primary' />
+                                            </Stack>
+                                        )}
+                                        {!isEditing && (
+                                            <Typography variant="caption" color="text.secondary">
+                                                {`${fCurrency(item.price)} / ${item.unit}`}{item.note && ` | ${item.note}`}
                                             </Typography>
-                                            <Chip label="Egyedi termék" size="small" color='primary' />
-                                        </Stack>
-                                }
-                                secondary={
-                                    isEditing ? (
-                                        <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+                                        )}
+                                    </Box>
+                                </Box>
+
+                                {/* Row 2: Price + Quantity */}
+                                {isEditing && (
+                                    <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                                        <Box sx={{ flex: 1 }}>
                                             <TextField
                                                 size="small"
                                                 type="number"
@@ -283,58 +298,152 @@ export function OrderDetailsItems({
                                                 onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
                                                 error={!!editErrors[item.id]?.price}
                                                 helperText={editErrors[item.id]?.price}
-                                                sx={{ width: 100 }}
+                                                sx={{ width: '100%' }}
                                                 inputProps={{ min: 0, step: 0.01 }}
                                             />
-                                            <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
+                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                                                / {item.unit} {item.note && ` | ${item.note}`}
+                                            </Typography>
                                         </Box>
+                                        <Box sx={{ flex: 1 }}>
+                                            <TextField
+                                                size="small"
+                                                type="number"
+                                                label="Mennyiség"
+                                                defaultValue={item.quantity}
+                                                onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
+                                                error={!!editErrors[item.id]?.quantity}
+                                                helperText={editErrors[item.id]?.quantity}
+                                                sx={{ width: '100%' }}
+                                                inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
+                                            />
+                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                                                {item.unit}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                )}
+
+                                {/* Row 3: Quantity + Subtotal (when not editing) or just Subtotal + Delete (when editing) */}
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    {!isEditing ? (
+                                        <Typography variant="subtitle2">
+                                            {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                        </Typography>
                                     ) : (
-                                        `${fCurrency(item.price)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
-                                    )
-                                }
-                                slotProps={{
-                                    primary: { sx: { typography: 'body2' } },
-                                    secondary: {
-                                        sx: { mt: 0.5, color: isEditing ? 'inherit' : 'text.disabled' },
-                                    },
-                                }}
-                            />
-
-                            {isEditing ? (
-                                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, width: 140 }}>
-                                    <TextField
-                                        size="small"
-                                        type="number"
-                                        label="Mennyiség"
-                                        defaultValue={item.quantity}
-                                        onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
-                                        error={!!editErrors[item.id]?.quantity}
-                                        helperText={editErrors[item.id]?.quantity}
-                                        sx={{ width: '100%' }}
-                                        inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
-                                    />
-                                    <Box sx={{ typography: 'caption', color: 'text.disabled' }}>{item.unit}</Box>
+                                        <Box />
+                                    )}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography variant="subtitle2">
+                                            {fCurrency(item.subtotal)}
+                                        </Typography>
+                                        {isEditing && (
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => onItemDelete?.(item.id)}
+                                            >
+                                                <Iconify icon="solar:trash-bin-trash-bold" width={20} />
+                                            </IconButton>
+                                        )}
+                                    </Box>
                                 </Box>
-                            ) : (
-                                <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                                    {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
-                                </Box>
-                            )}
-
-                            <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                                {fCurrency(item.subtotal)}
                             </Box>
 
-                            {isEditing && (
-                                <IconButton
-                                    size="small"
-                                    color="error"
-                                    onClick={() => onItemDelete?.(item.id)}
-                                    sx={{ ml: 1 }}
-                                >
-                                    <Iconify icon="solar:trash-bin-trash-bold" width={20} />
-                                </IconButton>
-                            )}
+                            {/* Desktop Layout */}
+                            <Box sx={{ 
+                                display: { xs: 'none', md: 'flex' },
+                                alignItems: 'center',
+                                width: '100%'
+                            }}>
+                                <Avatar
+                                    src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                                    variant="rounded"
+                                    sx={{ width: 48, height: 48, mr: 2 }}
+                                />
+
+                                <ListItemText
+                                    primary={
+                                        item.slug.length > 0 ?
+                                            <Link
+                                                target="_blank"
+                                                href={paths.dashboard.product.edit(item.slug)}
+                                                sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                            :
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                <Typography component="span" sx={{ textDecoration: 'none', color: 'inherit' }}>
+                                                    {item.name}
+                                                </Typography>
+                                                <Chip label="Egyedi termék" size="small" color='primary' />
+                                            </Stack>
+                                    }
+                                    secondary={
+                                        isEditing ? (
+                                            <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                                                <TextField
+                                                    size="small"
+                                                    type="number"
+                                                    label="Ár"
+                                                    defaultValue={item.price}
+                                                    onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
+                                                    error={!!editErrors[item.id]?.price}
+                                                    helperText={editErrors[item.id]?.price}
+                                                    sx={{ width: 100 }}
+                                                    inputProps={{ min: 0, step: 0.01 }}
+                                                />
+                                                <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
+                                            </Box>
+                                        ) : (
+                                            `${fCurrency(item.price)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
+                                        )
+                                    }
+                                    slotProps={{
+                                        primary: { sx: { typography: 'body2' } },
+                                        secondary: {
+                                            sx: { mt: 0.5, color: isEditing ? 'inherit' : 'text.disabled' },
+                                        },
+                                    }}
+                                />
+
+                                {isEditing ? (
+                                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, width: 140 }}>
+                                        <TextField
+                                            size="small"
+                                            type="number"
+                                            label="Mennyiség"
+                                            defaultValue={item.quantity}
+                                            onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
+                                            error={!!editErrors[item.id]?.quantity}
+                                            helperText={editErrors[item.id]?.quantity}
+                                            sx={{ width: '100%' }}
+                                            inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
+                                        />
+                                        <Box sx={{ typography: 'caption', color: 'text.disabled' }}>{item.unit}</Box>
+                                    </Box>
+                                ) : (
+                                    <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
+                                        {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                    </Box>
+                                )}
+
+                                <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
+                                    {fCurrency(item.subtotal)}
+                                </Box>
+
+                                {isEditing && (
+                                    <IconButton
+                                        size="small"
+                                        color="error"
+                                        onClick={() => onItemDelete?.(item.id)}
+                                        sx={{ ml: 1 }}
+                                    >
+                                        <Iconify icon="solar:trash-bin-trash-bold" width={20} />
+                                    </IconButton>
+                                )}
+                            </Box>
                         </Box>
                     ))}
                 </Scrollbar>

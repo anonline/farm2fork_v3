@@ -4,7 +4,7 @@ import type { IPaymentMethod } from './payment-method';
 // ----------------------------------------------------------------------
 
 export type ICheckoutItem = {
-    id: number;
+    id: string;
     name: string;
     size?: string;
     price: number;
