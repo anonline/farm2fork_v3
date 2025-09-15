@@ -31,7 +31,7 @@ type Props = {
     readonly orderNumber?: string;
     readonly createdAt?: IDateValue;
     readonly order?: IOrderItem;
-    readonly orderData?: IOrderData;
+    readonly orderData: IOrderData | null;
     readonly onChangeStatus: (newValue: string) => void;
     readonly statusOptions: { value: string; label: string }[];
     readonly onStartEdit?: () => void;

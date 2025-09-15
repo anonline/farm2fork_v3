@@ -4,7 +4,6 @@ import type { IAddressItem } from 'src/types/common';
 import type { IOrderData } from 'src/types/order-management';
 import type { 
     DocumentInsert,
-    PaymentHistory,
     DocumentProductData
 } from '@codingsans/billingo-client';
 
@@ -130,7 +129,7 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
             partnerData.address = {
                 country_code: Country.HU,
                 post_code: postCode,
-                city: city,
+                city,
                 address: streetAddress,
             };
         } else {
