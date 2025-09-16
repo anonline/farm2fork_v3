@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { Box, Grid, Button, Skeleton, Typography } from '@mui/material';
+import { Box, Grid, Button, Skeleton, Typography, CircularProgress } from '@mui/material';
+
+import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
+import { useInfiniteProducers } from 'src/hooks/use-infinite-producers';
 
 import { themeConfig } from 'src/theme';
-import { useProducers } from 'src/contexts/producers-context';
+import { CONFIG } from 'src/global-config';
 
 import { SortingOrder } from 'src/types/search';
 
@@ -13,38 +16,34 @@ import ProducerCard from '../producer-card/producer-card';
 import ProducersPageFilter from '../producers-page-filter/producers-page-filter';
 
 export default function ProducersPage() {
-    const { producers, loading } = useProducers();
+    const [keyword, setKeyword] = useState('');
+    const [sortDirection, setSortDirection] = useState<SortingOrder>(SortingOrder.Ascending);
 
-    const [filteredProducers, setFilteredProducers] = useState(producers);
+    // Use infinite producers hook
+    const {
+        producers,
+        loading,
+        loadingMore,
+        error,
+        hasMore,
+        loadMore,
+        totalCount,
+    } = useInfiniteProducers({
+        keyword,
+        sortDirection,
+    });
 
-    useEffect(() => {
-        setFilteredProducers(producers);
-    }, [producers]);
+    // Set up infinite scroll
+    useInfiniteScroll({
+        hasMore,
+        loading: loadingMore,
+        onLoadMore: loadMore,
+        threshold: CONFIG.pagination.infiniteScrollThreshold,
+    });
 
     const handleSearch = (filters: { keyword: string; direction: SortingOrder }) => {
-        const { keyword, direction } = filters;
-
-        let filtered = producers;
-        if (keyword.trim().length > 0) {
-            filtered = producers.filter((producer) => {
-                const matchesKeyword =
-                    producer.name.toLowerCase().includes(keyword.toLowerCase()) ||
-                    producer.shortDescription?.toLowerCase().includes(keyword.toLowerCase()) ||
-                    producer.companyName?.toLowerCase().includes(keyword.toLowerCase());
-                return matchesKeyword;
-            });
-        }
-
-        // Create a new array from the (potentially filtered) list before sorting.
-        const sortedProducers = [...filtered];
-
-        if (direction === SortingOrder.Descending) {
-            sortedProducers.sort((a, b) => b.name.localeCompare(a.name));
-        } else {
-            sortedProducers.sort((a, b) => a.name.localeCompare(b.name));
-        }
-
-        setFilteredProducers(sortedProducers);
+        setKeyword(filters.keyword);
+        setSortDirection(filters.direction);
     };
 
     return (
@@ -173,28 +172,63 @@ export default function ProducersPage() {
 
             <ProducersPageFilter onChange={handleSearch} />
 
+            {/* Results summary */}
+            {!loading && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    {producers.length} termelő található{totalCount > producers.length && ` (${totalCount} összesen)`}
+                    {keyword && ` "${keyword}" keresésre`}
+                </Typography>
+            )}
+
             {loading ? (
                 <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
-                    {Array.from({ length: 5 }).map((_, index) => (
+                    {Array.from({ length: CONFIG.pagination.producersPerPage }).map((_, index) => (
                         <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={index}>
                             <Skeleton height={400} />
                         </Grid>
                     ))}
                 </Grid>
-            ) : filteredProducers.length === 0 ? (
+            ) : producers.length === 0 ? (
                 <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
                     <Typography variant="h6" sx={{ color: themeConfig.palette.grey[600] }}>
-                        Nincs a keresésnek megfelelő termelő.
+                        {error ? 'Hiba történt a termelők betöltése során' : 'Nincs a keresésnek megfelelő termelő.'}
                     </Typography>
+                    {keyword && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            Próbáld meg módosítani a keresési feltételeket.
+                        </Typography>
+                    )}
                 </Box>
             ) : (
                 <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
-                    {filteredProducers.map((producer) => (
+                    {producers.map((producer) => (
                         <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={producer.id}>
                             <ProducerCard producer={producer} />
                         </Grid>
                     ))}
                 </Grid>
+            )}
+
+            {/* Loading more indicator */}
+            {loadingMore && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', py: 3 }}>
+                    <CircularProgress size={32} />
+                </Box>
+            )}
+
+            {/* Load more button (fallback for users without scroll) */}
+            {!loading && !loadingMore && hasMore && producers.length > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', py: 2 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        size="large"
+                        sx={{ minWidth: 200 }}
+                    >
+                        Több termelő betöltése
+                    </Button>
+                </Box>
             )}
         </>
     );

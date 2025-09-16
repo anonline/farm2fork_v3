@@ -32,6 +32,7 @@ export type ConfigValue = {
     blob: { readWriteToken: string };
     pagination: {
         productsPerPage: number;
+        producersPerPage: number;
         infiniteScrollThreshold: number;
     };
 };
@@ -102,6 +103,7 @@ export const CONFIG: ConfigValue = {
      */
     pagination: {
         productsPerPage: 25, // Number of products to load per page
+        producersPerPage: 20, // Number of producers to load per page
         infiniteScrollThreshold: 1500, // Distance from bottom in pixels to trigger load more
     },
 };
