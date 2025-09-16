@@ -23,7 +23,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import {
     DataGrid,
     gridClasses,
-    GridToolbarExport,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,
@@ -48,9 +47,9 @@ import { ProducerTableToolbar } from '../producer-table-toolbar';
 import { ProducerTableFiltersResult } from '../producer-table-filters-result';
 import {
     RenderCellName,
+    RenderCellEnabled,
     RenderCellCreatedAt,
     RenderCellProducingTags,
-    RenderCellEnabled,
 } from '../producer-table-row';
 
 // ----------------------------------------------------------------------

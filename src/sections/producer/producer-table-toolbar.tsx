@@ -7,14 +7,12 @@ import { varAlpha } from 'minimal-shared/utils';
 import { usePopover } from 'minimal-shared/hooks';
 
 import Select from '@mui/material/Select';
-import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 
-import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
@@ -65,8 +63,7 @@ export function ProducerTableToolbar({ filters, options }: Props) {
             anchorEl={menuActions.anchorEl}
             onClose={menuActions.onClose}
             slotProps={{ arrow: { placement: 'right-top' } }}
-        >
-        </CustomPopover>
+         />
     );
 
     return (
@@ -149,11 +146,7 @@ function DropdownMultiSelectFilter({ label, options, selectedValues, onChange, o
                 value={selectedValues}
                 onChange={onChange}
                 input={<OutlinedInput label={label} />}
-                renderValue={(selected) => {
-                    return selected.map((value) => {
-                        return (value.toLowerCase() == 'true' ? 'Igen' : value.toLowerCase() == 'false' ? 'Nem' : value);
-                    }).join(', ');
-                }}
+                renderValue={(selected) => selected.map((value) => (value.toLowerCase() == 'true' ? 'Igen' : value.toLowerCase() == 'false' ? 'Nem' : value)).join(', ')}
                 inputProps={{ id: `filter-${label}-select` }}
                 sx={{ textTransform: 'capitalize' }}
             >
