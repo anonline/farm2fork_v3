@@ -1,22 +1,23 @@
-import type { ChangeEvent } from 'react';
+
+import type { 
+    SelectChangeEvent} from '@mui/material';
 
 import { useState, useEffect } from 'react';
 
 import { 
     Box, 
-    TextField, 
-    InputAdornment, 
+    Menu, 
+    List, 
     Select, 
-    MenuItem, 
-    SelectChangeEvent,
-    IconButton,
-    Menu,
-    List,
+    MenuItem,
     ListItem,
-    ListItemButton,
-    ListItemText,
     useTheme,
-    useMediaQuery
+    TextField,
+    IconButton,
+    ListItemText,
+    useMediaQuery,
+    InputAdornment,
+    ListItemButton
 } from '@mui/material';
 
 import { SortingOrder } from 'src/types/search';
