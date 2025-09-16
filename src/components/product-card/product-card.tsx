@@ -127,9 +127,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         return product.vat;
     }
 
-    const getGrossPrice = () => {
-        return getNetPrice() * (1 + getVatPercent() / 100);
-    }
+    const getGrossPrice = () => getNetPrice() * (1 + getVatPercent() / 100)
 
     return (
         <Paper className="product-card" sx={productCardStyle}>

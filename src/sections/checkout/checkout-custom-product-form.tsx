@@ -17,8 +17,9 @@ import { useGetOption } from 'src/actions/options';
 
 import { Iconify } from 'src/components/iconify';
 
-import { OptionsEnum } from 'src/types/option';
 import { useAuthContext } from 'src/auth/hooks';
+
+import { OptionsEnum } from 'src/types/option';
 
 // ----------------------------------------------------------------------
 
@@ -87,7 +88,7 @@ export function CheckoutCustomProductForm({ onAddCustomProduct }: CustomProductF
             name: formData.name.trim(),
             grossPrice: basePrice * (1 + (vatPercent / 100)),
             netPrice: basePrice,
-            vatPercent: vatPercent,
+            vatPercent,
             unit,
             coverUrl: '', // No image for custom products
             quantity,
