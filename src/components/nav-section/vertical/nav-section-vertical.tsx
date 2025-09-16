@@ -61,12 +61,10 @@ function Group({
     enabledRootRedirect,
 }: NavGroupProps) {
     const groupOpen = useBoolean(true);
-
-    const listWithoutIcons = items.map((item) => ({ ...item, icon: undefined }));
     
     const renderContent = () => (
         <NavUl sx={{ gap: 'var(--nav-item-gap)' }}>
-            {listWithoutIcons.map((list) => (
+            {items.map((list) => (
                 <NavList
                     key={list.title}
                     data={list}

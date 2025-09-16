@@ -41,7 +41,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
             ref={navItemRef}
             // slots
             path={data.path}
-            icon={undefined}
+            icon={data.icon ?? undefined}
             title={data.title}
             // state
             open={open}
@@ -65,6 +65,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
                             sx: [
                                 (theme) => ({
                                     minHeight: 36,
+                                    mt: 1,
                                     '&[aria-label="Dashboard"]': {
                                         [`& .${navSectionClasses.item.title}`]: {
                                             display: 'none',
@@ -79,7 +80,11 @@ export function NavList({ data, sx, ...other }: NavListProps) {
                                     },
                                 }),
                             ],
-                        },
+                            icon: {
+                                width: 36,
+                                height: 36
+                            }
+                        }
                     }}
                 />
             </Collapse>

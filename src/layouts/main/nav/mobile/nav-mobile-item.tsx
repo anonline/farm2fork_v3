@@ -45,7 +45,10 @@ export function NavItem({
             })}
             {...other}
         >
-            {navItem.renderIcon && <ItemIcon {...ownerState}> {navItem.renderIcon}</ItemIcon>}
+            {navItem.renderIcon && 
+            <ItemIcon {...ownerState}>
+                {typeof navItem.renderIcon == "string" ? <img src={navItem.renderIcon} alt="" /> : navItem.renderIcon}
+            </ItemIcon>}
 
             <ItemTitle {...ownerState}>{title}</ItemTitle>
 

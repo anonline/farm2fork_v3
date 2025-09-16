@@ -71,7 +71,7 @@ export function NavItem({
                     className={navSectionClasses.item.icon}
                     sx={slotProps?.icon}
                 >
-                    {navItem.renderIcon}
+                    {typeof navItem.renderIcon == "string" ? <img src={navItem.renderIcon} alt="" /> : navItem.renderIcon}
                 </ItemIcon>
             )}
 

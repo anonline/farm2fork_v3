@@ -24,6 +24,7 @@ export function usePendingOrdersCount() {
             }
         } catch (err) {
             setError('Failed to fetch pending orders count');
+            console.error(err);
             setCount(0);
         } finally {
             setLoading(false);

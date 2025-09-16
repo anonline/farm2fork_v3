@@ -60,7 +60,7 @@ export function NavItem({
                     className={megaMenuClasses.item.icon}
                     sx={slotProps?.icon}
                 >
-                    {navItem.renderIcon}
+                    {typeof navItem.renderIcon == "string" ? <img src={navItem.renderIcon} alt="" /> : navItem.renderIcon}
                 </ItemIcon>
             )}
 

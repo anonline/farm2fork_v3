@@ -27,8 +27,6 @@ type Props = {
 };
 
 export default function CategoryEditView({ category, maxFileSize = 5, allCategories }: Props) {
-    const router = useRouter();
-
     return (
         <DashboardContent>
             <CustomBreadcrumbs

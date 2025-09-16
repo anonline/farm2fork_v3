@@ -195,11 +195,11 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         </button>
 
                     </div>
-                    <ProducerAvatar
+                    {product.producerId && <ProducerAvatar
                         avatarUrl={product.producer?.featuredImage ?? 'https://placehold.co/48'}
                         avatarAlt="Termelő"
                         style={{ position: 'absolute', top: -24, left: 16 }}
-                    />
+                    />}
                 </div>
             </div>
             <div style={productCardPriceContentStyle}>

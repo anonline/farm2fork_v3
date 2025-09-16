@@ -27,7 +27,7 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
     const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchProducts() {
+        async function fetchProductCategories() {
             setLoading(true);
             const { data, error } = await supabase
                 .from('ProductCategories')
@@ -47,7 +47,7 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
             }
             setLoading(false);
         }
-        fetchProducts();
+        fetchProductCategories();
     }, []);
 
     return (

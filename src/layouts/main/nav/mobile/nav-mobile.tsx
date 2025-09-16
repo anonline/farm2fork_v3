@@ -31,7 +31,7 @@ export type NavMobileProps = NavMainProps & {
 export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
     const pathname = usePathname();
     const { authenticated, user } = useAuthContext();
-    console.log(data);
+
     useEffect(() => {
         if (open) {
             onClose();
@@ -72,7 +72,7 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
 
             <Scrollbar fillContent>
                 <Nav
-                    sx={{
+                    sx={{                       
                         pb: 3,
                         display: 'flex',
                         flex: '1 1 auto',

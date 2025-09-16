@@ -17,4 +17,5 @@ export type ICategoryItem = {
     storingInformation: string;
     showHome: boolean;
     showProductPage: boolean;
+    iconUrl: string;
 };
