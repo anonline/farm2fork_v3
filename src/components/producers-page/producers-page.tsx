@@ -69,10 +69,10 @@ export default function ProducersPage() {
                     allowFullScreen
                     sx={{
                         position: 'absolute',
-                        top: '-50%',
-                        left: '-50%',
-                        width: '200%',
-                        height: '200%',
+                        top: {xs: '-75%', sm: '-50%'},
+                        left: {xs: '-75%', sm: '-50%'},
+                        width: {xs: '250%', sm: '200%'},
+                        height: {xs: '250%', sm: '200%'},
                         zIndex: -1,
                         border: 0,
                         pointerEvents: 'none',
@@ -93,7 +93,7 @@ export default function ProducersPage() {
                     <Typography
                         variant="h1"
                         sx={{
-                            fontSize: '64px',
+                            fontSize: { xs: '32px', sm: '48px', md: '64px' },
                             fontWeight: '600',
                             letterSpacing: '-1px',
                             textTransform: 'uppercase',
@@ -106,6 +106,7 @@ export default function ProducersPage() {
             <Box
                 sx={{
                     display: 'flex',
+                    flexWrap: 'wrap',
                     flexDirection: 'row',
                     marginBottom: '50px',
                     gap: '30px',
@@ -115,7 +116,7 @@ export default function ProducersPage() {
             >
                 <Typography
                     sx={{
-                        width: '60%',
+                        width: {sm: '100%', md: '55%'},
                         fontFamily: themeConfig.fontFamily.primary,
                         fontSize: '16px',
                         fontWeight: 500,
@@ -130,7 +131,7 @@ export default function ProducersPage() {
                 </Typography>
                 <Box
                     sx={{
-                        width: '45%',
+                        width: {sm: '100%', md: '40%'},
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '15px',
