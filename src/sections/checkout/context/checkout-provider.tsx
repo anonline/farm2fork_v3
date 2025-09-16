@@ -28,6 +28,7 @@ const CHECKOUT_STORAGE_KEY = 'app-checkout';
 const CHECKOUT_STEPS = ['Cart', 'Payment'];
 
 const initialState: ICheckoutState = {
+    userId: null,
     items: [],
     subtotal: 0,
     total: 0,
@@ -76,6 +77,23 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         initialState,
         { initializeWithValue: false }
     );
+
+    // Initialize userId and handle cart persistence logic with proper loading state
+    useEffect(() => {
+        if (loading) return; // Wait for initial load to complete
+        
+        if (user?.id && !state.userId) {
+            // Set userId for authenticated user with existing cart
+            setField('userId', user.id);
+        }
+        if(!user?.id && state.userId) {
+            // Clear cart for unauthenticated user with existing cart
+            resetState(initialState);
+        }
+
+    }, [user?.id, state.userId, resetState, setField, loading]);
+    
+
 
     // Get surcharge options based on user type
     const { option: surchargePublic } = useGetOption(OptionsEnum.SurchargePercentPublic);

@@ -155,7 +155,7 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                 <Box sx={{ flexGrow: 1 }} />
                     
                 <Stack direction="column" spacing={1.5} alignItems="flex-start" sx={{ mt: 3 }}>
-                    <ProductPriceDetails price={product.netPrice} unit={product.unit} cardText={product.cardText}/>
+                    <ProductPriceDetails grossPrice={product.netPrice} unit={product.unit} cardText={product.cardText}/>
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}

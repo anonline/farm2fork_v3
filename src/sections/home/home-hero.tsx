@@ -37,7 +37,7 @@ export function HomeHero({
         <Box
             sx={{
                 width: '100%',
-                backgroundImage: 'url(' + heroImg + ')',
+                backgroundImage: 'url(' + (heroImg || '') + ')',
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: 'cover',
                 backgroundPosition: { xs: 'center', md: 'center' },
@@ -101,7 +101,7 @@ export function HomeHero({
                             letterSpacing: { xs: '-0.5px', md: '-1px' },
                         })}
                     >
-                        {heroTitle}
+                        {heroTitle || ''}
                     </Typography>
                     <Stack
                         direction={{ xs: 'column', sm: 'row' }}
@@ -135,7 +135,7 @@ export function HomeHero({
                             component={RouterLink}
                             href={paths.product.root}
                         >
-                            {heroPrimaryBtnText}
+                            {heroPrimaryBtnText || ''}
                         </Button>
                         <Button
                             variant="outlined"
@@ -158,7 +158,7 @@ export function HomeHero({
                             })}
                             href={paths.rendelesMenete}
                         >
-                            {heroSecondaryBtnText}
+                            {heroSecondaryBtnText || ''}
                         </Button>
                     </Stack>
                 </Box>

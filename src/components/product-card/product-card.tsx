@@ -29,7 +29,7 @@ interface ProductCardProps {
 
 export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { onAddToCart, state: checkoutState } = useCheckoutContext();
-    const { roles } = useAuthContext();
+    const { roles, user } = useAuthContext();
     const { product } = props;
     const router = useRouter();
 
@@ -37,9 +37,9 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         router.push(paths.product.details(product.url));
     };
 
-    const isVIP = roles?.isVip || false;
-    const isCORP = roles?.isCorp || false;
-    const isADMIN = roles?.isAdmin || false;
+    const isVIP = user?.user_metadata.is_vip || false;
+    const isCorp = user?.user_metadata.is_corp || false;
+    const isAdmin = user?.user_metadata.is_admin || false;
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
@@ -106,6 +106,30 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         gap: 8,
         width: '100%',
     };
+
+    const getNetPrice = () => {
+        if(isVIP){
+            return product.netPriceVIP;
+        }
+
+        if(isCorp){
+            return product.netPriceCompany;
+        }
+
+        return product.netPrice;
+    }
+
+    const getVatPercent = () => {
+        if(isVIP){
+            return 0;
+        }
+
+        return product.vat;
+    }
+
+    const getGrossPrice = () => {
+        return getNetPrice() * (1 + getVatPercent() / 100);
+    }
 
     return (
         <Paper className="product-card" sx={productCardStyle}>
@@ -204,7 +228,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             </div>
             <div style={productCardPriceContentStyle}>
                 <div className="productCardPriceDetails" style={productCardPriceDetailsStyle}>
-                    <ProductPriceDetails price={(isVIP || isADMIN) ? product.netPrice : product.grossPrice} unit={product.unit} cardText={product.cardText} />
+                    <ProductPriceDetails grossPrice={getGrossPrice()} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}
@@ -236,10 +260,10 @@ function ProducerAvatar({
 }
 
 export function ProductPriceDetails({
-    price = 2000,
+    grossPrice = 2000,
     unit = 'db',
     cardText
-}: Readonly<{ price?: number; unit?: string; cardText?: string }>) {
+}: Readonly<{ grossPrice?: number; unit?: string; cardText?: string }>) {
     const priceDetailsStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'row',
@@ -266,7 +290,7 @@ export function ProductPriceDetails({
     return (
         <div style={priceDetailsStyle}>
             <span style={priceStyle}>
-                {fCurrency(price)} <span style={unitStyle}>/ {unit}</span>
+                {fCurrency(grossPrice)} <span style={unitStyle}>/ {unit}</span>
             </span>
             {cardText && (
                 <Tooltip title={cardText} arrow placement="top">

@@ -18,6 +18,7 @@ import { useGetOption } from 'src/actions/options';
 import { Iconify } from 'src/components/iconify';
 
 import { OptionsEnum } from 'src/types/option';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +27,8 @@ type CustomProductFormProps = {
 };
 
 export function CheckoutCustomProductForm({ onAddCustomProduct }: CustomProductFormProps) {
+    const {user} = useAuthContext();
+
     const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -76,18 +79,20 @@ export function CheckoutCustomProductForm({ onAddCustomProduct }: CustomProductF
         // Use the configured base price for custom products (fixed price, not affected by quantity)
         const basePrice = customProductBasePrice || 0;
 
+        const vatPercent = user?.user_metadata.is_vip || false ? 0 : 27;
+
         // Create a custom product item
         const customItem: ICheckoutItem = {
             id: Date.now().toString(), // Temporary ID for custom products
             name: formData.name.trim(),
-            grossPrice: basePrice,
-            netPrice: basePrice / 1.27, // Assuming 27% VAT for custom products
-            vatPercent:27,
+            grossPrice: basePrice * (1 + (vatPercent / 100)),
+            netPrice: basePrice,
+            vatPercent: vatPercent,
             unit,
             coverUrl: '', // No image for custom products
             quantity,
             available: 999, // Set high availability for custom products
-            subtotal: basePrice, // Fixed price regardless of quantity
+            subtotal: basePrice * (1 + (vatPercent / 100)) * quantity,
             note: formData.note.trim() || undefined,
             minQuantity: 1,
             maxQuantity: 999,

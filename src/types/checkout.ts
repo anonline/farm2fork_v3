@@ -42,6 +42,7 @@ export type ICheckoutCardOption = {
 };
 
 export type ICheckoutState = {
+    userId: string | null;
     total: number;
     subtotal: number;
     discount: number;
