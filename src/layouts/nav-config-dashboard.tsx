@@ -101,9 +101,7 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.product,
                 children: [
                     { title: 'Összes termék', path: paths.dashboard.product.root },
-                    { title: 'Részletek', path: paths.dashboard.product.demo.details },
                     { title: 'Új termék', path: paths.dashboard.product.new },
-                    { title: 'Szerkesztés', path: paths.dashboard.product.demo.edit },
                     { title: 'Kategóriák', path: paths.dashboard.product.categories.root },
                 ],
             },

@@ -19,9 +19,9 @@ type CategoryCardProps = {
 
 export default function CategoryCard({ isOpen, control, categoriesLoading, categories }: Readonly<CategoryCardProps>) {
     const categoryOptions = categories
-    .filter(cat => cat.id != null && cat.name != 'Összes termék')
+    .filter(cat => cat.id != null)
     .map(cat => ({ value: cat.id as number, label: cat.name, parent: cat.parentId }));
-
+    
     return (
         <Card>
             <EditCardHeader title="Kategóriák" isOpen={isOpen} sx={{ mb: 2 }} />

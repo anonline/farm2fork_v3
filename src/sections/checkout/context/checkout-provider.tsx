@@ -118,7 +118,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     const updateTotals = useCallback(() => {
         const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
         const subtotal = state.items.reduce(
-            (total, item) => total + (item.custom === true ? 1 : item.quantity) * item.price,
+            (total, item) => total + (item.custom === true ? 1 : item.quantity) * item.grossPrice,
             0
         );
 
@@ -205,13 +205,14 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             newItem.quantity = Math.max(newItem.quantity, newItem.minQuantity ?? 1);
             newItem.quantity = Math.min(newItem.quantity, newItem.maxQuantity ?? 100);
             newItem.quantity = Math.round(newItem.quantity / (newItem.stepQuantity ?? 1)) * (newItem.stepQuantity ?? 1);
-            newItem.subtotal = (newItem.custom === true ? 1 : newItem.quantity) * newItem.price;
+            newItem.subtotal = (newItem.custom === true ? 1 : newItem.quantity) * newItem.grossPrice;
 
             const updatedItems = state.items.map((item) => {
                 if (item.id === newItem.id) {
                     return {
                         ...item,
                         quantity: item.quantity + newItem.quantity,
+                        subtotal: (item?.subtotal || 0) + (newItem?.subtotal || 0),
                     };
                 }
                 return item;
@@ -256,9 +257,9 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
 
                     //If we are modifying custom item, we do not know the price so keep the base price
                     if (item.custom === true) {
-                        item.subtotal = item.price;
+                        item.subtotal = item.grossPrice;
                     } else {
-                        item.subtotal = item.price * quantity;
+                        item.subtotal = item.grossPrice * quantity;
                     }
 
                     return { ...item, quantity };

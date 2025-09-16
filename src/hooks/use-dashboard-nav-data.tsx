@@ -91,9 +91,7 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                         icon: ICONS.product,
                         children: [
                             { title: 'Összes termék', path: paths.dashboard.product.root },
-                            { title: 'Részletek', path: paths.dashboard.product.demo.details },
                             { title: 'Új termék', path: paths.dashboard.product.new },
-                            { title: 'Szerkesztés', path: paths.dashboard.product.demo.edit },
                             { title: 'Kategóriák', path: paths.dashboard.product.categories.root },
                         ],
                     },
@@ -124,8 +122,8 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                             { title: 'Összes hír', path: paths.dashboard.post.root },
                             { title: 'Kategóriák kezelése', path: paths.dashboard.post.categories.root },
                         ],
-                    },
-                    { title: 'File manager', path: paths.dashboard.fileManager, icon: ICONS.folder },
+                    }
+                    //{ title: 'File manager', path: paths.dashboard.fileManager, icon: ICONS.folder },
                 ],
             },
             /**
@@ -145,10 +143,10 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                         path: '#/dashboard/menu_level',
                         icon: ICONS.parameter,
                         children: [
-                            { 
+                            /*{ 
                                 title: 'Kezdőképernyő beállításai', 
                                 path: '#/dashboard/settings/home' 
-                            },
+                            },*/
                             {
                                 title: 'Vásárlás',
                                 path: paths.dashboard.settings.purchase,

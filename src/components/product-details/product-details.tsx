@@ -11,6 +11,8 @@ import { ProducersProvider } from 'src/contexts/producers-context';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import { Months } from 'src/types/product';
 
 import { Image } from '../image';
@@ -22,6 +24,7 @@ import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
 
 export default function ProductDetails() {
+    const {roles, user} = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
 
     const { product, loading } = useProduct();
@@ -85,6 +88,18 @@ export default function ProductDetails() {
             </Box>
         );
 
+    const getPrice = () => {
+        if(user?.user_metadata?.is_vip) {
+            return product?.netPriceVIP;
+        }
+
+        if(user?.user_metadata?.is_corp) {
+            return product?.netPriceCompany;
+        }
+
+        return product?.salegrossPrice ?? product?.grossPrice;
+    }
+    
     const renderPriceDetails = () => {
         const priceDetailsStyle = {
             display: 'flex',
@@ -107,7 +122,7 @@ export default function ProductDetails() {
             fontWeight: 400,
             color: themeConfig.textColor.muted,
         };
-        const formattedPrice = fCurrency(product?.netPrice);
+        const formattedPrice = fCurrency(getPrice());
         return (
             <Box sx={priceDetailsStyle}>
                 <Typography component="span" sx={priceStyle}>

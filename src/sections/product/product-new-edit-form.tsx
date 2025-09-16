@@ -19,8 +19,8 @@ import { deleteFile, uploadFile } from 'src/lib/blob/blobClient';
 import { useProductCategoryConnection } from 'src/contexts/product-category-connection-context';
 import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCategoryRelations } from 'src/actions/product';
 
+import { Form} from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
-import { Form, schemaHelper} from 'src/components/hook-form';
 
 import PricingCard from './new-edit-form/pricing-card';
 import DetailsCard from './new-edit-form/details-card';
@@ -34,6 +34,8 @@ import SeasonalityCard from './new-edit-form/seasonality-card';
 const UNIT_OPTIONS = [
     { value: 'kg', label: 'kg' }, { value: 'db', label: 'db' }, { value: 'csomag', label: 'csomag' },
     { value: 'üveg', label: 'üveg' }, { value: 'csokor', label: 'csokor' }, { value: 'doboz', label: 'doboz' },
+    { value: 'box', label: 'box' }, { value: 'köteg', label: 'köteg' }, { value: 'csomó', label: 'csomó' },
+    { value: 'rekesz', label: 'rekesz' }, { value: 'tálca', label: 'tálca' }, { value: 'zsák', label: 'zsák' }
 ];
 
 const monthValues: [MonthKeys, ...MonthKeys[]] = [
@@ -44,7 +46,7 @@ const monthValues: [MonthKeys, ...MonthKeys[]] = [
 export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
-    shortDescription: schemaHelper.editor().optional(),
+    shortDescription: zod.string().optional(),
     cardText: zod.string().optional(),
     storingInformation: zod.string().optional(),
     usageInformation: zod.string().optional(),
@@ -68,12 +70,11 @@ export const NewProductSchema = zod.object({
     bio: zod.boolean(),
     netPrice: zod
         .number({ coerce: true })
-        .int({ message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes nettó árat!' }),
     grossPrice: zod
         .number({ coerce: true })
-        .int({ message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
+        .int({ message: 'Kérjük, adjon meg egy érvényes (egész) bruttó árat!' })
         .min(0, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' })
         .max(999999, { message: 'Kérjük, adjon meg egy érvényes bruttó árat!' }),
     salegrossPrice: zod
@@ -220,6 +221,37 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         return name.split('').map(char => hungarianMap[char] || char).join('').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
     };
 
+    const scrollToInvalidField = useCallback(() => {
+        // Get the first field with an error
+        const firstError = Object.keys(methods.formState.errors)[0];
+        if (firstError) {
+            // Try to find the field element by name attribute
+            const fieldElement = document.querySelector(`.Mui-error`) as HTMLElement;
+            if (fieldElement) {
+                // Scroll to the field with some offset for better visibility
+                fieldElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                // Focus the field if it's focusable
+                if (fieldElement.focus) {
+                    setTimeout(() => fieldElement.focus(), 100);
+                }
+                return;
+            }
+            
+            // Fallback: try to find by data-testid or aria-label
+            const fallbackElement = document.querySelector(`[data-testid="${firstError}"]`) || 
+                                   document.querySelector(`[aria-label*="${firstError}"]`) as HTMLElement;
+            if (fallbackElement) {
+                fallbackElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }
+        }
+    }, [methods.formState.errors]);
+
     const handleURLGenerate = useCallback(async (e: { target: { value: string } }) => {
         const name = e.target.value;
         const slug = generateSlug(name);
@@ -325,6 +357,13 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             console.error(error);
             toast.error(error.message || 'Hiba történt a mentés során.');
         }
+    }, (errors) => {
+        // This callback is called when form validation fails
+        console.log('Form validation errors:', errors);
+        // Scroll to the first invalid field
+        setTimeout(() => {
+            scrollToInvalidField();
+        }, 100);
     });
 
     const renderDetails = () => (

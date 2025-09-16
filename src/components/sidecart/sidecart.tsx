@@ -1,3 +1,5 @@
+import type { ICheckoutItem } from 'src/types/checkout';
+
 import { useTheme } from '@mui/material/styles';
 import {
     Box,
@@ -346,7 +348,7 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
 // ----------------------------------------------------------------------
 
 type SideCartItemProps = {
-    item: any;
+    item: ICheckoutItem;
     onDeleteCartItem?: (itemId: string) => void;
     onChangeItemQuantity?: (itemId: string, quantity: number) => void;
     onAddNote?: (itemId: string, note: string) => void;
@@ -399,7 +401,7 @@ export function SideCartItem({
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {fCurrency(item.price)}/{item.unit || 'db'}
+                    {fCurrency(item.grossPrice)}/{item.unit || 'db'}
                 </Typography>
 
                 {/* Quantity and Delete */}
@@ -407,7 +409,7 @@ export function SideCartItem({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <NumberInput
                             disabled={hideControl}
-                            value={item.quantity.toFixed(item.quantity % 1 !== 0 ? 1 : 0)}
+                            value={item.quantity*100/100}
                             onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
                             min={item.minQuantity || 1}
                             max={item.maxQuantity || 999}

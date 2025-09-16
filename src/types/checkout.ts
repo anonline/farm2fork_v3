@@ -7,7 +7,8 @@ export type ICheckoutItem = {
     id: string;
     name: string;
     size?: string;
-    price: number;
+    grossPrice: number;
+    netPrice: number;
     unit?: string;
     coverUrl: string;
     colors?: string[];
@@ -20,7 +21,7 @@ export type ICheckoutItem = {
     stepQuantity?: number;
     custom?: boolean;
     slug?: string;
-    vat?: number;
+    vatPercent?: number;
 };
 
 export type ICheckoutDeliveryOption = {

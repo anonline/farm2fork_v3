@@ -554,10 +554,10 @@ function ProductCardButton({
     sx,
 }: Readonly<ProductCardButtonProps>) {
     // if we want to open sidecart on addToCart we should use this: const { openSideCart } = useSideCart();
-    const { roles } = useAuthContext();
-    const isVIP = roles?.isVip || false;
-    const isCORP = roles?.isCorp || false;
-    const isADMIN = roles?.isAdmin || false;
+    const { roles, user } = useAuthContext();
+    const isVIP = user?.user_metadata?.is_vip || false;
+    const isCORP = user?.user_metadata?.is_corp || false;
+    const isADMIN = user?.user_metadata?.is_admin || false;
     const baseStyle: SxProps = {
         ...sx,
         padding: '10px 16px',
@@ -582,18 +582,55 @@ function ProductCardButton({
         cursor: 'not-allowed',
     };
 
+    const getGrossPrice = () => {
+        if (user?.user_metadata?.is_vip) {
+            return product?.netPriceVIP;
+        }
+
+        if (user?.user_metadata?.is_corp) {
+            return product?.netPriceCompany*(1+(product?.vat ?? 0)/100);
+        }
+
+        return product?.salegrossPrice ?? product?.grossPrice;
+    }
+
+    const getNetPrice = () => {
+        if(user?.user_metadata?.is_vip) {
+            return product?.netPriceVIP;
+        }
+
+        if(user?.user_metadata?.is_corp) {
+            return product?.netPriceCompany;
+        }
+
+        if(product?.salegrossPrice) {
+            return product?.salegrossPrice/(1+(product?.vat ?? 0)/100);
+        }
+        
+        return product?.netPrice;
+    }
+
+    const getVatPercent = () => {
+        if(user?.user_metadata?.is_vip) {
+            return 0;
+        }
+
+        return product?.vat ?? 27;
+    }
+    
     const handleButtonClick = () => {
         if (onAddToCart) {
             onAddToCart({
                 id: product.id,
                 name: product.name,
-                price: (isVIP || isADMIN || isCORP ) ? product.netPrice : product.grossPrice,
+                grossPrice: getGrossPrice(),
+                netPrice: getNetPrice(),
                 coverUrl: product.featuredImage,
                 quantity: qty,
-                vat: product.vat,
+                vatPercent: getVatPercent(),
                 unit: product.unit,
                 available: product.maximumQuantity,
-                subtotal: (isVIP || isADMIN || isCORP) ? product.netPrice : product.grossPrice,
+                //subtotal: (isVIP || isADMIN || isCORP) ? product.netPrice : product.grossPrice,
                 minQuantity: product.mininumQuantity,
                 maxQuantity: product.maximumQuantity,
                 stepQuantity: product.stepQuantity,

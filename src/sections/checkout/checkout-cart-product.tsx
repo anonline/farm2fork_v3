@@ -101,7 +101,7 @@ export function CheckoutCartProduct({
                                 color: '#7e7e7e',
                             }}
                         >
-                            {fCurrency(row.price)}/{row.unit ?? 'db'}
+                            {fCurrency(row.grossPrice)}/{row.unit ?? 'db'}
                         </Typography>
 
                         <Box

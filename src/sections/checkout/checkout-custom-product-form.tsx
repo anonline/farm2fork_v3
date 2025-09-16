@@ -80,7 +80,9 @@ export function CheckoutCustomProductForm({ onAddCustomProduct }: CustomProductF
         const customItem: ICheckoutItem = {
             id: Date.now().toString(), // Temporary ID for custom products
             name: formData.name.trim(),
-            price: basePrice,
+            grossPrice: basePrice,
+            netPrice: basePrice / 1.27, // Assuming 27% VAT for custom products
+            vatPercent:27,
             unit,
             coverUrl: '', // No image for custom products
             quantity,

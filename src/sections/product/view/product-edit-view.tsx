@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@mui/material';
+
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -24,6 +26,11 @@ export function ProductEditView() {
                     { name: 'Termék', href: paths.dashboard.product.root },
                     { name: 'Szerkesztés' },
                 ]}
+                action={
+                    product?.url && (<Button variant="contained" color="primary" href={paths.product.details(product?.url)} target="_blank" rel="noopener" disabled={!product}>
+                        Megtekintés
+                    </Button>)
+                }
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 
