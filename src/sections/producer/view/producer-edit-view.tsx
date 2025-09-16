@@ -2,7 +2,10 @@
 
 import { useParams } from 'next/navigation';
 
+import { Button } from '@mui/material';
+
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetProducerBySlug } from 'src/actions/producer';
@@ -26,6 +29,19 @@ export default function ProducerEditView() {
                     { name: 'Termelők', href: paths.dashboard.producer.root },
                     { name: producer?.name || '...' },
                 ]}
+                action={
+                    <>
+                        {producer && (<Button
+                            component={RouterLink}
+                            href={paths.producers.details(producer.slug)}
+                            variant="contained"
+                            color='primary'
+                            target="_blank"
+                        >
+                            Megnyitás
+                        </Button>)}
+                    </>
+                }
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 

@@ -27,6 +27,15 @@ export function ProducerTableFiltersResult({ filters, totalResults, sx }: Props)
         [updateFilters, currentFilters.bio]
     );
 
+    const handleRemoveEnabled = useCallback(
+        (inputValue: string) => {
+            const newValue = currentFilters.enabled.filter((item) => item !== inputValue);
+
+            updateFilters({ enabled: newValue });
+        },
+        [updateFilters, currentFilters.enabled]
+    );
+
     return (
         <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
             <FiltersBlock label="Bio:" isShow={!!currentFilters.bio.length}>
@@ -34,8 +43,18 @@ export function ProducerTableFiltersResult({ filters, totalResults, sx }: Props)
                     <Chip
                         {...chipProps}
                         key={item}
-                        label={upperFirst(item)}
+                        label={upperFirst(item === 'true' ? 'Igen' : 'Nem')}
                         onDelete={() => handleRemoveBio(item)}
+                    />
+                ))}
+            </FiltersBlock>
+            <FiltersBlock label="Engedélyezve:" isShow={!!currentFilters.enabled.length}>
+                {currentFilters.enabled.map((item) => (
+                    <Chip
+                        {...chipProps}
+                        key={item}
+                        label={upperFirst(item === 'true' ? 'Igen' : 'Nem')}
+                        onDelete={() => handleRemoveEnabled(item)}
                     />
                 ))}
             </FiltersBlock>

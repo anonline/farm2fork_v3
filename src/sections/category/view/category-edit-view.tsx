@@ -7,7 +7,6 @@ import Link from 'next/link';
 import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks/use-router';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 

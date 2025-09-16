@@ -49,6 +49,7 @@ export function useInfiniteProducers({
         let query = supabase
             .from('Producers')
             .select('*', { count: 'exact' })
+            .eq('enabled', true) // Only fetch enabled producers
             .range(offset, offset + limit - 1);
 
         // Apply search filter

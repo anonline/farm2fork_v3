@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
     const { data: matchingProducers, error: producerError } = await supabase
         .from('Producers')
         .select('id')
+        .eq('enabled', true)
         .or(
             `name.ilike.%${q}%,location.ilike.%${q}%,shortDescription.ilike.%${q}%,producingTags.ilike.%${q}%,companyName.ilike.%${q}%`
         );

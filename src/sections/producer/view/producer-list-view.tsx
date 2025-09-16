@@ -47,10 +47,10 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ProducerTableToolbar } from '../producer-table-toolbar';
 import { ProducerTableFiltersResult } from '../producer-table-filters-result';
 import {
-    RenderCellBio,
     RenderCellName,
     RenderCellCreatedAt,
     RenderCellProducingTags,
+    RenderCellEnabled,
 } from '../producer-table-row';
 
 // ----------------------------------------------------------------------
@@ -58,6 +58,11 @@ import {
 const BIO_OPTIONS = [
     { value: 'true', label: 'BIO' },
     { value: 'false', label: 'Nem BIO' },
+];
+
+const ENABLED_OPTIONS = [
+    { value: 'true', label: 'Engedélyezve' },
+    { value: 'false', label: 'Letiltva' },
 ];
 
 const HIDE_COLUMNS = { category: false };
@@ -75,7 +80,7 @@ export function ProducerListView() {
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
 
-    const filters = useSetState<IProducerTableFilters>({ bio: [] });
+    const filters = useSetState<IProducerTableFilters>({ bio: [], enabled: [] });
     const { state: currentFilters } = filters;
 
     const [columnVisibilityModel, setColumnVisibilityModel] =
@@ -141,10 +146,10 @@ export function ProducerListView() {
     const columns: GridColDef[] = [
         { field: 'category', headerName: 'Category', filterable: false },
         {
-            field: 'bio',
-            headerName: '',
-            width: 80,
-            renderCell: (params) => <RenderCellBio params={params} />,
+            field: 'enabled',
+            headerName: 'Engedélyezve',
+            width: 120,
+            renderCell: (params) => <RenderCellEnabled params={params} />,
         },
         {
             field: 'name',
@@ -257,10 +262,10 @@ export function ProducerListView() {
 
                 <Card
                     sx={{
-                        minHeight: 640,
+                        minHeight: 840,
                         flexGrow: { md: 1 },
                         display: { md: 'flex' },
-                        height: { xs: 800, md: '1px' },
+                        height: { xs: 800, md: 'auto' },
                         flexDirection: { md: 'column' },
                     }}
                 >
@@ -271,8 +276,8 @@ export function ProducerListView() {
                         columns={columns}
                         loading={producersLoading}
                         getRowHeight={() => 'auto'}
-                        pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
-                        initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                        pageSizeOptions={[5, 10, 20, 50, 100, { value: -1, label: 'Összes' }]}
+                        initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
                         onRowSelectionModelChange={(newSelectionModel) =>
                             setSelectedRowIds(newSelectionModel)
                         }
@@ -334,7 +339,7 @@ function CustomToolbar({
     return (
         <>
             <GridToolbarContainer>
-                <ProducerTableToolbar filters={filters} options={{ bios: BIO_OPTIONS }} />
+                <ProducerTableToolbar filters={filters} options={{ bios: BIO_OPTIONS, enabled: ENABLED_OPTIONS }} />
                 <GridToolbarQuickFilter />
                 <Box
                     sx={{
@@ -357,7 +362,6 @@ function CustomToolbar({
                     )}
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton ref={setFilterButtonEl} />
-                    <GridToolbarExport />
                 </Box>
             </GridToolbarContainer>
             {canReset && (
@@ -413,7 +417,11 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, filters }: ApplyFilterProps) {
-    const { bio } = filters;
+    const { bio, enabled } = filters;
+
+    if (enabled.length) {
+        inputData = inputData.filter((producer) => enabled.includes(producer.enabled.toString()));
+    }
 
     if (bio.length) {
         inputData = inputData.filter((producer) => bio.includes(producer.bio.toString()));

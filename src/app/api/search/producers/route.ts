@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
         .from('Producers')
         .select('*')
+        .eq('enabled', true)
         .or(searchConditions.join(','));
 
     if (error) {

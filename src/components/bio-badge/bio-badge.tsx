@@ -1,7 +1,7 @@
 import { CONFIG } from 'src/global-config';
 
 type BioBadgeSvgProps = {
-    style: React.CSSProperties;
+    style?: React.CSSProperties;
     width?: number;
     height?: number;
 };

@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             .from('Producers')
             .select('name')
             .eq('slug', slug)
+            .eq('enabled', true)
             .single();
 
         return {

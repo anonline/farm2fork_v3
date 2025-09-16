@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: `Termelők | Dashboard - ${CONFIG.app
 
 export default function Page() {
     return (
-        <ProducersProvider>
+        <ProducersProvider showDisabled={true}>
             <ProducerListView />
         </ProducersProvider>
     );

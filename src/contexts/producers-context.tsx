@@ -21,7 +21,7 @@ export const ProducersContext = createContext<ProducersContextType>({
     error: null,
 });
 
-export function ProducersProvider({ children }: Readonly<{ children: ReactNode }>) {
+export function ProducersProvider({ showDisabled = false, children }: Readonly<{ showDisabled?: boolean; children: ReactNode }>) {
     const [producers, setProducers] = useState<IProducerItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
@@ -29,10 +29,16 @@ export function ProducersProvider({ children }: Readonly<{ children: ReactNode }
     useEffect(() => {
         async function fetchProducers() {
             setLoading(true);
-            const { data, error } = await supabase
+
+            let query = supabase
                 .from('Producers')
                 .select('*')
                 .order('name', { ascending: true });
+
+            if(!showDisabled) query = query.eq('enabled', !showDisabled);
+
+            const { data, error } = await query;
+
             if (error) {
                 setLoadError(error.message);
                 setProducers([]);

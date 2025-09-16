@@ -10,12 +10,15 @@ export type IProducerItem = {
     companyName: string;
     slug: string;
     location: string;
+    enabled: boolean;
 };
 
 export type IProducerTableFilters = {
     bio: string[];
+    enabled: string[];
 };
 
 export type IProducerFilters = {
     bio: string[];
+    enabled: string[];
 };

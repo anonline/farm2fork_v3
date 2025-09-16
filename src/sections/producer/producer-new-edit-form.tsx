@@ -47,6 +47,7 @@ const ProducerSchema = zod.object({
         .nullable()
         .optional(),
     productIds: zod.array(zod.string()).optional(),
+    enabled: zod.boolean(),
 });
 
 type ProducerSchemaType = zod.infer<typeof ProducerSchema>;
@@ -73,6 +74,7 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
             producingTags: currentProducer?.producingTags || '',
             featuredImage: currentProducer?.featuredImage || null,
             productIds: assignedProductIds,
+            enabled: currentProducer?.enabled || false,
         };
     }, [currentProducer, products]);
 
@@ -169,6 +171,7 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                 bio: data.bio,
                 shortDescription: plainShortDescription || undefined,
                 producingTags: data.producingTags || undefined,
+                enabled: data.enabled || false,
                 featuredImage: typeof finalImageUrl === 'string' ? finalImageUrl : undefined,
             };
 
@@ -212,6 +215,8 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                                 <RHFTextField
                                     name="slug"
                                     label="URL (slug)"
+                                    variant="filled"
+
                                     InputProps={{ readOnly: true }}
                                 />
                                 <RHFTextField name="companyName" label="Cég neve" />
@@ -288,6 +293,7 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                         <Card>
                             <CardHeader title="Beállítások" />
                             <Stack spacing={3} sx={{ p: 3 }}>
+                                <RHFSwitch name="enabled" label="Engedélyezett" />
                                 <RHFSwitch name="bio" label="BIO termelő" />
                             </Stack>
                         </Card>
