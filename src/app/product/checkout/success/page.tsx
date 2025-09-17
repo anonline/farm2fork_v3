@@ -148,11 +148,11 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                     />
 
                     <Typography variant="h3" sx={{ mb: 2 }}>
-                        Sikertelen fizetés
+                        Sikertelen rendelés
                     </Typography>
 
                     <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-                        Sajnos a fizetés nem sikerült vagy megszakadt.
+                        Sajnos a rendelés nem sikerült vagy megszakadt.
                         <br />
                         Rendelésszám: <strong>{orderId}</strong>
                     </Typography>
