@@ -431,10 +431,18 @@ export function CheckoutPayment() {
             const selectedAddress = customerData.billingAddress[index];
             const addressItem: IAddressItem = {
                 name: selectedAddress.fullName,
-                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.street}`,
+                postcode: selectedAddress.postcode || '',
+                city: selectedAddress.city || '',
+                street: selectedAddress.street || '',
+                doorbell: selectedAddress.doorbell || '',
+                floor: selectedAddress.floor || '',
+                houseNumber: selectedAddress.houseNumber || '',
+                email: selectedAddress.email || '',
+                taxNumber: selectedAddress.taxNumber || '',
+                company: selectedAddress.companyName || '',
+                fullAddress: `${selectedAddress.postcode} ${selectedAddress.city}, ${selectedAddress.street} ${selectedAddress.houseNumber}${selectedAddress.floor ? `, ${selectedAddress.floor} ${selectedAddress.doorbell ? `, ${selectedAddress.doorbell}` : ''}` : ''}`,
                 phoneNumber: selectedAddress.phone || '',
                 addressType: 'billing',
-                company: selectedAddress.companyName || '',
             };
             onCreateBillingAddress(addressItem);
         }
@@ -514,7 +522,9 @@ export function CheckoutPayment() {
     };
 
     const handleBillingAddressChange = (index: number) => {
+        console.log('setting bindex:',index);
         setSelectedBillingAddressIndex(index);
+        setValue('billingAddressIndex', index);
         updateBillingAddressInContext(index);
     };
 
@@ -534,6 +544,7 @@ export function CheckoutPayment() {
             // Set the new address as selected
             const newIndex = updatedAddresses.length - 1;
             setSelectedBillingAddressIndex(newIndex);
+            setValue('billingAddressIndex', newIndex);
             updateBillingAddressInContext(newIndex);
 
             toast.success('Számlázási cím sikeresen hozzáadva');
@@ -726,8 +737,9 @@ export function CheckoutPayment() {
         if (customerData?.billingAddress?.length && selectedBillingAddressIndex === null) {
             // Set first billing address as default
             setSelectedBillingAddressIndex(0);
+            setValue('billingAddressIndex', 0);
         }
-    }, [customerData?.billingAddress, selectedBillingAddressIndex]);
+    }, [customerData?.billingAddress, selectedBillingAddressIndex, setValue]);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -799,17 +811,18 @@ export function CheckoutPayment() {
                         id: data.billingAddressIndex.toString(),
                         primary: false,
                         name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
-                        postcode: addr.postcode,
+                        postcode: addr.postcode || addr.zipCode || '',
                         city: addr.city,
                         street: addr.street,
                         floor: addr.floor || '',
                         houseNumber: addr.houseNumber || '',
                         doorbell: addr.doorbell || '',
                         note: addr.comment || '',
-                        fullAddress: `${addr.zipCode} ${addr.city}, ${addr.street} ${addr.floor ? `, ${addr.floor}` : ''}`,
+                        fullAddress: `${addr.postcode} ${addr.city}, ${addr.street} ${addr.houseNumber} ${addr.floor ? `, ${addr.floor}` : ''} ${addr.doorbell ? `, ${addr.doorbell}` : ''}`,
                         phoneNumber: addr.phone || '',
                         company: addr.companyName || '',
                         taxNumber: addr.taxNumber || '',
+                        email: addr.email || user?.email || '',
                     };
                 }
             }
@@ -832,12 +845,12 @@ export function CheckoutPayment() {
             }));
 
             const totalVat = user?.user_metadata?.is_vip ? 0 : checkoutState.items.reduce((vat, item) => {
-                const itemsVat = item.netPrice * (1 + (item?.vatPercent || 0) /100);
+                const itemsVat = item.netPrice * ((item?.vatPercent || 0) /100) * item.quantity;
                 let shippingVat = 0;
                 if(selectedShippingMethodData && shouldApplyVATForShipping(selectedShippingMethodData)){
-                    shippingVat = checkoutState.shipping / selectedShippingMethodData.vat;
+                    shippingVat = checkoutState.shipping * selectedShippingMethodData.vat/100;
                 }
-                return vat + itemsVat;
+                return vat + itemsVat + shippingVat;
             }, 0)
 
             // Prepare order data

@@ -25,6 +25,7 @@ export type IAddressItem = {
     doorbell?: string;
     note?: string;
     taxNumber?: string;
+    email?: string;
 };
 
 export type IDateValue = string | number | null;
