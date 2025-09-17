@@ -831,7 +831,7 @@ export function CheckoutPayment() {
                 slug: item.slug || '',
             }));
 
-            const totalVat = checkoutState.items.reduce((vat, item) => {
+            const totalVat = user?.user_metadata?.is_vip ? 0 : checkoutState.items.reduce((vat, item) => {
                 const itemsVat = item.netPrice * (1 + (item?.vatPercent || 0) /100);
                 let shippingVat = 0;
                 if(selectedShippingMethodData && shouldApplyVATForShipping(selectedShippingMethodData)){
@@ -849,7 +849,7 @@ export function CheckoutPayment() {
                 note: checkoutState.deliveryComment.trim() || '',
                 shippingAddress: deliveryAddress,
                 billingAddress,
-                denyInvoice: false, // You might want to add this to checkout state
+                denyInvoice: user?.user_metadata?.is_vip || false, // You might want to add this to checkout state
                 needVAT: false, // You might want to add this to checkout state
                 surchargeAmount: checkoutState.surcharge,
                 items: orderItems,

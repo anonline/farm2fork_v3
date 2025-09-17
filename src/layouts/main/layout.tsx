@@ -7,7 +7,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Chip, Tooltip, useTheme, Container } from '@mui/material';
+import { Chip, Tooltip, useTheme, Container, Link } from '@mui/material';
 
 import { fPercent } from 'src/utils/format-number';
 
@@ -37,6 +37,7 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -93,7 +94,7 @@ function MainLayoutContent({
             try {
                 // Use the new function that checks and creates announcements if needed
                 const announcementData = await ensureValidAnnouncement();
-                
+
                 if (announcementData && announcementData.text) {
                     setAnnouncement(announcementData.text);
                 }
@@ -110,45 +111,53 @@ function MainLayoutContent({
         const isCorp = authContext.user?.user_metadata?.is_corp;
         const isVip = authContext.user?.user_metadata?.is_vip;
         const discountPercent = authContext.user?.user_metadata?.discountPercent || 0;
-        
+
         const percentLabel = discountPercent > 0 ? ` -${fPercent(discountPercent)}` : '';
 
-        
+
 
         const showChip = isAdmin || isCorp || isVip || discountPercent > 0;
         const chipColor = isAdmin ? 'primary' : isCorp ? 'info' : isVip ? 'warning' : 'success';
         let chipLabel = '';
 
-        if(isAdmin){
+        if (isAdmin) {
             chipLabel = 'Admin';
         }
-        else if(isCorp){
-            if(discountPercent > 0){
+        else if (isCorp) {
+            if (discountPercent > 0) {
                 chipLabel = percentLabel;
             }
-            else{
+            else {
                 chipLabel = 'Céges';
             }
         }
-        else if(isVip){
-            if(discountPercent > 0){
+        else if (isVip) {
+            if (discountPercent > 0) {
                 chipLabel = percentLabel;
             }
             else {
                 chipLabel = 'VIP';
             }
-            
+
         }
-        else if(discountPercent > 0){
+        else if (discountPercent > 0) {
             chipLabel = percentLabel;
         }
 
-        const toolTipLabel = isAdmin && "Adminisztráció" || 
-        isCorp && "Céges kedvezményben részesülsz." || 
-        isVip && "VIP kedvezményben részesülsz." ||
-        discountPercent > 0 && `- ${fPercent(discountPercent)} kedvezményben részesülsz, amely már levonásra került az árakból.`;
+        const toolTipLabel = isAdmin && "Adminisztráció" ||
+            isCorp && "Céges kedvezményben részesülsz." ||
+            isVip && "VIP kedvezményben részesülsz." ||
+            discountPercent > 0 && `- ${fPercent(discountPercent)} kedvezményben részesülsz, amely már levonásra került az árakból.`;
 
         if (showChip) {
+            if (isAdmin) {
+                return (
+                    <Link href={paths.dashboard.root} target="_blank" style={{ textDecoration: 'none' }}>
+                        <Tooltip title={toolTipLabel}>
+                            <Chip variant="soft" label={chipLabel} color={chipColor} />
+                        </Tooltip>
+                    </Link>);
+            }
             return <Tooltip title={toolTipLabel}><Chip variant="soft" label={chipLabel} color={chipColor} /></Tooltip>;
         }
         return null;
@@ -196,7 +205,7 @@ function MainLayoutContent({
                 >
                     {/* Logo - always visible */}
                     <Logo sx={{ marginRight: { xs: 0, [layoutQuery]: '30px' }, marginTop: '-8px' }} />
-                    
+
                     {/* Desktop Navigation - hidden on mobile */}
                     <Container
                         sx={{
@@ -220,10 +229,10 @@ function MainLayoutContent({
                 </Box>
             ),
             rightArea: (
-                <Box 
-                    sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: { xs: 0.5, sm: 1.5 },
                         // Mobile: compact layout for icons
                         [theme.breakpoints.down(layoutQuery)]: {
@@ -281,13 +290,13 @@ function MainLayoutContent({
                         onClick={onOpen}
                         sx={(muiTheme) => ({
                             display: 'none',
-                            [muiTheme.breakpoints.down(layoutQuery)]: { 
+                            [muiTheme.breakpoints.down(layoutQuery)]: {
                                 display: 'flex',
                                 ml: 0.5,
                             },
                         })}
                     />
-                    
+
                     {/* Mobile Navigation Drawer */}
                     <NavMobile data={navData} open={open} onClose={onClose} />
                 </Box>
