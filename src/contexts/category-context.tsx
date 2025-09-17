@@ -30,10 +30,8 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
         async function fetchProductCategories() {
             setLoading(true);
             const { data, error } = await supabase
-                .from('ProductCategories')
-                .select('*')
-                .eq('enabled', true)
-                .order('order', { ascending: true });
+                .rpc('get_enabled_categories_with_products');
+
             if (error) {
                 setLoadError(error.message);
                 setCategories([]);
@@ -42,7 +40,6 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
                 const sortedCategories = sortCategoriesByChildren(data ?? []);
                 setCategories(sortedCategories);
                 //console.log('sorted:', sortedCategories);
-
                 setLoadError(null);
             }
             setLoading(false);

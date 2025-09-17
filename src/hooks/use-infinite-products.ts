@@ -62,13 +62,7 @@ export function useInfiniteProducts({
             // For category filtering, we need to join with ProductCategories_Products
             query = supabase
                 .from('ProductCategories_Products')
-                .select(`
-                    Products!inner(
-                        *,
-                        producer:Producers(*),
-                        category:ProductCategories(*)
-                    )
-                `, { count: 'exact' })
+                .select(`Products!inner(*,producer:Producers(*),category:ProductCategories(*))`, { count: 'exact' })
                 .eq('categoryId', categoryId)
                 .range(offset, offset + limit - 1);
         }
@@ -93,29 +87,52 @@ export function useInfiniteProducts({
 
         // Apply sorting
         if (sorting && sorting !== 'default') {
-            const orderColumn = categoryId !== undefined && categoryId !== 42 ? 'Products.name' : 'name';
-            const priceColumn = categoryId !== undefined && categoryId !== 42 ? 'Products.netPrice' : 'netPrice';
-
-            switch (sorting) {
-                case 'name-asc':
-                    query = query.order(orderColumn, { ascending: true });
-                    break;
-                case 'name-desc':
-                    query = query.order(orderColumn, { ascending: false });
-                    break;
-                case 'price-asc':
-                    query = query.order(priceColumn, { ascending: true });
-                    break;
-                case 'price-desc':
-                    query = query.order(priceColumn, { ascending: false });
-                    break;
-                default:
-                    query = query.order(orderColumn, { ascending: true });
-                    break;
+            if (categoryId !== undefined && categoryId !== 42) {
+                // For joined queries, use the foreign key syntax
+                switch (sorting) {
+                    case 'name-asc':
+                        query = query.order('Products(name)', { ascending: true });
+                        break;
+                    case 'name-desc':
+                        query = query.order('Products(name)', { ascending: false });
+                        break;
+                    case 'price-asc':
+                        query = query.order('Products(netPrice)', { ascending: true });
+                        break;
+                    case 'price-desc':
+                        query = query.order('Products(netPrice)', { ascending: false });
+                        break;
+                    default:
+                        query = query.order('Products(name)', { ascending: true });
+                        break;
+                }
+            } else {
+                // For direct queries
+                switch (sorting) {
+                    case 'name-asc':
+                        query = query.order('name', { ascending: true });
+                        break;
+                    case 'name-desc':
+                        query = query.order('name', { ascending: false });
+                        break;
+                    case 'price-asc':
+                        query = query.order('netPrice', { ascending: true });
+                        break;
+                    case 'price-desc':
+                        query = query.order('netPrice', { ascending: false });
+                        break;
+                    default:
+                        query = query.order('name', { ascending: true });
+                        break;
+                }
             }
         } else {
-            const orderColumn = categoryId !== undefined && categoryId !== 42 ? 'Products.name' : 'name';
-            query = query.order(orderColumn, { ascending: true });
+            // Default sorting
+            if (categoryId !== undefined && categoryId !== 42) {
+                query = query.order('Products(name)', { ascending: true });
+            } else {
+                query = query.order('name', { ascending: true });
+            }
         }
 
         return query;

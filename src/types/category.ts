@@ -18,4 +18,5 @@ export type ICategoryItem = {
     showHome: boolean;
     showProductPage: boolean;
     iconUrl: string;
+    productCount?: number;
 };

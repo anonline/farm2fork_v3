@@ -66,6 +66,8 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
         searchText,
     });
 
+    
+
     // Set up infinite scroll
     useInfiniteScroll({
         hasMore,
@@ -382,7 +384,7 @@ export function ProductPageTextFilter({
                     position: 'relative',
                 }}
             >
-                {categories.filter(c => c.enabled && c.showProductPage).map((category) => (
+                {categories.filter(c => c.enabled && c.showProductPage && (c.id != 42 && (c.productCount || 0) > 0)).map((category) => (
                     <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'}>
                         {category.name}
                     </MenuItem>
