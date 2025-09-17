@@ -47,12 +47,12 @@ export function HomeView(props: Readonly<HomeViewProps>) {
                 <BackToTopButton />
 
                 <HomeHero
-                    heroImg={props.heroImg}
-                    heroHeight={props.heroHeight}
-                    heroTitle={props.heroTitle}
-                    heroPrimaryBtnText={props.heroPrimaryBtnText}
-                    heroSecondaryBtnText={props.heroSecondaryBtnText}
-                    heroImgOverlay={props.heroImgOverlay}
+                    heroImg={props.heroImg || ''}
+                    heroHeight={props.heroHeight || '600px'}
+                    heroTitle={props.heroTitle || ''}
+                    heroPrimaryBtnText={props.heroPrimaryBtnText || ''}
+                    heroSecondaryBtnText={props.heroSecondaryBtnText || ''}
+                    heroImgOverlay={props.heroImgOverlay || ''}
                 />
             </Box>
 
