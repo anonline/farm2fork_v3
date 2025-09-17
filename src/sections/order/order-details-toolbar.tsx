@@ -142,6 +142,7 @@ export function OrderDetailsToolbar({
                                     (status === 'cancelled' && 'error') ||
                                     'default'
                                 }
+                                sx={{display:{xs:'none', sm:'inline-flex'}}}
                             >
                                 {renderStatusLabel()}
                             </Label>
@@ -158,6 +159,7 @@ export function OrderDetailsToolbar({
                         gap: 1.5,
                         flexGrow: 1,
                         display: 'flex',
+                        flexWrap: 'wrap',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
                     }}
