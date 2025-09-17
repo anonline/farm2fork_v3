@@ -7,7 +7,9 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Chip, Tooltip, useTheme, Container, Link } from '@mui/material';
+import { Chip, Link, Tooltip, useTheme, Container } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { fPercent } from 'src/utils/format-number';
 
@@ -37,7 +39,6 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
-import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
