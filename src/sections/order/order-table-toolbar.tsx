@@ -1,8 +1,9 @@
+import type { SelectChangeEvent } from '@mui/material';
 import type { IOrderTableFilters } from 'src/types/order';
 import type { IDatePickerControl } from 'src/types/common';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
-import { useCallback, useState } from 'react';
+import { useState, useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -17,7 +18,6 @@ import { formHelperTextClasses } from '@mui/material/FormHelperText';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 import DropdownMultiSelectFilter from 'src/components/filters/admin/dropdown-multiselect-filter';
-import { SelectChangeEvent } from '@mui/material';
 
 // ----------------------------------------------------------------------
 

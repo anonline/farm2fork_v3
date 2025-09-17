@@ -25,6 +25,7 @@ import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data'
 
 import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { deleteOrder, deleteOrders } from 'src/actions/order-management';
 
 import { Label } from 'src/components/label';
@@ -49,7 +50,6 @@ import {
 import { OrderTableRow } from '../order-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
-import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 // ----------------------------------------------------------------------
 

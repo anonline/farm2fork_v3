@@ -1,5 +1,8 @@
-import { Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material";
+
 import { varAlpha } from 'minimal-shared/utils';
+
+import { Select, Checkbox, MenuItem, InputLabel, FormControl, OutlinedInput } from "@mui/material";
 
 
 type DropdownMultiSelectFilterProps = {
