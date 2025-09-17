@@ -733,4 +733,60 @@ export async function updateOrderShippingAddress(
     }
 }
 
+/**
+ * Update order billing address
+ */
+export async function updateOrderBillingAddress(
+    orderId: string,
+    billingAddress: any,
+    note?: string,
+    userId?: string,
+    userName?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        // Check if invoice has been created - if so, prevent updating billing address
+        if (order.invoiceDataJson) {
+            return { 
+                success: false, 
+                error: 'A számlázási cím nem módosítható, mert már létrejött a számla.' 
+            };
+        }
+
+        // Create new history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: new Date().toISOString(),
+            status: order.orderStatus, // Keep the same status
+            note: note || 'Számlázási cím frissítve',
+            userId,
+            userName,
+        };
+
+        // Update order with new billing address and history
+        const { error } = await supabase
+            .from('orders')
+            .update({
+                billing_address: billingAddress,
+                history: [...order.history, historyEntry],
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order billing address:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order billing address:', error);
+        return { success: false, error: 'Failed to update order billing address' };
+    }
+}
+
 

@@ -32,6 +32,7 @@ import { OrderDetailsItems } from '../order-details-items';
 import { OrderDetailsToolbar } from '../order-details-toolbar';
 import { OrderDetailsHistory } from '../order-details-history';
 import { OrderDetailsPayment } from '../order-details-payment';
+import { OrderDetailsBilling } from '../order-details-billing';
 import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
@@ -513,6 +514,15 @@ export function OrderDetailsView({ orderId }: Props) {
                             orderId={orderData?.id}
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
+                        />
+
+                        <Divider sx={{ borderStyle: 'dashed' }} />
+                        <OrderDetailsBilling 
+                            billingAddress={orderData?.billingAddress} 
+                            orderId={orderData?.id}
+                            customerId={orderData?.customerId || undefined}
+                            onRefreshOrder={handleRefreshOrderHistory}
+                            isInvoiceCreated={!!orderData?.invoiceDataJson}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
