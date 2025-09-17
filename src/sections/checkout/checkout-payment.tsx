@@ -1,6 +1,6 @@
 import type { IAddressItem } from 'src/types/common';
 import type { IShippingCostMethod } from 'src/types/shipping-cost';
-import type { ICreateOrderData } from 'src/types/order-management';
+import type { IOrderItem, ICreateOrderData } from 'src/types/order-management';
 
 import { z as zod } from 'zod';
 import { useMemo, useState, useEffect } from 'react';
@@ -196,7 +196,7 @@ export function CheckoutPayment() {
     );
 
     // Check if VAT should be applied for current user type
-    const shouldApplyVAT = useMemo(
+    const shouldApplyVATForShipping = useMemo(
         () => (method: IShippingCostMethod) => {
             const userType = getUserType;
             switch (userType) {
@@ -215,7 +215,7 @@ export function CheckoutPayment() {
     const getTotalMethodCost = useMemo(
         () => (method: IShippingCostMethod) => {
             const netCost = getMethodCost(method);
-            const applyVAT = shouldApplyVAT(method);
+            const applyVAT = shouldApplyVATForShipping(method);
 
             if (applyVAT && netCost > 0) {
                 const vatAmount = (netCost * method.vat) / 100;
@@ -224,7 +224,7 @@ export function CheckoutPayment() {
 
             return netCost;
         },
-        [getMethodCost, shouldApplyVAT]
+        [getMethodCost, shouldApplyVATForShipping]
     );
 
     // Format method display name with total cost (including VAT)
@@ -417,9 +417,8 @@ export function CheckoutPayment() {
             const selectedAddress = customerData.deliveryAddress[index];
             const addressItem: IAddressItem = {
                 name: selectedAddress.fullName,
-                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.street}${
-                    selectedAddress.floor ? `, ${selectedAddress.floor}` : ''
-                }`,
+                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.street}${selectedAddress.floor ? `, ${selectedAddress.floor}` : ''
+                    }`,
                 phoneNumber: selectedAddress.phone,
                 addressType: 'delivery',
             };
@@ -467,19 +466,19 @@ export function CheckoutPayment() {
         }
 
         try {
-            
+
             const currentAddresses = customerData?.deliveryAddress || [];
-            const updatedAddresses = [...currentAddresses, {...newAddress, type:'shipping'}];
+            const updatedAddresses = [...currentAddresses, { ...newAddress, type: 'shipping' }];
 
             await updateCustomerDeliveryAddress(user.id, updatedAddresses);
             await customerDataMutate();
-            
+
             // Set the new address as selected
             const newIndex = updatedAddresses.length - 1;
             setSelectedDeliveryAddressIndex(newIndex);
             setValue('deliveryAddressIndex', newIndex);
             updateDeliveryAddressInContext(newIndex);
-            
+
             toast.success('Cím sikeresen hozzáadva');
         } catch (error) {
             console.error('Error adding new address:', error);
@@ -497,16 +496,16 @@ export function CheckoutPayment() {
             const currentAddresses = customerData?.deliveryAddress || [];
             const updatedAddresses = [...currentAddresses];
             // Ensure the edited address has the correct type
-            updatedAddresses[index] = {...editedAddress, type: 'shipping'};
-            
+            updatedAddresses[index] = { ...editedAddress, type: 'shipping' };
+
             await updateCustomerDeliveryAddress(user.id, updatedAddresses);
             await customerDataMutate();
-            
+
             // Update the context if this was the selected address
             if (selectedDeliveryAddressIndex === index) {
                 updateDeliveryAddressInContext(index);
             }
-            
+
             toast.success('Cím sikeresen frissítve');
         } catch (error) {
             console.error('Error updating address:', error);
@@ -527,16 +526,16 @@ export function CheckoutPayment() {
 
         try {
             const currentAddresses = customerData?.billingAddress || [];
-            const updatedAddresses = [...currentAddresses, {...newAddress, type: 'billing'}];
+            const updatedAddresses = [...currentAddresses, { ...newAddress, type: 'billing' }];
 
             await updateCustomerBillingAddress(user.id, updatedAddresses);
             await customerDataMutate();
-            
+
             // Set the new address as selected
             const newIndex = updatedAddresses.length - 1;
             setSelectedBillingAddressIndex(newIndex);
             updateBillingAddressInContext(newIndex);
-            
+
             toast.success('Számlázási cím sikeresen hozzáadva');
         } catch (error) {
             console.error('Error adding new billing address:', error);
@@ -554,16 +553,16 @@ export function CheckoutPayment() {
             const currentAddresses = customerData?.billingAddress || [];
             const updatedAddresses = [...currentAddresses];
             // Ensure the edited address has the correct type
-            updatedAddresses[index] = {...editedAddress, type: 'billing'};
-            
+            updatedAddresses[index] = { ...editedAddress, type: 'billing' };
+
             await updateCustomerBillingAddress(user.id, updatedAddresses);
             await customerDataMutate();
-            
+
             // Update the context if this was the selected address
             if (selectedBillingAddressIndex === index) {
                 updateBillingAddressInContext(index);
             }
-            
+
             toast.success('Számlázási cím sikeresen frissítve');
         } catch (error) {
             console.error('Error updating billing address:', error);
@@ -765,7 +764,7 @@ export function CheckoutPayment() {
             // Prepare order data
             const selectedShippingMethodData = availableShippingMethods.find(m => m.id === data.shippingMethod);
             const selectedPaymentMethodData = checkoutState.selectedPaymentMethod;
-            
+
             // Get delivery address
             let deliveryAddress: IAddressItem | null = null;
             if (data.deliveryAddressIndex !== undefined && data.deliveryAddressIndex !== null && customerData) {
@@ -816,19 +815,30 @@ export function CheckoutPayment() {
             }
 
             // Convert checkout items to order items
-            const orderItems = checkoutState.items.map(item => ({
+            const orderItems:IOrderItem[] = checkoutState.items.map(item => ({
                 id: item.id,
                 name: item.name,
                 size: item.size,
-                price: item.grossPrice,
+                grossPrice: item.grossPrice,
+                netPrice:item.netPrice,
+                vatPercent:item.vatPercent,
                 unit: item.unit,
                 coverUrl: item.coverUrl,
                 quantity: item.quantity,
                 subtotal: item.subtotal || (item.custom === true ? item.grossPrice : item.quantity * item.grossPrice),
-                note: item.note,
+                note: item.note?.trim() || '',
                 custom: item.custom,
-                slug: item.slug || '',  
+                slug: item.slug || '',
             }));
+
+            const totalVat = checkoutState.items.reduce((vat, item) => {
+                const itemsVat = item.netPrice * (1 + (item?.vatPercent || 0) /100);
+                let shippingVat = 0;
+                if(selectedShippingMethodData && shouldApplyVATForShipping(selectedShippingMethodData)){
+                    shippingVat = checkoutState.shipping / selectedShippingMethodData.vat;
+                }
+                return vat + itemsVat;
+            }, 0)
 
             // Prepare order data
             const orderData: ICreateOrderData = {
@@ -836,7 +846,7 @@ export function CheckoutPayment() {
                 customerName: [customerData?.lastname, customerData?.firstname].join(' ') || user?.user_metadata?.full_name || user?.email || 'Guest User',
                 billingEmails: user?.email ? [user.email] : [],
                 notifyEmails: checkoutState.notificationEmails,
-                note: checkoutState.deliveryComment,
+                note: checkoutState.deliveryComment.trim() || '',
                 shippingAddress: deliveryAddress,
                 billingAddress,
                 denyInvoice: false, // You might want to add this to checkout state
@@ -845,7 +855,7 @@ export function CheckoutPayment() {
                 items: orderItems,
                 subtotal: checkoutState.subtotal,
                 shippingCost: checkoutState.shipping,
-                vatTotal: 0, // Calculate based on your business logic
+                vatTotal: totalVat, // Calculate based on your business logic
                 discountTotal: checkoutState.discount,
                 total: checkoutState.total,
                 shippingMethod: selectedShippingMethodData ? {
@@ -870,15 +880,15 @@ export function CheckoutPayment() {
             }
 
             if (orderId) {
-                if(orderData.plannedShippingDateTime){
-                    setOrderToShipmentByDate(orderId, new Date(orderData.plannedShippingDateTime) );
+                if (orderData.plannedShippingDateTime) {
+                    setOrderToShipmentByDate(orderId, new Date(orderData.plannedShippingDateTime));
                 }
-                
+
                 console.info('Order created successfully:', orderId);
-                
+
                 // Store order ID in checkout context or local storage for the completion page
                 localStorage.setItem('last-order-id', orderId);
-
+                
                 toast.success('Rendelés sikeresen létrehozva!');
                 toast.warning('Átirányítás folyamatban...');
                 // Check if payment method is 'simple' (online payment)
@@ -887,13 +897,13 @@ export function CheckoutPayment() {
                     window.location.href = paths.checkout.pay(orderId);
                     return;
                 }
-
-                if(selectedPaymentMethodData?.type === 'cod' || selectedPaymentMethodData?.type === 'wire') {
+                
+                if (selectedPaymentMethodData?.type === 'cod' || selectedPaymentMethodData?.type === 'wire') {
                     console.info('Proceeding to order completion for payment method:', selectedPaymentMethodData, paths.checkout.success(orderId, undefined, 'true'));
                     window.location.href = paths.checkout.success(orderId, undefined, 'true');
                     return;
                 }
-                
+
                 // For other payment methods (cod, wire), proceed to completion
                 onResetCart();
                 onChangeStep('next');
@@ -909,6 +919,17 @@ export function CheckoutPayment() {
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
+
+            <Button
+                size="small"
+                color="inherit"
+                sx={{mb:3, mt:2}}
+                onClick={() => onChangeStep('back')}
+                startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
+            >
+                Vissza
+            </Button>
+
             <Grid container spacing={5}>
                 <Grid size={{ xs: 12, md: 7 }}>
                     {/* Delivery Type Selection */}
@@ -1113,7 +1134,7 @@ export function CheckoutPayment() {
                                 }}
                             >
                                 {selectedShippingMethod &&
-                                isPersonalPickup(selectedShippingMethod ?? 0)
+                                    isPersonalPickup(selectedShippingMethod ?? 0)
                                     ? 'Átvételi'
                                     : 'Kiszállítási'}{' '}
                                 idő
@@ -1132,16 +1153,16 @@ export function CheckoutPayment() {
                                 }
                                 zipCode={
                                     selectedShippingMethod &&
-                                    isHomeDelivery(selectedShippingMethod) &&
-                                    selectedDeliveryAddressIndex !== null
+                                        isHomeDelivery(selectedShippingMethod) &&
+                                        selectedDeliveryAddressIndex !== null
                                         ? customerData?.deliveryAddress?.[
-                                              selectedDeliveryAddressIndex
-                                          ]?.zipCode || undefined
+                                            selectedDeliveryAddressIndex
+                                        ]?.postcode || undefined
                                         : undefined
                                 }
                                 pickupLocationId={
                                     selectedShippingMethod &&
-                                    isPersonalPickup(selectedShippingMethod)
+                                        isPersonalPickup(selectedShippingMethod)
                                         ? selectedPickupLocation || undefined
                                         : undefined
                                 }
@@ -1359,10 +1380,7 @@ export function CheckoutPayment() {
                             </Typography>
                             <Box
                                 sx={{
-                                    p: 3,
-                                    border: '1px solid',
-                                    borderColor: 'grey.300',
-                                    borderRadius: 1,
+                                    p: 0,
                                     mb: 3,
                                 }}
                             >
@@ -1490,7 +1508,7 @@ export function CheckoutPayment() {
                                     {checkoutState.selectedDeliveryDateTime && (
                                         <Typography variant="body2" sx={{ color: 'grey.400' }}>
                                             {selectedShippingMethod &&
-                                            isPersonalPickup(selectedShippingMethod)
+                                                isPersonalPickup(selectedShippingMethod)
                                                 ? 'Átvétel'
                                                 : 'Szállítás'}
                                             : {formatDeliveryDisplay}
@@ -1501,14 +1519,6 @@ export function CheckoutPayment() {
                         </AccordionDetails>
                     </Accordion>
 
-                    <Button
-                        size="small"
-                        color="inherit"
-                        onClick={() => onChangeStep('back')}
-                        startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
-                    >
-                        Vissza
-                    </Button>
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 5 }}>

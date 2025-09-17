@@ -42,7 +42,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
     const confirmDialog = useBoolean();
     const menuActions = usePopover();
     const collapseRow = useBoolean();
-    console.log('Order row data:', row); // Debugging line
+    
     const renderPrimaryRow = () => (
         <TableRow hover selected={selected}>
             <TableCell padding="checkbox">
@@ -111,7 +111,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                 </Tooltip>
             </TableCell>
 
-            <TableCell> {fCurrency(row.totalAmount-row.taxes)} </TableCell>
+            <TableCell> {fCurrency(row.totalAmount-row.taxes)}</TableCell>
             <TableCell> {fCurrency(row.totalAmount)} </TableCell>
 
             <TableCell>
@@ -182,7 +182,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
                                 <ListItemText
                                     primary={item.name}
-                                    secondary={`${fCurrency(item.price)} / ${item.unit}`}
+                                    secondary={`${fCurrency(item.netPrice)} / ${item.unit}`}
                                     slotProps={{
                                         primary: {
                                             sx: { typography: 'body2' },

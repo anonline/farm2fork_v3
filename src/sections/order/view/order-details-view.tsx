@@ -97,7 +97,8 @@ export function OrderDetailsView({ orderId }: Props) {
                 const itemsToSave = editedItems.map(item => ({
                     id: item.id,
                     name: item.name,
-                    price: item.price,
+                    netPrice: item.netPrice,
+                    grossPrice: item.netPrice,
                     unit: item.unit,
                     coverUrl: item.coverUrl,
                     quantity: item.quantity,
@@ -269,7 +270,8 @@ export function OrderDetailsView({ orderId }: Props) {
             const itemsToSave = editedItems.map(item => ({
                 id: item.id,
                 name: item.name,
-                price: item.price,
+                netPrice: item.netPrice,
+                grossPrice:item.grossPrice,
                 unit: item.unit,
                 coverUrl: item.coverUrl,
                 quantity: item.quantity,
@@ -340,7 +342,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 if (item.id === itemId) {
                     const updatedItem = { ...item, [field]: value };
                     // Recalculate subtotal
-                    updatedItem.subtotal = updatedItem.price * updatedItem.quantity;
+                    updatedItem.subtotal = updatedItem.netPrice * updatedItem.quantity;
                     return updatedItem;
                 }
                 return item;
@@ -362,7 +364,8 @@ export function OrderDetailsView({ orderId }: Props) {
             id: !product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             sku: product.sku,
             name: product.name,
-            price: product.netPrice, // Use net price as the base price
+            netPrice: product.netPrice, // Use net price as the base price
+            grossPrice: product.netPrice, // Use net price as the base price
             coverUrl: product.coverUrl,
             quantity: product.quantity,
             unit: product.unit,

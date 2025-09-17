@@ -143,7 +143,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
         const summary = itemsMap.get(key)!;
         summary.quantities.push(item.quantity);
-        summary.prices.push(item.price);
+        summary.prices.push(item.netPrice);
         summary.customers.add(order.customerName);
         summary.orderIds.add(order.id);
       });

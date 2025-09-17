@@ -75,6 +75,8 @@ export function NumberInput({
     const isDecrementDisabled = currentValue <= min || disabled;
     const isIncrementDisabled = currentValue >= max || disabled;
 
+    const stepDigits = step % 1 == 0 ? 0 : step % 0.1 == 0 ? 1 : 2;
+
     const round = (num: number, decimals = 2) =>
         Number(Math.round(Number(num + 'e' + decimals)) + 'e-' + decimals);
 
@@ -138,7 +140,7 @@ export function NumberInput({
                     <CenteredInput
                         name={id}
                         disabled={disabled || disableInput}
-                        value={currentValue}
+                        value={currentValue.toFixed(currentValue % 1 == 0 ? 0 : stepDigits)}
                         onChange={handleChange}
                         {...slotProps?.input}
                     />

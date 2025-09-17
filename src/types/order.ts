@@ -57,7 +57,8 @@ export type IOrderProductItem = {
     id: string;
     sku: string;
     name: string;
-    price: number;
+    netPrice: number;
+    grossPrice: number;
     coverUrl: string;
     quantity: number;
     unit: string;

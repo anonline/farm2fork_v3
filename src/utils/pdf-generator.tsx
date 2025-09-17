@@ -238,7 +238,7 @@ const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
                         </View>
                         <Text style={styles.qty}>{item.quantity || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />
-                        <Text style={styles.rate}>{fCurrency(item.price || 0)}</Text>
+                        <Text style={styles.rate}>{fCurrency(item.netPrice || 0)}</Text>
                         <Text style={styles.rate} />
                         <Text style={styles.amount}>{fCurrency(item.subtotal || 0)}</Text>
                     </View>

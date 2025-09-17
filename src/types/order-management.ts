@@ -38,7 +38,9 @@ export type IOrderItem = {
     id: string;
     name: string;
     size?: string;
-    price: number;
+    netPrice: number;
+    grossPrice: number;
+    vatPercent?: number;
     unit?: string;
     coverUrl: string;
     quantity: number;

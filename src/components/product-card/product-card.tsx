@@ -3,8 +3,8 @@ import type { Theme } from '@mui/material/styles';
 import type { IProductItem } from 'src/types/product';
 import type { CheckoutContextValue } from 'src/types/checkout';
 
-import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 
 import { Box, Paper, Button, Tooltip, InputBase, IconButton } from '@mui/material';
 
@@ -108,11 +108,11 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     };
 
     const getNetPrice = () => {
-        if(isVIP){
+        if (isVIP) {
             return product.netPriceVIP;
         }
 
-        if(isCorp){
+        if (isCorp) {
             return product.netPriceCompany;
         }
 
@@ -120,7 +120,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     }
 
     const getVatPercent = () => {
-        if(isVIP){
+        if (isVIP) {
             return 0;
         }
 
@@ -348,6 +348,8 @@ export function ProductQuantitySelector({
     const [quantity, setQuantity] = useState<number>();
     const [inputValue, setInputValue] = useState<string>('');
     const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
+    const [plusButtonEnabled, setPlusButtonEnabled] = useState<boolean>(true);
+    const [minusButtonEnabled, setMinusButtonEnabled] = useState<boolean>(true);
 
     const plusminusButtonBaseStyle: SxProps<Theme> = {
         p: '10px',
@@ -374,6 +376,24 @@ export function ProductQuantitySelector({
         borderTopLeftRadius: 0,
         borderBottomLeftRadius: 0,
     };
+
+    useEffect(() => {
+        if (quantity) {
+            if (quantity <= min) {
+                setMinusButtonEnabled(false);
+            }
+            else {
+                setMinusButtonEnabled(true);
+            }
+
+            if (quantity >= max) {
+                setPlusButtonEnabled(true);
+            }
+            else {
+                setPlusButtonEnabled(true);
+            }
+        }
+    }, [quantity])
 
     const inputChangeHandler = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -497,7 +517,7 @@ export function ProductQuantitySelector({
                     width: format == 'column' ? '100%' : '50%',
                 }}
             >
-                <IconButton sx={minusButtonStyle} onClick={handleMinusClick}>
+                <IconButton sx={minusButtonStyle} onClick={handleMinusClick} disabled={!minusButtonEnabled}>
                     <F2FIcons name="Minus" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
                 <InputBase
@@ -540,7 +560,7 @@ export function ProductQuantitySelector({
                         inputChangeHandler(e);
                     }}
                 />
-                <IconButton sx={plusButtonStyle} onClick={handlePlusClick}>
+                <IconButton sx={plusButtonStyle} onClick={handlePlusClick} disabled={!plusButtonEnabled}>
                     <F2FIcons name="Add" width={24} height={24} style={{ color: '#bababa' }} />
                 </IconButton>
             </Paper>
@@ -610,36 +630,36 @@ function ProductCardButton({
         }
 
         if (user?.user_metadata?.is_corp) {
-            return product?.netPriceCompany*(1+(product?.vat ?? 0)/100);
+            return product?.netPriceCompany * (1 + (product?.vat ?? 0) / 100);
         }
 
         return product?.salegrossPrice ?? product?.grossPrice;
     }
 
     const getNetPrice = () => {
-        if(user?.user_metadata?.is_vip) {
+        if (user?.user_metadata?.is_vip) {
             return product?.netPriceVIP;
         }
 
-        if(user?.user_metadata?.is_corp) {
+        if (user?.user_metadata?.is_corp) {
             return product?.netPriceCompany;
         }
 
-        if(product?.salegrossPrice) {
-            return product?.salegrossPrice/(1+(product?.vat ?? 0)/100);
+        if (product?.salegrossPrice) {
+            return product?.salegrossPrice / (1 + (product?.vat ?? 0) / 100);
         }
-        
+
         return product?.netPrice;
     }
 
     const getVatPercent = () => {
-        if(user?.user_metadata?.is_vip) {
+        if (user?.user_metadata?.is_vip) {
             return 0;
         }
 
         return product?.vat ?? 27;
     }
-    
+
     const handleButtonClick = () => {
         if (onAddToCart) {
             onAddToCart({

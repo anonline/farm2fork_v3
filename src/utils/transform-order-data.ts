@@ -48,7 +48,9 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             .slice(0, 2);
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=00AB55&color=fff&size=128`;
     };
+    
     const userType = await getUserType(orderData.customerId);
+
     return {
         id: orderData.id,
         orderNumber: orderData.id,
@@ -96,7 +98,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             id: item.id?.toString() || '',
             sku: `SKU-${item.id}`,
             name: item.name,
-            price: item.price,
+            netPrice: item.netPrice,
+            grossPrice: item.grossPrice,
             coverUrl: item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
             quantity: item.quantity,
             unit: item.unit || 'db',

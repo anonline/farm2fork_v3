@@ -108,7 +108,7 @@ export async function createBillingoInvoice(orderData: IOrderData): Promise<{ su
         orderData.items.forEach(item => {
             invoiceItems.push({
                 name: item.name,
-                unit_price: item.price,
+                unit_price: item.netPrice,
                 unit_price_type: UnitPriceType.NET,
                 quantity: item.quantity,
                 unit: item.unit || 'db',

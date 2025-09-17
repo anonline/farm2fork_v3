@@ -86,7 +86,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             // Set userId for authenticated user with existing cart
             setField('userId', user.id);
         }
-        if(!user?.id && state.userId) {
+
+        if(user?.id && state.userId && user?.id != state.userId) {
             // Clear cart for unauthenticated user with existing cart
             resetState(initialState);
         }

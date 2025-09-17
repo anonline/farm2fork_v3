@@ -409,7 +409,7 @@ export function SideCartItem({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <NumberInput
                             disabled={hideControl}
-                            value={item.quantity*100/100}
+                            value={item.quantity}
                             onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
                             min={item.minQuantity || 1}
                             max={item.maxQuantity || 999}

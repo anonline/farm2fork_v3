@@ -18,10 +18,11 @@ export function CheckoutView() {
 
     return (
         <Container sx={{ mb: 10 }}>
-            <Box sx={{ gap: 2, display: 'flex', alignItems: 'center', my: 2 }}>
+            {activeStep != 1 && (<Box sx={{ gap: 2, display: 'flex', alignItems: 'center', my: 2 }}>
                 <Badge badgeContent={checkoutState.items.length} color="primary">
                     <F2FIcons name="Bag" width={32} height={32} style={{ marginTop: '-5px' }} />
                 </Badge>
+                
                 <Typography
                     sx={{
                         fontSize: '32px',
@@ -33,7 +34,7 @@ export function CheckoutView() {
                 >
                     Termékek
                 </Typography>
-            </Box>
+            </Box>)}
 
             {/*<Grid container justifyContent={completed ? 'center' : 'flex-start'}>
                 <Grid size={{ xs: 12, md: 8 }}>

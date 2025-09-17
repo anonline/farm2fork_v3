@@ -94,7 +94,7 @@ export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderD
             history: data.history || [],
             shipmentId: data.shipment_id || null,
         };
-
+        
         return { order, error: null };
     } catch (error) {
         console.error('Error fetching order (SSR):', error);

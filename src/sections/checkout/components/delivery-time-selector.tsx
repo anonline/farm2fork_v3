@@ -32,7 +32,7 @@ export function DeliveryTimeSelector({
     onDateTimeChange,
 }: DeliveryTimeSelectorProps) {
     const [showAll, setShowAll] = useState(false);
-
+    
     const {
         deliveryDates,
         loading: deliveryLoading,
@@ -47,7 +47,7 @@ export function DeliveryTimeSelector({
 
     const loading = isHomeDelivery ? deliveryLoading : pickupLoading;
     const error = isHomeDelivery ? deliveryError : pickupError;
-
+    
     // Auto-select first available option when data loads or changes
     useEffect(() => {
         if (!loading && !error) {
@@ -103,6 +103,15 @@ export function DeliveryTimeSelector({
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                 <CircularProgress />
             </Box>
+        );
+    }
+
+    if(!deliveryDates.length && isHomeDelivery){
+        const errorMessage = "Biztosan megfelelő irányítószámot adtál meg? Ha igen kérlek vedd fel velünk a kapcsolatot.";
+        return (
+            <Alert severity="error" sx={{ mt: 2 }}>
+                {errorMessage}
+            </Alert>
         );
     }
 

@@ -12,6 +12,8 @@ import { themeConfig } from 'src/theme';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
+import { useAuthContext } from 'src/auth/hooks';
+
 import F2FIcons from '../f2ficons/f2ficons';
 import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
 
@@ -43,12 +45,35 @@ interface FeaturedProductCardProps {
 }
 
 export default function FeaturedProductCard({ product }: Readonly<FeaturedProductCardProps>) {
+    const { user } = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
     const router = useRouter();
 
     const openProductPage = () => {
         router.push(paths.product.details(product.url));
     };
+
+    const getNetPrice = () => {
+        if (user?.user_metadata.is_vip) {
+            return product.netPriceVIP;
+        }
+
+        if (user?.user_metadata.is_corp) {
+            return product.netPriceCompany;
+        }
+
+        return product.netPrice;
+    }
+
+    const getVatPercent = () => {
+        if (user?.user_metadata.is_vip) {
+            return 0;
+        }
+
+        return product.vat;
+    }
+
+    const getGrossPrice = () => getNetPrice() * (1 + getVatPercent() / 100)
 
     return (
         <Paper
@@ -153,9 +178,9 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                 </Stack>
 
                 <Box sx={{ flexGrow: 1 }} />
-                    
+
                 <Stack direction="column" spacing={1.5} alignItems="flex-start" sx={{ mt: 3 }}>
-                    <ProductPriceDetails grossPrice={product.netPrice} unit={product.unit} cardText={product.cardText}/>
+                    <ProductPriceDetails grossPrice={getGrossPrice()} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}

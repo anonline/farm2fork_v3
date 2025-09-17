@@ -280,7 +280,7 @@ export function OrderDetailsItems({
                                         )}
                                         {!isEditing && (
                                             <Typography variant="caption" color="text.secondary">
-                                                {`${fCurrency(item.price)} / ${item.unit}`}{item.note && ` | ${item.note}`}
+                                                {`${fCurrency(item.netPrice)} / ${item.unit}`}{item.note && ` | ${item.note}`}
                                             </Typography>
                                         )}
                                     </Box>
@@ -294,7 +294,7 @@ export function OrderDetailsItems({
                                                 size="small"
                                                 type="number"
                                                 label="Ár"
-                                                defaultValue={item.price}
+                                                defaultValue={item.netPrice}
                                                 onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
                                                 error={!!editErrors[item.id]?.price}
                                                 helperText={editErrors[item.id]?.price}
@@ -387,7 +387,7 @@ export function OrderDetailsItems({
                                                     size="small"
                                                     type="number"
                                                     label="Ár"
-                                                    defaultValue={item.price}
+                                                    defaultValue={item.netPrice}
                                                     onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
                                                     error={!!editErrors[item.id]?.price}
                                                     helperText={editErrors[item.id]?.price}
@@ -397,7 +397,7 @@ export function OrderDetailsItems({
                                                 <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
                                             </Box>
                                         ) : (
-                                            `${fCurrency(item.price)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
+                                            `${fCurrency(item.netPrice)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
                                         )
                                     }
                                     slotProps={{

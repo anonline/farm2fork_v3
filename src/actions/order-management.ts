@@ -272,7 +272,7 @@ export async function getAllOrders(params?: {
             console.error('Error fetching orders:', error);
             return { orders: [], total: 0, error: error.message };
         }
-
+        console.log(data);
         // Transform database fields to match our interface
         const orders: IOrderData[] = (data || []).map((row) => ({
             id: row.id,
@@ -454,7 +454,8 @@ export async function updateOrderItems(
         id: string;
         name: string;
         size?: string;
-        price: number;
+        netPrice: number;
+        grossPrice: number;
         unit?: string;
         coverUrl: string;
         quantity: number;

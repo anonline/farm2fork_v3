@@ -185,7 +185,7 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
         orderData.items.forEach((item) => {
             invoiceItems.push({
                 name: item.name,
-                unit_price: Math.round(item.price), // Round to 2 decimals
+                unit_price: Math.round(item.netPrice), // Round to 2 decimals
                 unit_price_type: UnitPriceType.GROSS,
                 quantity: item.quantity,
                 unit: 'db', // piece

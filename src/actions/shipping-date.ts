@@ -325,7 +325,7 @@ export const getAvailablePickupTimes = async (
 // Hook for getting delivery dates
 export const useGetDeliveryDates = (zipCode: string | null) => {
     const SWR_KEY = zipCode ? `delivery-dates-${zipCode}` : null;
-
+    
     const { data, isLoading, error, mutate } = useSWR(SWR_KEY, async () => {
         if (!zipCode) return [];
         return getAvailableDeliveryDates(zipCode);

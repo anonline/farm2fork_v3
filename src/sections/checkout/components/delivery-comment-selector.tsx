@@ -24,8 +24,8 @@ export function DeliveryCommentSelector({
             .replace(/<[^>]*>/g, '') // Remove HTML tags
             .replace(/[<>]/g, '') // Remove remaining < and > characters
             .replace(/javascript:/gi, '') // Remove javascript: protocol
-            .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
-            .trim();
+            .replace(/on\w+\s*=/gi, ''); // Remove event handlers like onclick=
+
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const rawValue = event.target.value;
 
