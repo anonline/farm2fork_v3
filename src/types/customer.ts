@@ -44,4 +44,6 @@ export interface ICustomerData {
     deliveryAddress: IDeliveryAddress[] | null;
     billingAddress: IBillingAddress[] | null; // Updated to be array of IBillingAddress
     acquisitionSource: string | null;
+    isCompany: boolean;
+    discountPercent: number;
 }

@@ -7,9 +7,9 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import { Chip, Link, useTheme, Container } from '@mui/material';
+import { Chip, Tooltip, useTheme, Container } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
+import { fPercent } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
 import { ensureValidAnnouncement } from 'src/actions/announcements';
@@ -104,6 +104,55 @@ function MainLayoutContent({
         };
         fetchAnnouncement();
     }, []);
+
+    const renderRoleChip = () => {
+        const isAdmin = authContext.user?.user_metadata?.is_admin;
+        const isCorp = authContext.user?.user_metadata?.is_corp;
+        const isVip = authContext.user?.user_metadata?.is_vip;
+        const discountPercent = authContext.user?.user_metadata?.discountPercent || 0;
+        
+        const percentLabel = discountPercent > 0 ? ` -${fPercent(discountPercent)}` : '';
+
+        
+
+        const showChip = isAdmin || isCorp || isVip || discountPercent > 0;
+        const chipColor = isAdmin ? 'primary' : isCorp ? 'info' : isVip ? 'warning' : 'success';
+        let chipLabel = '';
+
+        if(isAdmin){
+            chipLabel = 'Admin';
+        }
+        else if(isCorp){
+            if(discountPercent > 0){
+                chipLabel = percentLabel;
+            }
+            else{
+                chipLabel = 'Céges';
+            }
+        }
+        else if(isVip){
+            if(discountPercent > 0){
+                chipLabel = percentLabel;
+            }
+            else {
+                chipLabel = 'VIP';
+            }
+            
+        }
+        else if(discountPercent > 0){
+            chipLabel = percentLabel;
+        }
+
+        const toolTipLabel = isAdmin && "Adminisztráció" || 
+        isCorp && "Céges kedvezményben részesülsz." || 
+        isVip && "VIP kedvezményben részesülsz." ||
+        discountPercent > 0 && `- ${fPercent(discountPercent)} kedvezményben részesülsz, amely már levonásra került az árakból.`;
+
+        if (showChip) {
+            return <Tooltip title={toolTipLabel}><Chip variant="soft" label={chipLabel} color={chipColor} /></Tooltip>;
+        }
+        return null;
+    }
 
     const renderAnnouncement = () => {
         if (!announcement) return null;
@@ -203,21 +252,7 @@ function MainLayoutContent({
                                     },
                                 }}
                             >
-                                {authContext.user?.user_metadata?.is_admin && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip variant="soft" label="Admin" color="primary" />
-                                    </Link>
-                                )}
-                                {authContext.user?.user_metadata?.is_corp && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip variant="soft" label="Céges" color="info" />
-                                    </Link>
-                                )}
-                                {authContext.user?.user_metadata?.is_vip && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip variant="soft" label="VIP" color="warning" />
-                                    </Link>
-                                )}
+                                {renderRoleChip()}
                             </Box>
                         </>
                     ) : (

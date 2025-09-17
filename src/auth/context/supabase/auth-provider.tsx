@@ -69,6 +69,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
                     session.user.user_metadata.is_admin = payload.user_metadata?.admin ?? false;
                     session.user.user_metadata.is_corp = payload.user_metadata?.corp ?? false;
                     session.user.user_metadata.is_vip = payload.user_metadata?.vip ?? false;
+                    session.user.user_metadata.discountPercent = payload.user_metadata?.discountPercent ?? 0;
                 }
 
                 setState({ user: { ...session, ...session?.user }, loading: false, roles });
@@ -110,6 +111,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
                             session.user.user_metadata.is_admin = payload.user_metadata?.admin ?? false;
                             session.user.user_metadata.is_corp = payload.user_metadata?.corp ?? false;
                             session.user.user_metadata.is_vip = payload.user_metadata?.vip ?? false;
+                            session.user.user_metadata.discountPercent = payload.user_metadata?.discountPercent ?? 0;
                         }
 
                         setState({ user: { ...session, ...session.user }, loading: false });
