@@ -209,14 +209,10 @@ function MainLayoutContent({
                                     </Link>
                                 )}
                                 {authContext.user?.user_metadata?.is_corp && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip variant="soft" label="Céges" color="info" />
-                                    </Link>
+                                    <Chip variant="soft" label="Céges" color="info" />                                   
                                 )}
                                 {authContext.user?.user_metadata?.is_vip && (
-                                    <Link href={paths.dashboard.root}>
-                                        <Chip variant="soft" label="VIP" color="warning" />
-                                    </Link>
+                                    <Chip variant="soft" label="VIP" color="warning" />
                                 )}
                             </Box>
                         </>
