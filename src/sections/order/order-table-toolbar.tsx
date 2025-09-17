@@ -1,8 +1,9 @@
+import type { SelectChangeEvent } from '@mui/material';
 import type { IOrderTableFilters } from 'src/types/order';
 import type { IDatePickerControl } from 'src/types/common';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -16,6 +17,7 @@ import { formHelperTextClasses } from '@mui/material/FormHelperText';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
+import DropdownMultiSelectFilter from 'src/components/filters/admin/dropdown-multiselect-filter';
 
 // ----------------------------------------------------------------------
 
@@ -23,12 +25,17 @@ type Props = {
     dateError: boolean;
     onResetPage: () => void;
     filters: UseSetStateReturn<IOrderTableFilters>;
-};
+    options: {
+        shipments: { value: string; label: string }[]
+    };
+}
 
-export function OrderTableToolbar({ filters, onResetPage, dateError }: Props) {
+export function OrderTableToolbar({ filters, onResetPage, dateError, options }: Props) {
     const menuActions = usePopover();
 
     const { state: currentFilters, setState: updateFilters } = filters;
+
+    const [selectedShipments, setSelectedShipments] = useState<string[]>(currentFilters.shipments);
 
     const handleFilterName = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +61,27 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }: Props) {
         [onResetPage, updateFilters]
     );
 
+    const handleChangeShipment = useCallback((event: SelectChangeEvent<string[]>) => {
+        const {
+            target: { value },
+        } = event;
+        console.log(value);
+        const validValues = typeof value === 'string' 
+            ? value.split(',').filter(Boolean) 
+            : value.filter(Boolean);
+        setSelectedShipments(validValues);
+    }, [setSelectedShipments]);
+
+    const handleFilterShipment = useCallback(() => {
+        console.log('Applying shipment filter:', selectedShipments);
+            onResetPage();
+        console.log('Applying shipment filter:', selectedShipments);
+
+
+        updateFilters({ shipments: selectedShipments });
+    }, [selectedShipments, onResetPage, updateFilters]);
+
+    
     const renderMenuActions = () => (
         <CustomPopover
             open={menuActions.open}
@@ -120,6 +148,15 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }: Props) {
                             bottom: { md: -40 },
                         },
                     }}
+
+                />
+
+                <DropdownMultiSelectFilter
+                    label="Összesítő"
+                    options={options.shipments}
+                    selectedValues={selectedShipments}
+                    onChange={handleChangeShipment}
+                    onApply={handleFilterShipment}
                 />
 
                 <Box

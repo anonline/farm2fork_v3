@@ -7,6 +7,7 @@ export type IOrderTableFilters = {
     status: string;
     endDate: IDatePickerControl;
     startDate: IDatePickerControl;
+    shipments: string[];
 };
 
 export type IOrderHistory = {

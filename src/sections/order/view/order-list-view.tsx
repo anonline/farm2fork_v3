@@ -20,11 +20,12 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
-import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
 import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { deleteOrder, deleteOrders } from 'src/actions/order-management';
 
 import { Label } from 'src/components/label';
@@ -68,6 +69,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
     { id: 'totalnetAmount', label: 'Nettó összeg', width: 140 },
     { id: 'totalAmount', label: 'Br. összeg', width: 140 },
     { id: 'createdAt', label: 'Dátum', width: 140 },
+    { id: 'planned_shipping_date_time', label: 'Szállítás', width: 140, align: 'center' },
     { id: 'delivery', label: 'Szállítási mód', width: 140 },
     { id: 'payment', label: 'Fizetési mód', width: 140 },
     { id: '', width: 88 },
@@ -77,7 +79,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 
 export function OrderListView() {
     const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
-
+    const { shipments, shipmentsLoading } = useShipments();
     const confirmDialog = useBoolean();
 
     const filters = useSetState<IOrderTableFilters>({
@@ -85,21 +87,28 @@ export function OrderListView() {
         status: 'all',
         startDate: null,
         endDate: null,
+        shipments: [],
     });
+
     const { state: currentFilters, setState: updateFilters } = filters;
 
     // Fetch orders from database
-    const { 
-        orders: ordersData, 
-        ordersLoading, 
-        ordersError, 
-        refreshOrders 
+    const {
+        orders: ordersData,
+        ordersLoading,
+        ordersError,
+        refreshOrders
     } = useGetOrders({
         status: currentFilters.status !== 'all' ? currentFilters.status : undefined,
     });
 
     // Transform orders data to table format
     const [tableData, setTableData] = useState<IOrderItem[]>([]);
+
+    const transformedShipmentFilterData: { value: string; label: string }[] = shipmentsLoading ? [] : shipments.map((shipment) => ({
+        value: shipment.id.toString(),
+        label: fDate(shipment.date),
+    }));
 
     useEffect(() => {
         const loadTransformedData = async () => {
@@ -126,7 +135,8 @@ export function OrderListView() {
     const canReset =
         !!currentFilters.name ||
         currentFilters.status !== 'all' ||
-        (!!currentFilters.startDate && !!currentFilters.endDate);
+        (!!currentFilters.startDate && !!currentFilters.endDate) ||
+        !!currentFilters.shipments.length;
 
     const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -134,7 +144,7 @@ export function OrderListView() {
         async (id: string) => {
             try {
                 const { success, error } = await deleteOrder(id);
-                
+
                 if (success) {
                     toast.success('Rendelés sikeresen törölve!');
                     // Refresh data from server
@@ -154,7 +164,7 @@ export function OrderListView() {
     const handleDeleteRows = useCallback(async () => {
         try {
             const { success, error } = await deleteOrders(table.selected);
-            
+
             if (success) {
                 toast.success('Rendelések sikeresen törölve!');
                 // Refresh data from server
@@ -177,14 +187,16 @@ export function OrderListView() {
         [updateFilters, table]
     );
 
+    
+
     const renderConfirmDialog = () => (
         <ConfirmDialog
             open={confirmDialog.value}
             onClose={confirmDialog.onFalse}
-            title="Delete"
+            title="Törlés"
             content={
                 <>
-                    Are you sure want to delete <strong> {table.selected.length} </strong> items?
+                    Biztosan törölni akarja a kijelölt <strong> {table.selected.length} </strong> elemet?
                 </>
             }
             action={
@@ -196,7 +208,7 @@ export function OrderListView() {
                         confirmDialog.onFalse();
                     }}
                 >
-                    Delete
+                    Törlés
                 </Button>
             }
         />
@@ -233,148 +245,164 @@ export function OrderListView() {
 
                 {!ordersLoading && !ordersError && (
                     <Card>
-                    <Tabs
-                        value={currentFilters.status}
-                        onChange={handleFilterStatus}
-                        sx={[
-                            (theme) => ({
-                                px: 2.5,
-                                boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-                            }),
-                        ]}
-                    >
-                        {STATUS_OPTIONS.map((tab) => (
-                            <Tab
-                                key={tab.value}
-                                iconPosition="end"
-                                value={tab.value}
-                                label={tab.label}
-                                icon={
-                                    <Label
-                                        variant={
-                                            ((tab.value === 'all' ||
-                                                tab.value === currentFilters.status) &&
-                                                'filled') ||
-                                            'soft'
-                                        }
-                                        color={
-                                            (tab.value === 'completed' && 'success') ||
-                                            (tab.value === 'pending' && 'warning') ||
-                                            (tab.value === 'inprogress' && 'info') ||
-                                            (tab.value === 'cancelled' && 'error') ||
-                                            'default'
-                                        }
-                                    >
-                                        {[
-                                            'completed',
-                                            'pending',
-                                            'cancelled',
-                                            'refunded',
-                                            'inprogress',
-                                            'deleted',
-                                        ].includes(tab.value)
-                                            ? tableData.filter((user) => user.status === tab.value)
-                                                  .length
-                                            : tableData.length}
-                                    </Label>
-                                }
-                            />
-                        ))}
-                    </Tabs>
-
-                    <OrderTableToolbar
-                        filters={filters}
-                        onResetPage={table.onResetPage}
-                        dateError={dateError}
-                    />
-
-                    {canReset && (
-                        <OrderTableFiltersResult
-                            filters={filters}
-                            totalResults={dataFiltered.length}
-                            onResetPage={table.onResetPage}
-                            sx={{ p: 2.5, pt: 0 }}
-                        />
-                    )}
-
-                    <Box sx={{ position: 'relative' }}>
-                        <TableSelectedAction
-                            dense={table.dense}
-                            numSelected={table.selected.length}
-                            rowCount={dataFiltered.length}
-                            onSelectAllRows={(checked) =>
-                                table.onSelectAllRows(
-                                    checked,
-                                    dataFiltered.map((row) => row.id)
-                                )
-                            }
-                            action={
-                                <Tooltip title="Delete">
-                                    <IconButton color="primary" onClick={confirmDialog.onTrue}>
-                                        <Iconify icon="solar:trash-bin-trash-bold" />
-                                    </IconButton>
-                                </Tooltip>
-                            }
-                        />
-
-                        <Scrollbar sx={{ minHeight: 444 }}>
-                            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                                <TableHeadCustom
-                                    order={table.order}
-                                    orderBy={table.orderBy}
-                                    headCells={TABLE_HEAD}
-                                    rowCount={dataFiltered.length}
-                                    numSelected={table.selected.length}
-                                    onSort={table.onSort}
-                                    onSelectAllRows={(checked) =>
-                                        table.onSelectAllRows(
-                                            checked,
-                                            dataFiltered.map((row) => row.id)
-                                        )
+                        <Tabs
+                            value={currentFilters.status}
+                            onChange={handleFilterStatus}
+                            sx={[
+                                (theme) => ({
+                                    px: 2.5,
+                                    boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+                                }),
+                            ]}
+                        >
+                            {STATUS_OPTIONS.map((tab) => (
+                                <Tab
+                                    key={tab.value}
+                                    iconPosition="end"
+                                    value={tab.value}
+                                    label={tab.label}
+                                    icon={
+                                        <Label
+                                            variant={
+                                                ((tab.value === 'all' ||
+                                                    tab.value === currentFilters.status) &&
+                                                    'filled') ||
+                                                'soft'
+                                            }
+                                            color={
+                                                (tab.value === 'completed' && 'success') ||
+                                                (tab.value === 'pending' && 'warning') ||
+                                                (tab.value === 'inprogress' && 'info') ||
+                                                (tab.value === 'cancelled' && 'error') ||
+                                                'default'
+                                            }
+                                        >
+                                            {[
+                                                'completed',
+                                                'pending',
+                                                'cancelled',
+                                                'refunded',
+                                                'inprogress',
+                                                'deleted',
+                                            ].includes(tab.value)
+                                                ? tableData.filter((user) => user.status === tab.value)
+                                                    .length
+                                                : tableData.length}
+                                        </Label>
                                     }
                                 />
+                            ))}
+                        </Tabs>
 
-                                <TableBody>
-                                    {dataFiltered
-                                        .slice(
-                                            table.page * table.rowsPerPage,
-                                            table.page * table.rowsPerPage + table.rowsPerPage
-                                        )
-                                        .map((row) => (
-                                            <OrderTableRow
-                                                key={row.id}
-                                                row={row}
-                                                selected={table.selected.includes(row.id)}
-                                                onSelectRow={() => table.onSelectRow(row.id)}
-                                                onDeleteRow={() => handleDeleteRow(row.id)}
-                                                detailsHref={paths.dashboard.order.details(row.id)}
-                                            />
-                                        ))}
+                        <OrderTableToolbar
+                            filters={filters}
+                            onResetPage={table.onResetPage}
+                            dateError={dateError}
+                            options={{
+                                shipments: transformedShipmentFilterData
+                            }}
+                        />
 
-                                    <TableEmptyRows
-                                        height={table.dense ? 56 : 56 + 20}
-                                        emptyRows={emptyRows(
-                                            table.page,
-                                            table.rowsPerPage,
-                                            dataFiltered.length
-                                        )}
+                        {canReset && (
+                            <OrderTableFiltersResult
+                                filters={filters}
+                                totalResults={dataFiltered.length}
+                                onResetPage={table.onResetPage}
+                                sx={{ p: 2.5, pt: 0 }}
+                                shipments={transformedShipmentFilterData}
+                            />
+                        )}
+
+                        <Box sx={{ position: 'relative' }}>
+                            <TableSelectedAction
+                                dense={table.dense}
+                                numSelected={table.selected.length}
+                                rowCount={dataFiltered.length}
+                                onSelectAllRows={(checked) =>
+                                    table.onSelectAllRows(
+                                        checked,
+                                        dataFiltered.map((row) => row.id)
+                                    )
+                                }
+                                action={
+                                    <>
+                                        <Tooltip title="Összesítő nyomtatása">
+                                            <IconButton color="secondary" onClick={confirmDialog.onTrue}>
+                                                <Iconify icon="solar:bill-list-bold-duotone" />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Szállítólevél nyomtatása">
+                                            <IconButton color="error" onClick={confirmDialog.onTrue}>
+                                                <Iconify icon="custom:invoice-duotone" />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Törlés" sx={{ ml: { md: 3 } }}>
+                                            <IconButton color="primary" onClick={confirmDialog.onTrue}>
+                                                <Iconify icon="solar:trash-bin-trash-bold" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </>
+                                }
+                            />
+
+                            <Scrollbar sx={{ minHeight: 444 }}>
+                                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                                    <TableHeadCustom
+                                        order={table.order}
+                                        orderBy={table.orderBy}
+                                        headCells={TABLE_HEAD}
+                                        rowCount={dataFiltered.length}
+                                        numSelected={table.selected.length}
+                                        onSort={table.onSort}
+                                        onSelectAllRows={(checked) =>
+                                            table.onSelectAllRows(
+                                                checked,
+                                                dataFiltered.map((row) => row.id)
+                                            )
+                                        }
                                     />
 
-                                    <TableNoData notFound={notFound} />
-                                </TableBody>
-                            </Table>
-                        </Scrollbar>
-                    </Box>
+                                    <TableBody>
+                                        {dataFiltered
+                                            .slice(
+                                                table.page * table.rowsPerPage,
+                                                table.page * table.rowsPerPage + table.rowsPerPage
+                                            )
+                                            .map((row) => (
+                                                <OrderTableRow
+                                                    key={row.id}
+                                                    row={row}
+                                                    selected={table.selected.includes(row.id)}
+                                                    onSelectRow={() => table.onSelectRow(row.id)}
+                                                    onDeleteRow={() => handleDeleteRow(row.id)}
+                                                    detailsHref={paths.dashboard.order.details(row.id)}
+                                                />
+                                            ))}
 
-                    <TablePaginationCustom
-                        page={table.page}
-                        dense={table.dense}
-                        count={dataFiltered.length}
-                        rowsPerPage={table.rowsPerPage}
-                        onPageChange={table.onChangePage}
-                        onChangeDense={table.onChangeDense}
-                        onRowsPerPageChange={table.onChangeRowsPerPage}
-                    />
+                                        <TableEmptyRows
+                                            height={table.dense ? 56 : 56 + 20}
+                                            emptyRows={emptyRows(
+                                                table.page,
+                                                table.rowsPerPage,
+                                                dataFiltered.length
+                                            )}
+                                        />
+
+                                        <TableNoData notFound={notFound} />
+                                    </TableBody>
+                                </Table>
+                            </Scrollbar>
+                        </Box>
+
+                        <TablePaginationCustom
+                            page={table.page}
+                            dense={table.dense}
+                            count={dataFiltered.length}
+                            rowsPerPage={table.rowsPerPage}
+                            onPageChange={table.onChangePage}
+                            onChangeDense={table.onChangeDense}
+                            onRowsPerPageChange={table.onChangeRowsPerPage}
+                        />
                     </Card>
                 )}
             </DashboardContent>
@@ -394,7 +422,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterProps) {
-    const { status, name, startDate, endDate } = filters;
+    const { status, name, startDate, endDate, shipments } = filters;
 
     const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -412,6 +440,15 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
                 field?.toLowerCase().includes(name.toLowerCase())
             )
         );
+    }
+
+    if (shipments.length > 0) {
+        inputData = inputData.filter((order) => {
+            if (order.shipmentId) {
+                return shipments.includes(order.shipmentId.toString());
+            }
+            return false;
+        });
     }
 
     if (status !== 'all') {

@@ -130,6 +130,22 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                 />
             </TableCell>
 
+            <TableCell align="center">
+                <ListItemText
+                    primary={fDate(row.planned_shipping_date_time)}
+                    secondary={fTime(row.planned_shipping_date_time, "HH:mm")}
+                    slotProps={{
+                        primary: {
+                            noWrap: true,
+                            sx: { typography: 'body2' },
+                        },
+                        secondary: {
+                            sx: { mt: 0.5, typography: 'caption' },
+                        },
+                    }}
+                />
+            </TableCell>
+
             <TableCell align="center"> {row.delivery.shipBy} </TableCell>
             <TableCell align="center"> {row.payment.cardType} </TableCell>
 

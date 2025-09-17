@@ -15,9 +15,10 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 type Props = FiltersResultProps & {
     onResetPage: () => void;
     filters: UseSetStateReturn<IOrderTableFilters>;
+    shipments: { value: string; label: string }[];
 };
 
-export function OrderTableFiltersResult({ filters, totalResults, onResetPage, sx }: Props) {
+export function OrderTableFiltersResult({ filters, totalResults, onResetPage, sx, shipments }: Props) {
     const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
 
     const handleRemoveKeyword = useCallback(() => {
@@ -35,6 +36,15 @@ export function OrderTableFiltersResult({ filters, totalResults, onResetPage, sx
         updateFilters({ startDate: null, endDate: null });
     }, [onResetPage, updateFilters]);
 
+    const handleRemoveShipment = useCallback(
+        (inputValue: string) => {
+            const newValue = currentFilters.shipments.filter((item) => item !== inputValue);
+
+            updateFilters({ shipments: newValue });
+        },
+        [updateFilters, currentFilters.shipments]
+    );
+
     const handleReset = useCallback(() => {
         onResetPage();
         resetFilters();
@@ -42,7 +52,7 @@ export function OrderTableFiltersResult({ filters, totalResults, onResetPage, sx
 
     return (
         <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-            <FiltersBlock label="Status:" isShow={currentFilters.status !== 'all'}>
+            <FiltersBlock label="Státusz:" isShow={currentFilters.status !== 'all'}>
                 <Chip
                     {...chipProps}
                     label={currentFilters.status}
@@ -52,7 +62,7 @@ export function OrderTableFiltersResult({ filters, totalResults, onResetPage, sx
             </FiltersBlock>
 
             <FiltersBlock
-                label="Date:"
+                label="Dátum:"
                 isShow={Boolean(currentFilters.startDate && currentFilters.endDate)}
             >
                 <Chip
@@ -62,7 +72,21 @@ export function OrderTableFiltersResult({ filters, totalResults, onResetPage, sx
                 />
             </FiltersBlock>
 
-            <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>
+            <FiltersBlock
+                label="Összesítő:"
+                isShow={!!currentFilters.shipments.length}
+            >
+                {currentFilters.shipments.map((item) => (
+                    <Chip
+                        {...chipProps}
+                        key={item}
+                        label={shipments.find((shipment) => shipment.value === item)?.label || item}
+                        onDelete={() => handleRemoveShipment(item)}
+                    />
+                ))}
+            </FiltersBlock>           
+
+            <FiltersBlock label="Szűrő:" isShow={!!currentFilters.name}>
                 <Chip {...chipProps} label={currentFilters.name} onDelete={handleRemoveKeyword} />
             </FiltersBlock>
         </FiltersResult>
