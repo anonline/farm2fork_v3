@@ -1,7 +1,8 @@
-import type { IOrderData, ICreateOrderData, OrderHistoryEntry, PaymentStatus } from 'src/types/order-management';
+import type { IOrderData, PaymentStatus, ICreateOrderData, OrderHistoryEntry } from 'src/types/order-management';
+
+import { finishTransaction } from 'src/utils/simplepay';
 
 import { supabase } from 'src/lib/supabase';
-import { finishTransaction } from 'src/utils/simplepay';
 
 // ----------------------------------------------------------------------
 

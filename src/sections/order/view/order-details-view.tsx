@@ -39,7 +39,6 @@ import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 import type { ProductForOrder } from '../product-selection-modal';
-import { partiallyChargeTransaction } from 'src/utils/simplepay';
 
 // ----------------------------------------------------------------------
 
@@ -149,8 +148,8 @@ export function OrderDetailsView({ orderId }: Props) {
                     if(simplePayFinishResult.success !== true) {
                         toast.warning(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');
                     }
-                } catch (error) {
-                    console.error('Partial charge failed:', error);
+                } catch (simplepayError) {
+                    console.error('Partial charge failed:', simplepayError);
                     setStatus(oldStatus); // Revert status change
                     toast.warning('A SimplePay tranzakció frissítése sikertelen. Kérem ellenőrizze a SimplePay fiókját.');
                     return;

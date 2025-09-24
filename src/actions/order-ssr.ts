@@ -1,4 +1,4 @@
-import type { IOrderData, OrderHistoryEntry, PaymentStatus } from 'src/types/order-management';
+import type { IOrderData, PaymentStatus, OrderHistoryEntry } from 'src/types/order-management';
 
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
