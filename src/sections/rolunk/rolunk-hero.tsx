@@ -34,7 +34,7 @@ export default function RolunkHero() {
                         allowFullScreen
                         sx={{
                             position: 'absolute',
-                            top: '-50%',
+                            top: '-25%',
                             left: '-50%',
                             width: '200%',
                             height: '200%',

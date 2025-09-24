@@ -30,7 +30,7 @@ export async function fetchWooProducts() {
 
         if (response.data.length < 100) break; // No more products to fetch
         page++;
-    } while (true);
+    } while (page < 100);
 
     log(`Total products fetched: ${allProducts.length}`);
     console.log('allProducts', JSON.stringify(allProducts[0])); // Log first 500 chars of products for inspection
@@ -52,7 +52,7 @@ export async function fetchWooCategories() {
 
         if (response.data.length < 100) break; // No more categories to fetch
         page++;
-    } while (true);
+    } while (page < 100);
 
     log(`Total categories fetched: ${allCategories.length}`);
     return allCategories;

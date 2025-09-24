@@ -133,7 +133,7 @@ export function FaqsCategory({ faqs, faqCategories }: Readonly<FaqsCategoryViewP
             {filteredFaqs.length > 0 ? (
                 <F2FFaqsList data={filteredFaqs} />
             ) : (
-                <Alert severity="info" sx={{}}>
+                <Alert severity='warning' sx={{}}>
                     Sajnos nincs elérhető kérdés a kategóriában. Kérjük vegye fel a kapcsolatot
                     velünk elérhetőségeink bármelyikén.
                 </Alert>

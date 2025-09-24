@@ -23,8 +23,10 @@ export const paths = {
     payment: '/payment',
     about: '/about-us',
     contact: '/contact-us',
-    faqs: '/faqs',
+    faqs: '/gyik',
     rolunk: '/rolunk',
+    aszf: '/aszf',
+    adatkezelesi: '/adatkezelesi-tajekoztato',
     profile: {
         root: '/profil',
         orders: '/profil/rendelesek',

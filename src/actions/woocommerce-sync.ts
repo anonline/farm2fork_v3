@@ -255,7 +255,8 @@ export async function syncProducers(
             const producingTags = getMetaValue(wooProducer.meta_data, 'termeny') || getMetaValue(wooProducer.meta_data, 'termeny_kartya');
             const bioValue = getMetaValue(wooProducer.meta_data, 'bio') || getMetaValue(wooProducer.meta_data, '_bio');
             const companyName = getMetaValue(wooProducer.meta_data, 'nev');
-            const producerName = wooProducer.title;
+            //const producerName = wooProducer.title;
+            
             // Note: Additional fields available but not used yet:
             // const startedYear = getMetaValue(wooProducer.meta_data, 'ev');
             // const avatarImageId = getMetaValue(wooProducer.meta_data, 'avatar_kep');

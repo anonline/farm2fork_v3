@@ -16,6 +16,7 @@ import {
     DialogContent,
     useMediaQuery,
     InputAdornment,
+    ClickAwayListener,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -131,7 +132,7 @@ export default function HeaderSearchMobile() {
                 setIsLoading(false);
             })
             .catch(() => setIsLoading(false));
-    }, [debouncedQuery]);
+    }, [debouncedQuery, dbProducerToSearchResult]);
 
     useEffect(() => {
         setShowResults(debouncedQuery.length >= searchTextLimit && !isLoading);
@@ -172,54 +173,56 @@ export default function HeaderSearchMobile() {
         setShowResults(false);
     };
 
-    // Desktop version (existing behavior)
+    // Desktop version (with click-away to hide results)
     if (!isMobile) {
         return (
-            <Box sx={{ width: 200, position: 'relative' }}>
-                <TextField
-                    ref={inputRef}
-                    size="small"
-                    placeholder="Keresés"
-                    onChange={handleSearch}
-                    onKeyDown={handleEnterPress}
-                    onFocus={() => {
-                        if (
-                            debouncedQuery.length >= searchTextLimit &&
-                            (products.length > 0 || producers.length > 0)
-                        ) {
-                            setShowResults(true);
-                        }
-                    }}
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment
-                                    position="start"
-                                    sx={
-                                        isLoading
-                                            ? {
-                                                  animation: 'rotation 2s infinite linear',
-                                                  animationDirection: 'reverse',
-                                              }
-                                            : {}
-                                    }
-                                >
-                                    {isLoading ? loadingIcon : searchIcon}
-                                </InputAdornment>
-                            ),
-                        },
-                    }}
-                />
-
-                {!isLoading && showResults && (
-                    <HeaderSearchResultArea
-                        ref={resultsRef}
-                        products={products}
-                        producers={producers}
-                        link={debouncedQuery}
+            <ClickAwayListener onClickAway={() => setShowResults(false)}>
+                <Box sx={{ width: 200, position: 'relative' }}>
+                    <TextField
+                        ref={inputRef}
+                        size="small"
+                        placeholder="Keresés"
+                        onChange={handleSearch}
+                        onKeyDown={handleEnterPress}
+                        onFocus={() => {
+                            if (
+                                debouncedQuery.length >= searchTextLimit &&
+                                (products.length > 0 || producers.length > 0)
+                            ) {
+                                setShowResults(true);
+                            }
+                        }}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment
+                                        position="start"
+                                        sx={
+                                            isLoading
+                                                ? {
+                                                      animation: 'spin 2s infinite linear',
+                                                      animationDirection: 'reverse',
+                                                  }
+                                                : {}
+                                        }
+                                    >
+                                        {isLoading ? loadingIcon : searchIcon}
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
-                )}
-            </Box>
+
+                    {!isLoading && showResults && (
+                        <HeaderSearchResultArea
+                            ref={resultsRef}
+                            products={products}
+                            producers={producers}
+                            link={debouncedQuery}
+                        />
+                    )}
+                </Box>
+            </ClickAwayListener>
         );
     }
 

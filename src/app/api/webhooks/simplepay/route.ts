@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
         // Verify the webhook signature if SimplePay provides one
         // This is important for security in production
         
-        const { orderRef, status, transactionId, total } = data;
+        const { orderRef, status, total } = data;
 
         if (!orderRef) {
             return NextResponse.json({ error: 'Missing orderRef' }, { status: 400 });
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Update the order payment status
-        const { success, error } = await updateOrderPaymentStatus(
+        const { error } = await updateOrderPaymentStatus(
             orderRef, 
             paymentStatus, 
             paymentStatus === 'paid' ? total : undefined

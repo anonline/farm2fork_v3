@@ -3,6 +3,8 @@ import type { BoxProps } from '@mui/material/Box';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
+
 // ----------------------------------------------------------------------
 
 export function FaqsHero({ sx, ...other }: BoxProps) {
@@ -12,7 +14,7 @@ export function FaqsHero({ sx, ...other }: BoxProps) {
             sx={[
                 (theme) => ({
                     height: { md: 160 },
-                    py: { xs: 10, md: 0 },
+                    py: { xs: 10, md: 10 },
                     alignItems: 'center',
                     alignSelf: 'center',
                     width: '100%',
@@ -25,7 +27,7 @@ export function FaqsHero({ sx, ...other }: BoxProps) {
             ]}
             {...other}
         >
-            <Typography variant="h1" sx={{ textTransform: 'uppercase', my: 5 }}>
+            <Typography sx={{ textTransform: 'uppercase', fontFamily: themeConfig.fontFamily.bricolage, fontWeight: '600', fontSize: { xs: '48px', md: '48px', lg: '64px' } }}>
                 Gyakran ismételt kérdések
             </Typography>
         </Box>
