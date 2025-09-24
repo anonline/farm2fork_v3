@@ -156,7 +156,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
             unauthenticated: status === 'unauthenticated',
             displayName: state.user?.user_metadata?.display_name ?? undefined,
         }),
-        [checkUserSession, state.user, status]
+        [checkUserSession, state.user, state.roles, status]
     );
 
     return <AuthContext value={memoizedValue}>{children}</AuthContext>;

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
+
 import AszfView from 'src/sections/aszf/aszf-view';
 
 // ----------------------------------------------------------------------

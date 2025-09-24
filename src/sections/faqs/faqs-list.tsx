@@ -2,7 +2,7 @@ import type { IFaqItem } from 'src/types/faq';
 import type { BoxProps } from '@mui/material/Box';
 import type { IconifyName } from 'src/components/iconify';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Accordion from '@mui/material/Accordion';
@@ -11,10 +11,9 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
 import { _faqs } from 'src/_mock';
+import { themeConfig } from 'src/theme';
 
 import { Iconify } from 'src/components/iconify';
-import { themeConfig } from 'src/theme';
-import { useBoolean } from 'minimal-shared/hooks';
 
 // ----------------------------------------------------------------------
 

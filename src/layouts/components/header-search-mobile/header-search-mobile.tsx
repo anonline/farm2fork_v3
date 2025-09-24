@@ -16,6 +16,7 @@ import {
     DialogContent,
     useMediaQuery,
     InputAdornment,
+    ClickAwayListener,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -131,7 +132,7 @@ export default function HeaderSearchMobile() {
                 setIsLoading(false);
             })
             .catch(() => setIsLoading(false));
-    }, [debouncedQuery]);
+    }, [debouncedQuery, dbProducerToSearchResult]);
 
     useEffect(() => {
         setShowResults(debouncedQuery.length >= searchTextLimit && !isLoading);
@@ -174,7 +175,6 @@ export default function HeaderSearchMobile() {
 
     // Desktop version (with click-away to hide results)
     if (!isMobile) {
-        const { ClickAwayListener } = require('@mui/material');
         return (
             <ClickAwayListener onClickAway={() => setShowResults(false)}>
                 <Box sx={{ width: 200, position: 'relative' }}>
