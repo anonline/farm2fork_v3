@@ -22,6 +22,7 @@ import { paths } from 'src/routes/paths';
 
 import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
+import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 
 import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -81,6 +82,7 @@ export function OrderListView() {
     const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
     const { shipments, shipmentsLoading } = useShipments();
     const confirmDialog = useBoolean();
+    const [pdfGenerating, setPdfGenerating] = useState(false);
 
     const filters = useSetState<IOrderTableFilters>({
         name: '',
@@ -186,6 +188,39 @@ export function OrderListView() {
         },
         [updateFilters, table]
     );
+
+    const handleGenerateShippingLabels = useCallback(async () => {
+        try {
+            setPdfGenerating(true);
+            
+            // Get selected orders
+            const selectedOrders = dataFiltered.filter((order) => table.selected.includes(order.id));
+            
+            if (selectedOrders.length === 0) {
+                toast.error('Nincsenek kiválasztott rendelések');
+                return;
+            }
+
+            // Check if orders are still loading
+            if (ordersLoading) {
+                toast.error('Rendelések betöltése folyamatban, kérjük várjon...');
+                return;
+            }
+
+            // Notify user about the process
+            toast.info(`${selectedOrders.length} rendelés szállítólevelének generálása...`);
+
+            await generateMultipleShippingLabelsPDF(selectedOrders);
+            toast.success(`${selectedOrders.length} rendelés szállítólevele sikeresen generálva és letöltve!`);
+            
+        } catch (error) {
+            console.error('Error generating shipping labels:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Szállítólevelek generálása sikertelen volt';
+            toast.error(errorMessage);
+        } finally {
+            setPdfGenerating(false);
+        }
+    }, [dataFiltered, table.selected, ordersLoading]);
 
     
 
@@ -331,9 +366,15 @@ export function OrderListView() {
                                                 <Iconify icon="solar:bill-list-bold-duotone" />
                                             </IconButton>
                                         </Tooltip>
-                                        <Tooltip title="Szállítólevél nyomtatása">
-                                            <IconButton color="error" onClick={confirmDialog.onTrue}>
-                                                <Iconify icon="custom:invoice-duotone" />
+                                        <Tooltip title={pdfGenerating ? "PDF generálása..." : "Szállítólevél nyomtatása"}>
+                                            <IconButton 
+                                                color="error" 
+                                                onClick={handleGenerateShippingLabels}
+                                                disabled={pdfGenerating || table.selected.length === 0}
+                                            >
+                                                <Iconify 
+                                                    icon={pdfGenerating ? "custom:invoice-duotone" : "custom:invoice-duotone"} 
+                                                />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Törlés" sx={{ ml: { md: 3 } }}>

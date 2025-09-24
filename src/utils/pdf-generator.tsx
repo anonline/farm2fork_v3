@@ -156,8 +156,8 @@ const F2FSVG = () => (
     </Svg>
 );
 
-const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
-    <Document>
+const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => {
+    return (
         <Page size="A4" style={styles.page}>
             {/* Header */}
             <View style={styles.header}>
@@ -240,7 +240,7 @@ const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
                         <View style={styles.description}>
                             <Text>{item.name || 'N/A'}</Text>
                         </View>
-                        <Text style={styles.qty}>{item.quantity || 0} {item.unit || ''}</Text>
+                        <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2) || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />
                         <Text style={styles.rate}>{fCurrency(item.netPrice || 0)}</Text>
                         <Text style={styles.rate} />
@@ -289,6 +289,12 @@ const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
                 {Date.now() > 0 && `Nyomtatva: ${new Date().toLocaleString('hu-HU')}`}
             </Text>
         </Page>
+    );
+}
+
+const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
+    <Document>
+        <ShippingLabelPDFPage order={order} />
     </Document>
 );
 
@@ -314,7 +320,66 @@ const validateOrderData = (order: IOrderItem): boolean => {
     return true;
 };
 
-// Function to generate and download PDF
+// PDF Document Component for multiple orders
+interface MultipleShippingLabelsPDFProps {
+    orders: IOrderItem[];
+}
+
+const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders }) => (
+    <Document>
+        {orders.map((order, index) => (
+            <ShippingLabelPDFPage order={order} key={order.id || index} />
+        ))}
+    </Document>
+);
+
+// Function to generate and download PDF for multiple orders
+export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[]): Promise<void> => {
+    try {
+        // Validate that we have orders
+        if (!orders || orders.length === 0) {
+            throw new Error('Nincsenek kiválasztott rendelések');
+        }
+
+        // Validate each order
+        const invalidOrders: string[] = [];
+        orders.forEach((order, index) => {
+            try {
+                validateOrderData(order);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Ismeretlen hiba';
+                invalidOrders.push(`Rendelés ${index + 1} (${order.orderNumber || 'N/A'}): ${errorMessage}`);
+            }
+        });
+
+        if (invalidOrders.length > 0) {
+            throw new Error(`Hibás rendelések:\n${invalidOrders.join('\n')}`);
+        }
+
+        const doc = <MultipleShippingLabelsPDF orders={orders} />;
+        const pdfBlob = await pdf(doc).toBlob();
+
+        // Create download link
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `szallitolevelek_${orders.length}_rendelés_${new Date().toISOString().split('T')[0]}.pdf`;
+
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error generating multiple PDFs:', error);
+        const errorMessage = error instanceof Error ? error.message : 'PDF generálása sikertelen volt';
+        throw new Error(errorMessage);
+    }
+};
+
+// Function to generate and download PDF for single order (existing functionality)
 export const generateShippingLabelPDF = async (order: IOrderItem): Promise<void> => {
     try {
         // Validate order data
