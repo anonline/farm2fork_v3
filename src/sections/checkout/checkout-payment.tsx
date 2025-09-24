@@ -1429,7 +1429,8 @@ export function CheckoutPayment() {
                                             <Typography variant="body2">
                                                 Elfogadom az{' '}
                                                 <Link
-                                                    href="#"
+                                                    href={paths.aszf}
+                                                    target="_blank"
                                                     sx={{
                                                         color: 'primary.main',
                                                         textDecoration: 'none',

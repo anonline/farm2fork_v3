@@ -70,7 +70,7 @@ export function F2FFaqsList({ data, sx, ...other }: F2FFaqsListProps & BoxProps)
                                 boxShadow: 'none',
                             }
                          }}
-                         expanded={isOpens[accordion.id]}
+                         expanded={!!isOpens[accordion.id]}
                          onChange={() => setIsOpens(prev => ({ ...prev, [accordion.id]: !prev[accordion.id] }))
                          }
                     >

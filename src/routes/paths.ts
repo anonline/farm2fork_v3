@@ -25,6 +25,8 @@ export const paths = {
     contact: '/contact-us',
     faqs: '/gyik',
     rolunk: '/rolunk',
+    aszf: '/aszf',
+    adatkezelesi: '/adatkezelesi-tajekoztato',
     profile: {
         root: '/profil',
         orders: '/profil/rendelesek',
