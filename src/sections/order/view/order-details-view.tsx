@@ -39,7 +39,6 @@ import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 import type { ProductForOrder } from '../product-selection-modal';
-import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
