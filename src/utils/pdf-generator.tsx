@@ -156,8 +156,7 @@ const F2FSVG = () => (
     </Svg>
 );
 
-const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => {
-    return (
+const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => (
         <Page size="A4" style={styles.page}>
             {/* Header */}
             <View style={styles.header}>
@@ -289,8 +288,7 @@ const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => {
                 {Date.now() > 0 && `Nyomtatva: ${new Date().toLocaleString('hu-HU')}`}
             </Text>
         </Page>
-    );
-}
+    )
 
 const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
     <Document>
