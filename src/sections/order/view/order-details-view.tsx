@@ -24,7 +24,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, finishSimplePayTransaction } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -56,6 +56,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
     const [editedSurcharge, setEditedSurcharge] = useState(orderData?.surchargeAmount || 0);
     const [showPaymentAlert, setShowPaymentAlert] = useState(false);
+    const [showCancellationAlert, setShowCancellationAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
 
     // Fetch order data when component mounts or orderId changes
@@ -83,6 +84,73 @@ export function OrderDetailsView({ orderId }: Props) {
         if (!orderData?.id) {
             toast.error('Hiányzó rendelési azonosító');
             return;
+        }
+
+        // Handle cancellation with payment refund logic
+        if (newStatus === 'cancelled') {
+            const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
+            const isPaid = orderData?.paymentStatus === 'paid';
+            
+            if (isSimplePayment && isPaid) {
+                // For SimplePay payments that are paid, we can automatically refund
+                try {
+                    setStatus(newStatus); // Update UI immediately
+                    
+                    const cancelResult = await cancelSimplePayTransaction(orderData.id);
+                    
+                    if (cancelResult.success) {
+                        // Update the status
+                        const { success, error: statusUpdateError } = await updateOrderStatus(
+                            orderData.id,
+                            newStatus as OrderStatus,
+                            `Rendelés törölve, SimplePay visszatérítés kezdeményezve`
+                        );
+
+                        if (success) {
+                            // Update order context
+                            if (order) {
+                                updateOrder({
+                                    ...order,
+                                    status: newStatus,
+                                });
+                            }
+
+                            if (orderData) {
+                                updateOrderData({
+                                    ...orderData,
+                                    orderStatus: newStatus as OrderStatus,
+                                    paymentStatus: 'refunded',
+                                });
+                            }
+
+                            // Refresh order history to show the new entry
+                            await refreshOrderHistory();
+
+                            toast.success('Rendelés sikeresen törölve és SimplePay visszatérítés kezdeményezve!');
+                            return; // Exit early, cancellation handled
+                        } else {
+                            setStatus(status); // Revert status change
+                            toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
+                            return;
+                        }
+                    } else {
+                        setStatus(status); // Revert status change
+                        toast.error(cancelResult.error || 'Hiba történt a SimplePay visszatérítés során');
+                        return;
+                    }
+                } catch (cancelError) {
+                    console.error('Error cancelling SimplePay transaction:', cancelError);
+                    setStatus(status); // Revert status change
+                    toast.error('Hiba történt a SimplePay visszatérítés során');
+                    return;
+                }
+            } else {
+                // For other payment methods that are paid, show manual alert
+                setShowCancellationAlert(true);
+                setStatus(status); // Revert status change until user confirms
+                return;
+            }
+            // For unpaid orders, continue with normal cancellation flow below
         }
 
         const oldStatus = status;
@@ -373,6 +441,54 @@ export function OrderDetailsView({ orderId }: Props) {
         setPendingSave(false);
     }, []);
 
+    const handleCancellationAlertConfirm = useCallback(async () => {
+        // User confirmed manual cancellation
+        setShowCancellationAlert(false);
+        
+        if (!orderData?.id) return;
+
+        try {
+            // Update the status
+            const { success, error: statusUpdateError } = await updateOrderStatus(
+                orderData.id,
+                'cancelled' as OrderStatus,
+                `Rendelés törölve - kézi visszatérítés szükséges`
+            );
+
+            if (success) {
+                // Update order context
+                if (order) {
+                    updateOrder({
+                        ...order,
+                        status: 'cancelled',
+                    });
+                }
+
+                if (orderData) {
+                    updateOrderData({
+                        ...orderData,
+                        orderStatus: 'cancelled' as OrderStatus,
+                    });
+                }
+
+                // Refresh order history to show the new entry
+                await refreshOrderHistory();
+
+                setStatus('cancelled');
+                toast.success('Rendelés sikeresen törölve! Kézi visszatérítés szükséges.');
+            } else {
+                toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
+            }
+        } catch (updateError) {
+            console.error('Error updating order status:', updateError);
+            toast.error('Hiba történt a státusz frissítése során');
+        }
+    }, [orderData, order, updateOrder, updateOrderData, refreshOrderHistory]);
+
+    const handleCancellationAlertCancel = useCallback(() => {
+        setShowCancellationAlert(false);
+    }, []);
+
     const handleItemChange = useCallback((itemId: string, field: 'price' | 'quantity', value: number) => {
         setEditedItems(prev =>
             prev.map(item => {
@@ -627,6 +743,41 @@ export function OrderDetailsView({ orderId }: Props) {
                     </Button>
                     <Button onClick={handlePaymentAlertConfirm} variant="contained" color="warning">
                         Mentés mindenképpen
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Cancellation Alert Dialog */}
+            <Dialog open={showCancellationAlert} onClose={handleCancellationAlertCancel}>
+                <DialogTitle>Figyelmeztetés - Kézi visszatérítés szükséges</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Nem végezhető el a fizetett összeg automatikus feloldása.
+                    </Typography>
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                            Fizetési mód: <strong>{orderData?.paymentMethod?.name || 'Ismeretlen'}</strong>
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Fizetési állapot: <strong>Fizetve</strong>
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Fizetett összeg: <strong>{orderData?.payedAmount ? `${orderData.payedAmount.toLocaleString()} Ft` : '0 Ft'}</strong>
+                        </Typography>
+                    </Box>
+                    <Typography sx={{ mt: 2 }} color="warning.main">
+                        <strong>Fontos:</strong> A visszatérítést kézzel kell lebonyolítani.
+                    </Typography>
+                    <Typography sx={{ mt: 1 }}>
+                        Biztosan folytatni szeretnéd a rendelés törlését?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancellationAlertCancel} color="inherit">
+                        Mégse
+                    </Button>
+                    <Button onClick={handleCancellationAlertConfirm} variant="contained" color="error">
+                        Igen, törlés kézi visszatérítéssel
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -833,6 +833,37 @@ export async function finishSimplePayTransaction(orderId: string): Promise<{ suc
     }
 }
 
+export async function cancelSimplePayTransaction(orderId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const { order, error: fetchError } = await getOrderById(orderId);
+        if (fetchError) {
+            return { success: false, error: fetchError };
+        }
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+        if (order.paymentStatus !== 'paid') {
+            return { success: false, error: 'Cannot cancel transaction - payment status is not paid' };
+        }
+
+        const simplePayCancelResult = await finishTransaction({
+            orderRef: order.id,
+            originalTotal: Math.round(order.payedAmount), // originalTotal - must match reserved amount
+            approveTotal: 0  // approveTotal = 0 means full cancellation/refund
+        });
+
+        console.log('SimplePay transaction cancelled successfully:', simplePayCancelResult);
+        
+        // Update payment status to refunded
+        await updateOrderPaymentStatus(order.id, 'refunded', 0);       
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error cancelling SimplePay transaction:', error);
+        return { success: false, error: 'Failed to cancel SimplePay transaction' };
+    }
+}
+
 /**
  * Clear invoice data from order (after storno)
  */
