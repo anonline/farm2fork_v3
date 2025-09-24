@@ -10,10 +10,7 @@ export * from 'simplepay-js-sdk'
 
 // Export our custom finish transaction utilities
 export {
-  cancelTransaction,
   finishTransaction,
-  fullyChargeTransaction,
-  partiallyChargeTransaction,
   type FinishTransactionData,
   type FinishTransactionConfig,
   type SimplePayFinishResponse,
