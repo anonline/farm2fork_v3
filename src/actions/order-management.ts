@@ -1,6 +1,7 @@
-import type { IOrderData, ICreateOrderData, OrderHistoryEntry } from 'src/types/order-management';
+import type { IOrderData, ICreateOrderData, OrderHistoryEntry, PaymentStatus } from 'src/types/order-management';
 
 import { supabase } from 'src/lib/supabase';
+import { finishTransaction } from 'src/utils/simplepay';
 
 // ----------------------------------------------------------------------
 
@@ -10,10 +11,10 @@ import { supabase } from 'src/lib/supabase';
 export async function createOrder(orderData: ICreateOrderData): Promise<{ orderId: string | null; error: string | null }> {
     try {
         const now = new Date().toISOString();
-        
+
         // Generate order ID (you might want to use a different format)
         const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
+
         // Create initial history entry
         const initialHistory: OrderHistoryEntry = {
             timestamp: now,
@@ -138,8 +139,8 @@ export async function getOrderById(orderId: string): Promise<{ order: IOrderData
  * Update order status
  */
 export async function updateOrderStatus(
-    orderId: string, 
-    orderStatus: IOrderData['orderStatus'], 
+    orderId: string,
+    orderStatus: IOrderData['orderStatus'],
     note?: string,
     userId?: string,
     userName?: string
@@ -185,8 +186,8 @@ export async function updateOrderStatus(
  * Update payment status
  */
 export async function updatePaymentStatus(
-    orderId: string, 
-    paymentStatus: IOrderData['paymentStatus'], 
+    orderId: string,
+    paymentStatus: IOrderData['paymentStatus'],
     payedAmount?: number,
     note?: string,
     userId?: string,
@@ -364,8 +365,8 @@ export async function deleteOrders(orderIds: string[]): Promise<{ success: boole
  * Update order payment status
  */
 export async function updateOrderPaymentStatus(
-    orderId: string, 
-    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
+    orderId: string,
+    paymentStatus: PaymentStatus,
     payedAmount?: number
 ): Promise<{ success: boolean; error: string | null }> {
     try {
@@ -399,7 +400,7 @@ export async function updateOrderPaymentStatus(
  * Update order delivery guy (courier field)
  */
 export async function updateOrderDeliveryGuy(
-    orderId: string, 
+    orderId: string,
     deliveryGuyId: number | null
 ): Promise<{ success: boolean; error: string | null }> {
     try {
@@ -603,7 +604,11 @@ export async function updateOrderInvoiceSettings(
         const historyEntry: OrderHistoryEntry = {
             timestamp: new Date().toISOString(),
             status: order.orderStatus,
-            note: note || `Számla beállítások frissítve: ${denyInvoice ? 'Számla tiltva' : 'Számla engedélyezve'}${paymentDueDays !== undefined ? `, Fizetési határidő: ${paymentDueDays} nap` : ''}`,
+            note: note || (() => {
+                const statusText = denyInvoice ? 'Számla tiltva' : 'Számla engedélyezve';
+                const paymentText = paymentDueDays !== undefined ? `, Fizetési határidő: ${paymentDueDays} nap` : '';
+                return `Számla beállítások frissítve: ${statusText}${paymentText}`;
+            })(),
             userId,
             userName,
         };
@@ -755,9 +760,9 @@ export async function updateOrderBillingAddress(
 
         // Check if invoice has been created - if so, prevent updating billing address
         if (order.invoiceDataJson) {
-            return { 
-                success: false, 
-                error: 'A számlázási cím nem módosítható, mert már létrejött a számla.' 
+            return {
+                success: false,
+                error: 'A számlázási cím nem módosítható, mert már létrejött a számla.'
             };
         }
 
@@ -792,4 +797,30 @@ export async function updateOrderBillingAddress(
     }
 }
 
+export async function finishSimplePayTransaction(orderId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const { order, error: fetchError } = await getOrderById(orderId);
+        if (fetchError) {
+            return { success: false, error: fetchError };
+        }
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+        if (order.paymentStatus !== 'paid') {
+            return { success: false, error: 'Finishing transaction cannot perform.' };
+        }
 
+        const simplePayFinishResult = await finishTransaction({
+            orderRef: order.id,
+            originalTotal: order.payedAmount, // originalTotal
+            approveTotal: order.total  // approveTotal (charge 1500, release 1000)
+        });
+
+        console.log('Partial charge successful:', simplePayFinishResult);
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error finishing SimplePay transaction:', error);
+        return { success: false, error: 'Failed to finish SimplePay transaction' };
+    }
+}

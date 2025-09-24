@@ -17,7 +17,8 @@ export type PaymentStatus =
     | 'paid'
     | 'failed'
     | 'refunded'
-    | 'partially_paid';
+    | 'partially_paid'
+    | 'closed';
 
 export type ShippingMethod = {
     id: number;

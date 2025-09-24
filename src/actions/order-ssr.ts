@@ -1,4 +1,4 @@
-import type { IOrderData, OrderHistoryEntry } from 'src/types/order-management';
+import type { IOrderData, OrderHistoryEntry, PaymentStatus } from 'src/types/order-management';
 
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
@@ -190,7 +190,7 @@ export async function getAllOrdersSSR(params?: {
  */
 export async function updateOrderPaymentStatusSSR(
     orderId: string, 
-    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
+    paymentStatus: PaymentStatus,
     payedAmount?: number
 ): Promise<{ success: boolean; error: string | null }> {
     try {

@@ -154,7 +154,7 @@ export async function createBillingoInvoice(orderData: IOrderData): Promise<{ su
             language: DocumentLanguage.HU,
             currency: Currency.HUF,
             electronic: true,
-            paid: orderData.paymentStatus === 'paid', // Set as paid if payment status is paid
+            paid: orderData.paymentStatus === 'closed', // Set as paid if payment status is closed
             items: invoiceItems,
             comment: orderData.note ? `Rendelés: ${orderData.id}\n${orderData.note}` : `Rendelés: ${orderData.id}`,
             vendor_id: orderData.id, // Use order ID as vendor ID for reference
@@ -167,7 +167,7 @@ export async function createBillingoInvoice(orderData: IOrderData): Promise<{ su
             console.log(`Invoice created successfully in Billingo: ${createdInvoice.id}`);
             
             // If order is already paid, mark the invoice as paid
-            if (orderData.paymentStatus === 'paid') {
+            if (orderData.paymentStatus === 'closed') {
                 console.log('Order is paid, marking invoice as paid...');
                 const paymentResult = await markInvoiceAsPaid(
                     createdInvoice.id,

@@ -217,7 +217,7 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
             currency: Currency.HUF,
             conversion_rate: 1,
             electronic: true,
-            paid: orderData.paymentStatus === 'paid',
+            paid: orderData.paymentStatus === 'closed',
             items: invoiceItems,
             comment: orderData.note || '',
         };

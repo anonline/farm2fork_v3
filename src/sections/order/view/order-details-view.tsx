@@ -24,7 +24,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, finishSimplePayTransaction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -39,18 +39,19 @@ import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 import type { ProductForOrder } from '../product-selection-modal';
+import { partiallyChargeTransaction } from 'src/utils/simplepay';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  readonly orderId: string;
+    readonly orderId: string;
 };
 
 export function OrderDetailsView({ orderId }: Props) {
     const { state, updateOrder, updateOrderData, refreshOrderHistory, fetchOrder } = useOrderContext();
     const { refreshCounts } = useShipments();
     const { order, orderData, loading, error } = state;
-    
+
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
@@ -79,19 +80,19 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [orderData]);
 
-    const handleChangeStatus = useCallback(async (newValue: string) => {
+    const handleChangeStatus = useCallback(async (newStatus: string) => {
         if (!orderData?.id) {
             toast.error('Hiányzó rendelési azonosító');
             return;
         }
 
         const oldStatus = status;
-        setStatus(newValue);
+        setStatus(newStatus);
 
         try {
             // Check if we're changing from pending to another status
-            const shouldRemoveSurcharge = oldStatus === 'pending' && newValue !== 'pending';
-            
+            const shouldRemoveSurcharge = oldStatus === 'pending' && newStatus !== 'pending';
+
             // If we need to remove surcharge, do it as part of the status update
             if (shouldRemoveSurcharge && editedSurcharge > 0) {
                 // Update both status and remove surcharge
@@ -110,11 +111,14 @@ export function OrderDetailsView({ orderId }: Props) {
                 const { success: itemsSuccess, error: itemsUpdateError } = await updateOrderItems(
                     orderData.id,
                     itemsToSave,
-                    `Státusz változtatás: ${oldStatus} -> ${newValue}, pótdíj eltávolítva`,
+                    `Státusz változtatás: ${oldStatus} -> ${newStatus}, pótdíj eltávolítva`,
                     undefined, // userId
                     undefined, // userName
                     0 // Remove surcharge
                 );
+
+                const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
+                const newTotal = newSubtotal + (orderData.shippingCost || 0) + (orderData.vatTotal || 0) - (orderData.discountTotal || 0);
 
                 if (!itemsSuccess) {
                     setStatus(oldStatus); // Revert status change
@@ -125,24 +129,39 @@ export function OrderDetailsView({ orderId }: Props) {
                 // Update local state
                 setEditedSurcharge(0);
                 if (orderData) {
-                    const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-                    const newTotal = newSubtotal + (orderData.shippingCost || 0) + (orderData.vatTotal || 0) - (orderData.discountTotal || 0);
-                    
+
                     updateOrderData({
                         ...orderData,
                         surchargeAmount: 0,
                         subtotal: newSubtotal,
                         total: newTotal,
-                        orderStatus: newValue as OrderStatus,
+                        orderStatus: newStatus as OrderStatus,
                     });
+                }
+            }
+
+            console.log('orderData.simplepayDataJson', orderData.simplepayDataJson);
+            console.log('orderData.paymentStatus', orderData.paymentStatus);
+            if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
+                try {
+                    const simplePayFinishResult = await finishSimplePayTransaction(orderData.id)
+                    console.log('Partial charge successful:', simplePayFinishResult);
+                    if(simplePayFinishResult.success !== true) {
+                        toast.warning(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');
+                    }
+                } catch (error) {
+                    console.error('Partial charge failed:', error);
+                    setStatus(oldStatus); // Revert status change
+                    toast.warning('A SimplePay tranzakció frissítése sikertelen. Kérem ellenőrizze a SimplePay fiókját.');
+                    return;
                 }
             }
 
             // Update the status
             const { success, error: statusUpdateError } = await updateOrderStatus(
                 orderData.id,
-                newValue as OrderStatus,
-                `Státusz változtatás: ${oldStatus} -> ${newValue}`
+                newStatus as OrderStatus,
+                `Státusz változtatás: ${oldStatus} -> ${newStatus}`
             );
 
             if (success) {
@@ -150,27 +169,27 @@ export function OrderDetailsView({ orderId }: Props) {
                 if (order) {
                     updateOrder({
                         ...order,
-                        status: newValue,
+                        status: newStatus,
                     });
                 }
 
                 if (orderData && !shouldRemoveSurcharge) {
                     updateOrderData({
                         ...orderData,
-                        orderStatus: newValue as OrderStatus,
+                        orderStatus: newStatus as OrderStatus,
                     });
                 }
 
                 // Create invoice in Billingo if status changed to 'processing' and deny_invoice is false
-                if (newValue === 'processing' && orderData && !orderData.denyInvoice) {
+                if (newStatus === 'processing' && orderData && !orderData.denyInvoice) {
                     try {
                         console.log('Creating Billingo invoice for order:', orderData.id);
                         const invoiceResult = await createBillingoInvoiceSSR(orderData);
-                        
+
                         if (invoiceResult.success) {
                             toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
                             console.log('Billingo invoice created successfully:', invoiceResult);
-                            
+
                             // Save the complete invoice result (including download URL) to the database
                             try {
                                 const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
@@ -178,7 +197,7 @@ export function OrderDetailsView({ orderId }: Props) {
                                     invoiceResult,
                                     `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}${invoiceResult.downloadUrl ? `, URL: ${invoiceResult.downloadUrl}` : ''}`
                                 );
-                                
+
                                 if (saveSuccess) {
                                     console.log('Invoice data saved to database successfully');
                                 } else {
@@ -201,7 +220,7 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Refresh order history to show the new entry
                 await refreshOrderHistory();
-                
+
                 toast.success('Rendelés státusza sikeresen frissítve!');
             } else {
                 setStatus(oldStatus); // Revert status change
@@ -222,7 +241,7 @@ export function OrderDetailsView({ orderId }: Props) {
     }, [pendingSave]);
 
     const handleStartEdit = useCallback(() => {
-        if(order?.status !== 'pending') {
+        if (order?.status !== 'pending') {
             return;
         }
         setIsEditing(true);
@@ -272,7 +291,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 id: item.id,
                 name: item.name,
                 netPrice: item.netPrice,
-                grossPrice:item.grossPrice,
+                grossPrice: item.grossPrice,
                 unit: item.unit,
                 coverUrl: item.coverUrl,
                 quantity: item.quantity,
@@ -498,8 +517,8 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Card>
-                        <OrderDetailsCustomer 
-                            customer={order?.customer} 
+                        <OrderDetailsCustomer
+                            customer={order?.customer}
                             orderData={orderData || undefined}
                             onOrderUpdate={handleRefreshOrderHistory}
                         />
@@ -508,8 +527,8 @@ export function OrderDetailsView({ orderId }: Props) {
                         <OrderDetailsDelivery delivery={order?.delivery} />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsShipping 
-                            shippingAddress={order?.shippingAddress} 
+                        <OrderDetailsShipping
+                            shippingAddress={order?.shippingAddress}
                             requestedShippingDate={order.planned_shipping_date_time}
                             orderId={orderData?.id}
                             customerId={orderData?.customerId || undefined}
@@ -518,8 +537,8 @@ export function OrderDetailsView({ orderId }: Props) {
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsBilling 
-                            billingAddress={orderData?.billingAddress} 
+                        <OrderDetailsBilling
+                            billingAddress={orderData?.billingAddress}
                             orderId={orderData?.id}
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}

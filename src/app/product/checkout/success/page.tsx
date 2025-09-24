@@ -47,8 +47,6 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
         redirect('/');
     }
 
-
-
     // Get current authenticated user
     const { user: currentUser, error: authError } = await getCurrentUserSSR();
 
@@ -73,9 +71,10 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
     let isPaymentSuccess = false;
     let failMessage = '';
-    console.log(order.paymentMethod?.slug);
+    let transactionId = 0;
+    let failMessageForUser = '';
 
-    if (order.paymentMethod?.slug === 'simple') {
+    if (order.paymentMethod?.slug === 'simple' && order.paymentStatus == 'pending') {
         if (!r) {
             console.error('Missing SimplePay response:', { orderId });
             redirect('/');
@@ -88,12 +87,11 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
         try {
             const decodedString = Buffer.from(r, 'base64').toString('utf-8');
             simplePayResponse = JSON.parse(decodedString);
+            transactionId = simplePayResponse.t;
 
-            console.log('Parsed SimplePay response:', simplePayResponse);
-            
             if (simplePayResponse.e === 'SUCCESS') {
                 isPaymentSuccess = true;
-                
+
                 historyEntry = {
                     timestamp: new Date().toISOString(),
                     status: 'pending',
@@ -101,6 +99,20 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                 };
             }
             else {
+                switch (simplePayResponse.e){
+                    case 'FAIL':
+                        failMessageForUser = 'Kérjük, ellenőrizze a tranzakció során megadott adatok helyességét. Amennyiben minden adatot helyesen adott meg, a visszautasítás okának kivizsgálása érdekében kérjük, szíveskedjen kapcsolatba lépni a kártyakibocsátó bankjával.';
+                        break;
+                    case 'TIMEOUT':
+                        failMessageForUser = 'Ön túllépte a tranzakció elindításának lehetséges maximális idejét.';
+                        break;
+                    case 'CANCEL':
+                        failMessageForUser = 'Ön megszakította a fizetést.';
+                        break;
+                    default:
+                        failMessageForUser = 'Ismeretlen hiba.';
+                }
+
                 failMessage = getSimplePayErrorMessage(simplePayResponse.r as any);
                 console.error('SimplePay indicates payment failure:', { orderId, simplePayResponse });
                 
@@ -132,7 +144,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     }
 
     // Update payment status if successful
-    if (isPaymentSuccess && order.paymentStatus !== 'paid') {
+    if (isPaymentSuccess && order.paymentStatus == 'pending') {
         await updateOrderPaymentStatusSSR(orderId, 'paid', order.total);
     }
 
@@ -155,11 +167,12 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                         Sajnos a rendelés nem sikerült vagy megszakadt.
                         <br />
                         Rendelésszám: <strong>{orderId}</strong>
+                        {transactionId ? <> <br />SimplePay tranzakció azonosító: <strong>{transactionId}</strong></> : null}
                     </Typography>
 
-                    {failMessage && (
+                    {failMessageForUser && (
                         <Alert severity="error" sx={{ mb: 3 }}>
-                            {failMessage}
+                            {failMessageForUser}
                         </Alert>
                     )}
 
@@ -211,6 +224,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                     Köszönjük a rendelését!
                     <br />
                     Rendelésszám: <strong>{orderId}</strong>
+                    {transactionId ? <> <br />SimplePay tranzakció azonosító: <strong>{transactionId}</strong></> : null}
                 </Typography>
 
                 <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4 }}>

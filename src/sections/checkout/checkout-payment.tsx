@@ -1475,7 +1475,8 @@ export function CheckoutPayment() {
                                             <Typography variant="body2">
                                                 A megrendeléssel elfogadom az{' '}
                                                 <Link
-                                                    href="#"
+                                                    href="https://simplepay.hu/wp-content/uploads/2025/07/SimplePay_kereskedoi_kapcsolattartoi_adatkezeles_hun_20250703.pdf"
+                                                    target="_blank"
                                                     sx={{
                                                         color: 'primary.main',
                                                         textDecoration: 'none',
