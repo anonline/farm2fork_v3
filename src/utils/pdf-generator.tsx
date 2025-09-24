@@ -325,7 +325,7 @@ interface MultipleShippingLabelsPDFProps {
 
 const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders }) => (
     <Document>
-        {orders.map((order, index) => (
+        {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
             <ShippingLabelPDFPage order={order} key={order.id || index} />
         ))}
     </Document>
