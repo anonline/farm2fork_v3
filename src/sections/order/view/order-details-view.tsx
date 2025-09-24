@@ -514,6 +514,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             orderId={orderData?.id}
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
+                            shipmentTime={orderData?.shipment_time}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />

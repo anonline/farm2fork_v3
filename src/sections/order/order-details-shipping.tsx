@@ -9,7 +9,9 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import { Chip } from '@mui/material';
 import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
 import Popover from '@mui/material/Popover';
+import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
@@ -38,6 +40,7 @@ type Props = {
     orderId?: string; // Add orderId prop for database updates
     customerId?: string; // Add customerId prop for fetching customer addresses
     onRefreshOrder?: () => void; // Add callback to refresh order data
+    shipmentTime?: string; // Add shipment time range prop
 };
 
 export function OrderDetailsShipping({ 
@@ -46,12 +49,14 @@ export function OrderDetailsShipping({
     onShippingDateChange,
     orderId,
     customerId,
-    onRefreshOrder
+    onRefreshOrder,
+    shipmentTime = ''
 }: Readonly<Props>) {
     const { shipments, shipmentsLoading, setOrderToShipmentByDate } = useShipments();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+    const [selectedShipmentTime, setSelectedShipmentTime] = useState(shipmentTime || '');
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
         if (!requestedShippingDate) return null;
         try {
@@ -217,6 +222,75 @@ export function OrderDetailsShipping({
         setAnchorEl(null); // Close popover after selection
     };
 
+    const handleShipmentTimeChange = async (event: any) => {
+        const newTimeRange = event.target.value;
+        setSelectedShipmentTime(newTimeRange);
+
+        // Update in Supabase if orderId is provided
+        if (orderId) {
+            setIsUpdating(true);
+            try {
+                // First, get the current order to access existing history
+                const { data: currentOrder, error: fetchError } = await supabase
+                    .from('orders')
+                    .select('history, history_for_user, shipment_time')
+                    .eq('id', orderId)
+                    .single();
+
+                if (fetchError) {
+                    toast.error('Hiba történt a rendelés adatok lekérése során');
+                    console.error('Supabase fetch error:', fetchError);
+                    return;
+                }
+
+                // Format time ranges for history message
+                const oldTime = currentOrder.shipment_time || 'nincs megadva';
+                const newTime = newTimeRange || 'nincs megadva';
+
+                // Create history entry
+                const historyEntry: OrderHistoryEntry = {
+                    timestamp: new Date().toISOString(),
+                    status: 'pending', // Keep current status, this is just a time change
+                    note: `A szállítási idősáv ${oldTime}-ről ${newTime}-ra változott.`,
+                };
+
+                // Prepare update data
+                const updateData: any = {
+                    shipment_time: newTimeRange,
+                    updated_at: new Date().toISOString(),
+                    history: [...(currentOrder.history || []), historyEntry],
+                };
+
+                // Add to history_for_user if the field exists
+                if (currentOrder.history_for_user !== undefined) {
+                    updateData.history_for_user = [...(currentOrder.history_for_user || []), historyEntry];
+                }
+
+                const { error } = await supabase
+                    .from('orders')
+                    .update(updateData)
+                    .eq('id', orderId);
+
+                if (error) {
+                    toast.error('Hiba történt a szállítási idősáv mentése során');
+                    console.error('Supabase update error:', error);
+                    return;
+                }
+
+                // Show success toast
+                toast.success('Szállítási idősáv sikeresen frissítve!', { position: 'bottom-right' });
+                
+                // Refresh order data to update history timeline
+                onRefreshOrder?.();
+            } catch (error) {
+                toast.error('Hiba történt a szállítási idősáv mentése során');
+                console.error('Error updating shipment time:', error);
+            } finally {
+                setIsUpdating(false);
+            }
+        }
+    };
+
     const handlePopoverClose = () => {
         // Reset to original date if closing without selection
         if (!requestedShippingDate) {
@@ -295,6 +369,33 @@ export function OrderDetailsShipping({
                         }}
                         disabled={isUpdating}
                     />
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        Idősáv
+                    </Box>
+
+                    <Select
+                        size="small"
+                        value={selectedShipmentTime}
+                        onChange={handleShipmentTimeChange}
+                        displayEmpty
+                        disabled={isUpdating}
+                        sx={{ 
+                            minWidth: 140,
+                            opacity: isUpdating ? 0.6 : 1
+                        }}
+                    >
+                        <MenuItem value="">?</MenuItem>
+                        <MenuItem value="9:00-12:00">9:00-12:00</MenuItem>
+                        <MenuItem value="12:00-15:00">12:00-15:00</MenuItem>
+                        <MenuItem value="15:00-18:00">15:00-18:00</MenuItem>
+                        <MenuItem value="18:00-20:00">18:00-20:00</MenuItem>
+                    </Select>
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap:1 }}>

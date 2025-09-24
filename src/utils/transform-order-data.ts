@@ -118,6 +118,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             })),
         },
         shipmentId: orderData.shipmentId || null,
+        shipment_time: orderData.shipment_time,
     };
 }
 

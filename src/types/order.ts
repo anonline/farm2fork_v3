@@ -88,6 +88,7 @@ export type IOrderItem = {
     shippingAddress: IOrderShippingAddress;
     planned_shipping_date_time: Date | null;
     shipmentId: number | null;
+    shipment_time?: string;
 };
 
 export enum OrderStatusEnum {

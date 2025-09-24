@@ -81,6 +81,7 @@ export type IOrderData = {
     invoiceDataJson: Record<string, any> | null;
     history: OrderHistoryEntry[];
     shipmentId: number | null;
+    shipment_time?: string;
 };
 
 export type ICreateOrderData = {
