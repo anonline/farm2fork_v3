@@ -133,7 +133,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
             <TableCell align="center">
                 <ListItemText
                     primary={fDate(row.planned_shipping_date_time)}
-                    secondary={fTime(row.planned_shipping_date_time, "HH:mm")}
+                    secondary={row.shipment_time || ''}
                     slotProps={{
                         primary: {
                             noWrap: true,

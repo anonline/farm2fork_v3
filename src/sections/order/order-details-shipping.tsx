@@ -4,7 +4,7 @@ import type { OrderHistoryEntry } from 'src/types/order-management';
 import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import { Chip } from '@mui/material';
@@ -68,6 +68,11 @@ export function OrderDetailsShipping({
             return null;
         }
     });
+
+    // Update selectedShipmentTime when shipmentTime prop changes (when order data loads)
+    useEffect(() => {
+        setSelectedShipmentTime(shipmentTime || '');
+    }, [shipmentTime]);
 
     const isPopoverOpen = Boolean(anchorEl);
     

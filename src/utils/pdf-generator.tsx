@@ -194,6 +194,10 @@ const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
                                 })()}
                             </Text>
                         </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>Szállítási idő:</Text>
+                            <Text style={styles.infoValue}>{order.shipment_time || 'N/A'}</Text>
+                        </View>
                     </View>
 
                     {/* Shipping Information */}
