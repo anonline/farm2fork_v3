@@ -23,7 +23,7 @@ export const paths = {
     payment: '/payment',
     about: '/about-us',
     contact: '/contact-us',
-    faqs: '/faqs',
+    faqs: '/gyik',
     rolunk: '/rolunk',
     profile: {
         root: '/profil',
