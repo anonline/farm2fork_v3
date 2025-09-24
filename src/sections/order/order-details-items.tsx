@@ -44,6 +44,7 @@ type Props = CardProps & {
     onSave?: () => void;
     onCancel?: () => void;
     onStartEdit?: () => void;
+    userType?: 'public' | 'vip' | 'company';
 };
 
 export function OrderDetailsItems({
@@ -66,6 +67,7 @@ export function OrderDetailsItems({
     onSave,
     onCancel,
     onStartEdit,
+    userType = 'public',
     ...other
 }: Props) {
     const [editErrors, setEditErrors] = useState<Record<string, { price?: string; quantity?: string }>>({});
@@ -114,6 +116,17 @@ export function OrderDetailsItems({
             onItemAdd(products);
         }
         setIsProductModalOpen(false);
+    };
+
+    const getProperPriceByRole = (item: IOrderProductItem) => {
+        switch (userType) {
+            case 'company':
+                return item.netPrice;
+            case 'vip':
+                return item.netPrice;
+            default:
+                return item.grossPrice;
+        }
     };
 
     const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError;
@@ -280,7 +293,7 @@ export function OrderDetailsItems({
                                         )}
                                         {!isEditing && (
                                             <Typography variant="caption" color="text.secondary">
-                                                {`${fCurrency(item.netPrice)} / ${item.unit}`}{item.note && ` | ${item.note}`}
+                                                {`${fCurrency(getProperPriceByRole(item))} / ${item.unit}`}{item.note && ` | ${item.note}`}
                                             </Typography>
                                         )}
                                     </Box>
@@ -294,7 +307,7 @@ export function OrderDetailsItems({
                                                 size="small"
                                                 type="number"
                                                 label="Ár"
-                                                defaultValue={item.netPrice}
+                                                defaultValue={getProperPriceByRole(item)}
                                                 onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
                                                 error={!!editErrors[item.id]?.price}
                                                 helperText={editErrors[item.id]?.price}
@@ -387,7 +400,7 @@ export function OrderDetailsItems({
                                                     size="small"
                                                     type="number"
                                                     label="Ár"
-                                                    defaultValue={item.netPrice}
+                                                    defaultValue={getProperPriceByRole(item)}
                                                     onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
                                                     error={!!editErrors[item.id]?.price}
                                                     helperText={editErrors[item.id]?.price}
@@ -397,7 +410,7 @@ export function OrderDetailsItems({
                                                 <Box sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>/ {item.unit} {item.note && ` | ${item.note}`}</Box>
                                             </Box>
                                         ) : (
-                                            `${fCurrency(item.netPrice)} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
+                                            `${fCurrency(getProperPriceByRole(item))} / ${item.unit}` + (item.note ? ` | ${item.note}` : '')
                                         )
                                     }
                                     slotProps={{

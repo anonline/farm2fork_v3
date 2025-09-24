@@ -39,6 +39,7 @@ import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 import type { ProductForOrder } from '../product-selection-modal';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -99,7 +100,7 @@ export function OrderDetailsView({ orderId }: Props) {
                     id: item.id,
                     name: item.name,
                     netPrice: item.netPrice,
-                    grossPrice: item.netPrice,
+                    grossPrice: item.grossPrice,
                     unit: item.unit,
                     coverUrl: item.coverUrl,
                     quantity: item.quantity,
@@ -113,11 +114,15 @@ export function OrderDetailsView({ orderId }: Props) {
                     `Státusz változtatás: ${oldStatus} -> ${newStatus}, pótdíj eltávolítva`,
                     undefined, // userId
                     undefined, // userName
-                    0 // Remove surcharge
+                    0, // Remove surcharge
+                    order?.customer.userType
                 );
 
                 const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-                const newTotal = newSubtotal + (orderData.shippingCost || 0) + (orderData.vatTotal || 0) - (orderData.discountTotal || 0);
+                let newTotal = newSubtotal + (orderData.shippingCost || 0) - (orderData.discountTotal || 0);
+                if(order?.customer?.userType == 'company') {
+                    newTotal += (orderData.vatTotal || 0);
+                }
 
                 if (!itemsSuccess) {
                     setStatus(oldStatus); // Revert status change
@@ -265,7 +270,11 @@ export function OrderDetailsView({ orderId }: Props) {
 
         // Calculate new total
         const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-        const newTotal = newSubtotal + (orderData?.shippingCost || 0) + (orderData?.vatTotal || 0) + editedSurcharge - (orderData?.discountTotal || 0);
+        const newTotal = newSubtotal 
+        + (orderData?.shippingCost || 0) 
+        + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
+        + editedSurcharge 
+        - (orderData?.discountTotal || 0);
 
         // Check if payment method is 'simple' and if new total exceeds paid amount
         const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
@@ -282,6 +291,7 @@ export function OrderDetailsView({ orderId }: Props) {
     }, [editedItems, orderData, editedSurcharge]);
 
     const handlePaymentAlertConfirm = useCallback(async () => {
+        console.log('User confirmed save despite payment difference');
         await performSave();
     }, []);
 
@@ -308,13 +318,18 @@ export function OrderDetailsView({ orderId }: Props) {
                 'Rendelés tételek módosítva a dashboard-ról',
                 undefined, // userId
                 undefined, // userName
-                editedSurcharge
+                editedSurcharge,
+                order?.customer.userType
             );
 
             if (success) {
                 // Calculate new totals
                 const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-                const newTotal = newSubtotal + (orderData?.shippingCost || 0) + (orderData?.vatTotal || 0) + editedSurcharge - (orderData?.discountTotal || 0);
+                const newTotal = newSubtotal 
+                    + (orderData?.shippingCost || 0) 
+                    + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
+                    + editedSurcharge 
+                    - (orderData?.discountTotal || 0);
 
                 // Update context with new data
                 if (order) {
@@ -365,7 +380,12 @@ export function OrderDetailsView({ orderId }: Props) {
                 if (item.id === itemId) {
                     const updatedItem = { ...item, [field]: value };
                     // Recalculate subtotal
-                    updatedItem.subtotal = updatedItem.netPrice * updatedItem.quantity;
+                    if (['company', 'vip'].includes(order?.customer?.userType || 'public')) {
+                        updatedItem.subtotal = updatedItem.netPrice * updatedItem.quantity;
+                    }
+                    else{
+                        updatedItem.subtotal = updatedItem.grossPrice * updatedItem.quantity;
+                    }
                     return updatedItem;
                 }
                 return item;
@@ -415,7 +435,11 @@ export function OrderDetailsView({ orderId }: Props) {
         ? editedItems.reduce((sum, item) => sum + item.subtotal, 0)
         : order?.subtotal || 0;
     const updatedTotalAmount = isEditing
-        ? updatedSubtotal + (orderData?.shippingCost || 0) + (orderData?.vatTotal || 0) + editedSurcharge - (orderData?.discountTotal || 0)
+        ? updatedSubtotal 
+            + (orderData?.shippingCost || 0) 
+            + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
+            + editedSurcharge 
+            - (orderData?.discountTotal || 0)
         : order?.totalAmount || 0;
 
     if (error) {
@@ -509,6 +533,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             onSave={handleSaveEdit}
                             onCancel={handleCancelEdit}
                             onStartEdit={handleStartEdit}
+                            userType={order.customer.userType}
                         />
 
                         {/* Show history only on desktop */}

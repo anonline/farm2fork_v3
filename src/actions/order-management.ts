@@ -471,7 +471,8 @@ export async function updateOrderItems(
     note?: string,
     userId?: string,
     userName?: string,
-    surchargeAmount?: number
+    surchargeAmount?: number,
+    userType: 'public' | 'vip' | 'company' = 'public'
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         // Get current order to append to history
@@ -482,8 +483,12 @@ export async function updateOrderItems(
 
         // Calculate new totals
         const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
-        const newSurchargeAmount = surchargeAmount !== undefined ? surchargeAmount : order.surchargeAmount;
-        const total = subtotal + order.shippingCost + order.vatTotal + newSurchargeAmount - order.discountTotal;
+        const newSurchargeAmount = surchargeAmount ?? order.surchargeAmount;
+        const total = subtotal 
+            + order.shippingCost 
+            + (userType == 'company' ? order.vatTotal : 0) 
+            + newSurchargeAmount 
+            - order.discountTotal;
 
         // Create new history entry
         const historyEntry: OrderHistoryEntry = {
