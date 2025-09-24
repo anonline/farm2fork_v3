@@ -1,3 +1,5 @@
+'use server'
+
 import type { Currency } from 'simplepay-js-sdk'
 
 import crypto from 'crypto'
@@ -211,46 +213,3 @@ const makeFinishRequest = async (
         throw error
     }
 }
-
-/**
- * Helper function to fully charge a transaction
- */
-export const fullyChargeTransaction = (
-    orderRef: string, 
-    originalTotal: number | string,
-    config?: FinishTransactionConfig
-) => 
-    finishTransaction({
-        orderRef,
-        originalTotal,
-        approveTotal: originalTotal
-    }, config)
-
-/**
- * Helper function to partially charge a transaction
- */
-export const partiallyChargeTransaction = (
-    orderRef: string,
-    originalTotal: number | string,
-    approveTotal: number | string,
-    config?: FinishTransactionConfig
-) => 
-    finishTransaction({
-        orderRef,
-        originalTotal,
-        approveTotal
-    }, config)
-
-/**
- * Helper function to fully release/cancel a transaction
- */
-export const cancelTransaction = (
-    orderRef: string,
-    originalTotal: number | string,
-    config?: FinishTransactionConfig
-) => 
-    finishTransaction({
-        orderRef,
-        originalTotal,
-        approveTotal: 0
-    }, config)

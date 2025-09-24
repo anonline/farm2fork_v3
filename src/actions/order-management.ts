@@ -813,11 +813,13 @@ export async function finishSimplePayTransaction(orderId: string): Promise<{ suc
 
         const simplePayFinishResult = await finishTransaction({
             orderRef: order.id,
-            originalTotal: order.payedAmount, // originalTotal
-            approveTotal: order.total  // approveTotal (charge 1500, release 1000)
+            originalTotal: Math.round(order.payedAmount), // originalTotal
+            approveTotal: Math.round(order.total)  // approveTotal (charge 1500, release 1000)
         });
 
         console.log('Partial charge successful:', simplePayFinishResult);
+        
+        await updateOrderPaymentStatus(order.id, 'closed', Math.round(order.total));       
 
         return { success: true, error: null };
     } catch (error) {

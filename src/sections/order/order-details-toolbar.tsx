@@ -115,6 +115,15 @@ export function OrderDetailsToolbar({
         return 'Ismeretlen';
     };
 
+    const renderPaymentStatusLabel = () => {
+        if (orderData?.paymentStatus === 'pending') return 'Nincs fizetve';
+        if (orderData?.paymentStatus === 'paid') return 'Foglalva';
+        if (orderData?.paymentStatus === 'failed') return 'Sikertelen';
+        if (orderData?.paymentStatus === 'refunded') return 'Visszatérítve';
+        if (orderData?.paymentStatus === 'closed') return 'Fizetve';
+        return 'Ismeretlen fizetési állapot';
+    };
+
     return (
         <>
             <Box
@@ -145,6 +154,19 @@ export function OrderDetailsToolbar({
                                 sx={{display:{xs:'none', sm:'inline-flex'}}}
                             >
                                 {renderStatusLabel()}
+                            </Label>
+                            <Label
+                                variant="soft"
+                                color={
+                                    (orderData?.paymentStatus === 'closed' && 'success') ||
+                                    (orderData?.paymentStatus === 'pending' && 'warning') ||
+                                    (orderData?.paymentStatus === 'paid' && 'info') ||
+                                    (orderData?.paymentStatus === 'failed' && 'error') ||
+                                    'default'
+                                }
+                                sx={{display:{xs:'none', sm:'inline-flex'}}}
+                            >
+                                {renderPaymentStatusLabel()}
                             </Label>
                         </Box>
 

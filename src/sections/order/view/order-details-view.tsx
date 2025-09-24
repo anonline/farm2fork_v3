@@ -139,19 +139,17 @@ export function OrderDetailsView({ orderId }: Props) {
                 }
             }
 
-            console.log('orderData.simplepayDataJson', orderData.simplepayDataJson);
-            console.log('orderData.paymentStatus', orderData.paymentStatus);
             if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
                 try {
                     const simplePayFinishResult = await finishSimplePayTransaction(orderData.id)
                     console.log('Partial charge successful:', simplePayFinishResult);
-                    if(simplePayFinishResult.success !== true) {
-                        toast.warning(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');
+                    if (simplePayFinishResult.success !== true) {
+                        throw new Error(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');
                     }
                 } catch (simplepayError) {
                     console.error('Partial charge failed:', simplepayError);
                     setStatus(oldStatus); // Revert status change
-                    toast.warning('A SimplePay tranzakció frissítése sikertelen. Kérem ellenőrizze a SimplePay fiókját.');
+                    toast.warning(simplepayError instanceof Error ? simplepayError.message : 'Hiba történt a SimplePay tranzakció frissítése során');
                     return;
                 }
             }
@@ -181,39 +179,45 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Create invoice in Billingo if status changed to 'processing' and deny_invoice is false
                 if (newStatus === 'processing' && orderData && !orderData.denyInvoice) {
-                    try {
-                        console.log('Creating Billingo invoice for order:', orderData.id);
-                        const invoiceResult = await createBillingoInvoiceSSR(orderData);
+                    if (orderData.invoiceDataJson) {
+                        console.log('Invoice already exists for order:', orderData.id);
+                        toast.info('A számla már létre van hozva ehhez a rendeléshez. Ha módosítani szeretnéd, előbb töröld a meglévő számlát, majd próbáld újra.');
+                    }
+                    else {
+                        try {
+                            console.log('Creating Billingo invoice for order:', orderData.id);
+                            const invoiceResult = await createBillingoInvoiceSSR(orderData);
 
-                        if (invoiceResult.success) {
-                            toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
-                            console.log('Billingo invoice created successfully:', invoiceResult);
+                            if (invoiceResult.success) {
+                                toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
+                                console.log('Billingo invoice created successfully:', invoiceResult);
 
-                            // Save the complete invoice result (including download URL) to the database
-                            try {
-                                const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
-                                    orderData.id,
-                                    invoiceResult,
-                                    `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}${invoiceResult.downloadUrl ? `, URL: ${invoiceResult.downloadUrl}` : ''}`
-                                );
+                                // Save the complete invoice result (including download URL) to the database
+                                try {
+                                    const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
+                                        orderData.id,
+                                        invoiceResult,
+                                        `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}${invoiceResult.downloadUrl ? `, URL: ${invoiceResult.downloadUrl}` : ''}`
+                                    );
 
-                                if (saveSuccess) {
-                                    console.log('Invoice data saved to database successfully');
-                                } else {
-                                    console.error('Failed to save invoice data to database:', saveError);
+                                    if (saveSuccess) {
+                                        console.log('Invoice data saved to database successfully');
+                                    } else {
+                                        console.error('Failed to save invoice data to database:', saveError);
+                                        toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
+                                    }
+                                } catch (saveErr) {
+                                    console.error('Error saving invoice data:', saveErr);
                                     toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
                                 }
-                            } catch (saveErr) {
-                                console.error('Error saving invoice data:', saveErr);
-                                toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
+                            } else {
+                                console.error('Failed to create Billingo invoice:', invoiceResult.error);
+                                toast.warning(`Számla létrehozása sikertelen: ${invoiceResult.error}`);
                             }
-                        } else {
-                            console.error('Failed to create Billingo invoice:', invoiceResult.error);
-                            toast.warning(`Számla létrehozása sikertelen: ${invoiceResult.error}`);
+                        } catch (invoiceError) {
+                            console.error('Error creating Billingo invoice:', invoiceError);
+                            toast.warning('Hiba történt a számla létrehozása során');
                         }
-                    } catch (invoiceError) {
-                        console.error('Error creating Billingo invoice:', invoiceError);
-                        toast.warning('Hiba történt a számla létrehozása során');
                     }
                 }
 
