@@ -4,16 +4,19 @@ import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 
-import { updateOrderBillingAddress } from 'src/actions/order-management';
+import { stornoBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
+import { updateOrderBillingAddress, clearOrderInvoiceData } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { OrderBillingAddressModal } from './components/order-billing-address-modal';
+import { OrderStornoConfirmationModal } from './components/order-storno-confirmation-modal';
 
 
 
@@ -25,6 +28,7 @@ type Props = {
     customerId?: string;
     onRefreshOrder?: () => void;
     isInvoiceCreated?: boolean; // Ha van invoice_data_json, akkor nem szerkeszthető
+    invoiceDataJson?: Record<string, any> | null; // The actual invoice data for storno operations
 };
 
 export function OrderDetailsBilling({ 
@@ -32,9 +36,12 @@ export function OrderDetailsBilling({
     orderId,
     customerId,
     onRefreshOrder,
-    isInvoiceCreated = false
+    isInvoiceCreated = false,
+    invoiceDataJson
 }: Readonly<Props>) {
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+    const [isStornoModalOpen, setIsStornoModalOpen] = useState(false);
+    const [isStornoLoading, setIsStornoLoading] = useState(false);
 
     const handleEditAddressClick = () => {
         if (isInvoiceCreated) {
@@ -77,21 +84,78 @@ export function OrderDetailsBilling({
         }
     };
 
+    const handleStornoInvoice = async () => {
+        if (!orderId || !invoiceDataJson?.invoiceId) {
+            toast.error('Hiányzó adatok a sztornó művelethez');
+            return;
+        }
+
+        setIsStornoLoading(true);
+        
+        try {
+            // First, create storno invoice in Billingo
+            const stornoResult = await stornoBillingoInvoiceSSR(invoiceDataJson.invoiceId);
+            
+            if (!stornoResult.success) {
+                throw new Error(stornoResult.error || 'Sztornó hiba');
+            }
+
+            // Then clear invoice data from order
+            const clearResult = await clearOrderInvoiceData(
+                orderId,
+                `Számla sztornózva. Sztornó számla ID: ${stornoResult.stornoInvoiceId}`,
+                undefined, // userId - can be added if available
+                'Admin felület'
+            );
+
+            if (!clearResult.success) {
+                throw new Error(clearResult.error || 'Számlázási adatok törlése sikertelen');
+            }
+
+            // Refresh order data to update the display
+            onRefreshOrder?.();
+            
+            toast.success(`Számla sikeresen sztornózva! Sztornó ID: ${stornoResult.stornoInvoiceId}`);
+            
+        } catch (error) {
+            console.error('Error storning invoice:', error);
+            toast.error(`Sztornó hiba: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
+        } finally {
+            setIsStornoLoading(false);
+        }
+    };
+
     return (
         <>
             <CardHeader
                 title="Számlázási adatok"
                 action={
-                    <IconButton 
-                        onClick={handleEditAddressClick}
-                        disabled={isInvoiceCreated}
-                        sx={{ 
-                            opacity: isInvoiceCreated ? 0.5 : 1,
-                            cursor: isInvoiceCreated ? 'not-allowed' : 'pointer'
-                        }}
-                    >
-                        <Iconify icon="solar:pen-bold" />
-                    </IconButton>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        {/* Storno button - show only if invoice exists */}
+                        {isInvoiceCreated && invoiceDataJson && (
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                onClick={() => setIsStornoModalOpen(true)}
+                                disabled={isStornoLoading}
+                            >
+                                Sztornó
+                            </Button>
+                        )}
+                        
+                        {/* Edit address button */}
+                        <IconButton 
+                            onClick={handleEditAddressClick}
+                            disabled={isInvoiceCreated}
+                            sx={{ 
+                                opacity: isInvoiceCreated ? 0.5 : 1,
+                                cursor: isInvoiceCreated ? 'not-allowed' : 'pointer'
+                            }}
+                        >
+                            <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                    </Box>
                 }
             />
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
@@ -183,6 +247,15 @@ export function OrderDetailsBilling({
                 currentAddress={billingAddress}
                 customerId={customerId}
                 onSave={handleSaveBillingAddress}
+            />
+
+            {/* Storno Confirmation Modal */}
+            <OrderStornoConfirmationModal
+                open={isStornoModalOpen}
+                onClose={() => setIsStornoModalOpen(false)}
+                onConfirm={handleStornoInvoice}
+                invoiceNumber={invoiceDataJson?.invoiceNumber || invoiceDataJson?.invoiceId?.toString()}
+                loading={isStornoLoading}
             />
         </>
     );

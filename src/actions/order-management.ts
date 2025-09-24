@@ -832,3 +832,53 @@ export async function finishSimplePayTransaction(orderId: string): Promise<{ suc
         return { success: false, error: 'Failed to finish SimplePay transaction' };
     }
 }
+
+/**
+ * Clear invoice data from order (after storno)
+ */
+export async function clearOrderInvoiceData(
+    orderId: string,
+    note?: string,
+    userId?: string,
+    userName?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        // Create new history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: new Date().toISOString(),
+            status: order.orderStatus,
+            note: note || 'Számla adatok törölve sztornó után',
+            userId,
+            userName,
+        };
+
+        // Prepare update data - clear invoice data
+        const updateData: any = {
+            invoice_data_json: null,
+            history: [...order.history, historyEntry],
+            updated_at: new Date().toISOString(),
+        };
+
+        // Update order
+        const { error } = await supabase
+            .from('orders')
+            .update(updateData)
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error clearing order invoice data:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error clearing order invoice data:', error);
+        return { success: false, error: 'Failed to clear order invoice data' };
+    }
+}

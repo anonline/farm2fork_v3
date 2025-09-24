@@ -263,3 +263,39 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
         };
     }
 }
+
+/**
+ * Cancel/Storno an invoice in Billingo - Server Action
+ */
+export async function stornoBillingoInvoiceSSR(invoiceId: number): Promise<{ success: boolean; stornoInvoiceId?: number; error?: string; response?: any }> {
+    try {
+        addBillingoApiKey();
+        
+        // Cancel the invoice using Billingo's cancel endpoint
+        // This creates a storno (cancellation) document automatically
+        const stornoInvoice = await DocumentService.cancelDocument(invoiceId);
+        
+        if (!stornoInvoice.id) {
+            throw new Error('Storno invoice creation failed - no ID returned');
+        }
+        
+        console.log('Created Billingo storno invoice:', stornoInvoice);
+        
+        const response = {
+            success: true,
+            stornoInvoiceId: stornoInvoice.id,
+            stornoInvoiceNumber: stornoInvoice.invoice_number,
+            originalInvoiceId: invoiceId,
+            createdAt: new Date().toISOString(),
+        };
+        
+        return response;
+        
+    } catch (error) {
+        console.error('Error creating Billingo storno invoice:', error);
+        return { 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Failed to cancel invoice' 
+        };
+    }
+}

@@ -570,6 +570,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
                             isInvoiceCreated={!!orderData?.invoiceDataJson}
+                            invoiceDataJson={orderData?.invoiceDataJson || undefined}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
