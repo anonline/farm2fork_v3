@@ -132,7 +132,7 @@ export default function HeaderSearchMobile() {
                 setIsLoading(false);
             })
             .catch(() => setIsLoading(false));
-    }, [debouncedQuery, dbProducerToSearchResult]);
+    }, [debouncedQuery]);
 
     useEffect(() => {
         setShowResults(debouncedQuery.length >= searchTextLimit && !isLoading);
