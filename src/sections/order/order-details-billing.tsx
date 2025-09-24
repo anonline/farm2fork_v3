@@ -1,4 +1,5 @@
 import type { IAddressItem } from 'src/types/common';
+import type { IOrderData } from 'src/types/order-management';
 
 import { useState } from 'react';
 
@@ -9,8 +10,8 @@ import { Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 
-import { stornoBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
-import { updateOrderBillingAddress, clearOrderInvoiceData } from 'src/actions/order-management';
+import { stornoBillingoInvoiceSSR, createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
+import { updateOrderBillingAddress, clearOrderInvoiceData, updateOrderInvoiceData } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -29,6 +30,7 @@ type Props = {
     onRefreshOrder?: () => void;
     isInvoiceCreated?: boolean; // Ha van invoice_data_json, akkor nem szerkeszthető
     invoiceDataJson?: Record<string, any> | null; // The actual invoice data for storno operations
+    orderData?: IOrderData | null; // Full order data needed for invoice creation
 };
 
 export function OrderDetailsBilling({ 
@@ -37,11 +39,13 @@ export function OrderDetailsBilling({
     customerId,
     onRefreshOrder,
     isInvoiceCreated = false,
-    invoiceDataJson
+    invoiceDataJson,
+    orderData
 }: Readonly<Props>) {
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
     const [isStornoModalOpen, setIsStornoModalOpen] = useState(false);
     const [isStornoLoading, setIsStornoLoading] = useState(false);
+    const [isCreateInvoiceLoading, setIsCreateInvoiceLoading] = useState(false);
 
     const handleEditAddressClick = () => {
         if (isInvoiceCreated) {
@@ -125,12 +129,75 @@ export function OrderDetailsBilling({
         }
     };
 
+    const handleCreateInvoice = async () => {
+        if (!orderId || !orderData) {
+            toast.error('Hiányzó adatok a számla készítéshez');
+            return;
+        }
+
+        setIsCreateInvoiceLoading(true);
+        
+        try {
+            // Create invoice using existing Billingo function
+            const invoiceResult = await createBillingoInvoiceSSR(orderData);
+            
+            if (!invoiceResult.success) {
+                throw new Error(invoiceResult.error || 'Számla létrehozási hiba');
+            }
+
+            // Save invoice data to order
+            const updateResult = await updateOrderInvoiceData(
+                orderId,
+                invoiceResult,
+                `Számla létrehozva. Számla ID: ${invoiceResult.invoiceId}`,
+                undefined, // userId - can be added if available
+                'Admin felület'
+            );
+
+            if (!updateResult.success) {
+                throw new Error(updateResult.error || 'Számla adatok mentése sikertelen');
+            }
+
+            // Refresh order data to update the display
+            onRefreshOrder?.();
+            
+            toast.success(`Számla sikeresen létrehozva! Számla ID: ${invoiceResult.invoiceId}`);
+            
+        } catch (error) {
+            console.error('Error creating invoice:', error);
+            toast.error(`Számla hiba: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
+        } finally {
+            setIsCreateInvoiceLoading(false);
+        }
+    };
+
+    // Determine if create invoice button should be shown
+    const canCreateInvoice = orderData && 
+        !isInvoiceCreated && 
+        !invoiceDataJson && 
+        orderData.orderStatus !== 'pending' && 
+        orderData.orderStatus !== 'cancelled' && 
+        orderData.orderStatus !== 'refunded';
+
     return (
         <>
             <CardHeader
                 title="Számlázási adatok"
                 action={
                     <Box sx={{ display: 'flex', gap: 1 }}>
+                        {/* Create Invoice button - show when conditions are met */}
+                        {canCreateInvoice && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={handleCreateInvoice}
+                                disabled={isCreateInvoiceLoading}
+                            >
+                                {isCreateInvoiceLoading ? 'Készítés...' : 'Számla készítés'}
+                            </Button>
+                        )}
+
                         {/* Storno button - show only if invoice exists */}
                         {isInvoiceCreated && invoiceDataJson && (
                             <Button
@@ -139,6 +206,7 @@ export function OrderDetailsBilling({
                                 size="small"
                                 onClick={() => setIsStornoModalOpen(true)}
                                 disabled={isStornoLoading}
+                                startIcon={<Iconify icon="solar:pen-bold" />}
                             >
                                 Sztornó
                             </Button>
