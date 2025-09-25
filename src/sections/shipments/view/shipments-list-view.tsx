@@ -3,6 +3,8 @@
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { IShipment, IShipmentsTableFilters } from 'src/types/shipments';
+import type { IOrderData, IOrderItem } from 'src/types/order-management';
+import type { IProductItem } from 'src/types/product';
 import type {
     GridColDef,
     GridSlotProps,
@@ -35,6 +37,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
+import { getOrdersByShipmentId } from 'src/actions/order-management';
+import { fetchGetProductsByIds } from 'src/actions/product';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -42,6 +46,7 @@ import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { ShipmentsTableToolbar } from '../shipments-table-toolbar';
 import { ShipmentsTableFiltersResult } from '../shipments-table-filters-result';
 import {
@@ -57,6 +62,106 @@ import {
 const HIDE_COLUMNS = { category: false };
 
 const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
+
+// ----------------------------------------------------------------------
+
+type ShipmentItemSummary = {
+  id: string;
+  name: string;
+  size?: string;
+  unit?: string;
+  totalQuantity: number;
+  averagePrice: number;
+  totalValue: number;
+  orderCount: number;
+  customersCount: number;
+  customers: string[];
+  productId?: string;
+  isBio?: boolean;
+};
+
+/**
+ * Fetch and generate itemsSummary for a single shipment
+ */
+async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentItemSummary[]> {
+  const ordersResult = await getOrdersByShipmentId(shipmentId);
+  
+  if (ordersResult.error || !ordersResult.orders) {
+    throw new Error(ordersResult.error || 'Failed to fetch orders');
+  }
+
+  const orders = ordersResult.orders;
+  
+  // Get unique product IDs
+  const productIds = Array.from(new Set(
+    orders.flatMap(order => order.items.map(item => item.id))
+  )).filter(Boolean);
+
+  // Fetch product data
+  let products: IProductItem[] = [];
+  if (productIds.length > 0) {
+    const productsResult = await fetchGetProductsByIds(productIds);
+    if (productsResult.error) {
+      console.warn('Failed to fetch products:', productsResult.error);
+    } else {
+      products = productsResult.products;
+    }
+  }
+
+  // Generate items summary
+  const itemsMap = new Map<string, {
+    item: IOrderItem;
+    quantities: number[];
+    prices: number[];
+    customers: Set<string>;
+    orderIds: Set<string>;
+  }>();
+
+  orders.forEach((order) => {
+    order.items.forEach((item) => {
+      const key = `${item.name}-${item.size || ''}-${item.unit || ''}`;
+      
+      if (!itemsMap.has(key)) {
+        itemsMap.set(key, {
+          item,
+          quantities: [],
+          prices: [],
+          customers: new Set(),
+          orderIds: new Set(),
+        });
+      }
+
+      const summary = itemsMap.get(key)!;
+      summary.quantities.push(item.quantity);
+      summary.prices.push(item.netPrice);
+      summary.customers.add(order.customerName);
+      summary.orderIds.add(order.id);
+    });
+  });
+
+  return Array.from(itemsMap.entries()).map(([key, data]) => {
+    const totalQuantity = data.quantities.reduce((sum, qty) => sum + qty, 0);
+    const averagePrice = data.prices.reduce((sum, price) => sum + price, 0) / data.prices.length;
+    
+    // Find corresponding product data
+    const productData = products.find(product => product.id === data.item.id);
+    
+    return {
+      id: key,
+      name: data.item.name,
+      size: data.item.size,
+      unit: data.item.unit,
+      totalQuantity,
+      averagePrice,
+      totalValue: totalQuantity * averagePrice,
+      orderCount: data.orderIds.size,
+      customersCount: data.customers.size,
+      customers: Array.from(data.customers),
+      productId: data.item.id,
+      isBio: productData?.bio || false,
+    };
+  }).sort((a, b) => b.totalValue - a.totalValue);
+}
 
 // ----------------------------------------------------------------------
 
@@ -122,6 +227,40 @@ export function ShipmentsListView() {
         }
     }, [selectedRowIds, tableData]);
 
+    const handleExportSelectedToPDF = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+
+        try {
+            // Get selected shipments
+            const selectedShipments = tableData.filter(shipment => 
+                selectedRowIds.includes(shipment.id)
+            );
+
+            // Fetch data for each shipment
+            const shipmentsData = await Promise.all(
+                selectedShipments.map(async (shipment) => {
+                    try {
+                        const itemsSummary = await fetchShipmentItemsSummary(shipment.id);
+                        return { shipment, itemsSummary };
+                    } catch (error) {
+                        console.error(`Error fetching data for shipment ${shipment.id}:`, error);
+                        // Return empty itemsSummary if there's an error
+                        return { shipment, itemsSummary: [] };
+                    }
+                })
+            );
+
+            await generateMultiShipmentPDF(shipmentsData);
+            toast.success('PDF export sikeresen elkészült!');
+        } catch (error) {
+            console.error('PDF export error:', error);
+            toast.error('Hiba a PDF exportálása során!');
+        }
+    }, [selectedRowIds, tableData]);
+
     const CustomToolbarCallback = useCallback(
         (props: any) => (
             <CustomToolbar
@@ -131,9 +270,10 @@ export function ShipmentsListView() {
                 selectedRowIds={selectedRowIds}
                 filteredResults={dataFiltered.length}
                 onOpenConfirmDeleteRows={confirmDialog.onTrue}
+                onExportSelectedToPDF={handleExportSelectedToPDF}
             />
         ),
-        [selectedRowIds, canReset, dataFiltered.length, confirmDialog.onTrue]
+        [selectedRowIds, canReset, dataFiltered.length, confirmDialog.onTrue, handleExportSelectedToPDF]
     );
 
     const columns: GridColDef[] = useMemo(() => [
@@ -336,6 +476,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     selectedRowIds: GridRowSelectionModel;
     filters: UseSetStateReturn<IShipmentsTableFilters>;
     onOpenConfirmDeleteRows: () => void;
+    onExportSelectedToPDF: () => void;
 };
 
 const CustomToolbar = memo(function CustomToolbar({
@@ -345,6 +486,7 @@ const CustomToolbar = memo(function CustomToolbar({
     filteredResults,
     setFilterButtonEl,
     onOpenConfirmDeleteRows,
+    onExportSelectedToPDF,
 }: CustomToolbarProps) {
     return (
         <>
@@ -366,6 +508,7 @@ const CustomToolbar = memo(function CustomToolbar({
                                 size="small"
                                 color="primary"
                                 startIcon={<Iconify icon="mingcute:pdf-fill" />}
+                                onClick={onExportSelectedToPDF}
                             >
                                 PDF nyomtatás ({selectedRowIds.length})
                             </Button>

@@ -1,9 +1,24 @@
 import type { IShipment } from 'src/types/shipments';
 
 import React from 'react';
-import { Svg, pdf, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Svg, pdf, Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 
 import { fCurrency } from 'src/utils/format-number';
+
+// Register fonts that support Hungarian characters
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    {
+      src: '/fonts/Roboto-Regular.ttf',
+      fontWeight: 'normal',
+    },
+    {
+      src: '/fonts/Roboto-Bold.ttf',
+      fontWeight: 'bold',
+    },
+  ],
+});
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +45,7 @@ type Props = {
 // Define styles for the PDF
 const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Roboto',
     fontSize: 10,
     paddingTop: 35,
     paddingLeft: 35,
@@ -112,7 +127,7 @@ function ShipmentPDF({ shipment, itemsSummary }: Props) {
             <Svg style={styles.logo} viewBox="0 0 100 100">
               {/* Simple logo placeholder */}
               <View style={{ width: 60, height: 60, backgroundColor: '#1976d2', borderRadius: 4 }}>
-                <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', paddingTop: 20 }}>
+                <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', paddingTop: 20, fontFamily: 'Roboto' }}>
                   F2F
                 </Text>
               </View>
@@ -172,12 +187,12 @@ function ShipmentPDF({ shipment, itemsSummary }: Props) {
             <Text style={styles.col1}>
               {item.name}
               {item.isBio && (
-                <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold' }}>
+                <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
                   {' '}[BIO]
                 </Text>
               )}
               {(item.size || item.unit) && (
-                <Text style={{ fontSize: 8, color: '#666' }}>
+                <Text style={{ fontSize: 8, color: '#666', fontFamily: 'Roboto' }}>
                   {' '}({[item.size, item.unit].filter(Boolean).join(' • ')})
                 </Text>
               )}
@@ -213,6 +228,140 @@ export async function generateShipmentPDF(shipment: IShipment, itemsSummary: Shi
   const link = document.createElement('a');
   link.href = url;
   link.download = `szallitasi-osszesito-${shipment.id}-${new Date().toISOString().split('T')[0]}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// ----------------------------------------------------------------------
+
+type MultiShipmentPDFProps = {
+  shipmentsData: Array<{
+    shipment: IShipment;
+    itemsSummary: ShipmentItemSummary[];
+  }>;
+};
+
+function MultiShipmentPDF({ shipmentsData }: Readonly<MultiShipmentPDFProps>) {
+  return (
+    <Document>
+      {shipmentsData.map(({ shipment, itemsSummary }, index) => (
+        <Page key={shipment.id} size="A4" style={styles.page}>
+          {/* Header */}
+          <View style={styles.header}>
+            <View>
+              <Svg style={styles.logo} viewBox="0 0 100 100">
+                {/* Simple logo placeholder */}
+                <View style={{ width: 60, height: 60, backgroundColor: '#1976d2', borderRadius: 4 }}>
+                  <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', paddingTop: 20, fontFamily: 'Roboto' }}>
+                    F2F
+                  </Text>
+                </View>
+              </Svg>
+            </View>
+            <View style={styles.companyInfo}>
+              <Text>Farm2Fork</Text>
+              <Text>Szállítási összesítő</Text>
+              <Text>Dátum: {new Date().toLocaleDateString('hu-HU')}</Text>
+              <Text>Oldal: {index + 1} / {shipmentsData.length}</Text>
+            </View>
+          </View>
+
+          {/* Title */}
+          <Text style={styles.title}>
+            Szállítási összesítő részletei #{shipment.id}
+          </Text>
+
+          {/* Shipment Info */}
+          <View style={styles.section}>
+            <Text style={styles.subtitle}>Összesítő információk</Text>
+            <View style={styles.row}>
+              <Text style={styles.col1}>Szállítási dátum:</Text>
+              <Text style={styles.col1}>
+                {shipment.date ? new Date(shipment.date).toLocaleDateString('hu-HU') : 'Nincs megadva'}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.col1}>Rendelések száma:</Text>
+              <Text style={styles.col1}>{shipment.orderCount}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.col1}>Termékek száma:</Text>
+              <Text style={styles.col1}>{shipment.productCount}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.col1}>Összérték:</Text>
+              <Text style={styles.col1}>{fCurrency(shipment.productAmount)}</Text>
+            </View>
+          </View>
+
+          {/* Items Table */}
+          <Text style={styles.subtitle}>Termékek összesítése</Text>
+          
+          {/* Table Header */}
+          <View style={styles.headerRow}>
+            <Text style={styles.col1}>Termék</Text>
+            <Text style={styles.col2}>Mennyiség</Text>
+            <Text style={styles.col3}>Átlag ár</Text>
+            <Text style={styles.col4}>Összérték</Text>
+            <Text style={styles.col5}>Rendelések</Text>
+            <Text style={styles.col6}>Vásárlók</Text>
+          </View>
+
+          {/* Table Rows */}
+          {itemsSummary.map((item) => (
+            <View key={item.id} style={styles.row}>
+              <Text style={styles.col1}>
+                {item.name}
+                {item.isBio && (
+                  <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
+                    {' '}[BIO]
+                  </Text>
+                )}
+                {(item.size || item.unit) && (
+                  <Text style={{ fontSize: 8, color: '#666', fontFamily: 'Roboto' }}>
+                    {' '}({[item.size, item.unit].filter(Boolean).join(' • ')})
+                  </Text>
+                )}
+              </Text>
+              <Text style={styles.col2}>{item.totalQuantity.toLocaleString('hu-HU')}</Text>
+              <Text style={styles.col3}>{fCurrency(item.averagePrice)}</Text>
+              <Text style={styles.col4}>{fCurrency(item.totalValue)}</Text>
+              <Text style={styles.col5}>{item.orderCount}</Text>
+              <Text style={styles.col6}>{item.customersCount}</Text>
+            </View>
+          ))}
+
+          {/* Summary Row */}
+          <View style={styles.summaryRow}>
+            <Text style={styles.col1}>Összesen</Text>
+            <Text style={styles.col2}>{itemsSummary.reduce((sum, item) => sum + item.totalQuantity, 0).toLocaleString('hu-HU')}</Text>
+            <Text style={styles.col3}>-</Text>
+            <Text style={styles.col4}>{fCurrency(itemsSummary.reduce((sum, item) => sum + item.totalValue, 0))}</Text>
+            <Text style={styles.col5}>-</Text>
+            <Text style={styles.col6}>-</Text>
+          </View>
+        </Page>
+      ))}
+    </Document>
+  );
+}
+
+/**
+ * Generate PDF for multiple shipments with each shipment on a new page
+ */
+export async function generateMultiShipmentPDF(shipmentsData: Array<{
+  shipment: IShipment;
+  itemsSummary: ShipmentItemSummary[];
+}>) {
+  const blob = await pdf(<MultiShipmentPDF shipmentsData={shipmentsData} />).toBlob();
+  
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  const shipmentIds = shipmentsData.map(s => s.shipment.id).join('-');
+  link.download = `szallitasi-osszesitok-${shipmentIds}-${new Date().toISOString().split('T')[0]}.pdf`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
