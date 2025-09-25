@@ -8,6 +8,9 @@ import WoocommerceImportView from 'src/sections/dashboard/woocommerce/view/wooco
 
 export const metadata: Metadata = { title: `Woocommerce | Dashboard - ${CONFIG.appName}` };
 
+// Force dynamic rendering - prevent static generation at build time
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
 
     const status = await pingWoocommerce();
