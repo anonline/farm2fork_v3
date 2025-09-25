@@ -24,7 +24,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -80,11 +80,37 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [orderData]);
 
+    // Handler for payment method changes
+    const handlePaymentMethodChange = useCallback(async (paymentMethodId: number) => {
+        if (!orderId || !orderData) return;
+        
+        try {
+            const result = await updateOrderPaymentMethod(
+                orderId,
+                paymentMethodId,
+                'admin', // You might want to get actual user info
+                'Admin User' // You might want to get actual user name
+            );
+            
+            if (result.success) {
+                toast.success('Fizetési mód sikeresen módosítva');
+                // Refresh order data
+                await fetchOrder(orderId);
+            } else {
+                toast.error(`Hiba a fizetési mód módosításakor: ${result.error}`);
+            }
+        } catch (updateError) {
+            console.error('Error updating payment method:', updateError);
+            toast.error('Hiba történt a fizetési mód módosításakor');
+        }
+    }, [orderId, orderData, fetchOrder]);
+
     const handleChangeStatus = useCallback(async (newStatus: string) => {
         if (!orderData?.id) {
             toast.error('Hiányzó rendelési azonosító');
             return;
         }
+        const oldStatus = status;
 
         // Handle cancellation with payment refund logic
         if (newStatus === 'cancelled') {
@@ -129,31 +155,30 @@ export function OrderDetailsView({ orderId }: Props) {
                             toast.success('Rendelés sikeresen törölve és SimplePay visszatérítés kezdeményezve!');
                             return; // Exit early, cancellation handled
                         } else {
-                            setStatus(status); // Revert status change
+                            setStatus(oldStatus); // Revert status change
                             toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
                             return;
                         }
                     } else {
-                        setStatus(status); // Revert status change
+                        setStatus(oldStatus); // Revert status change
                         toast.error(cancelResult.error || 'Hiba történt a SimplePay visszatérítés során');
                         return;
                     }
                 } catch (cancelError) {
                     console.error('Error cancelling SimplePay transaction:', cancelError);
-                    setStatus(status); // Revert status change
+                    setStatus(oldStatus); // Revert status change
                     toast.error('Hiba történt a SimplePay visszatérítés során');
                     return;
                 }
             } else {
                 // For other payment methods that are paid, show manual alert
                 setShowCancellationAlert(true);
-                setStatus(status); // Revert status change until user confirms
+                setStatus(oldStatus); // Revert status change until user confirms
                 return;
             }
             // For unpaid orders, continue with normal cancellation flow below
         }
 
-        const oldStatus = status;
         setStatus(newStatus);
 
         try {
@@ -691,7 +716,12 @@ export function OrderDetailsView({ orderId }: Props) {
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsPayment payment={order?.payment} />
+                        <OrderDetailsPayment 
+                            paymentMethod={orderData?.paymentMethod || null} 
+                            simplepayDataJson={orderData?.simplepayDataJson || null}
+                            onPaymentMethodChange={handlePaymentMethodChange}
+                            editable={status === 'pending'} 
+                        />
 
                         {orderData && (
                             <>

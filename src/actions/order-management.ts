@@ -484,10 +484,10 @@ export async function updateOrderItems(
         // Calculate new totals
         const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
         const newSurchargeAmount = surchargeAmount ?? order.surchargeAmount;
-        const total = subtotal 
-            + order.shippingCost 
-            + (userType == 'company' ? order.vatTotal : 0) 
-            + newSurchargeAmount 
+        const total = subtotal
+            + order.shippingCost
+            + (userType == 'company' ? order.vatTotal : 0)
+            + newSurchargeAmount
             - order.discountTotal;
 
         // Create new history entry
@@ -816,17 +816,31 @@ export async function finishSimplePayTransaction(orderId: string): Promise<{ suc
             return { success: false, error: 'Finishing transaction cannot perform.' };
         }
 
-        const simplePayFinishResult = await finishTransaction({
-            orderRef: order.id,
-            originalTotal: Math.round(order.payedAmount), // originalTotal
-            approveTotal: Math.round(order.total)  // approveTotal (charge 1500, release 1000)
-        });
+        if (order.paymentMethod?.slug !== 'simple') {
+            const simplePayFinishResult = await finishTransaction({
+                orderRef: order.id,
+                originalTotal: Math.round(order.payedAmount), // originalTotal
+                approveTotal: 0  // approveTotal (charge 1500, release 1000)
+            });
 
-        console.log('Partial charge successful:', simplePayFinishResult);
-        
-        await updateOrderPaymentStatus(order.id, 'closed', Math.round(order.total));       
+            console.log('Full cancellation successful:', simplePayFinishResult);
+            await updateOrderPaymentStatus(order.id, 'refunded', 0);
 
-        return { success: true, error: null };
+            return { success: true, error: null };
+        }
+        else {
+            const simplePayFinishResult = await finishTransaction({
+                orderRef: order.id,
+                originalTotal: Math.round(order.payedAmount), // originalTotal
+                approveTotal: Math.round(order.total)  // approveTotal (charge 1500, release 1000)
+            });
+
+            console.log('Partial charge successful:', simplePayFinishResult);
+
+            await updateOrderPaymentStatus(order.id, 'closed', Math.round(order.total));
+
+            return { success: true, error: null };
+        }
     } catch (error) {
         console.error('Error finishing SimplePay transaction:', error);
         return { success: false, error: 'Failed to finish SimplePay transaction' };
@@ -853,9 +867,9 @@ export async function cancelSimplePayTransaction(orderId: string): Promise<{ suc
         });
 
         console.log('SimplePay transaction cancelled successfully:', simplePayCancelResult);
-        
+
         // Update payment status to refunded
-        await updateOrderPaymentStatus(order.id, 'refunded', 0);       
+        await updateOrderPaymentStatus(order.id, 'refunded', 0);
 
         return { success: true, error: null };
     } catch (error) {
@@ -911,5 +925,67 @@ export async function clearOrderInvoiceData(
     } catch (error) {
         console.error('Error clearing order invoice data:', error);
         return { success: false, error: 'Failed to clear order invoice data' };
+    }
+}
+
+/**
+ * Update order payment method
+ */
+export async function updateOrderPaymentMethod(
+    orderId: string,
+    paymentMethodId: number,
+    userId?: string,
+    userName?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // First, get the payment method details
+        const { data: paymentMethod, error: pmError } = await supabase
+            .from('PaymentMethods')
+            .select('*')
+            .eq('id', paymentMethodId)
+            .single();
+
+        if (pmError) {
+            return { success: false, error: `Payment method not found: ${pmError.message}` };
+        }
+
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        const now = new Date().toISOString();
+
+        // Create history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: now,
+            status: order.orderStatus,
+            note: `Fizetési mód módosítva: ${paymentMethod.name}`,
+            userId,
+            userName,
+        };
+
+        // Add to existing history
+        const updatedHistory = [...(order.history || []), historyEntry];
+
+        // Update the order
+        const { error } = await supabase
+            .from('orders')
+            .update({
+                payment_method: paymentMethod,
+                history: updatedHistory,
+                updated_at: now
+            })
+            .eq('id', orderId);
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order payment method:', error);
+        return { success: false, error: 'Failed to update payment method' };
     }
 }
