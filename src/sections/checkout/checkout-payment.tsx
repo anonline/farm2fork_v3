@@ -8,12 +8,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
-import { Link } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Radio from '@mui/material/Radio';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import Checkbox from '@mui/material/Checkbox';
 import Accordion from '@mui/material/Accordion';
+import { Link, IconButton } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import RadioGroup from '@mui/material/RadioGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -35,6 +36,7 @@ import { useGetCustomerData, updateCustomerBillingAddress, updateCustomerDeliver
 import { Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -805,9 +807,9 @@ export function CheckoutPayment() {
             }
             else {
                 // Handle other shipping methods
-                if(data.pickupLocation && pickupLocations) {
+                if (data.pickupLocation && pickupLocations) {
                     const location = pickupLocations.find(loc => loc.id === data.pickupLocation);
-                    if(location) {
+                    if (location) {
                         deliveryAddress = {
                             id: location.id.toString(),
                             addressType: 'pickup',
@@ -905,7 +907,7 @@ export function CheckoutPayment() {
                     cost: checkoutState.shipping // Use the calculated shipping cost from checkout state
                 } : null,
                 paymentMethod: selectedPaymentMethodData,
-                paymentDueDays: 30, 
+                paymentDueDays: 30,
                 plannedShippingDateTime: checkoutState.selectedDeliveryDateTime,
             };
 
@@ -1490,33 +1492,38 @@ export function CheckoutPayment() {
 
                                 {/* Data transfer checkbox - conditionally visible */}
                                 {checkoutState.selectedPaymentMethod?.slug === 'simple' && (
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={dataTransferAccepted}
-                                                onChange={(e) =>
-                                                    setDataTransferAccepted(e.target.checked)
-                                                }
-                                            />
-                                        }
-                                        label={
-                                            <Typography variant="body2">
-                                                A megrendeléssel elfogadom az{' '}
-                                                <Link
-                                                    href="https://simplepay.hu/wp-content/uploads/2025/07/SimplePay_kereskedoi_kapcsolattartoi_adatkezeles_hun_20250703.pdf"
-                                                    target="_blank"
-                                                    sx={{
-                                                        color: 'primary.main',
-                                                        textDecoration: 'none',
-                                                    }}
-                                                >
-                                                    adattovábbítási nyilatkozatot
-                                                </Link>
-                                                .
-                                            </Typography>
-                                        }
-                                        sx={{ alignItems: 'center', mt: 0 }}
-                                    />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={dataTransferAccepted}
+                                                    onChange={(e) =>
+                                                        setDataTransferAccepted(e.target.checked)
+                                                    }
+                                                />
+                                            }
+                                            label={
+                                                <Typography variant="body2">
+                                                    A megrendeléssel elfogadom az{' '}
+                                                    <Link
+                                                        href="https://simplepay.hu/wp-content/uploads/2025/07/SimplePay_kereskedoi_kapcsolattartoi_adatkezeles_hun_20250703.pdf"
+                                                        target="_blank"
+                                                        sx={{
+                                                            color: 'primary.main',
+                                                            textDecoration: 'none',
+                                                        }}
+                                                    >
+                                                        adattovábbítási nyilatkozatot
+                                                    </Link>
+                                                    .
+                                                    <Tooltip title="Tudomásul veszem, hogy a(z) Farm2Fork Kft. (2009 Pilisszentlászló, Tölgyfa utca 21.) adatkezelő által a(z) farm2fork.hu felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a SimplePay Zrt., mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: Felhasználó neve, címe, e-mail címe, megvásárolt termékek. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a SimplePay Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg: https://simplepay.hu/adatkezelesi-tajekoztatok/ ">
+                                                        <IconButton>
+                                                            <F2FIcons name="Info" width={20} height={-1} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Typography>
+                                            }
+                                            sx={{ alignItems: 'center', mt: 0 }}
+                                        />
                                 )}
                             </Box>
 

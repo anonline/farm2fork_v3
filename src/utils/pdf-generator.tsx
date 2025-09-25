@@ -1,11 +1,10 @@
 import type { IOrderItem } from 'src/types/order';
+import type { IPickupLocation } from 'src/types/pickup-location';
 
 import React from 'react';
 import { Svg, pdf, Page, Text, View, Font, Path, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from './format-number';
-import { useGetPickupLocations } from 'src/actions/pickup-location';
-import { IPickupLocation } from 'src/types/pickup-location';
 
 // Register fonts for better Hungarian character support
 Font.register({
@@ -302,13 +301,11 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
     )
 };
 
-const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order, pickupLocations = [] }) => {
-    return (
+const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order, pickupLocations = [] }) => (
         <Document>
             <ShippingLabelPDFPage order={order} pickupLocations={pickupLocations} />
         </Document>
     );
-};
 
 
 // Function to validate order data for PDF generation
@@ -339,15 +336,13 @@ interface MultipleShippingLabelsPDFProps {
     pickupLocations?: IPickupLocation[];
 }
 
-const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders, pickupLocations = [] }) => {
-    return (
+const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders, pickupLocations = [] }) => (
         <Document>
             {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
                 <ShippingLabelPDFPage order={order} key={order.id || index} pickupLocations={pickupLocations} />
             ))}
         </Document>
     );
-};
 
 // Function to generate and download PDF for multiple orders
 export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[], pickupLocations?: IPickupLocation[]): Promise<void> => {

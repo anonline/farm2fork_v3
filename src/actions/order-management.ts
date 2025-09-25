@@ -1054,3 +1054,127 @@ export async function updateOrderNote(
         return { success: false, error: 'Failed to update order note' };
     }
 }
+
+/**
+ * Update order customer and recalculate totals
+ */
+export async function updateOrderCustomer(
+    orderId: string,
+    customerId: string,
+    customerName: string,
+    historyNote?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get the current order
+        const { data: order, error: fetchError } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', orderId)
+            .single();
+
+        if (fetchError || !order) {
+            return { success: false, error: fetchError?.message || 'Order not found' };
+        }
+
+        // Calculate new shipping cost based on new customer type
+        // First, get customer data to determine user type
+        const { data: customerData, error: customerError } = await supabase
+            .from('CustomerDatas')
+            .select('isCompany, discountPercent')
+            .or(`uid.eq.${customerId}`)
+            .single();
+
+        if (customerError) {
+            console.warn('Could not fetch customer data for shipping calculation:', customerError);
+        }
+
+        const userType: 'public' | 'vip' | 'company' = customerData?.isCompany ? 'company' : 
+                                                      (customerData?.discountPercent > 0 ? 'vip' : 'public');
+        
+        // Get shipping method to recalculate cost
+        let newShippingCost = order.shipping_cost; // Default to current cost
+        
+        if (order.shipping_method && typeof order.shipping_method === 'object') {
+            const shippingMethod = order.shipping_method as any;
+            if (shippingMethod.id) {
+                // Fetch the shipping cost method to recalculate
+                const { data: shippingCostMethod, error: shippingError } = await supabase
+                    .from('ShippingCostsMethods')
+                    .select('*')
+                    .eq('id', shippingMethod.id)
+                    .single();
+
+                if (!shippingError && shippingCostMethod) {
+                    // Recalculate shipping cost for new customer type
+                    let netCost = 0;
+                    let applyVAT = false;
+
+                    switch (userType) {
+                        case 'vip':
+                            netCost = shippingCostMethod.netCostVIP || 0;
+                            applyVAT = shippingCostMethod.vatVIP || false;
+                            break;
+                        case 'company':
+                            netCost = shippingCostMethod.netCostCompany || 0;
+                            applyVAT = shippingCostMethod.vatCompany || false;
+                            break;
+                        default:
+                            netCost = shippingCostMethod.netCostPublic || 0;
+                            applyVAT = shippingCostMethod.vatPublic || false;
+                            break;
+                    }
+
+                    // Apply VAT if required
+                    if (applyVAT && netCost > 0) {
+                        const vatAmount = (netCost * shippingCostMethod.vat) / 100;
+                        newShippingCost = netCost + vatAmount;
+                    } else {
+                        newShippingCost = netCost;
+                    }
+                }
+            }
+        }
+
+        // Calculate new totals
+        const subtotal = order.subtotal || 0;
+        const vatTotal = order.vat_total || 0;
+        const discountTotal = order.discount_total || 0;
+        const surchargeAmount = order.surcharge_amount || 0;
+
+        const newTotal = subtotal + newShippingCost + vatTotal + surchargeAmount - discountTotal;
+
+        // Prepare history entry
+        const now = new Date().toISOString();
+        const currentHistory = Array.isArray(order.history) ? order.history : [];
+        const newHistory = [
+            ...currentHistory,
+            {
+                timestamp: now,
+                status: order.order_status,
+                note: historyNote || `Vásárló módosítva: ${customerName} (${customerId}), szállítási költség újraszámítva: ${newShippingCost} Ft`,
+            },
+        ];
+
+        // Update the order
+        const { error: updateError } = await supabase
+            .from('Orders')
+            .update({
+                customer_id: customerId,
+                customer_name: customerName,
+                shipping_cost: newShippingCost,
+                total: newTotal,
+                history: newHistory,
+                updated_at: now,
+            })
+            .eq('id', orderId);
+
+        if (updateError) {
+            return { success: false, error: updateError.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order customer:', error);
+        return { success: false, error: 'Failed to update order customer' };
+    }
+}

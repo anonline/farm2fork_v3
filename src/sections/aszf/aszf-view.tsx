@@ -1,4 +1,4 @@
-import { List, ListItem, Container, Typography } from "@mui/material";
+import { List, Link, ListItem, Container, Typography } from "@mui/material";
 
 import { themeConfig } from "src/theme";
 
@@ -96,6 +96,10 @@ export default function AszfView() {
                 <ListItem>5000 - 15000 Ft között címenként 1290 Ft</ListItem>
                 <ListItem>15000 Ft fölött ingyenes</ListItem>
             </List>
+
+            <Typography variant="body1" sx={bodyStyle}>
+                Online kártyás fizetés esetén a rendelés leadásával, <br /><br /> Tudomásul veszem, hogy a(z) Farm2Fork Kft. (2009 Pilisszentlászló, Tölgyfa utca 21.) adatkezelő által a(z) farm2fork.hu felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a SimplePay Zrt., mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: Felhasználó neve, címe, e-mail címe, megvásárolt termékek, rendelés adatai. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a SimplePay Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg: <Link target="_blank" href="https://simplepay.hu/adatkezelesi-tajekoztatok/">https://simplepay.hu/adatkezelesi-tajekoztatok/</Link>
+            </Typography>
         </Container>
     );
 }

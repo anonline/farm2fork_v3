@@ -1,5 +1,6 @@
+import type { IShippingCostMethod } from 'src/types/shipping-cost';
 import type { IOrderCustomer, IOrderDelivery } from 'src/types/order';
-import type { OrderHistoryEntry, ShippingMethod } from 'src/types/order-management';
+import type { ShippingMethod, OrderHistoryEntry } from 'src/types/order-management';
 
 import { useState, useCallback } from 'react';
 
@@ -14,10 +15,9 @@ import { supabase } from 'src/lib/supabase';
 import { useGetAddresses } from 'src/actions/address';
 import { getOrderById } from 'src/actions/order-management';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
+import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 
 import { toast } from 'src/components/snackbar';
-import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
-import { IShippingCostMethod } from 'src/types/shipping-cost';
 
 // ----------------------------------------------------------------------
 
@@ -182,11 +182,7 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
                             return s.enabledPublic;
                     }
                 })
-                .filter(s=>{
-                    if(order?.subtotal >= (s.minNetPrice || 0) && order?.subtotal <= (s.maxNetPrice || Infinity)){
-                        return true;
-                    }
-                })
+                .filter(s => order?.subtotal >= (s.minNetPrice || 0) && order?.subtotal <= (s.maxNetPrice || Infinity))
                 .find(method => method.name === newShipBy);
             
             if (!storedMethod) {

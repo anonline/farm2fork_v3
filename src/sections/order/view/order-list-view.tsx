@@ -25,8 +25,8 @@ import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
 import { useGetOrders } from 'src/actions/order';
-import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { deleteOrder, deleteOrders } from 'src/actions/order-management';
 

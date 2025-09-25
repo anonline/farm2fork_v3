@@ -11,10 +11,11 @@ import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import { Switch, TextField, FormControlLabel } from '@mui/material';
 
-import { updateOrderInvoiceSettings } from 'src/actions/order-management';
+import { updateOrderCustomer, updateOrderInvoiceSettings } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { CustomerSelectionModal } from 'src/components/customer-selection-modal';
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +31,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
     const [denyInvoice, setDenyInvoice] = useState(orderData?.denyInvoice || false);
     const [paymentDueDays, setPaymentDueDays] = useState(orderData?.paymentDueDays?.toString() || '');
     const [isUpdating, setIsUpdating] = useState(false);
+    const [customerModalOpen, setCustomerModalOpen] = useState(false);
 
     // Handle invoice switch change
     const handleInvoiceChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +115,36 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
         }
     }, [orderData, onOrderUpdate]);
 
+    // Handle customer selection from modal
+    const handleCustomerSelect = useCallback(async (newCustomer: IOrderCustomer) => {
+        if (!orderData?.id) {
+            toast.error('Hiányzó rendelési azonosító');
+            return;
+        }
+
+        setIsUpdating(true);
+        try {
+            const { success, error } = await updateOrderCustomer(
+                orderData.id,
+                newCustomer.id,
+                newCustomer.name,
+                `Vásárló módosítva: ${customer?.name} → ${newCustomer.name}`
+            );
+
+            if (success) {
+                toast.success(`Vásárló sikeresen módosítva: ${newCustomer.name}`);
+                onOrderUpdate?.(); // Refresh order data
+            } else {
+                toast.error(error || 'Hiba történt a vásárló módosítása során');
+            }
+        } catch (error) {
+            console.error('Error updating customer:', error);
+            toast.error('Hiba történt a vásárló módosítása során');
+        } finally {
+            setIsUpdating(false);
+        }
+    }, [orderData, customer, onOrderUpdate]);
+
     // Update local state when orderData changes (from external updates)
     useEffect(() => {
         setDenyInvoice(orderData?.denyInvoice || false);
@@ -124,9 +156,14 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
             <CardHeader
                 title="Vásárló"
                 action={
-                    isEditable && (<IconButton disabled={isUpdating}>
-                        <Iconify icon="solar:pen-bold" />
-                    </IconButton>)
+                    isEditable && (
+                        <IconButton 
+                            disabled={isUpdating}
+                            onClick={() => setCustomerModalOpen(true)}
+                        >
+                            <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                    )
                 }
             />
             <Box sx={{ p: 3, display: 'flex' }}>
@@ -181,6 +218,14 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                     )}
                 </Stack>
             </Box>
+
+            {/* Customer Selection Modal */}
+            <CustomerSelectionModal
+                open={customerModalOpen}
+                onClose={() => setCustomerModalOpen(false)}
+                onSelectCustomer={handleCustomerSelect}
+                currentCustomerId={customer?.id}
+            />
         </>
     );
 }
