@@ -745,7 +745,13 @@ export function OrderDetailsView({ orderId }: Props) {
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsDelivery delivery={order?.delivery} />
+                        <OrderDetailsDelivery 
+                            delivery={order?.delivery} 
+                            isEditable={status === 'pending'}
+                            orderId={orderData?.id}
+                            customerId={orderData?.customerId || undefined}
+                            onRefreshOrder={handleRefreshOrderHistory}
+                        />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsShipping

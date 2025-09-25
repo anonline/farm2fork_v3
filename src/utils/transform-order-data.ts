@@ -1,8 +1,8 @@
 import type { IOrderItem } from 'src/types/order';
+import type { IAddress } from 'src/types/address';
 import type { IOrderData } from 'src/types/order-management';
 
 import { CONFIG } from 'src/global-config';
-import { IAddress } from 'src/types/address';
 
 // ----------------------------------------------------------------------
 

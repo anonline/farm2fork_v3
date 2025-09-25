@@ -1,4 +1,4 @@
-import { IAddress } from './address';
+import type { IAddress } from './address';
 import type { IDateValue, IDatePickerControl } from './common';
 
 // ----------------------------------------------------------------------
