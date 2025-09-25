@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
+import { Card } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
@@ -9,7 +9,6 @@ import Typography from '@mui/material/Typography';
 import { updateOrderNote } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
-import { Card } from '@mui/material';
 
 // ----------------------------------------------------------------------
 

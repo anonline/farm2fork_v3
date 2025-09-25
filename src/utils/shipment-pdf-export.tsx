@@ -1,7 +1,7 @@
 import type { IShipment } from 'src/types/shipments';
 
 import React from 'react';
-import { Svg, pdf, Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { pdf, Page, Text, View, Font, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -200,7 +200,7 @@ function renderPage({shipment, itemsSummary}: Props) {
               {item.totalQuantity.toLocaleString('hu-HU')}
               {item.unit && ` ${item.unit}`}
             </Text>
-            <Text style={styles.notesCol}></Text>
+            <Text style={styles.notesCol} />
           </View>
         ))}
       </Page>
