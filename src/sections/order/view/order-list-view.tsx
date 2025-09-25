@@ -25,6 +25,7 @@ import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
 import { useGetOrders } from 'src/actions/order';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { deleteOrder, deleteOrders } from 'src/actions/order-management';
@@ -81,6 +82,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 export function OrderListView() {
     const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
     const { shipments, shipmentsLoading } = useShipments();
+    const { locations: pickupLocations } = useGetPickupLocations();
     const confirmDialog = useBoolean();
     const [pdfGenerating, setPdfGenerating] = useState(false);
 
@@ -210,7 +212,7 @@ export function OrderListView() {
             // Notify user about the process
             toast.info(`${selectedOrders.length} rendelés szállítólevelének generálása...`);
 
-            await generateMultipleShippingLabelsPDF(selectedOrders);
+            await generateMultipleShippingLabelsPDF(selectedOrders, pickupLocations);
             toast.success(`${selectedOrders.length} rendelés szállítólevele sikeresen generálva és letöltve!`);
             
         } catch (error) {

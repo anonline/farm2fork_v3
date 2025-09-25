@@ -267,7 +267,7 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
             
             const customerPhone = defaultShippingAddress?.phone || defaultBillingAddress?.phone || '';
             const customerCompany = defaultShippingAddress?.companyName || defaultBillingAddress?.companyName || '';
-            
+            console.log('customer addresses', addressData);
             const newDeliveryAddress = {
                 id: selectedLocation?.id.toString(),
                 addressType: 'pickup',

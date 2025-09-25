@@ -4,6 +4,8 @@ import React from 'react';
 import { Svg, pdf, Page, Text, View, Font, Path, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from './format-number';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
+import { IPickupLocation } from 'src/types/pickup-location';
 
 // Register fonts for better Hungarian character support
 Font.register({
@@ -137,6 +139,7 @@ const styles = StyleSheet.create({
 // PDF Document Component
 interface ShippingLabelPDFProps {
     order: IOrderItem;
+    pickupLocations?: IPickupLocation[];
 }
 
 const F2FSVG = () => (
@@ -156,7 +159,10 @@ const F2FSVG = () => (
     </Svg>
 );
 
-const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => (
+const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps) => {
+    const pickupLocation = pickupLocations?.find(loc => loc.id.toString() === order.delivery?.address?.id || '');
+
+    return (
         <Page size="A4" style={styles.page}>
             {/* Header */}
             <View style={styles.header}>
@@ -203,7 +209,12 @@ const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => (
                     <View style={{ width: '48%' }}>
                         <View style={styles.infoRow}>
                             <Text style={styles.infoLabel}>Cím:</Text>
-                            <Text style={styles.infoValue}>{order.shippingAddress?.fullAddress || 'N/A'}</Text>
+                            <Text style={styles.infoValue}>{
+                                order.delivery?.shipBy === 'Személyes átvétel' ?
+                                    pickupLocation?.name || 'N/A' + ' | ' + pickupLocation?.postcode + ' ' + pickupLocation?.city + ', ' + pickupLocation?.address || 'N/A'
+                                    :
+                                    order.shippingAddress?.fullAddress || 'N/A'
+                            }</Text>
                         </View>
                         <View style={styles.infoRow}>
                             <Text style={styles.infoLabel}>Telefon:</Text>
@@ -289,12 +300,16 @@ const ShippingLabelPDFPage = ({ order }: ShippingLabelPDFProps) => (
             </Text>
         </Page>
     )
+};
 
-const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order }) => (
-    <Document>
-        <ShippingLabelPDFPage order={order} />
-    </Document>
-);
+const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order, pickupLocations = [] }) => {
+    return (
+        <Document>
+            <ShippingLabelPDFPage order={order} pickupLocations={pickupLocations} />
+        </Document>
+    );
+};
+
 
 // Function to validate order data for PDF generation
 const validateOrderData = (order: IOrderItem): boolean => {
@@ -321,18 +336,21 @@ const validateOrderData = (order: IOrderItem): boolean => {
 // PDF Document Component for multiple orders
 interface MultipleShippingLabelsPDFProps {
     orders: IOrderItem[];
+    pickupLocations?: IPickupLocation[];
 }
 
-const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders }) => (
-    <Document>
-        {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
-            <ShippingLabelPDFPage order={order} key={order.id || index} />
-        ))}
-    </Document>
-);
+const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders, pickupLocations = [] }) => {
+    return (
+        <Document>
+            {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
+                <ShippingLabelPDFPage order={order} key={order.id || index} pickupLocations={pickupLocations} />
+            ))}
+        </Document>
+    );
+};
 
 // Function to generate and download PDF for multiple orders
-export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[]): Promise<void> => {
+export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[], pickupLocations?: IPickupLocation[]): Promise<void> => {
     try {
         // Validate that we have orders
         if (!orders || orders.length === 0) {
@@ -354,7 +372,7 @@ export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[]): P
             throw new Error(`Hibás rendelések:\n${invalidOrders.join('\n')}`);
         }
 
-        const doc = <MultipleShippingLabelsPDF orders={orders} />;
+        const doc = <MultipleShippingLabelsPDF orders={orders} pickupLocations={pickupLocations || []} />;
         const pdfBlob = await pdf(doc).toBlob();
 
         // Create download link
@@ -378,12 +396,12 @@ export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[]): P
 };
 
 // Function to generate and download PDF for single order (existing functionality)
-export const generateShippingLabelPDF = async (order: IOrderItem): Promise<void> => {
+export const generateShippingLabelPDF = async (order: IOrderItem, pickupLocations?: IPickupLocation[]): Promise<void> => {
     try {
         // Validate order data
         validateOrderData(order);
 
-        const doc = <ShippingLabelPDF order={order} />;
+        const doc = <ShippingLabelPDF order={order} pickupLocations={pickupLocations || []} />;
         const pdfBlob = await pdf(doc).toBlob();
 
         // Create download link
