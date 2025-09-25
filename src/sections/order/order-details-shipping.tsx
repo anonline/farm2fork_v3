@@ -41,6 +41,7 @@ type Props = {
     customerId?: string; // Add customerId prop for fetching customer addresses
     onRefreshOrder?: () => void; // Add callback to refresh order data
     shipmentTime?: string; // Add shipment time range prop
+    isEditable: boolean;
 };
 
 export function OrderDetailsShipping({
@@ -50,7 +51,8 @@ export function OrderDetailsShipping({
     orderId,
     customerId,
     onRefreshOrder,
-    shipmentTime = ''
+    shipmentTime = '',
+    isEditable = true,
 }: Readonly<Props>) {
     const { shipments, shipmentsLoading, setOrderToShipmentByDate } = useShipments();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -350,9 +352,11 @@ export function OrderDetailsShipping({
             <CardHeader
                 title="Szállítási adatok"
                 action={
+                    isEditable && (
                     <IconButton onClick={handleEditAddressClick}>
                         <Iconify icon="solar:pen-bold" />
                     </IconButton>
+                    )
                 }
             />
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>

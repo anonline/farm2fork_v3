@@ -41,6 +41,8 @@ type Props = CardProps & {
     onItemDelete?: (itemId: string) => void;
     onItemAdd?: (products: ProductForOrder[]) => void;
     onSurchargeChange?: (value: number) => void;
+    onShippingChange?: (value: number) => void;
+    onDiscountChange?: (value: number) => void;
     onSave?: () => void;
     onCancel?: () => void;
     onStartEdit?: () => void;
@@ -64,6 +66,8 @@ export function OrderDetailsItems({
     onItemDelete,
     onItemAdd,
     onSurchargeChange,
+    onShippingChange,
+    onDiscountChange,
     onSave,
     onCancel,
     onStartEdit,
@@ -72,6 +76,8 @@ export function OrderDetailsItems({
 }: Props) {
     const [editErrors, setEditErrors] = useState<Record<string, { price?: string; quantity?: string }>>({});
     const [surchargeError, setSurchargeError] = useState<string>('');
+    const [shippingError, setShippingError] = useState<string>('');
+    const [discountError, setDiscountError] = useState<string>('');
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
     const handleFieldChange = (itemId: string, field: 'price' | 'quantity', value: string) => {
@@ -111,6 +117,32 @@ export function OrderDetailsItems({
         }
     };
 
+    const handleShippingChange = (value: string) => {
+        const numValue = parseFloat(value);
+
+        if (isNaN(numValue) || numValue < 0) {
+            setShippingError('Szállítási költség nem lehet negatív');
+        } else {
+            setShippingError('');
+            if (onShippingChange) {
+                onShippingChange(numValue);
+            }
+        }
+    };
+
+    const handleDiscountChange = (value: string) => {
+        const numValue = parseFloat(value);
+
+        if (isNaN(numValue) || numValue < 0) {
+            setDiscountError('Kedvezmény nem lehet negatív');
+        } else {
+            setDiscountError('');
+            if (onDiscountChange) {
+                onDiscountChange(numValue);
+            }
+        }
+    };
+
     const handleAddProducts = (products: ProductForOrder[]) => {
         if (onItemAdd) {
             onItemAdd(products);
@@ -129,7 +161,7 @@ export function OrderDetailsItems({
         }
     };
 
-    const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError;
+    const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError || !!shippingError || !!discountError;
     const renderTotal = () => (
         <Box
             sx={{
@@ -147,18 +179,50 @@ export function OrderDetailsItems({
                 <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
             </Box>
 
-            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Szállítás</Box>
-                <Box sx={{ width: { xs: 'auto', md: 160 } }}>
-                    {shipping ? fCurrency(shipping) : '-'}
-                </Box>
+                
+                {isEditing ? (
+                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
+                        <TextField
+                            size="small"
+                            type="number"
+                            value={shipping || 0}
+                            onChange={(e) => handleShippingChange(e.target.value)}
+                            error={!!shippingError}
+                            helperText={shippingError}
+                            sx={{ width: '100%', maxWidth: { xs: 120, md: 'none' } }}
+                            inputProps={{ min: 0, step: 0.01 }}
+                        />
+                    </Box>
+                ) : (
+                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
+                        {shipping ? fCurrency(shipping) : '-'}
+                    </Box>
+                )}
             </Box>
 
-            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
+            <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Kedvezmény</Box>
-                <Box sx={{ width: { xs: 'auto', md: 160 }, ...(discount && { color: 'error.main' }) }}>
-                    {discount ? `- ${fCurrency(discount)}` : '-'}
-                </Box>
+                
+                {isEditing ? (
+                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
+                        <TextField
+                            size="small"
+                            type="number"
+                            value={discount || 0}
+                            onChange={(e) => handleDiscountChange(e.target.value)}
+                            error={!!discountError}
+                            helperText={discountError}
+                            sx={{ width: '100%', maxWidth: { xs: 120, md: 'none' } }}
+                            inputProps={{ min: 0, step: 0.01 }}
+                        />
+                    </Box>
+                ) : (
+                    <Box sx={{ width: { xs: 'auto', md: 160 }, ...(discount && { color: 'error.main' }) }}>
+                        {discount ? `- ${fCurrency(discount)}` : '-'}
+                    </Box>
+                )}
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>

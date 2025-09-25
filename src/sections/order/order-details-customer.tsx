@@ -22,9 +22,10 @@ type Props = {
     customer?: IOrderCustomer;
     orderData?: IOrderData;
     onOrderUpdate?: () => void;
+    isEditable?: boolean;
 };
 
-export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate }: Readonly<Props>) {
+export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEditable = true }: Readonly<Props>) {
     // Local state for form controls
     const [denyInvoice, setDenyInvoice] = useState(orderData?.denyInvoice || false);
     const [paymentDueDays, setPaymentDueDays] = useState(orderData?.paymentDueDays?.toString() || '');
@@ -123,9 +124,9 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate }: Rea
             <CardHeader
                 title="Vásárló"
                 action={
-                    <IconButton disabled={isUpdating}>
+                    isEditable && (<IconButton disabled={isUpdating}>
                         <Iconify icon="solar:pen-bold" />
-                    </IconButton>
+                    </IconButton>)
                 }
             />
             <Box sx={{ p: 3, display: 'flex' }}>

@@ -56,6 +56,8 @@ export function OrderDetailsView({ orderId }: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
     const [editedSurcharge, setEditedSurcharge] = useState(orderData?.surchargeAmount || 0);
+    const [editedShipping, setEditedShipping] = useState(orderData?.shippingCost || 0);
+    const [editedDiscount, setEditedDiscount] = useState(orderData?.discountTotal || 0);
     const [showPaymentAlert, setShowPaymentAlert] = useState(false);
     const [showCancellationAlert, setShowCancellationAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
@@ -78,6 +80,8 @@ export function OrderDetailsView({ orderId }: Props) {
     useEffect(() => {
         if (orderData) {
             setEditedSurcharge(orderData.surchargeAmount || 0);
+            setEditedShipping(orderData.shippingCost || 0);
+            setEditedDiscount(orderData.discountTotal || 0);
         }
     }, [orderData]);
 
@@ -398,7 +402,9 @@ export function OrderDetailsView({ orderId }: Props) {
         setIsEditing(false);
         setEditedItems(order?.items || []);
         setEditedSurcharge(orderData?.surchargeAmount || 0);
-    }, [order?.items, orderData?.surchargeAmount]);
+        setEditedShipping(orderData?.shippingCost || 0);
+        setEditedDiscount(orderData?.discountTotal || 0);
+    }, [order?.items, orderData?.surchargeAmount, orderData?.shippingCost, orderData?.discountTotal]);
 
     const handleSaveEdit = useCallback(async () => {
         if (!orderData?.id) {
@@ -409,10 +415,10 @@ export function OrderDetailsView({ orderId }: Props) {
         // Calculate new total
         const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
         const newTotal = newSubtotal 
-        + (orderData?.shippingCost || 0) 
+        + editedShipping 
         + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
         + editedSurcharge 
-        - (orderData?.discountTotal || 0);
+        - editedDiscount;
 
         // Check if payment method is 'simple' and if new total exceeds paid amount
         const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
@@ -426,12 +432,7 @@ export function OrderDetailsView({ orderId }: Props) {
 
         // Proceed with save
         await performSave();
-    }, [editedItems, orderData, editedSurcharge]);
-
-    const handlePaymentAlertConfirm = useCallback(async () => {
-        console.log('User confirmed save despite payment difference');
-        await performSave();
-    }, []);
+    }, [editedItems, orderData, editedSurcharge, editedShipping, editedDiscount]);
 
     const performSave = useCallback(async () => {
         if (!orderData?.id) return;
@@ -449,7 +450,6 @@ export function OrderDetailsView({ orderId }: Props) {
                 subtotal: item.subtotal,
                 slug: item.slug,
             }));
-
             const { success, error: updateError } = await updateOrderItems(
                 orderData.id,
                 itemsToSave,
@@ -457,17 +457,18 @@ export function OrderDetailsView({ orderId }: Props) {
                 undefined, // userId
                 undefined, // userName
                 editedSurcharge,
-                order?.customer.userType
+                order?.customer.userType,
+                editedShipping,
+                editedDiscount
             );
-
             if (success) {
                 // Calculate new totals
                 const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
                 const newTotal = newSubtotal 
-                    + (orderData?.shippingCost || 0) 
+                    + editedShipping 
                     + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
                     + editedSurcharge 
-                    - (orderData?.discountTotal || 0);
+                    - editedDiscount;
 
                 // Update context with new data
                 if (order) {
@@ -476,6 +477,8 @@ export function OrderDetailsView({ orderId }: Props) {
                         items: editedItems,
                         subtotal: newSubtotal,
                         totalAmount: newTotal,
+                        shipping: editedShipping,
+                        discount: editedDiscount,
                     });
                 }
 
@@ -486,6 +489,8 @@ export function OrderDetailsView({ orderId }: Props) {
                         subtotal: newSubtotal,
                         total: newTotal,
                         surchargeAmount: editedSurcharge,
+                        shippingCost: editedShipping,
+                        discountTotal: editedDiscount,
                     });
                 }
 
@@ -505,7 +510,12 @@ export function OrderDetailsView({ orderId }: Props) {
             console.error('Error saving order changes:', ex);
             toast.error('Hiba történt a rendelés mentése során');
         }
-    }, [editedItems, orderData, order, updateOrder, updateOrderData, editedSurcharge, refreshCounts]);
+    }, [editedItems, orderData, order, updateOrder, updateOrderData, editedSurcharge, editedShipping, editedDiscount, refreshCounts]);
+
+    const handlePaymentAlertConfirm = useCallback(async () => {
+        console.log('User confirmed save despite payment difference');
+        await performSave();
+    }, [performSave]);
 
     const handlePaymentAlertCancel = useCallback(() => {
         setShowPaymentAlert(false);
@@ -588,6 +598,14 @@ export function OrderDetailsView({ orderId }: Props) {
         setEditedSurcharge(newSurcharge);
     }, []);
 
+    const handleShippingChange = useCallback((newShipping: number) => {
+        setEditedShipping(newShipping);
+    }, []);
+
+    const handleDiscountChange = useCallback((newDiscount: number) => {
+        setEditedDiscount(newDiscount);
+    }, []);
+
     const handleItemDelete = useCallback((itemId: string) => {
         setEditedItems(prev => prev.filter(item => item.id !== itemId));
     }, []);
@@ -627,10 +645,10 @@ export function OrderDetailsView({ orderId }: Props) {
         : order?.subtotal || 0;
     const updatedTotalAmount = isEditing
         ? updatedSubtotal 
-            + (orderData?.shippingCost || 0) 
+            + editedShipping 
             + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
             + editedSurcharge 
-            - (orderData?.discountTotal || 0)
+            - editedDiscount
         : order?.totalAmount || 0;
 
     if (error) {
@@ -710,9 +728,9 @@ export function OrderDetailsView({ orderId }: Props) {
                         <OrderDetailsItems
                             items={displayItems}
                             taxes={order?.taxes}
-                            shipping={order?.shipping}
+                            shipping={isEditing ? editedShipping : (orderData?.shippingCost || order?.shipping)}
                             payed_amount={orderData?.payedAmount || 0}
-                            discount={order?.discount}
+                            discount={isEditing ? editedDiscount : (orderData?.discountTotal || order?.discount)}
                             subtotal={updatedSubtotal}
                             totalAmount={updatedTotalAmount}
                             surcharge={isEditing ? editedSurcharge : (orderData?.surchargeAmount || 0)}
@@ -723,6 +741,8 @@ export function OrderDetailsView({ orderId }: Props) {
                             onItemDelete={handleItemDelete}
                             onItemAdd={handleItemAdd}
                             onSurchargeChange={handleSurchargeChange}
+                            onShippingChange={handleShippingChange}
+                            onDiscountChange={handleDiscountChange}
                             onSave={handleSaveEdit}
                             onCancel={handleCancelEdit}
                             onStartEdit={handleStartEdit}
@@ -742,6 +762,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             customer={order?.customer}
                             orderData={orderData || undefined}
                             onOrderUpdate={handleRefreshOrderHistory}
+                            isEditable={status === 'pending'}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -751,6 +772,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             orderId={orderData?.id}
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
+                            customer={order?.customer}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -761,6 +783,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
                             shipmentTime={orderData?.shipment_time}
+                            isEditable={status === 'pending'}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />

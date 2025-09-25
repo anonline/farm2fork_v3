@@ -472,7 +472,9 @@ export async function updateOrderItems(
     userId?: string,
     userName?: string,
     surchargeAmount?: number,
-    userType: 'public' | 'vip' | 'company' = 'public'
+    userType: 'public' | 'vip' | 'company' = 'public',
+    shippingCost?: number,
+    discountTotal?: number
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         // Get current order to append to history
@@ -484,11 +486,13 @@ export async function updateOrderItems(
         // Calculate new totals
         const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
         const newSurchargeAmount = surchargeAmount ?? order.surchargeAmount;
+        const newShippingCost = shippingCost ?? order.shippingCost;
+        const newDiscountTotal = discountTotal ?? order.discountTotal;
         const total = subtotal
-            + order.shippingCost
+            + newShippingCost
             + (userType == 'company' ? order.vatTotal : 0)
             + newSurchargeAmount
-            - order.discountTotal;
+            - newDiscountTotal;
 
         // Create new history entry
         const historyEntry: OrderHistoryEntry = {
@@ -511,6 +515,16 @@ export async function updateOrderItems(
         // Only update surcharge_amount if a new value was provided
         if (surchargeAmount !== undefined) {
             updateData.surcharge_amount = newSurchargeAmount;
+        }
+
+        // Only update shipping_cost if a new value was provided
+        if (shippingCost !== undefined) {
+            updateData.shipping_cost = newShippingCost;
+        }
+
+        // Only update discount_total if a new value was provided
+        if (discountTotal !== undefined) {
+            updateData.discount_total = newDiscountTotal;
         }
 
         const { error } = await supabase

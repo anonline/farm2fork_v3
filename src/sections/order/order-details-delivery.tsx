@@ -1,5 +1,5 @@
-import type { IOrderDelivery } from 'src/types/order';
-import type { OrderHistoryEntry } from 'src/types/order-management';
+import type { IOrderCustomer, IOrderDelivery } from 'src/types/order';
+import type { OrderHistoryEntry, ShippingMethod } from 'src/types/order-management';
 
 import { useState, useCallback } from 'react';
 
@@ -16,6 +16,8 @@ import { getOrderById } from 'src/actions/order-management';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 
 import { toast } from 'src/components/snackbar';
+import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
+import { IShippingCostMethod } from 'src/types/shipping-cost';
 
 // ----------------------------------------------------------------------
 
@@ -25,11 +27,14 @@ type Props = {
     orderId?: string;
     customerId?: string;
     onRefreshOrder?: () => void;
+    customer:IOrderCustomer;
 };
 
-export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId, onRefreshOrder }: Readonly<Props>) {
+export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId, onRefreshOrder, customer }: Readonly<Props>) {
     const pickuplocations = useGetPickupLocations();
     const { addresses: addressData } = useGetAddresses(customerId);
+
+    const {methods:storedShippingMethods } = useGetShippingCostMethods();
 
     const [isUpdating, setIsUpdating] = useState(false);
     const [selectedShipBy, setSelectedShipBy] = useState(delivery?.shipBy || 'Házhozszállítás');
@@ -62,12 +67,43 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
         };
     }, []);
 
+    const calculateShippingCost = useCallback((method: IShippingCostMethod, customerUserType: 'public' | 'vip' | 'company') => {
+        let netCost = 0;
+        let applyVAT = false;
+
+        // Get net cost based on customer type
+        switch (customerUserType) {
+            case 'vip':
+                netCost = method.netCostVIP || 0;
+                applyVAT = method.vatVIP || false;
+                break;
+            case 'company':
+                netCost = method.netCostCompany || 0;
+                applyVAT = method.vatCompany || false;
+                break;
+            default:
+                netCost = method.netCostPublic || 0;
+                applyVAT = method.vatPublic || false;
+                break;
+        }
+
+        // Apply VAT if required
+        if (applyVAT && netCost > 0) {
+            const vatAmount = (netCost * method.vat) / 100;
+            return netCost + vatAmount;
+        }
+
+        return netCost;
+    }, []);
+
     const updateOrderInDatabase = useCallback(async (
         orderIdParam: string,
-        newShipBy: string,
+        newShippingMethod: ShippingMethod,
+        shippingCost: number,
         newDeliveryAddress: any,
         shippingAddress: any,
-        historyNote: string
+        historyNote: string,
+        userType: 'public' | 'vip' | 'company'
     ) => {
         const { order } = await getOrderById(orderIdParam);
         if (!order) {
@@ -81,13 +117,19 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
         };
 
         const updateData: any = {
-            delivery_method: newShipBy,
-            delivery_address: newDeliveryAddress,
+            shipping_method: newShippingMethod,
+            shipping_cost: shippingCost,
+            shipping_address: newDeliveryAddress,
+            total: (order.subtotal || 0) 
+                + shippingCost 
+                + (order.surchargeAmount || 0)
+                + (userType === 'company' ? order.vatTotal || 0 : 0)
+                - (order.discountTotal || 0),
             history: [...(order.history || []), historyEntry],
             updated_at: new Date().toISOString(),
         };
 
-        if (newShipBy === 'Házhozszállítás' && shippingAddress) {
+        if (newShippingMethod.name === 'Házhozszállítás' && shippingAddress) {
             updateData.shipping_address = shippingAddress;
         }
 
@@ -118,6 +160,50 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
         setSelectedShipBy(newShipBy);
 
         try {
+            // Get current order to determine customer type
+            const { order } = await getOrderById(orderId);
+            if (!order) {
+                throw new Error('Order not found');
+            }
+
+            // Get customer user type - default to 'public' since we don't have direct access to customer type
+            // TODO: Consider fetching customer details if userType is needed from customer table
+            const customerUserType: 'public' | 'vip' | 'company' = customer.userType || 'public';
+            
+            // Find the appropriate shipping method from stored methods
+            const storedMethod = storedShippingMethods
+                .filter(s => {
+                    switch (customerUserType) {
+                        case 'vip':
+                            return s.enabledVIP;
+                        case 'company':
+                            return s.enabledCompany;
+                        default:
+                            return s.enabledPublic;
+                    }
+                })
+                .filter(s=>{
+                    if(order?.subtotal >= (s.minNetPrice || 0) && order?.subtotal <= (s.maxNetPrice || Infinity)){
+                        return true;
+                    }
+                })
+                .find(method => method.name === newShipBy);
+            
+            if (!storedMethod) {
+                throw new Error(`Shipping method "${newShipBy}" not found`);
+            }
+
+            // Calculate shipping cost based on customer type
+            const shippingCost = calculateShippingCost(storedMethod, customerUserType);
+            
+            // Create the ShippingMethod object
+            const newShippingMethod: ShippingMethod = {
+                id: storedMethod.id,
+                name: storedMethod.name,
+                cost: shippingCost,
+                description: '',
+            };
+
             let newDeliveryAddress = null;
             let shippingAddress = null;
 
@@ -141,12 +227,12 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
                 setSelectedPickupLocationId(null);
             }
 
-            const historyNote = `Szállítási mód módosítva: ${delivery?.shipBy || 'nincs megadva'} → ${newShipBy}`;
+            const historyNote = `Szállítási mód módosítva: ${delivery?.shipBy || 'nincs megadva'} → ${newShipBy} (${shippingCost} Ft)`;
 
-            await updateOrderInDatabase(orderId, newShipBy, newDeliveryAddress, shippingAddress, historyNote);
+            await updateOrderInDatabase(orderId, newShippingMethod, shippingCost, newDeliveryAddress, shippingAddress, historyNote, customerUserType);
             updateLocalStorage(orderId, newShipBy, newDeliveryAddress, shippingAddress);
 
-            toast.success('Szállítási mód sikeresen frissítve!');
+            toast.success(`Szállítási mód sikeresen frissítve! Új költség: ${Math.round(shippingCost)} Ft`);
             onRefreshOrder?.();
         } catch (error) {
             console.error('Error updating delivery method:', error);
@@ -155,7 +241,7 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
         } finally {
             setIsUpdating(false);
         }
-    }, [isEditable, orderId, isUpdating, selectedPickupLocationId, pickuplocations?.locations, addressData?.shippingAddresses, delivery?.shipBy, onRefreshOrder, createShippingAddressFromDefault, updateOrderInDatabase, updateLocalStorage]);
+    }, [isEditable, orderId, isUpdating, selectedPickupLocationId, pickuplocations?.locations, addressData?.shippingAddresses, delivery?.shipBy, onRefreshOrder, createShippingAddressFromDefault, updateOrderInDatabase, updateLocalStorage, storedShippingMethods, calculateShippingCost]);
 
     const handlePickupLocationChange = useCallback(async (newLocationId: string) => {
         if (!isEditable || !orderId || isUpdating) return;
@@ -172,6 +258,16 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
             }
 
             const selectedLocation = pickuplocations?.locations.find(loc => loc.id.toString() === newLocationId);
+            
+            // Get phone and company from customer's default/first address
+            const defaultShippingAddress = addressData?.shippingAddresses?.find((addr: any) => addr.isDefault) || 
+                                         addressData?.shippingAddresses?.[0];
+            const defaultBillingAddress = addressData?.billingAddresses?.find((addr: any) => addr.isDefault) || 
+                                        addressData?.billingAddresses?.[0];
+            
+            const customerPhone = defaultShippingAddress?.phone || defaultBillingAddress?.phone || '';
+            const customerCompany = defaultShippingAddress?.companyName || defaultBillingAddress?.companyName || '';
+            
             const newDeliveryAddress = {
                 id: selectedLocation?.id.toString(),
                 addressType: 'pickup',
@@ -185,8 +281,8 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
                 doorbell: '',
                 note: selectedLocation?.note || '',
                 fullAddress: `${selectedLocation?.postcode} ${selectedLocation?.city}, ${selectedLocation?.address}`,
-                phoneNumber: '',
-                company: '',
+                phoneNumber: customerPhone,
+                company: customerCompany,
             };
 
             // Create history entry
