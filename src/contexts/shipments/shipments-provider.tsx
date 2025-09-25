@@ -51,6 +51,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         const { data: orders, error: ordersError } = await supabase
             .from('orders')
             .select('*')
+            .neq('order_status', 'cancelled')
+            .neq('order_status', 'refunded')
             .eq('shipmentId', shipmentId);
 
         if (ordersError) {
