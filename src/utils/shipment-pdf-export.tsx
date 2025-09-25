@@ -46,92 +46,106 @@ type Props = {
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Roboto',
-    fontSize: 10,
-    paddingTop: 35,
-    paddingLeft: 35,
-    paddingRight: 35,
-    paddingBottom: 65,
-    lineHeight: 1.5,
+    fontSize: 9,
+    paddingTop: 25,
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingBottom: 25,
+    lineHeight: 1.3,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 15,
     borderBottom: '1pt solid #000',
-    paddingBottom: 10,
+    paddingBottom: 8,
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
-    marginTop: 15,
+    fontFamily: 'Roboto',
+
+  },
+  subtitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    marginTop: 10,
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  row: {
+  infoSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  infoColumn: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: 3,
+  },
+  infoLabel: {
+    width: '50%',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  infoValue: {
+    width: '50%',
+    fontSize: 9,
+  },
+  tableRow: {
     flexDirection: 'row',
     borderBottom: '0.5pt solid #ccc',
-    paddingVertical: 5,
+    paddingVertical: 3,
     alignItems: 'center',
+    minHeight: 18,
   },
   headerRow: {
     flexDirection: 'row',
     borderBottom: '1pt solid #000',
-    paddingVertical: 8,
+    paddingVertical: 6,
     backgroundColor: '#f5f5f5',
     alignItems: 'center',
     fontWeight: 'bold',
   },
-  col1: { width: '25%', paddingHorizontal: 4 },
-  col2: { width: '15%', paddingHorizontal: 4, textAlign: 'center' },
-  col3: { width: '15%', paddingHorizontal: 4, textAlign: 'right' },
-  col4: { width: '15%', paddingHorizontal: 4, textAlign: 'right' },
-  col5: { width: '15%', paddingHorizontal: 4, textAlign: 'center' },
-  col6: { width: '15%', paddingHorizontal: 4, textAlign: 'center' },
+  productCol: { width: '40%', paddingHorizontal: 4 },
+  quantityCol: { width: '30%', paddingHorizontal: 4, textAlign: 'center' },
+  notesCol: { width: '30%', paddingHorizontal: 4, textAlign: 'left' },
   summaryRow: {
     flexDirection: 'row',
     borderTop: '1pt solid #000',
-    paddingVertical: 8,
-    marginTop: 10,
+    paddingVertical: 6,
+    marginTop: 8,
     fontWeight: 'bold',
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
   },
   companyInfo: {
     textAlign: 'right',
-    fontSize: 8,
+    fontSize: 7,
   },
 });
 
-// ----------------------------------------------------------------------
-
-function ShipmentPDF({ shipment, itemsSummary }: Props) {
+function renderPage({shipment, itemsSummary}: Props) {
   const totalValue = itemsSummary.reduce((sum, item) => sum + item.totalValue, 0);
   const totalQuantity = itemsSummary.reduce((sum, item) => sum + item.totalQuantity, 0);
-
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Svg style={styles.logo} viewBox="0 0 100 100">
               {/* Simple logo placeholder */}
-              <View style={{ width: 60, height: 60, backgroundColor: '#1976d2', borderRadius: 4 }}>
-                <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', paddingTop: 20, fontFamily: 'Roboto' }}>
-                  F2F
+                <Text style={styles.title}>
+                  Szállítási összesítő részletei {shipment.date ? new Date(shipment.date).toLocaleDateString('hu-HU') : 'Nincs megadva'}
                 </Text>
-              </View>
-            </Svg>
           </View>
           <View style={styles.companyInfo}>
             <Text>Farm2Fork</Text>
@@ -140,81 +154,66 @@ function ShipmentPDF({ shipment, itemsSummary }: Props) {
           </View>
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>
-          Szállítási összesítő részletei #{shipment.id}
-        </Text>
+        
 
         {/* Shipment Info */}
-        <View style={styles.section}>
-          <Text style={styles.subtitle}>Összesítő információk</Text>
-          <View style={styles.row}>
-            <Text style={styles.col1}>Szállítási dátum:</Text>
-            <Text style={styles.col1}>
-              {shipment.date ? new Date(shipment.date).toLocaleDateString('hu-HU') : 'Nincs megadva'}
-            </Text>
+        <View style={styles.infoSection}>
+          <View style={styles.infoColumn}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Rendelések száma:</Text>
+              <Text style={styles.infoValue}>{shipment.orderCount}</Text>
+            </View>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.col1}>Rendelések száma:</Text>
-            <Text style={styles.col1}>{shipment.orderCount}</Text>
+          <View style={styles.infoColumn}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Termékek:</Text>
+              <Text style={styles.infoValue}>{shipment.productCount}</Text>
+            </View>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.col1}>Termékek száma:</Text>
-            <Text style={styles.col1}>{shipment.productCount}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.col1}>Összérték:</Text>
-            <Text style={styles.col1}>{fCurrency(shipment.productAmount)}</Text>
+          <View style={styles.infoColumn}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Összérték:</Text>
+              <Text style={styles.infoValue}>{fCurrency(shipment.productAmount)}</Text>
+            </View>
           </View>
         </View>
 
-        {/* Items Table */}
-        <Text style={styles.subtitle}>Termékek összesítése</Text>
-        
         {/* Table Header */}
         <View style={styles.headerRow}>
-          <Text style={styles.col1}>Termék</Text>
-          <Text style={styles.col2}>Mennyiség</Text>
-          <Text style={styles.col3}>Átlag ár</Text>
-          <Text style={styles.col4}>Összérték</Text>
-          <Text style={styles.col5}>Rendelések</Text>
-          <Text style={styles.col6}>Vásárlók</Text>
+          <Text style={styles.productCol}>Termék neve</Text>
+          <Text style={styles.quantityCol}>Mennyiség</Text>
+          <Text style={styles.notesCol}>Megjegyzés</Text>
         </View>
 
         {/* Table Rows */}
         {itemsSummary.map((item) => (
-          <View key={item.id} style={styles.row}>
-            <Text style={styles.col1}>
-              {item.name}
+          <View key={item.id} style={styles.tableRow}>
+            <Text style={styles.productCol}>
               {item.isBio && (
                 <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
-                  {' '}[BIO]
+                  [BIO]{' '}
                 </Text>
               )}
-              {(item.size || item.unit) && (
-                <Text style={{ fontSize: 8, color: '#666', fontFamily: 'Roboto' }}>
-                  {' '}({[item.size, item.unit].filter(Boolean).join(' • ')})
-                </Text>
-              )}
+              {item.name}
             </Text>
-            <Text style={styles.col2}>{item.totalQuantity.toLocaleString('hu-HU')}</Text>
-            <Text style={styles.col3}>{fCurrency(item.averagePrice)}</Text>
-            <Text style={styles.col4}>{fCurrency(item.totalValue)}</Text>
-            <Text style={styles.col5}>{item.orderCount}</Text>
-            <Text style={styles.col6}>{item.customersCount}</Text>
+            <Text style={styles.quantityCol}>
+              {item.totalQuantity.toLocaleString('hu-HU')}
+              {item.unit && ` ${item.unit}`}
+            </Text>
+            <Text style={styles.notesCol}></Text>
           </View>
         ))}
-
-        {/* Summary Row */}
-        <View style={styles.summaryRow}>
-          <Text style={styles.col1}>Összesen</Text>
-          <Text style={styles.col2}>{totalQuantity.toLocaleString('hu-HU')}</Text>
-          <Text style={styles.col3}>-</Text>
-          <Text style={styles.col4}>{fCurrency(totalValue)}</Text>
-          <Text style={styles.col5}>-</Text>
-          <Text style={styles.col6}>-</Text>
-        </View>
       </Page>
+  );
+}
+// ----------------------------------------------------------------------
+
+function ShipmentPDF({ shipment, itemsSummary }: Readonly<Props>) {
+  
+
+  return (
+    <Document>
+      {renderPage({shipment, itemsSummary})}
     </Document>
   );
 }
@@ -247,102 +246,7 @@ function MultiShipmentPDF({ shipmentsData }: Readonly<MultiShipmentPDFProps>) {
   return (
     <Document>
       {shipmentsData.map(({ shipment, itemsSummary }, index) => (
-        <Page key={shipment.id} size="A4" style={styles.page}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View>
-              <Svg style={styles.logo} viewBox="0 0 100 100">
-                {/* Simple logo placeholder */}
-                <View style={{ width: 60, height: 60, backgroundColor: '#1976d2', borderRadius: 4 }}>
-                  <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', paddingTop: 20, fontFamily: 'Roboto' }}>
-                    F2F
-                  </Text>
-                </View>
-              </Svg>
-            </View>
-            <View style={styles.companyInfo}>
-              <Text>Farm2Fork</Text>
-              <Text>Szállítási összesítő</Text>
-              <Text>Dátum: {new Date().toLocaleDateString('hu-HU')}</Text>
-              <Text>Oldal: {index + 1} / {shipmentsData.length}</Text>
-            </View>
-          </View>
-
-          {/* Title */}
-          <Text style={styles.title}>
-            Szállítási összesítő részletei #{shipment.id}
-          </Text>
-
-          {/* Shipment Info */}
-          <View style={styles.section}>
-            <Text style={styles.subtitle}>Összesítő információk</Text>
-            <View style={styles.row}>
-              <Text style={styles.col1}>Szállítási dátum:</Text>
-              <Text style={styles.col1}>
-                {shipment.date ? new Date(shipment.date).toLocaleDateString('hu-HU') : 'Nincs megadva'}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.col1}>Rendelések száma:</Text>
-              <Text style={styles.col1}>{shipment.orderCount}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.col1}>Termékek száma:</Text>
-              <Text style={styles.col1}>{shipment.productCount}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.col1}>Összérték:</Text>
-              <Text style={styles.col1}>{fCurrency(shipment.productAmount)}</Text>
-            </View>
-          </View>
-
-          {/* Items Table */}
-          <Text style={styles.subtitle}>Termékek összesítése</Text>
-          
-          {/* Table Header */}
-          <View style={styles.headerRow}>
-            <Text style={styles.col1}>Termék</Text>
-            <Text style={styles.col2}>Mennyiség</Text>
-            <Text style={styles.col3}>Átlag ár</Text>
-            <Text style={styles.col4}>Összérték</Text>
-            <Text style={styles.col5}>Rendelések</Text>
-            <Text style={styles.col6}>Vásárlók</Text>
-          </View>
-
-          {/* Table Rows */}
-          {itemsSummary.map((item) => (
-            <View key={item.id} style={styles.row}>
-              <Text style={styles.col1}>
-                {item.name}
-                {item.isBio && (
-                  <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
-                    {' '}[BIO]
-                  </Text>
-                )}
-                {(item.size || item.unit) && (
-                  <Text style={{ fontSize: 8, color: '#666', fontFamily: 'Roboto' }}>
-                    {' '}({[item.size, item.unit].filter(Boolean).join(' • ')})
-                  </Text>
-                )}
-              </Text>
-              <Text style={styles.col2}>{item.totalQuantity.toLocaleString('hu-HU')}</Text>
-              <Text style={styles.col3}>{fCurrency(item.averagePrice)}</Text>
-              <Text style={styles.col4}>{fCurrency(item.totalValue)}</Text>
-              <Text style={styles.col5}>{item.orderCount}</Text>
-              <Text style={styles.col6}>{item.customersCount}</Text>
-            </View>
-          ))}
-
-          {/* Summary Row */}
-          <View style={styles.summaryRow}>
-            <Text style={styles.col1}>Összesen</Text>
-            <Text style={styles.col2}>{itemsSummary.reduce((sum, item) => sum + item.totalQuantity, 0).toLocaleString('hu-HU')}</Text>
-            <Text style={styles.col3}>-</Text>
-            <Text style={styles.col4}>{fCurrency(itemsSummary.reduce((sum, item) => sum + item.totalValue, 0))}</Text>
-            <Text style={styles.col5}>-</Text>
-            <Text style={styles.col6}>-</Text>
-          </View>
-        </Page>
+        renderPage({shipment, itemsSummary})
       ))}
     </Document>
   );
