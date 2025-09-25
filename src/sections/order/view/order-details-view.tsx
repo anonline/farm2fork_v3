@@ -321,6 +321,11 @@ export function OrderDetailsView({ orderId }: Props) {
                 // Refresh order history to show the new entry
                 await refreshOrderHistory();
 
+                // Refresh shipment counts if order is cancelled or refunded
+                if ((newStatus === 'cancelled' || newStatus === 'refunded') && order?.shipmentId) {
+                    await refreshCounts(order.shipmentId);
+                }
+
                 toast.success('Rendelés státusza sikeresen frissítve!');
             } else {
                 setStatus(oldStatus); // Revert status change
@@ -357,6 +362,11 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Refresh order history to show the new entry
                 await refreshOrderHistory();
+
+                // Refresh shipment counts if payment status is refunded
+                if (newPaymentStatus === 'refunded' && order?.shipmentId) {
+                    await refreshCounts(order.shipmentId);
+                }
 
                 toast.success('Fizetési státusz sikeresen frissítve!');
             } else {
@@ -533,6 +543,11 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Refresh order history to show the new entry
                 await refreshOrderHistory();
+
+                // Refresh shipment counts for cancelled order
+                if (order?.shipmentId) {
+                    await refreshCounts(order.shipmentId);
+                }
 
                 setStatus('cancelled');
                 toast.success('Rendelés sikeresen törölve! Kézi visszatérítés szükséges.');

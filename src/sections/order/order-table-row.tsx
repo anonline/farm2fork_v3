@@ -70,14 +70,14 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                     color={
                         (row.status === 'completed' && 'success') ||
                         (row.status === 'pending' && 'warning') ||
-                        (row.status === 'inprogress' && 'info') ||
+                        (row.status === 'processing' && 'info') ||
                         (row.status === 'cancelled' && 'error') ||
                         'default'
                     }
                 >
                     {(row.status === 'completed' && 'success') ||
                         (row.status === 'pending' && 'Új rendelés') ||
-                        (row.status === 'processing' || row.status === 'inprogress' && 'Feldolgozva') ||
+                        (row.status === 'processing' && 'Feldolgozva') ||
                         (row.status === 'cancelled' && 'Visszamondva') ||
                         (row.status === 'shipping' && 'Szállítás alatt') ||
                         (row.status === 'delivered' && 'Kiszállítva') ||

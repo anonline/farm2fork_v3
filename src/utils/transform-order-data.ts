@@ -18,11 +18,11 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             case 'pending':
                 return 'pending';
             case 'confirmed':
-                return 'inprogress';
+                return 'processing';
             case 'processing':
-                return 'inprogress';
+                return 'processing';
             case 'shipping':
-                return 'inprogress';
+                return 'processing';
             case 'delivered':
                 return 'completed';
             case 'cancelled':
