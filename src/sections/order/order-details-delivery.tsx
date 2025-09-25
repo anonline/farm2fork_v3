@@ -1,32 +1,30 @@
 import type { IOrderDelivery } from 'src/types/order';
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 
-import { Iconify } from 'src/components/iconify';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
 
 // ----------------------------------------------------------------------
 
 type Props = {
     delivery?: IOrderDelivery;
+    isEditable?: boolean;
 };
 
-export function OrderDetailsDelivery({ delivery }: Props) {
+export function OrderDetailsDelivery({ delivery, isEditable }: Readonly<Props>) {
+    const pickuplocations = useGetPickupLocations();
+
+    const selectedPickupLocation = (delivery?.shipBy == 'Személyes átvétel' && delivery?.address && pickuplocations?.locations.find(loc => loc.id.toString() === delivery.address?.id)) ?? null;
+
     return (
         <>
             <CardHeader
                 title="Szállítási mód"
-                action={
-                    <IconButton>
-                        <Iconify icon="solar:pen-bold" />
-                    </IconButton>
-                }
             />
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
@@ -36,31 +34,42 @@ export function OrderDetailsDelivery({ delivery }: Props) {
 
                     {delivery?.shipBy}
                 </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box
-                        component="span"
-                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
-                    >
-                        Speedy
-                    </Box>
-
-                    {delivery?.speedy}
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box
-                        component="span"
-                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
-                    >
-                        Tracking No.
-                    </Box>
-
-                    <Link underline="always" color="inherit">
-                        {delivery?.trackingNumber}
-                    </Link>
-                </Box>
             </Stack>
+
+            {selectedPickupLocation && (
+                <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box
+                            component="span"
+                            sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                        >
+                            Átvételi pont
+                        </Box>
+
+                        {selectedPickupLocation?.name}
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box
+                            component="span"
+                            sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                        >
+                            Cím
+                        </Box>
+
+                        {selectedPickupLocation?.postcode} {selectedPickupLocation?.city} {selectedPickupLocation?.address}
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box
+                            component="span"
+                            sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                        >
+                            Megjegyzés
+                        </Box>
+
+                        {selectedPickupLocation?.note}
+                    </Box>
+                </Stack>
+            )}
         </>
     );
 }

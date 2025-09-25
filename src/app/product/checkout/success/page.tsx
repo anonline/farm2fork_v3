@@ -19,7 +19,7 @@ import { CartClearer } from './cart-clearer';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Payment Success - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Rendelés - ${CONFIG.appName}` };
 type SimplePayResponse = {
     r: number, //válasz kód
     t: number, // tranzakciós azonosító
@@ -144,7 +144,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     }
 
     // Update payment status if successful
-    if (isPaymentSuccess && order.paymentStatus == 'pending') {
+    if (isPaymentSuccess && order.paymentStatus == 'pending' && order.paymentMethod?.slug === 'simple') {
         await updateOrderPaymentStatusSSR(orderId, 'paid', order.total);
     }
 

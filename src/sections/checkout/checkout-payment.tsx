@@ -522,7 +522,7 @@ export function CheckoutPayment() {
     };
 
     const handleBillingAddressChange = (index: number) => {
-        console.log('setting bindex:',index);
+        console.log('setting bindex:', index);
         setSelectedBillingAddressIndex(index);
         setValue('billingAddressIndex', index);
         updateBillingAddressInContext(index);
@@ -779,25 +779,52 @@ export function CheckoutPayment() {
 
             // Get delivery address
             let deliveryAddress: IAddressItem | null = null;
-            if (data.deliveryAddressIndex !== undefined && data.deliveryAddressIndex !== null && customerData) {
-                const addresses = customerData.deliveryAddress;
-                if (addresses && addresses[data.deliveryAddressIndex]) {
-                    const addr = addresses[data.deliveryAddressIndex];
-                    deliveryAddress = {
-                        id: data.deliveryAddressIndex.toString(),
-                        primary: false,
-                        name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
-                        postcode: addr.postcode,
-                        city: addr.city,
-                        street: addr.street,
-                        floor: addr.floor || '',
-                        houseNumber: addr.houseNumber || '',
-                        doorbell: addr.doorbell || '',
-                        note: addr.comment || '',
-                        fullAddress: `${addr.zipCode} ${addr.city}, ${addr.street} ${addr.floor ? `, ${addr.floor}` : ''}`,
-                        phoneNumber: addr.phone || '',
-                        company: customerData.companyName || '',
-                    };
+            if (isHomeDelivery(data.shippingMethod)) {
+                if (data.deliveryAddressIndex !== undefined && data.deliveryAddressIndex !== null && customerData) {
+                    const addresses = customerData.deliveryAddress;
+                    if (addresses && addresses[data.deliveryAddressIndex]) {
+                        const addr = addresses[data.deliveryAddressIndex];
+                        deliveryAddress = {
+                            id: data.deliveryAddressIndex.toString(),
+                            primary: false,
+                            name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
+                            postcode: addr.postcode,
+                            city: addr.city,
+                            street: addr.street,
+                            floor: addr.floor || '',
+                            houseNumber: addr.houseNumber || '',
+                            doorbell: addr.doorbell || '',
+                            note: addr.comment || '',
+                            fullAddress: `${addr.postcode} ${addr.city}, ${addr.street} ${addr.floor ? `, ${addr.floor}` : ''}`,
+                            phoneNumber: addr.phone || '',
+                            company: customerData.companyName || '',
+                            addressType: 'delivery',
+                        };
+                    }
+                }
+            }
+            else {
+                // Handle other shipping methods
+                if(data.pickupLocation && pickupLocations) {
+                    const location = pickupLocations.find(loc => loc.id === data.pickupLocation);
+                    if(location) {
+                        deliveryAddress = {
+                            id: location.id.toString(),
+                            addressType: 'pickup',
+                            primary: false,
+                            name: `${customerData?.firstname || ''} ${customerData?.lastname || ''}`.trim(),
+                            postcode: location.postcode,
+                            city: location.city,
+                            street: location.address,
+                            floor: '',
+                            houseNumber: '',
+                            doorbell: '',
+                            note: location.note || '',
+                            fullAddress: `${location.postcode} ${location.city}, ${location.address}`,
+                            phoneNumber: customerData?.deliveryAddress?.[0]?.phone || customerData?.billingAddress?.[0]?.phone || '',
+                            company: customerData?.companyName || '',
+                        };
+                    }
                 }
             }
 
@@ -828,13 +855,13 @@ export function CheckoutPayment() {
             }
 
             // Convert checkout items to order items
-            const orderItems:IOrderItem[] = checkoutState.items.map(item => ({
+            const orderItems: IOrderItem[] = checkoutState.items.map(item => ({
                 id: item.id,
                 name: item.name,
                 size: item.size,
                 grossPrice: item.grossPrice,
-                netPrice:item.netPrice,
-                vatPercent:item.vatPercent,
+                netPrice: item.netPrice,
+                vatPercent: item.vatPercent,
                 unit: item.unit,
                 coverUrl: item.coverUrl,
                 quantity: item.quantity,
@@ -845,10 +872,10 @@ export function CheckoutPayment() {
             }));
 
             const totalVat = user?.user_metadata?.is_vip ? 0 : checkoutState.items.reduce((vat, item) => {
-                const itemsVat = item.netPrice * ((item?.vatPercent || 0) /100) * item.quantity;
+                const itemsVat = item.netPrice * ((item?.vatPercent || 0) / 100) * item.quantity;
                 let shippingVat = 0;
-                if(selectedShippingMethodData && shouldApplyVATForShipping(selectedShippingMethodData)){
-                    shippingVat = checkoutState.shipping * selectedShippingMethodData.vat/100;
+                if (selectedShippingMethodData && shouldApplyVATForShipping(selectedShippingMethodData)) {
+                    shippingVat = checkoutState.shipping * selectedShippingMethodData.vat / 100;
                 }
                 return vat + itemsVat + shippingVat;
             }, 0)
@@ -878,7 +905,7 @@ export function CheckoutPayment() {
                     cost: checkoutState.shipping // Use the calculated shipping cost from checkout state
                 } : null,
                 paymentMethod: selectedPaymentMethodData,
-                paymentDueDays: 30, // Default payment due days, you might want to configure this
+                paymentDueDays: 30, 
                 plannedShippingDateTime: checkoutState.selectedDeliveryDateTime,
             };
 
@@ -901,7 +928,7 @@ export function CheckoutPayment() {
 
                 // Store order ID in checkout context or local storage for the completion page
                 localStorage.setItem('last-order-id', orderId);
-                
+
                 toast.success('Rendelés sikeresen létrehozva!');
                 toast.warning('Átirányítás folyamatban...');
                 // Check if payment method is 'simple' (online payment)
@@ -910,7 +937,7 @@ export function CheckoutPayment() {
                     window.location.href = paths.checkout.pay(orderId);
                     return;
                 }
-                
+
                 if (selectedPaymentMethodData?.type === 'cod' || selectedPaymentMethodData?.type === 'wire') {
                     console.info('Proceeding to order completion for payment method:', selectedPaymentMethodData, paths.checkout.success(orderId, undefined, 'true'));
                     window.location.href = paths.checkout.success(orderId, undefined, 'true');
@@ -936,7 +963,7 @@ export function CheckoutPayment() {
             <Button
                 size="small"
                 color="inherit"
-                sx={{mb:3, mt:2}}
+                sx={{ mb: 3, mt: 2 }}
                 onClick={() => onChangeStep('back')}
                 startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
             >

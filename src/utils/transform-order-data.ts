@@ -2,6 +2,7 @@ import type { IOrderItem } from 'src/types/order';
 import type { IOrderData } from 'src/types/order-management';
 
 import { CONFIG } from 'src/global-config';
+import { IAddress } from 'src/types/address';
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +12,7 @@ import { CONFIG } from 'src/global-config';
 export async function transformOrderDataToTableItem(orderData: IOrderData): Promise<IOrderItem> {
     // Calculate totals from items
     const totalQuantity = orderData.items.reduce((total, item) => total + item.quantity, 0);
-    
+
     // Map order status to the expected format
     const getStatusLabel = (status: string): string => {
         switch (status) {
@@ -48,7 +49,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             .slice(0, 2);
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=00AB55&color=fff&size=128`;
     };
-    
+
     const userType = await getUserType(orderData.customerId);
 
     return {
@@ -77,9 +78,21 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             cardNumber: '**** **** **** ****', // Not stored for security
         },
         delivery: {
-            shipBy: orderData.shippingMethod?.name || 'Unknown',
-            speedy: 'Standard',
-            trackingNumber: orderData.courier || 'N/A',
+            shipBy: orderData.shippingMethod?.name || '',
+            address: orderData.shippingAddress ? {
+                id: orderData.shippingAddress?.id || '',
+                postcode: orderData.shippingAddress?.postcode || '',
+                city: orderData.shippingAddress?.city || '',
+                street: orderData.shippingAddress?.street || '',
+                floor: orderData.shippingAddress?.floor || '',
+                houseNumber: orderData.shippingAddress?.houseNumber || '',
+                doorbell: orderData.shippingAddress?.doorbell || '',
+                comment: orderData.shippingAddress?.note || '',
+                name: orderData.shippingAddress?.name || customerName,
+                company: orderData.shippingAddress?.company || '',
+                fullAddress: orderData.shippingAddress?.fullAddress || 'No address provided',
+                phoneNumber: orderData.shippingAddress?.phoneNumber || '',
+            } as unknown as IAddress : null,
         },
         shippingAddress: {
             postcode: orderData.shippingAddress?.postcode || '',
@@ -124,28 +137,28 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
 
 async function getUserType(customerId: string | null): Promise<'public' | 'vip' | 'company'> {
     if (!customerId) return 'public';
-    
+
     try {
         // Import Supabase client
         const { createClient } = await import('@supabase/supabase-js');
-               
+
         const supabase = createClient(
             CONFIG.supabase.url,
             CONFIG.supabase.key
         );
-        
+
         // Call the database function with the specific user ID parameter
         const { data, error } = await supabase.rpc('get_user_type_by_id', {
             user_id: customerId
         });
-        
+
         console.log('User type fetched from Supabase function for user:', customerId, 'result:', data);
-        
+
         if (error) {
             console.error('Error fetching user type from Supabase:', error);
             return 'public';
         }
-        
+
         // The function returns the user type directly
         return data as 'public' | 'vip' | 'company' || 'public';
     } catch (error) {

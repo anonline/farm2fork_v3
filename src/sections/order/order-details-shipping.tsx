@@ -30,7 +30,7 @@ import { OrderShippingAddressModal } from './components/order-shipping-address-m
 // ----------------------------------------------------------------------
 
 const StyledPickersDay = styled(PickersDay)({
-  // Base styles can go here if needed
+    // Base styles can go here if needed
 });
 
 type Props = {
@@ -43,8 +43,8 @@ type Props = {
     shipmentTime?: string; // Add shipment time range prop
 };
 
-export function OrderDetailsShipping({ 
-    shippingAddress, 
+export function OrderDetailsShipping({
+    shippingAddress,
     requestedShippingDate,
     onShippingDateChange,
     orderId,
@@ -60,8 +60,8 @@ export function OrderDetailsShipping({
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
         if (!requestedShippingDate) return null;
         try {
-            const dateObj = requestedShippingDate instanceof Date 
-                ? requestedShippingDate 
+            const dateObj = requestedShippingDate instanceof Date
+                ? requestedShippingDate
                 : new Date(requestedShippingDate);
             return isNaN(dateObj.getTime()) ? null : dayjs(dateObj);
         } catch {
@@ -75,13 +75,13 @@ export function OrderDetailsShipping({
     }, [shipmentTime]);
 
     const isPopoverOpen = Boolean(anchorEl);
-    
+
     // Example highlighted dates - can be passed as props
-    const highlightedDates = shipmentsLoading 
-    ? [] 
-    : shipments
-        .slice(0, shipments.length > 14 ? 14 : shipments.length)
-        .map(shipment => dayjs(shipment.date));
+    const highlightedDates = shipmentsLoading
+        ? []
+        : shipments
+            .slice(0, shipments.length > 14 ? 14 : shipments.length)
+            .map(shipment => dayjs(shipment.date));
 
     // Create a component for custom day rendering
     const CustomDay = (props: PickersDayProps<dayjs.Dayjs>) => {
@@ -144,7 +144,7 @@ export function OrderDetailsShipping({
     const handleDateChange = async (newDate: IDatePickerControl) => {
         setSelectedDate(newDate);
         const dateToSave = newDate ? newDate.toDate() : null;
-        
+
         // Update in Supabase if orderId is provided
         if (orderId) {
             setIsUpdating(true);
@@ -163,10 +163,10 @@ export function OrderDetailsShipping({
                 }
 
                 // Format dates for history message
-                const oldDate = currentOrder.planned_shipping_date_time 
+                const oldDate = currentOrder.planned_shipping_date_time
                     ? new Date(currentOrder.planned_shipping_date_time).toLocaleDateString('hu-HU')
                     : 'nincs megadva';
-                const newDateFormatted = dateToSave 
+                const newDateFormatted = dateToSave
                     ? dateToSave.toLocaleDateString('hu-HU')
                     : 'nincs megadva';
 
@@ -207,10 +207,10 @@ export function OrderDetailsShipping({
                 onShippingDateChange?.(dateToSave);
 
                 // Update shipment context
-                if(dateToSave){
+                if (dateToSave) {
                     setOrderToShipmentByDate(orderId, new Date(dateToSave));
                 }
-                
+
                 // Refresh order data to update history timeline
                 onRefreshOrder?.();
             } catch (error) {
@@ -223,7 +223,7 @@ export function OrderDetailsShipping({
             // Fallback to just calling parent callback
             onShippingDateChange?.(dateToSave);
         }
-        
+
         setAnchorEl(null); // Close popover after selection
     };
 
@@ -284,7 +284,7 @@ export function OrderDetailsShipping({
 
                 // Show success toast
                 toast.success('Szállítási idősáv sikeresen frissítve!', { position: 'bottom-right' });
-                
+
                 // Refresh order data to update history timeline
                 onRefreshOrder?.();
             } catch (error) {
@@ -302,8 +302,8 @@ export function OrderDetailsShipping({
             setSelectedDate(null);
         } else {
             try {
-                const dateObj = requestedShippingDate instanceof Date 
-                    ? requestedShippingDate 
+                const dateObj = requestedShippingDate instanceof Date
+                    ? requestedShippingDate
                     : new Date(requestedShippingDate);
                 setSelectedDate(isNaN(dateObj.getTime()) ? null : dayjs(dateObj));
             } catch {
@@ -337,7 +337,7 @@ export function OrderDetailsShipping({
 
             // Refresh order data to update the display
             onRefreshOrder?.();
-            
+
             toast.success('Szállítási cím sikeresen frissítve!');
         } catch (error) {
             console.error('Error saving shipping address:', error);
@@ -364,11 +364,11 @@ export function OrderDetailsShipping({
                         Kért szállítási nap
                     </Box>
 
-                    <Chip 
-                        size='small' 
-                        label={displayDate} 
+                    <Chip
+                        size='small'
+                        label={displayDate}
                         onClick={handleChipClick}
-                        sx={{ 
+                        sx={{
                             cursor: 'pointer',
                             opacity: isUpdating ? 0.6 : 1
                         }}
@@ -390,7 +390,7 @@ export function OrderDetailsShipping({
                         onChange={handleShipmentTimeChange}
                         displayEmpty
                         disabled={isUpdating}
-                        sx={{ 
+                        sx={{
                             minWidth: 140,
                             opacity: isUpdating ? 0.6 : 1
                         }}
@@ -403,10 +403,23 @@ export function OrderDetailsShipping({
                     </Select>
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap:1 }}>
+                {shippingAddress?.company && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Box
+                            component="span"
+                            sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                        >
+                            Cég
+                        </Box>
+
+                        {shippingAddress?.company}
+                    </Box>
+                )}
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
                     <Box
                         component="span"
-                        sx={{ color: 'text.secondary', width: {xs:'100%', md:120}, flexShrink: 0 }}
+                        sx={{ color: 'text.secondary', width: { xs: '100%', md: 120 }, flexShrink: 0 }}
                     >
                         Cím
                     </Box>
@@ -414,7 +427,7 @@ export function OrderDetailsShipping({
                     {shippingAddress?.postcode} {shippingAddress?.city} {shippingAddress?.street} {shippingAddress?.houseNumber}{shippingAddress?.floor ? `, ${shippingAddress.floor}` : ''}{shippingAddress?.doorbell ? `, ${shippingAddress.doorbell}` : ''}
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between'  }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Box
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
@@ -422,9 +435,9 @@ export function OrderDetailsShipping({
                         Telefonszám
                     </Box>
 
-                    {shippingAddress?.phoneNumber}
+                    {shippingAddress?.phoneNumber || '-'}
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between'  }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Box
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}

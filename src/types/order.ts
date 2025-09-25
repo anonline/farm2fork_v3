@@ -1,3 +1,4 @@
+import { IAddress } from './address';
 import type { IDateValue, IDatePickerControl } from './common';
 
 // ----------------------------------------------------------------------
@@ -41,8 +42,7 @@ export type IOrderPayment = {
 
 export type IOrderDelivery = {
     shipBy: string;
-    speedy: string;
-    trackingNumber: string;
+    address: IAddress | null;
 };
 
 export type IOrderCustomer = {
