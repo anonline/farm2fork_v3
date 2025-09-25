@@ -36,6 +36,7 @@ import { OrderDetailsBilling } from '../order-details-billing';
 import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
+import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 import type { ProductForOrder } from '../product-selection-modal';
@@ -789,6 +790,15 @@ export function OrderDetailsView({ orderId }: Props) {
                             </>
                         )}
                     </Card>
+
+                    {/* Admin Notes */}
+                    <Box sx={{ mt: 3 }}>
+                        <OrderDetailsAdminNotes
+                            orderId={orderData?.id}
+                            initialNote={orderData?.note || ''}
+                            onNoteUpdate={handleRefreshOrderHistory}
+                        />
+                    </Box>
 
                     {/* Show history on mobile as the last card */}
                     <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 3 }}>

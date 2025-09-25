@@ -989,3 +989,54 @@ export async function updateOrderPaymentMethod(
         return { success: false, error: 'Failed to update payment method' };
     }
 }
+
+/**
+ * Update order note
+ */
+export async function updateOrderNote(
+    orderId: string,
+    note: string,
+    userId?: string,
+    userName?: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        // Get current order to append to history
+        const { order } = await getOrderById(orderId);
+        if (!order) {
+            return { success: false, error: 'Order not found' };
+        }
+
+        const now = new Date().toISOString();
+
+        // Create new history entry
+        const historyEntry: OrderHistoryEntry = {
+            timestamp: now,
+            status: order.orderStatus,
+            note: 'Admin megjegyzés frissítve',
+            userId,
+            userName,
+        };
+
+        // Add to existing history
+        const updatedHistory = [...(order.history || []), historyEntry];
+
+        // Update the order
+        const { error } = await supabase
+            .from('orders')
+            .update({
+                note,
+                history: updatedHistory,
+                updated_at: now
+            })
+            .eq('id', orderId);
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order note:', error);
+        return { success: false, error: 'Failed to update order note' };
+    }
+}
