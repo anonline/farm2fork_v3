@@ -11,6 +11,15 @@ export const ORDER_STATUS_OPTIONS = [
     { value: 'cancelled', label: 'Visszamondva' },
 ];
 
+export const PAYMENT_STATUS_OPTIONS = [
+    { value: 'pending', label: 'Nincs fizetve' },
+    { value: 'paid', label: 'Foglalva' },
+    { value: 'failed', label: 'Sikertelen' },
+    { value: 'refunded', label: 'Visszatérítve' },
+    { value: 'partially_paid', label: 'Részben fizetve' },
+    { value: 'closed', label: 'Fizetve' },
+];
+
 const ITEMS = Array.from({ length: 3 }, (_, index) => ({
     id: _mock.id(index),
     sku: `16H9UR${index}`,

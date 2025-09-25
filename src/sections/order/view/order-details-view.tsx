@@ -1,7 +1,7 @@
 'use client';
 
 import type { IOrderProductItem } from 'src/types/order';
-import type { OrderStatus } from 'src/types/order-management';
+import type { OrderStatus, PaymentStatus } from 'src/types/order-management';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -19,12 +19,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 
-import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
+import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -333,6 +333,41 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [status, orderData, editedItems, editedSurcharge, order, updateOrder, updateOrderData, refreshOrderHistory]);
 
+    const handleChangePaymentStatus = useCallback(async (newPaymentStatus: PaymentStatus) => {
+        if (!orderData?.id) {
+            toast.error('Hiányzó rendelési azonosító');
+            return;
+        }
+
+        try {
+            const { success, error: paymentUpdateError } = await updateOrderPaymentStatus(
+                orderData.id,
+                newPaymentStatus,
+                0 // paidAmount - could be extended later if needed
+            );
+
+            if (success) {
+                // Update order context
+                if (orderData) {
+                    updateOrderData({
+                        ...orderData,
+                        paymentStatus: newPaymentStatus,
+                    });
+                }
+
+                // Refresh order history to show the new entry
+                await refreshOrderHistory();
+
+                toast.success('Fizetési státusz sikeresen frissítve!');
+            } else {
+                toast.error(paymentUpdateError || 'Hiba történt a fizetési státusz frissítése során');
+            }
+        } catch (ex) {
+            console.error('Error updating payment status:', ex);
+            toast.error('Hiba történt a fizetési státusz frissítése során');
+        }
+    }, [orderData, updateOrderData, refreshOrderHistory]);
+
     useEffect(() => {
         if (pendingSave && !showPaymentAlert) {
             // If there was a pending save and the payment alert is no longer shown, proceed with save
@@ -639,6 +674,8 @@ export function OrderDetailsView({ orderId }: Props) {
                 backHref={paths.dashboard.order.root}
                 onChangeStatus={handleChangeStatus}
                 statusOptions={ORDER_STATUS_OPTIONS}
+                onChangePaymentStatus={handleChangePaymentStatus}
+                paymentStatusOptions={PAYMENT_STATUS_OPTIONS}
                 order={order}
                 orderData={orderData}
                 onStartEdit={handleStartEdit}

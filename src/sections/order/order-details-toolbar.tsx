@@ -1,6 +1,6 @@
 import type { IOrderItem } from 'src/types/order';
 import type { IDateValue } from 'src/types/common';
-import type { IOrderData } from 'src/types/order-management';
+import type { IOrderData, PaymentStatus } from 'src/types/order-management';
 
 import { usePopover } from 'minimal-shared/hooks';
 
@@ -34,6 +34,8 @@ type Props = {
     readonly orderData: IOrderData | null;
     readonly onChangeStatus: (newValue: string) => void;
     readonly statusOptions: { value: string; label: string }[];
+    readonly onChangePaymentStatus?: (newValue: PaymentStatus) => void;
+    readonly paymentStatusOptions?: { value: string; label: string }[];
     readonly onStartEdit?: () => void;
     readonly isEditing?: boolean;
 };
@@ -47,10 +49,13 @@ export function OrderDetailsToolbar({
     onChangeStatus,
     order,
     orderData,
+    onChangePaymentStatus,
+    paymentStatusOptions,
     onStartEdit,
     isEditing,
 }: Props) {
     const menuActions = usePopover();
+    const paymentMenuActions = usePopover();
 
     const handleGeneratePDF = async () => {
         if (!order) {
@@ -98,6 +103,30 @@ export function OrderDetailsToolbar({
                         onClick={() => {
                             menuActions.onClose();
                             onChangeStatus(option.value);
+                        }}
+                    >
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </MenuList>
+        </CustomPopover>
+    );
+
+    const renderPaymentMenuActions = () => (
+        <CustomPopover
+            open={paymentMenuActions.open}
+            anchorEl={paymentMenuActions.anchorEl}
+            onClose={paymentMenuActions.onClose}
+            slotProps={{ arrow: { placement: 'top-right' } }}
+        >
+            <MenuList>
+                {paymentStatusOptions?.map((option) => (
+                    <MenuItem
+                        key={option.value}
+                        selected={option.value === orderData?.paymentStatus}
+                        onClick={() => {
+                            paymentMenuActions.onClose();
+                            onChangePaymentStatus?.(option.value as PaymentStatus);
                         }}
                     >
                         {option.label}
@@ -155,19 +184,44 @@ export function OrderDetailsToolbar({
                             >
                                 {renderStatusLabel()}
                             </Label>
-                            <Label
-                                variant="soft"
-                                color={
-                                    (orderData?.paymentStatus === 'closed' && 'success') ||
-                                    (orderData?.paymentStatus === 'pending' && 'warning') ||
-                                    (orderData?.paymentStatus === 'paid' && 'info') ||
-                                    (orderData?.paymentStatus === 'failed' && 'error') ||
-                                    'default'
-                                }
-                                sx={{display:{xs:'none', sm:'inline-flex'}}}
-                            >
-                                {renderPaymentStatusLabel()}
-                            </Label>
+                            {onChangePaymentStatus && paymentStatusOptions ? (
+                                <Button
+                                    size="small"
+                                    variant="soft"
+                                    color={
+                                        (orderData?.paymentStatus === 'closed' && 'success') ||
+                                        (orderData?.paymentStatus === 'pending' && 'warning') ||
+                                        (orderData?.paymentStatus === 'paid' && 'info') ||
+                                        (orderData?.paymentStatus === 'failed' && 'error') ||
+                                        'inherit'
+                                    }
+                                    sx={{
+                                        display:{xs:'none', sm:'inline-flex'},
+                                        minWidth: 'auto',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 0.8,
+                                        },
+                                    }}
+                                    onClick={paymentMenuActions.onOpen}
+                                >
+                                    {renderPaymentStatusLabel()}
+                                </Button>
+                            ) : (
+                                <Label
+                                    variant="soft"
+                                    color={
+                                        (orderData?.paymentStatus === 'closed' && 'success') ||
+                                        (orderData?.paymentStatus === 'pending' && 'warning') ||
+                                        (orderData?.paymentStatus === 'paid' && 'info') ||
+                                        (orderData?.paymentStatus === 'failed' && 'error') ||
+                                        'default'
+                                    }
+                                    sx={{display:{xs:'none', sm:'inline-flex'}}}
+                                >
+                                    {renderPaymentStatusLabel()}
+                                </Label>
+                            )}
                         </Box>
 
                         <Typography variant="body2" sx={{ color: 'text.disabled' }}>
@@ -234,6 +288,7 @@ export function OrderDetailsToolbar({
             </Box>
 
             {renderMenuActions()}
+            {renderPaymentMenuActions()}
         </>
     );
 }
