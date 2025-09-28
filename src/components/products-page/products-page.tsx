@@ -369,168 +369,28 @@ export function ProductPageTextFilter({
                 flexDirection: { xs: 'column', sm: 'row', md: 'row', lg: 'row', xl: 'row' },
             }}
         >
-            <Select
-                onChange={handleCategoryChange}
-                value={newSelectedCategory}
-                size="small"
-                displayEmpty
-                sx={{
-                    display: { xs: 'block', sm: 'none' },
-                    width: {
-                        xs: '100%',
-                        sm: 'initial',
-                        md: 'initial',
-                        lg: 'initial',
-                        xl: 'initial',
-                    },
-                    minWidth: '200px',
-                    backgroundColor: '#fff',
-                    borderRadius: '4px',
-                    height: '38px',
-
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        outline: 'none',
-                        boxShadow: 'none',
-                        border: '1px solid #bababa',
-                    },
-                    position: 'relative',
-                }}
-            >
-                {categories.filter(c => c.enabled && c.showProductPage).map((category) => (
-                    <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'}>
-                        {category.name}
-                    </MenuItem>
-                ))}
-            </Select>
-
-            <Box
-                sx={{
-                    display: 'flex',
-                    gap: '16px',
-                    flexDirection: 'row',
+            <Stack spacing={2} sx={
+                {
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    width: '100%',
                     alignItems: 'center',
-                    width: { xs: '100%', sm: '100%', md: '60%', lg: '63%', xl: '60%'},
-                }}
-            >
-                <IconButton
-                    sx={{
-                        filter: !bioActive ? 'grayscale(100%)' : 'none',
-                        '&:hover': { filter: 'grayscale(0%)' },
-                    }}
-                    onClick={handleBioBtnClick}
-                >
-                    <F2FIcons
-                        name="BioBadge"
-                        width={32}
-                        height={32}
-                        style={{ alignContent: 'center' }}
-                    />
-                </IconButton>
-
-                <TextField
-                    size="small"
-                    value={searchText}
-                    placeholder="Keress rá a termék nevére"
-                    onChange={handleSearchChange}
-                    fullWidth
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment
-                                    position="start"
-                                    sx={
-                                        isLoading
-                                            ? {
-                                                animation: 'rotation 2s infinite linear',
-                                                animationDirection: 'reverse',
-                                            }
-                                            : {}
-                                    }
-                                >
-                                    {isLoading ? loadingIcon : searchIcon}
-                                </InputAdornment>
-                            ),
-                        },
-                    }}
-                    sx={{
-                        width: '100%',
-                        borderRadius: '4px',
-                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            outline: 'none',
-                            boxShadow: 'none',
-                            border: '1px solid #bababa',
-                        },
-                        '& .MuiInputBase-root': {
-                            backgroundColor: '#fff',
-                        },
-                    }}
-                />
-            </Box>
-
-            <Stack spacing={2} direction="row" sx={{width: { xs: '100%', sm: '100%', md: '40%', lg: '40%' }}}  justifyContent="flex-end">
-                {/* SubCategories multi-select dropdown */}
-                {categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 && 
+                    justifyContent: 'space-between',
+                }}>
                 <Select
-                    multiple
-                    value={subCategory}
-                    onChange={(event) => {
-                        const value = event.target.value as number[];
-                        setSubCategory(value);
-                        onSubCategoryChangeAction(value);
-                    }}
-                    size="small"
-                    displayEmpty
-                    fullWidth
-                    sx={{
-                        display: (selectedCategory == 42 ? 'none' : 'block'),
-                        width: { xs: '100%', sm: '100%', md: '50%', lg: '50%' },
-                        backgroundColor: '#fff',
-                        borderRadius: '4px',
-                        height: '38px',
-                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            outline: 'none',
-                            boxShadow: 'none',
-                            border: '1px solid #bababa',
-                        },
-                    }}
-                    renderValue={(selected) => {
-                        if (selected.length === 0) {
-                            return 'Alkategória';
-                        }
-                        if (selected.length === 1) {
-                            const selectedCategoryLabel = categories.find(c => c.id === selected[0]);
-                            return selectedCategoryLabel?.name || 'Alkategória';
-                        }
-                        return `${selected.length} alkategória`;
-                    }}
-                >
-                    {categories.filter(c => c.enabled && c.parentId == selectedCategory).map((category) => (
-                        <MenuItem key={category.id ?? '-1'} value={category.id ?? 0}>
-                            <Checkbox checked={subCategory.includes(category.id ?? 0)} />
-                            <Typography variant="body2">{category.name}</Typography>
-                        </MenuItem>
-                    ))}
-                </Select>
-                }
-
-
-                <Select
-                    onChange={handleOrderChange}
-                    value={order}
+                    onChange={handleCategoryChange}
+                    value={newSelectedCategory}
                     size="small"
                     displayEmpty
                     sx={{
+                        display: { xs: 'block', sm: 'none' },
                         width: {
-                            xs: '48px', // Full width on mobile
+                            xs: '100%',
                             sm: 'initial',
                             md: 'initial',
                             lg: 'initial',
                             xl: 'initial',
                         },
-                        minWidth: {
-                            xs: '48px', // Full min-width on mobile
-                            sm: '200px',
-                        },
+                        minWidth: '200px',
                         backgroundColor: '#fff',
                         borderRadius: '4px',
                         height: '38px',
@@ -540,30 +400,180 @@ export function ProductPageTextFilter({
                             boxShadow: 'none',
                             border: '1px solid #bababa',
                         },
-                        pl: { xs: 0, sm: 4 }, // No padding on mobile, padding on larger screens
                         position: 'relative',
-                        '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            left: { xs: '50%', sm: 12 }, // Centered on mobile, left-aligned on larger screens
-                            top: '50%',
-                            transform: { xs: 'translate(-50%, -50%)', sm: 'translateY(-50%)' }, // Centered on mobile
-                            width: 20,
-                            height: 20,
-                            backgroundImage:
-                                'url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMC4wMDAyIDEzLjY2NjNDMTEuMTk3NiAxMy42NjYzIDEyLjIxNjIgMTQuNDMxNiAxMi41OTM3IDE1LjQ5OThMMTguMjUwMiAxNS40OTk3QzE4Ljc1NjQgMTUuNDk5NyAxOS4xNjY4IDE1LjkxMDEgMTkuMTY2OCAxNi40MTYzQzE5LjE2NjggMTYuOTIyNiAxOC43NTY0IDE3LjMzMyAxOC4yNTAyIDE3LjMzM0wxMi41OTM0IDE3LjMzMzhDMTIuMjE1NiAxOC40MDE1IDExLjE5NzIgMTkuMTY2MyAxMC4wMDAyIDE5LjE2NjNDOC44MDMxIDE5LjE2NjMgNy43ODQ2OCAxOC40MDE1IDcuNDA2OTMgMTcuMzMzOEwxLjc1MDE2IDE3LjMzM0MxLjI0MzkgMTcuMzMzIDAuODMzNDk2IDE2LjkyMjYgMC44MzM0OTYgMTYuNDE2M0MwLjgzMzQ5NiAxNS45MTAxIDEuMjQzOSAxNS40OTk3IDEuNzUwMTYgMTUuNDk5N0w3LjQwNjYxIDE1LjQ5OThDNy43ODQxMSAxNC40MzE2IDguODAyNzYgMTMuNjY2MyAxMC4wMDAyIDEzLjY2NjNaTTEwLjAwMDIgMTUuNDk5N0M5LjQ5MzkgMTUuNDk5NyA5LjA4MzUgMTUuOTEwMSA5LjA4MzUgMTYuNDE2M0M5LjA4MzUgMTYuOTIyNiA5LjQ5MzkgMTcuMzMzIDEwLjAwMDIgMTcuMzMzQzEwLjUwNjQgMTcuMzMzIDEwLjkxNjggMTYuOTIyNiAxMC45MTY4IDE2LjQxNjNDMTAuOTE2OCAxNS45MTAxIDEwLjUwNjQgMTUuNDk5NyAxMC4wMDAyIDE1LjQ5OTdaTTE2LjQxNjggNy4yNDk2N0MxNy45MzU2IDcuMjQ5NjcgMTkuMTY2OCA4LjQ4MDg5IDE5LjE2NjggOS45OTk2N0MxOS4xNjY4IDExLjUxODUgMTcuOTM1NiAxMi43NDk3IDE2LjQxNjggMTIuNzQ5N0MxNS4yMTk4IDEyLjc0OTcgMTQuMjAxNCAxMS45ODQ4IDEzLjgyMzYgMTAuOTE3MkwxLjc1MDE2IDEwLjkxNjNDMS4yNDM5IDEwLjkxNjMgMC44MzM0OTYgMTAuNTA1OSAwLjgzMzQ5NiA5Ljk5OTY3QzAuODMzNDk2IDkuNDkzNDEgMS4yNDM5IDkuMDgzMDEgMS43NTAxNiA5LjA4MzAxTDEzLjgyMzMgOS4wODMwOUMxNC4yMDA4IDguMDE0OTUgMTUuMjE5NCA3LjI0OTY3IDE2LjQxNjggNy4yNDk2N1pNMTYuNDE2OCA5LjA4MzAxQzE1LjkxMDYgOS4wODMwMSAxNS41MDAyIDkuNDkzNDEgMTUuNTAwMiA5Ljk5OTY3QzE1LjUwMDIgMTAuNTA1OSAxNS45MTA2IDEwLjkxNjMgMTYuNDE2OCAxMC45MTYzQzE2LjkyMzEgMTAuOTE2MyAxNy4zMzM1IDEwLjUwNTkgMTcuMzMzNSA5Ljk5OTY3QzE3LjMzMzUgOS40OTM0MSAxNi45MjMxIDkuMDgzMDEgMTYuNDE2OCA5LjA4MzAxWk0zLjU4MzUgMC44MzMwMDhDNC43ODU5OCAwLjgzMzAwOCA1LjgwODIgMS42MDQ4IDYuMTgxODIgMi42ODAwNUM2LjIzMDgyIDIuNjcwNjQgNi4yODE2NSAyLjY2NjM0IDYuMzMzNSAyLjY2NjM0SDE4LjI1MDJDMTguNzU2NCAyLjY2NjM0IDE5LjE2NjggMy4wNzY3NSAxOS4xNjY4IDMuNTgzMDFDMTkuMTY2OCA0LjA4OTI3IDE4Ljc1NjQgNC40OTk2NyAxOC4yNTAyIDQuNDk5NjdINi4zMzM1QzYuMjgxNjUgNC40OTk2NyA2LjIzMDgyIDQuNDk1MzcgNi4xODEzMiA0LjQ4NzFDNS44MDgyIDUuNTYxMjEgNC43ODU5OCA2LjMzMzAxIDMuNTgzNSA2LjMzMzAxQzIuMDY0NzEgNi4zMzMwMSAwLjgzMzQ5NiA1LjEwMTc5IDAuODMzNDk2IDMuNTgzMDFDMC44MzM0OTYgMi4wNjQyMiAyLjA2NDcxIDAuODMzMDA4IDMuNTgzNSAwLjgzMzAwOFpNMy41ODM1IDIuNjY2MzRDMy4wNzcyMyAyLjY2NjM0IDIuNjY2ODMgMy4wNzY3NSAyLjY2NjgzIDMuNTgzMDFDMi42NjY4MyA0LjA4OTI3IDMuMDc3MjMgNC40OTk2NyAzLjU4MzUgNC40OTk2N0M0LjA4OTc2IDQuNDk5NjcgNC41MDAxNiA0LjA4OTI3IDQuNTAwMTYgMy41ODMwMUM0LjUwMDE2IDMuMDc2NzUgNC4wODk3NiAyLjY2NjM0IDMuNTgzNSAyLjY2NjM0WiIgZmlsbD0iIzI2MjYyNiIvPgo8L3N2Zz4K")',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundSize: 'contain',
-                            pointerEvents: 'none',
-                        },
                     }}
-                    // Remove IconComponent to avoid default dropdown icon
-                    IconComponent={() => null}
-                    renderValue={(value) => 
+                >
+                    {categories.filter(c => c.enabled && c.showProductPage).map((category) => (
+                        <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'}>
+                            {category.name}
+                        </MenuItem>
+                    ))}
+                </Select>
+
+                <Box
+                    sx={{
+                        display: 'flex',
+                        gap: '16px',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        width: '100%',
+                        maxWidth: { xs: '100%', sm: '100%'}
+                    }}
+                >
+
+                    <IconButton
+                        sx={{
+                            filter: !bioActive ? 'grayscale(100%)' : 'none',
+                            '&:hover': { filter: 'grayscale(0%)' },
+                        }}
+                        onClick={handleBioBtnClick}
+                    >
+                        <F2FIcons
+                            name="BioBadge"
+                            width={32}
+                            height={32}
+                            style={{ alignContent: 'center' }}
+                        />
+                    </IconButton>
+
+                    <TextField
+                        size="small"
+                        value={searchText}
+                        placeholder="Keress rá a termék nevére"
+                        onChange={handleSearchChange}
+                        fullWidth
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment
+                                        position="start"
+                                        sx={
+                                            isLoading
+                                                ? {
+                                                    animation: 'rotation 2s infinite linear',
+                                                    animationDirection: 'reverse',
+                                                }
+                                                : {}
+                                        }
+                                    >
+                                        {isLoading ? loadingIcon : searchIcon}
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
+                        sx={{
+                            width: '100%',
+                            borderRadius: '4px',
+                            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                outline: 'none',
+                                boxShadow: 'none',
+                                border: '1px solid #bababa',
+                            },
+                            '& .MuiInputBase-root': {
+                                backgroundColor: '#fff',
+                            },
+                        }}
+                    />
+                </Box>
+
+                <Stack direction={'row'} alignItems="center" sx={{ width: { xs: '100%', sm: (categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 ?  '30%' : 'auto') }, gap: { xs: 1, sm: 2 } }}>
+                    {/* SubCategories multi-select dropdown */}
+                    {categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 &&
+                        <Select
+                            multiple
+                            value={subCategory}
+                            onChange={(event) => {
+                                const value = event.target.value as number[];
+                                setSubCategory(value);
+                                onSubCategoryChangeAction(value);
+                            }}
+                            size="small"
+                            displayEmpty
+                            fullWidth
+                            sx={{
+                                display: (selectedCategory == 42 ? 'none' : 'block'),
+                                width: { xs: '100%', sm: '50%', md: '50%', lg: '50%' },
+                                minWidth: { xs: '100%', sm: 'auto' },
+                                backgroundColor: '#fff',
+                                borderRadius: '4px',
+                                height: '38px',
+                                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    outline: 'none',
+                                    boxShadow: 'none',
+                                    border: '1px solid #bababa',
+                                },
+                            }}
+                            renderValue={(selected) => {
+                                if (selected.length === 0) {
+                                    return 'Alkategória';
+                                }
+                                if (selected.length === 1) {
+                                    const selectedCategoryLabel = categories.find(c => c.id === selected[0]);
+                                    return selectedCategoryLabel?.name || 'Alkategória';
+                                }
+                                return `${selected.length} alkategória`;
+                            }}
+                        >
+                            {categories.filter(c => c.enabled && c.parentId == selectedCategory).map((category) => (
+                                <MenuItem key={category.id ?? '-1'} value={category.id ?? 0}>
+                                    <Checkbox checked={subCategory.includes(category.id ?? 0)} />
+                                    <Typography variant="body2">{category.name}</Typography>
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    }
+
+
+                    <Select
+                        onChange={handleOrderChange}
+                        value={order}
+                        size="small"
+                        displayEmpty
+                        sx={{
+                            width: {
+                                xs: '48px', // Full width on mobile
+                                sm: 'initial',
+                                md: 'initial',
+                                lg: 'initial',
+                                xl: 'initial',
+                            },
+                            minWidth: {
+                                xs: '48px', // Full min-width on mobile
+                                sm: '50%',
+                            },
+                            backgroundColor: '#fff',
+                            borderRadius: '4px',
+                            height: '38px',
+
+                            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                outline: 'none',
+                                boxShadow: 'none',
+                                border: '1px solid #bababa',
+                            },
+                            pl: { xs: 0, sm: 4 }, // No padding on mobile, padding on larger screens
+                            position: 'relative',
+                            '&:before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                left: { xs: '50%', sm: 12 }, // Centered on mobile, left-aligned on larger screens
+                                top: '50%',
+                                transform: { xs: 'translate(-50%, -50%)', sm: 'translateY(-50%)' }, // Centered on mobile
+                                width: 20,
+                                height: 20,
+                                backgroundImage:
+                                    'url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMC4wMDAyIDEzLjY2NjNDMTEuMTk3NiAxMy42NjYzIDEyLjIxNjIgMTQuNDMxNiAxMi41OTM3IDE1LjQ5OThMMTguMjUwMiAxNS40OTk3QzE4Ljc1NjQgMTUuNDk5NyAxOS4xNjY4IDE1LjkxMDEgMTkuMTY2OCAxNi40MTYzQzE5LjE2NjggMTYuOTIyNiAxOC43NTY0IDE3LjMzMyAxOC4yNTAyIDE3LjMzM0wxMi41OTM0IDE3LjMzMzhDMTIuMjE1NiAxOC40MDE1IDExLjE5NzIgMTkuMTY2MyAxMC4wMDAyIDE5LjE2NjNDOC44MDMxIDE5LjE2NjMgNy43ODQ2OCAxOC40MDE1IDcuNDA2OTMgMTcuMzMzOEwxLjc1MDE2IDE3LjMzM0MxLjI0MzkgMTcuMzMzIDAuODMzNDk2IDE2LjkyMjYgMC44MzM0OTYgMTYuNDE2M0MwLjgzMzQ5NiAxNS45MTAxIDEuMjQzOSAxNS40OTk3IDEuNzUwMTYgMTUuNDk5N0w3LjQwNjYxIDE1LjQ5OThDNy43ODQxMSAxNC40MzE2IDguODAyNzYgMTMuNjY2MyAxMC4wMDAyIDEzLjY2NjNaTTEwLjAwMDIgMTUuNDk5N0M5LjQ5MzkgMTUuNDk5NyA5LjA4MzUgMTUuOTEwMSA5LjA4MzUgMTYuNDE2M0M5LjA4MzUgMTYuOTIyNiA5LjQ5MzkgMTcuMzMzIDEwLjAwMDIgMTcuMzMzQzEwLjUwNjQgMTcuMzMzIDEwLjkxNjggMTYuOTIyNiAxMC45MTY4IDE2LjQxNjNDMTAuOTE2OCAxNS45MTAxIDEwLjUwNjQgMTUuNDk5NyAxMC4wMDAyIDE1LjQ5OTdaTTE2LjQxNjggNy4yNDk2N0MxNy45MzU2IDcuMjQ5NjcgMTkuMTY2OCA4LjQ4MDg5IDE5LjE2NjggOS45OTk2N0MxOS4xNjY4IDExLjUxODUgMTcuOTM1NiAxMi43NDk3IDE2LjQxNjggMTIuNzQ5N0MxNS4yMTk4IDEyLjc0OTcgMTQuMjAxNCAxMS45ODQ4IDEzLjgyMzYgMTAuOTE3MkwxLjc1MDE2IDEwLjkxNjNDMS4yNDM5IDEwLjkxNjMgMC44MzM0OTYgMTAuNTA1OSAwLjgzMzQ5NiA5Ljk5OTY3QzAuODMzNDk2IDkuNDkzNDEgMS4yNDM5IDkuMDgzMDEgMS43NTAxNiA5LjA4MzAxTDEzLjgyMzMgOS4wODMwOUMxNC4yMDA4IDguMDE0OTUgMTUuMjE5NCA3LjI0OTY3IDE2LjQxNjggNy4yNDk2N1pNMTYuNDE2OCA5LjA4MzAxQzE1LjkxMDYgOS4wODMwMSAxNS41MDAyIDkuNDkzNDEgMTUuNTAwMiA5Ljk5OTY3QzE1LjUwMDIgMTAuNTA1OSAxNS45MTA2IDEwLjkxNjMgMTYuNDE2OCAxMC45MTYzQzE2LjkyMzEgMTAuOTE2MyAxNy4zMzM1IDEwLjUwNTkgMTcuMzMzNSA5Ljk5OTY3QzE3LjMzMzUgOS40OTM0MSAxNi45MjMxIDkuMDgzMDEgMTYuNDE2OCA5LjA4MzAxWk0zLjU4MzUgMC44MzMwMDhDNC43ODU5OCAwLjgzMzAwOCA1LjgwODIgMS42MDQ4IDYuMTgxODIgMi42ODAwNUM2LjIzMDgyIDIuNjcwNjQgNi4yODE2NSAyLjY2NjM0IDYuMzMzNSAyLjY2NjM0SDE4LjI1MDJDMTguNzU2NCAyLjY2NjM0IDE5LjE2NjggMy4wNzY3NSAxOS4xNjY4IDMuNTgzMDFDMTkuMTY2OCA0LjA4OTI3IDE4Ljc1NjQgNC40OTk2NyAxOC4yNTAyIDQuNDk5NjdINi4zMzM1QzYuMjgxNjUgNC40OTk2NyA2LjIzMDgyIDQuNDk1MzcgNi4xODEzMiA0LjQ4NzFDNS44MDgyIDUuNTYxMjEgNC43ODU5OCA2LjMzMzAxIDMuNTgzNSA2LjMzMzAxQzIuMDY0NzEgNi4zMzMwMSAwLjgzMzQ5NiA1LjEwMTc5IDAuODMzNDk2IDMuNTgzMDFDMC44MzM0OTYgMi4wNjQyMiAyLjA2NDcxIDAuODMzMDA4IDMuNTgzNSAwLjgzMzAwOFpNMy41ODM1IDIuNjY2MzRDMy4wNzcyMyAyLjY2NjM0IDIuNjY2ODMgMy4wNzY3NSAyLjY2NjgzIDMuNTgzMDFDMi42NjY4MyA0LjA4OTI3IDMuMDc3MjMgNC40OTk2NyAzLjU4MzUgNC40OTk2N0M0LjA4OTc2IDQuNDk5NjcgNC41MDAxNiA0LjA4OTI3IDQuNTAwMTYgMy41ODMwMUM0LjUwMDE2IDMuMDc2NzUgNC4wODk3NiAyLjY2NjM0IDMuNTgzNSAyLjY2NjM0WiIgZmlsbD0iIzI2MjYyNiIvPgo8L3N2Zz4K")',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundSize: 'contain',
+                                pointerEvents: 'none',
+                            },
+                        }}
+                        // Remove IconComponent to avoid default dropdown icon
+                        IconComponent={() => null}
+                        renderValue={(value) =>
                         // On mobile, show empty string (icon only), on desktop show the text
-                         (
+                        (
                             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                                 {value === 'default' && 'Rendezés'}
                                 {value === 'name-asc' && 'Név szerint növekvő'}
@@ -572,14 +582,15 @@ export function ProductPageTextFilter({
                                 {value === 'price-desc' && 'Ár szerint csökkenő'}
                             </Box>
                         )
-                    }
-                >
-                    <MenuItem value="default">Rendezés</MenuItem>
-                    <MenuItem value="name-asc">Név szerint növekvő</MenuItem>
-                    <MenuItem value="name-desc">Név szerint csökkenő</MenuItem>
-                    <MenuItem value="price-asc">Ár szerint növekvő</MenuItem>
-                    <MenuItem value="price-desc">Ár szerint csökkenő</MenuItem>
-                </Select>
+                        }
+                    >
+                        <MenuItem value="default">Rendezés</MenuItem>
+                        <MenuItem value="name-asc">Név szerint növekvő</MenuItem>
+                        <MenuItem value="name-desc">Név szerint csökkenő</MenuItem>
+                        <MenuItem value="price-asc">Ár szerint növekvő</MenuItem>
+                        <MenuItem value="price-desc">Ár szerint csökkenő</MenuItem>
+                    </Select>
+                </Stack>
             </Stack>
         </Box>
     );
