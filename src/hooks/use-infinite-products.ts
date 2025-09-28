@@ -18,7 +18,7 @@ type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'de
 
 export interface UseInfiniteProductsProps {
     categoryId?: number;
-    subCategoryId?: number;
+    subCategoryIds?: number[];
     isBio?: boolean;
     sorting?: SortingOption;
     searchText?: string;
@@ -37,7 +37,7 @@ export interface UseInfiniteProductsReturn {
 
 export function useInfiniteProducts({
     categoryId,
-    subCategoryId,
+    subCategoryIds = [],
     isBio = false,
     sorting = 'default',
     searchText = '',
@@ -64,8 +64,8 @@ export function useInfiniteProducts({
             categoryIds.push(categoryId);
         }
 
-        if ((subCategoryId !== undefined && subCategoryId !== 42)) {
-            categoryIds = [subCategoryId];
+        if ((subCategoryIds.length > 0)) {
+            categoryIds = subCategoryIds;
         }
 
         if (categoryIds.length > 0) {
@@ -110,7 +110,7 @@ export function useInfiniteProducts({
         }
 
         return query;
-    }, [categoryId, subCategoryId, isBio, searchText, sorting]);
+    }, [categoryId, subCategoryIds, isBio, searchText, sorting]);
 
     // Fetch products for a specific page
     const fetchProducts = useCallback(async (page: number, reset: boolean = false) => {
@@ -194,7 +194,7 @@ export function useInfiniteProducts({
         setHasMore(true);
         fetchProducts(0, true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [categoryId, subCategoryId, isBio, sorting, searchText]);
+    }, [categoryId, subCategoryIds, isBio, sorting, searchText]);
 
     return {
         products,

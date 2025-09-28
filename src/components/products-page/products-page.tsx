@@ -18,6 +18,7 @@ import {
     Typography,
     InputAdornment,
     CircularProgress,
+    Checkbox,
 } from '@mui/material';
 
 import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
@@ -34,7 +35,7 @@ type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'de
 export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>) {
     const { categories, loading: categoryLoading } = useCategories();
     const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(42);
-    const [subCategory, setSubCategory] = useState<number | undefined>(undefined);
+    const [subCategory, setSubCategory] = useState<number[]>([]);
     const [sorting, setSorting] = useState<SortingOption>('default');
     const [isBio, setIsBio] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -62,7 +63,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
         totalCount,
     } = useInfiniteProducts({
         categoryId: activeCategoryId,
-        subCategoryId: subCategory,
+        subCategoryIds: subCategory,
         isBio,
         sorting,
         searchText,
@@ -79,7 +80,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
     const handleCategoryChange = (newCategoryId: number | undefined) => {
         if (newCategoryId !== activeCategoryId) {
             setActiveCategoryId(newCategoryId);
-            setSubCategory(undefined); // Reset subcategory when main category changes
+            setSubCategory([]); // Reset subcategory when main category changes
             const category = categories.find((c) => c.id === newCategoryId);
             if (category) {
                 window.history.replaceState(null, '', `/termekek/${category.slug}/`);
@@ -87,10 +88,8 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
         }
     };
 
-    const handleSubCategoryChange = (newSubCategoryId: number | undefined) => {
-        if (newSubCategoryId !== subCategory) {
-            setSubCategory(newSubCategoryId);
-        }
+    const handleSubCategoryChange = (newSubCategoryIds: number[]) => {
+        setSubCategory(newSubCategoryIds);
     };
 
     const handleSearchChange = (text: string) => {
@@ -295,7 +294,7 @@ export function ProductPageTextFilter({
     orderChangeAction: (order: SortingOption) => void;
     bioChangeAction: (isBio: boolean) => void;
     onCategoryChangeAction: (categoryId: number | undefined) => void;
-    onSubCategoryChangeAction: (subCategoryId: number | undefined) => void;
+    onSubCategoryChangeAction: (subCategoryIds: number[]) => void;
 }>) {
     const searchIcon = <F2FIcons name="Search2" width={20} height={20} />;
     const loadingIcon = <F2FIcons name="Loading" width={20} height={20} />;
@@ -336,20 +335,13 @@ export function ProductPageTextFilter({
     };
 
     const [newSelectedCategory, setNewSelectedCategory] = useState<number | undefined>(selectedCategory);
+    const [subCategory, setSubCategory] = useState<number[]>([]);
     const handleCategoryChange = (event: SelectChangeEvent<number>) => {
         const value = event.target.value;
         const categoryId = value === 'default' ? undefined : Number(value);
         setNewSelectedCategory(categoryId);
-        setSubCategory(undefined);
+        setSubCategory([]); // Reset to empty array
         onCategoryChangeAction(categoryId);
-    };
-
-    const [subCategory, setSubCategory] = useState<number | undefined>(undefined);
-    const handleSubCategoryChange = (event: SelectChangeEvent<number | string>) => {
-        const value = event.target.value;
-        const categoryId = value === 'default' ? undefined : Number(value);
-        setSubCategory(categoryId);
-        onSubCategoryChangeAction(categoryId);
     };
 
     // Update bio state when prop changes
@@ -476,10 +468,16 @@ export function ProductPageTextFilter({
             </Box>
 
             <Stack spacing={2} direction="row" sx={{width: { xs: '100%', sm: '100%', md: '40%', lg: '40%' }}}  justifyContent="flex-end">
-                {/* SubCategories dropdown */}
-                {categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 && <Select
-                    onChange={handleSubCategoryChange}
-                    value={subCategory ?? 'default'}
+                {/* SubCategories multi-select dropdown */}
+                {categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 && 
+                <Select
+                    multiple
+                    value={subCategory}
+                    onChange={(event) => {
+                        const value = event.target.value as number[];
+                        setSubCategory(value);
+                        onSubCategoryChangeAction(value);
+                    }}
                     size="small"
                     displayEmpty
                     fullWidth
@@ -489,26 +487,27 @@ export function ProductPageTextFilter({
                         backgroundColor: '#fff',
                         borderRadius: '4px',
                         height: '38px',
-
                         '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                             outline: 'none',
                             boxShadow: 'none',
                             border: '1px solid #bababa',
                         },
                     }}
-                    renderValue={(value) => {
-                        // Show the selected text
-                        if (value === 'default') return 'Alkategória';
-                        const selectedCategoryLabel = categories.find(c => c.id === Number(value));
-                        return selectedCategoryLabel?.name || 'Alkategória';
+                    renderValue={(selected) => {
+                        if (selected.length === 0) {
+                            return 'Alkategória';
+                        }
+                        if (selected.length === 1) {
+                            const selectedCategory = categories.find(c => c.id === selected[0]);
+                            return selectedCategory?.name || 'Alkategória';
+                        }
+                        return `${selected.length} alkategória`;
                     }}
                 >
-                    <MenuItem value="default">Alkategória</MenuItem>
-                    {categories.filter(c => c.enabled
-                        && c.parentId == selectedCategory
-                    ).map((category) => (
-                        <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'} disabled={category.enabled == false}>
-                            {category.name}
+                    {categories.filter(c => c.enabled && c.parentId == selectedCategory).map((category) => (
+                        <MenuItem key={category.id ?? '-1'} value={category.id ?? 0}>
+                            <Checkbox checked={subCategory.includes(category.id ?? 0)} />
+                            <Typography variant="body2">{category.name}</Typography>
                         </MenuItem>
                     ))}
                 </Select>
