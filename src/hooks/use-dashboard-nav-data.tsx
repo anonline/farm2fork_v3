@@ -184,6 +184,11 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                                 title: 'Woocommerce API',
                                 path: paths.dashboard.woocommerce.root,
                                 icon: ICONS.external,
+                            },
+                            {
+                                title: 'Email sablonok',
+                                path: paths.dashboard.emailtemplates.root,
+                                icon: ICONS.mail,
                             }
                             /*{
                                 title: 'Level 1a',

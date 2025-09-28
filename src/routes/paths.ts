@@ -300,5 +300,10 @@ export const paths = {
         woocommerce: {
             root: `${ROOTS.DASHBOARD}/woocommerce`,
         },
+        emailtemplates:{
+            root: `${ROOTS.DASHBOARD}/emailtemplates`,
+            newTemplate: `${ROOTS.DASHBOARD}/emailtemplates/new`,
+            editTemplate: (type: string) => `${ROOTS.DASHBOARD}/emailtemplates/${type}/edit`,
+        }
     },
 };
