@@ -184,7 +184,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((product, index) => (
                                 <Grid
-                                    size={{ xs: 12, sm: 4, md: 3, lg: 2.4 }}
+                                    size={{ xs: 6, sm: 4, md: 3, lg: 2.4 }}
                                     key={`product-${product.id}-${index}`}
                                     sx={{ transition: 'all 0.3s ease' }}
                                 >
@@ -373,6 +373,7 @@ export function ProductPageTextFilter({
                 borderRadius: '4px',
                 border: '1px solid #bababa',
                 display: 'flex',
+                justifyContent: 'space-between',
                 flexDirection: { xs: 'column', sm: 'row', md: 'row', lg: 'row', xl: 'row' },
             }}
         >
@@ -403,7 +404,7 @@ export function ProductPageTextFilter({
                     position: 'relative',
                 }}
             >
-                {categories.filter(c => c.enabled && c.showProductPage && (c.id != 42 && (c.productCount || 0) > 0)).map((category) => (
+                {categories.filter(c => c.enabled && c.showProductPage).map((category) => (
                     <MenuItem key={category.id ?? '-1'} value={category.id ?? '-1'}>
                         {category.name}
                     </MenuItem>
@@ -416,7 +417,7 @@ export function ProductPageTextFilter({
                     gap: '16px',
                     flexDirection: 'row',
                     alignItems: 'center',
-                    width: '100%',
+                    width: { xs: '100%', sm: '100%', md: '60%', lg: '63%', xl: '60%'},
                 }}
             >
                 <IconButton
@@ -439,6 +440,7 @@ export function ProductPageTextFilter({
                     value={searchText}
                     placeholder="Keress rá a termék nevére"
                     onChange={handleSearchChange}
+                    fullWidth
                     slotProps={{
                         input: {
                             startAdornment: (
@@ -473,7 +475,7 @@ export function ProductPageTextFilter({
                 />
             </Box>
 
-            <Stack spacing={2} direction="row">
+            <Stack spacing={2} direction="row" sx={{width: { xs: '100%', sm: '100%', md: '40%', lg: '40%' }}}  justifyContent="flex-end">
                 {/* SubCategories dropdown */}
                 {categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 && <Select
                     onChange={handleSubCategoryChange}
@@ -483,7 +485,7 @@ export function ProductPageTextFilter({
                     fullWidth
                     sx={{
                         display: (selectedCategory == 42 ? 'none' : 'block'),
-                        width: { sm: '200px', md: '250px', lg: '300px' },
+                        width: { xs: '100%', sm: '100%', md: '50%', lg: '50%' },
                         backgroundColor: '#fff',
                         borderRadius: '4px',
                         height: '38px',
@@ -493,6 +495,12 @@ export function ProductPageTextFilter({
                             boxShadow: 'none',
                             border: '1px solid #bababa',
                         },
+                    }}
+                    renderValue={(value) => {
+                        // Show the selected text
+                        if (value === 'default') return 'Alkategória';
+                        const selectedCategoryLabel = categories.find(c => c.id === Number(value));
+                        return selectedCategoryLabel?.name || 'Alkategória';
                     }}
                 >
                     <MenuItem value="default">Alkategória</MenuItem>
@@ -514,13 +522,16 @@ export function ProductPageTextFilter({
                     displayEmpty
                     sx={{
                         width: {
-                            xs: '100%',
+                            xs: '48px', // Full width on mobile
                             sm: 'initial',
                             md: 'initial',
                             lg: 'initial',
                             xl: 'initial',
                         },
-                        minWidth: '200px',
+                        minWidth: {
+                            xs: '48px', // Full min-width on mobile
+                            sm: '200px',
+                        },
                         backgroundColor: '#fff',
                         borderRadius: '4px',
                         height: '38px',
@@ -530,15 +541,15 @@ export function ProductPageTextFilter({
                             boxShadow: 'none',
                             border: '1px solid #bababa',
                         },
-                        pl: 4, // add left padding for the icon
+                        pl: { xs: 0, sm: 4 }, // No padding on mobile, padding on larger screens
                         position: 'relative',
                         '&:before': {
                             content: '""',
                             display: 'block',
                             position: 'absolute',
-                            left: 12,
+                            left: { xs: '50%', sm: 12 }, // Centered on mobile, left-aligned on larger screens
                             top: '50%',
-                            transform: 'translateY(-50%)',
+                            transform: { xs: 'translate(-50%, -50%)', sm: 'translateY(-50%)' }, // Centered on mobile
                             width: 20,
                             height: 20,
                             backgroundImage:
@@ -551,6 +562,18 @@ export function ProductPageTextFilter({
                     }}
                     // Remove IconComponent to avoid default dropdown icon
                     IconComponent={() => null}
+                    renderValue={(value) => 
+                        // On mobile, show empty string (icon only), on desktop show the text
+                         (
+                            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                                {value === 'default' && 'Rendezés'}
+                                {value === 'name-asc' && 'Név szerint növekvő'}
+                                {value === 'name-desc' && 'Név szerint csökkenő'}
+                                {value === 'price-asc' && 'Ár szerint növekvő'}
+                                {value === 'price-desc' && 'Ár szerint csökkenő'}
+                            </Box>
+                        )
+                    }
                 >
                     <MenuItem value="default">Rendezés</MenuItem>
                     <MenuItem value="name-asc">Név szerint növekvő</MenuItem>

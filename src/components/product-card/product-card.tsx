@@ -3,6 +3,7 @@ import type { Theme } from '@mui/material/styles';
 import type { IProductItem } from 'src/types/product';
 import type { CheckoutContextValue } from 'src/types/checkout';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
@@ -61,7 +62,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
 
     const productImageStyle: React.CSSProperties = {
         width: '100%',
-        height: 249,
         objectFit: 'cover',
         borderTopLeftRadius: 8,
         borderTopRightRadius: 8,
@@ -159,14 +159,29 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                 tabIndex={0}
                 aria-label={product.name}
             >
-                <img
-                    src={
-                        product.featuredImage ||
-                        'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
-                    }
-                    alt={product.name}
-                    style={productImageStyle}
-                />
+                <Box
+                    sx={{
+                        height: { xs: 200, sm: 249, md: 249, lg: 249, xl: 249 },
+                        width: '100%',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderTopLeftRadius: 1,
+                        borderTopRightRadius: 1,
+                    }}
+                >
+                    <Image
+                        src={
+                            product.featuredImage ||
+                            'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                        }
+                        alt={product.name}
+                        fill
+                        style={{
+                            objectFit: 'cover',
+                            cursor: 'pointer',
+                        }}
+                    />
+                </Box>
             </Box>
 
             {product.bio && <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />}

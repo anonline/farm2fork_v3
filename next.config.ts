@@ -23,6 +23,22 @@ const nextConfig: NextConfig = {
     env: {
         BUILD_STATIC_EXPORT: JSON.stringify(isStaticExport),
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'qg8ssz19aqjzweso.public.blob.vercel-storage.com',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'placehold.co',
+                port: '',
+                pathname: '/**',
+            },
+        ],
+    },
     // Without --turbopack (next dev)
     webpack(config) {
         config.module.rules.push({
