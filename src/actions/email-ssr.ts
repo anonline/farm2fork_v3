@@ -2,13 +2,13 @@
 
 import type { IUserItem } from "src/types/user";
 import type EmailTemplate from "src/types/emails/email-template";
-import { EmailTrigger } from "src/types/emails/email-trigger";
 
 import { cookies } from "next/headers";
 
 import resendClient from "src/lib/resend";
 import { supabaseSSR } from "src/lib/supabase-ssr";
 
+import { EmailTrigger } from "src/types/emails/email-trigger";
 import EmailBaseTemplate from "src/types/emails/email-base-template";
 
 export async function triggerEmail(type: EmailTrigger, to: IUserItem){
@@ -107,7 +107,7 @@ export async function triggerOrderPlacedEmail(to:string, name:string, orderId: s
         );
     // Send email using Resend
     const result = await resendClient.sendEmailTemplate({
-        to: to,
+        to,
         from: process.env.FROM_EMAIL || 'Farm2Fork webshop <noreply@farm2fork.com>',
         subject: email.subject,
         template: email

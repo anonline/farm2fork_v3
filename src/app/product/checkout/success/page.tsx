@@ -7,8 +7,11 @@ import { Box, Alert, Button, Container, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { fDate } from 'src/utils/format-time';
+
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
+import { triggerOrderPlacedEmail } from 'src/actions/email-ssr';
 import { getOrderByIdSSR, addOrderHistorySSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
@@ -16,8 +19,6 @@ import { Iconify } from 'src/components/iconify';
 import { getSimplePayErrorMessage } from 'src/types/simplepay';
 
 import { CartClearer } from './cart-clearer';
-import { triggerOrderPlacedEmail } from 'src/actions/email-ssr';
-import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 

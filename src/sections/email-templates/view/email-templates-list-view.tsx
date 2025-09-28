@@ -6,7 +6,6 @@ import type {
     GridColDef,
     GridSlotProps,
     GridRowSelectionModel,
-    GridColumnVisibilityModel,
 } from '@mui/x-data-grid';
 
 import { useState, useCallback } from 'react';
@@ -14,17 +13,12 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import {
     DataGrid,
     gridClasses,
-    GridToolbarContainer,
-    GridToolbarQuickFilter,
-    GridToolbarFilterButton,
-    GridToolbarColumnsButton,
 } from '@mui/x-data-grid';
 
 import { paths } from 'src/routes/paths';
@@ -36,7 +30,6 @@ import { deleteEmailTemplate, useGetEmailTemplates, toggleEmailTemplateStatus } 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 // ----------------------------------------------------------------------

@@ -3,7 +3,7 @@ import type { IOrderData, PaymentStatus, ICreateOrderData, OrderHistoryEntry } f
 import { finishTransaction } from 'src/utils/simplepay';
 
 import { supabase } from 'src/lib/supabase';
-import { triggerOrderPlacedEmail } from './email-ssr';
+
 
 // ----------------------------------------------------------------------
 

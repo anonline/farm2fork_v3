@@ -1,5 +1,6 @@
+import type EmailBaseTemplate from 'src/types/emails/email-base-template';
+
 import { Resend } from 'resend';
-import EmailBaseTemplate from 'src/types/emails/email-base-template';
 
 class ResendClient {
     private client: Resend;
