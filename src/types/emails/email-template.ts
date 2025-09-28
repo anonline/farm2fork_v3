@@ -1,4 +1,4 @@
-import { EmailTrigger } from "./email-trigger";
+import type { EmailTrigger } from "./email-trigger";
 
 export default interface EmailTemplate {
     id: number;

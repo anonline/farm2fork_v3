@@ -3,6 +3,7 @@ import type { IOrderData, PaymentStatus, ICreateOrderData, OrderHistoryEntry } f
 import { finishTransaction } from 'src/utils/simplepay';
 
 import { supabase } from 'src/lib/supabase';
+import { triggerOrderPlacedEmail } from './email-ssr';
 
 // ----------------------------------------------------------------------
 
@@ -66,6 +67,7 @@ export async function createOrder(orderData: ICreateOrderData): Promise<{ orderI
             console.error('Error creating order:', error);
             return { orderId: null, error: error.message };
         }
+
 
         return { orderId: data.id, error: null };
     } catch (error) {

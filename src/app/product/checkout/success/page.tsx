@@ -16,6 +16,8 @@ import { Iconify } from 'src/components/iconify';
 import { getSimplePayErrorMessage } from 'src/types/simplepay';
 
 import { CartClearer } from './cart-clearer';
+import { triggerOrderPlacedEmail } from 'src/actions/email-ssr';
+import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -124,6 +126,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
             }
 
             await updateOrderPaymentSimpleStatusSSR(orderId, JSON.stringify(simplePayResponse));
+            
 
         } catch (parseError) {
             failMessage = 'Kommunikáció a SimplePay rendszerrel sikertelen';
@@ -206,6 +209,9 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
     // Here you could update the order payment status based on the payment gateway response
     // For now, we'll assume successful payment
+
+    //TODO: prevent resend on refresh
+    await triggerOrderPlacedEmail(currentUser.email, order.customerName, orderId, fDate(order.plannedShippingDateTime));
 
     return (
         <Container sx={{ py: 10, textAlign: 'center' }}>
