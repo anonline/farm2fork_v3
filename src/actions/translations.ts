@@ -166,15 +166,15 @@ export async function getProductsWithTranslations(): Promise<Product[]> {
 export async function getProductWithTranslations(productId: string): Promise<Product | null> {
   try {
     const { data, error } = await supabase
-      .from('products')
+      .from('Products')
       .select(`
         *,
         translations:translations!translations_record_id_fkey(*),
-        producer:producers(*),
-        category:categories(*)
+        producer:Producers(*),
+        category:ProductCategories(*)
       `)
       .eq('id', productId)
-      .eq('translations.table_name', 'products')
+      .eq('translations.table_name', 'Products')
       .single();
 
     if (error) {
@@ -201,7 +201,7 @@ export async function saveProductTranslation(
   locale: Locale,
   value: string
 ): Promise<void> {
-  return saveTranslation('products', productId, fieldName, locale, value);
+  return saveTranslation('Products', productId, fieldName, locale, value);
 }
 
 /**
@@ -212,7 +212,7 @@ export async function deleteProductTranslation(
   fieldName: 'name' | 'description' | 'shortDescription',
   locale: Locale
 ): Promise<void> {
-  return deleteTranslation('products', productId, fieldName, locale);
+  return deleteTranslation('Products', productId, fieldName, locale);
 }
 
 // =============================================================================
@@ -225,12 +225,12 @@ export async function deleteProductTranslation(
 export async function getProducersWithTranslations(): Promise<Producer[]> {
   try {
     const { data, error } = await supabase
-      .from('producers')
+      .from('Producers')
       .select(`
         *,
         translations:translations!translations_record_id_fkey(*)
       `)
-      .eq('translations.table_name', 'producers')
+      .eq('translations.table_name', 'Producers')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -251,13 +251,13 @@ export async function getProducersWithTranslations(): Promise<Producer[]> {
 export async function getProducerWithTranslations(producerId: string): Promise<Producer | null> {
   try {
     const { data, error } = await supabase
-      .from('producers')
+      .from('Producers')
       .select(`
         *,
         translations:translations!translations_record_id_fkey(*)
       `)
       .eq('id', producerId)
-      .eq('translations.table_name', 'producers')
+      .eq('translations.table_name', 'Producers')
       .single();
 
     if (error) {
@@ -284,7 +284,7 @@ export async function saveProducerTranslation(
   locale: Locale,
   value: string
 ): Promise<void> {
-  return saveTranslation('producers', producerId, fieldName, locale, value);
+  return saveTranslation('Producers', producerId, fieldName, locale, value);
 }
 
 // =============================================================================
@@ -297,12 +297,12 @@ export async function saveProducerTranslation(
 export async function getCategoriesWithTranslations(): Promise<Category[]> {
   try {
     const { data, error } = await supabase
-      .from('categories')
+      .from('ProductCategories')
       .select(`
         *,
         translations:translations!translations_record_id_fkey(*)
       `)
-      .eq('translations.table_name', 'categories')
+      .eq('translations.table_name', 'ProductCategories')
       .order('order', { ascending: true });
 
     if (error) {
@@ -326,7 +326,7 @@ export async function saveCategoryTranslation(
   locale: Locale,
   value: string
 ): Promise<void> {
-  return saveTranslation('categories', categoryId, fieldName, locale, value);
+  return saveTranslation('ProductCategories', categoryId, fieldName, locale, value);
 }
 
 // =============================================================================
