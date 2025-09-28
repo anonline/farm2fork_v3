@@ -1,30 +1,32 @@
 'use client';
 
+import type { Category } from 'src/types/database.types';
+
 import { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent,
-  Grid,
-  Button,
-  Chip,
-  Paper,
-  Avatar,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-} from '@mui/material';
+
 import { 
   Edit as EditIcon,
   Category as CategoryIcon,
 } from '@mui/icons-material';
+import { 
+  Box, 
+  Card, 
+  Grid, 
+  Chip,
+  Paper,
+  Avatar,
+  Dialog,
+  Typography,
+  IconButton,
+  CardContent,
+  DialogTitle,
+  DialogContent,
+} from '@mui/material';
 
 import { useI18n } from 'src/contexts/i18n-context';
-import { TranslationEditor } from 'src/components/translation-editor';
 import { getCategoriesWithTranslations } from 'src/actions/translations';
-import type { Category } from 'src/types/database.types';
+
+import { TranslationEditor } from 'src/components/translation-editor';
 
 export default function CategoryTranslationsPage() {
   const { t, translateCategory } = useI18n();
@@ -65,7 +67,7 @@ export default function CategoryTranslationsPage() {
       return { color: 'error' as const, label: 'Nincs fordítás' };
     }
     
-    const locales = new Set(category.translations.map(t => t.locale));
+    const locales = new Set(category.translations.map(tr => tr.locale));
     const hasEnglish = locales.has('en');
     const hasGerman = locales.has('de');
     
@@ -200,7 +202,7 @@ export default function CategoryTranslationsPage() {
                   {category.translations && category.translations.length > 0 && (
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="caption" color="text.secondary">
-                        Elérhető fordítások: {Array.from(new Set(category.translations.map(t => t.locale.toUpperCase()))).join(', ')}
+                        Elérhető fordítások: {Array.from(new Set(category.translations.map(tr => tr.locale.toUpperCase()))).join(', ')}
                       </Typography>
                     </Box>
                   )}

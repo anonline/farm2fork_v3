@@ -2,27 +2,16 @@
 
 // core (MUI)
 import {
-    frFR as frFRCore,
-    viVN as viVNCore,
-    zhCN as zhCNCore,
-    arSA as arSACore,
     huHU as huHUCore,
 } from '@mui/material/locale';
 // date pickers (MUI)
 import {
     enUS as enUSDate,
-    frFR as frFRDate,
-    viVN as viVNDate,
-    zhCN as zhCNDate,
     huHU as huHUDate,
 } from '@mui/x-date-pickers/locales';
 // data grid (MUI)
 import {
     enUS as enUSDataGrid,
-    frFR as frFRDataGrid,
-    viVN as viVNDataGrid,
-    zhCN as zhCNDataGrid,
-    arSD as arSDDataGrid,
     huHU as huHUDataGrid,
 } from '@mui/x-data-grid/locales';
 
@@ -32,14 +21,14 @@ export const allLangs = [
     {
         value: 'en',
         label: 'English',
-        countryCode: 'GB',
+        countryCode: 'US',
         adapterLocale: 'en',
-        numberFormat: { code: 'en-US', currency: 'USD' },
+        numberFormat: { code: 'hu-HU', currency: 'HUF' },
         systemValue: {
             components: { ...enUSDate.components, ...enUSDataGrid.components },
         },
     },
-    {
+    /*{
         value: 'fr',
         label: 'French',
         countryCode: 'FR',
@@ -90,7 +79,7 @@ export const allLangs = [
         systemValue: {
             components: { ...arSACore.components, ...arSDDataGrid.components },
         },
-    },
+    },*/
     {
         value: 'hu',
         label: 'Magyar',

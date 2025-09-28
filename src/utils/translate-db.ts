@@ -1,9 +1,9 @@
 import type { 
-  Translation, 
+  Locale, 
   Product, 
   Producer, 
   Category, 
-  Locale 
+  Translation 
 } from 'src/types/database.types';
 
 /**

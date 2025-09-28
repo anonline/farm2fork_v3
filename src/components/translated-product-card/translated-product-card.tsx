@@ -1,8 +1,10 @@
 'use client';
 
-import Image from 'next/image';
-import { useI18n } from 'src/contexts/i18n-context';
 import type { Product } from 'src/types/database.types';
+
+import Image from 'next/image';
+
+import { useI18n } from 'src/contexts/i18n-context';
 
 interface TranslatedProductCardProps {
   product: Product;

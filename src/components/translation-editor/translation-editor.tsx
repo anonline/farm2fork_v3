@@ -1,13 +1,15 @@
 'use client';
 
+import type { Product, Producer, Category, Translation } from 'src/types/database.types';
+
 import { useState, useEffect } from 'react';
+
 import { useI18n } from 'src/contexts/i18n-context';
 import {
-  getTranslationsForRecord,
   saveTranslation,
   deleteTranslation,
+  getTranslationsForRecord,
 } from 'src/actions/translations';
-import type { Translation, Product, Producer, Category } from 'src/types/database.types';
 
 type Locale = 'hu' | 'en' | 'de';
 type TranslatableType = 'products' | 'producers' | 'categories';
@@ -32,16 +34,20 @@ const getFieldConfigs = (
   tableName: TranslatableType,
   record: Product | Producer | Category
 ): FieldConfig[] => {
+  let product;
+  let producer;
+  let category;
+
   switch (tableName) {
     case 'products':
-      const product = record as Product;
+      product = record as Product;
       return [
         { key: 'name', label: 'Name', type: 'text', originalValue: product.name },
         { key: 'description', label: 'Description', type: 'textarea', originalValue: product.description || '' },
         { key: 'shortDescription', label: 'Short Description', type: 'textarea', originalValue: product.shortDescription || '' },
       ];
     case 'producers':
-      const producer = record as Producer;
+      producer = record as Producer;
       return [
         { key: 'name', label: 'Name', type: 'text', originalValue: producer.name },
         { key: 'description', label: 'Description', type: 'textarea', originalValue: producer.description || '' },
@@ -49,7 +55,7 @@ const getFieldConfigs = (
         { key: 'bio_description', label: 'Bio Description', type: 'textarea', originalValue: producer.bio_description || '' },
       ];
     case 'categories':
-      const category = record as Category;
+      category = record as Category;
       return [
         { key: 'name', label: 'Name', type: 'text', originalValue: category.name },
         { key: 'description', label: 'Description', type: 'textarea', originalValue: category.description || '' },
@@ -171,7 +177,7 @@ export default function TranslationEditor({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
         <span className="ml-2 text-gray-600">{t('common.loading')}</span>
       </div>
     );

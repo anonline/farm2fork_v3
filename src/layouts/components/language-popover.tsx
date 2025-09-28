@@ -7,6 +7,7 @@ import { m } from 'framer-motion';
 import { useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
 
+import { Typography } from '@mui/material';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
@@ -25,9 +26,10 @@ export type LanguagePopoverProps = IconButtonProps & {
         label: string;
         countryCode: string;
     }[];
+    showFlag?: boolean;
 };
 
-export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProps) {
+export function LanguagePopover({ data = [], sx, showFlag = true, ...other }: LanguagePopoverProps) {
     const { open, anchorEl, onClose, onOpen } = usePopover();
 
     const { onChangeLang, currentLang } = useTranslate();
@@ -49,7 +51,7 @@ export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProp
                         selected={option.value === currentLang.value}
                         onClick={() => handleChangeLang(option.value as LanguageValue)}
                     >
-                        <FlagIcon code={option.countryCode} />
+                        {showFlag && <FlagIcon code={option.countryCode} />}
                         {option.label}
                     </MenuItem>
                 ))}
@@ -77,7 +79,7 @@ export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProp
                 ]}
                 {...other}
             >
-                <FlagIcon code={currentLang.countryCode} />
+                {showFlag ? <FlagIcon code={currentLang.countryCode} /> : <Typography variant='body2'>{currentLang.value.toUpperCase()}</Typography>}
             </IconButton>
 
             {renderMenuList()}

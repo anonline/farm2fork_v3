@@ -1,30 +1,32 @@
 'use client';
 
+import type { Product } from 'src/types/database.types';
+
 import { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent,
-  Grid,
-  Button,
-  Chip,
-  Paper,
-  Avatar,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-} from '@mui/material';
+
 import { 
   Edit as EditIcon,
   ShoppingCart as ProductIcon,
 } from '@mui/icons-material';
+import { 
+  Box, 
+  Card, 
+  Grid, 
+  Chip,
+  Paper,
+  Avatar,
+  Dialog,
+  Typography,
+  IconButton,
+  CardContent,
+  DialogTitle,
+  DialogContent,
+} from '@mui/material';
 
 import { useI18n } from 'src/contexts/i18n-context';
-import { TranslationEditor } from 'src/components/translation-editor';
 import { getProductsWithTranslations } from 'src/actions/translations';
-import type { Product } from 'src/types/database.types';
+
+import { TranslationEditor } from 'src/components/translation-editor';
 
 export default function ProductTranslationsPage() {
   const { t, translateProduct } = useI18n();
@@ -65,7 +67,7 @@ export default function ProductTranslationsPage() {
       return { color: 'error' as const, label: 'Nincs fordítás' };
     }
     
-    const locales = new Set(product.translations.map(t => t.locale));
+    const locales = new Set(product.translations.map(tr => tr.locale));
     const hasEnglish = locales.has('en');
     const hasGerman = locales.has('de');
     
@@ -174,7 +176,7 @@ export default function ProductTranslationsPage() {
                   {product.translations && product.translations.length > 0 && (
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="caption" color="text.secondary">
-                        Elérhető fordítások: {Array.from(new Set(product.translations.map(t => t.locale.toUpperCase()))).join(', ')}
+                        Elérhető fordítások: {Array.from(new Set(product.translations.map(tr => tr.locale.toUpperCase()))).join(', ')}
                       </Typography>
                     </Box>
                   )}

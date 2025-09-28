@@ -1,49 +1,50 @@
 'use client';
 
+import type { Product, Producer, Category } from 'src/types/database.types';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { 
-  Card, 
-  CardHeader, 
-  CardContent,
-  Typography,
-  Button,
-  Box,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-} from '@mui/material';
-import { 
-  Edit as EditIcon, 
+  Edit as EditIcon,
   Search as SearchIcon,
-  Add as AddIcon,
   Language as LanguageIcon,
 } from '@mui/icons-material';
+import { 
+  Box, 
+  Card, 
+  Chip,
+  Table,
+  Paper,
+  Button,
+  Select,
+  Dialog,
+  TableRow,
+  MenuItem,
+  TableBody,
+  TableCell,
+  TableHead,
+  TextField,
+  CardHeader,
+  Typography,
+  IconButton,
+  InputLabel,
+  CardContent,
+  FormControl,
+  DialogTitle,
+  DialogContent,
+  TableContainer,
+  InputAdornment,
+} from '@mui/material';
 
 import { useI18n } from 'src/contexts/i18n-context';
-import { TranslationEditor } from 'src/components/translation-editor';
 import { 
   getProductsWithTranslations, 
   getProducersWithTranslations,
   getCategoriesWithTranslations 
 } from 'src/actions/translations';
-import type { Product, Producer, Category } from 'src/types/database.types';
+
+import { TranslationEditor } from 'src/components/translation-editor';
 
 type TranslatableRecord = Product | Producer | Category;
 type TableType = 'products' | 'producers' | 'categories';
@@ -106,6 +107,9 @@ export default function TranslationsManagementPage() {
         case 'categories':
           data = await getCategoriesWithTranslations();
           break;
+        default:
+          data = [];
+          break;
       }
       
       setRecords(data);
@@ -133,7 +137,7 @@ export default function TranslationsManagementPage() {
       return { status: 'missing', color: 'error' as const, label: 'Nincs fordítás' };
     }
     
-    const locales = new Set(record.translations.map(t => t.locale));
+    const locales = new Set(record.translations.map(tr => tr.locale));
     const hasEnglish = locales.has('en');
     const hasGerman = locales.has('de');
     
@@ -228,7 +232,7 @@ export default function TranslationsManagementPage() {
       {/* Records Table */}
       <Card>
         <CardHeader
-          title={`${tabs.find(t => t.key === activeTab)?.label} (${filteredRecords.length})`}
+          title={`${tabs.find(tr => tr.key === activeTab)?.label} (${filteredRecords.length})`}
         />
         <CardContent sx={{ p: 0 }}>
           <TableContainer component={Paper} elevation={0}>
@@ -257,7 +261,7 @@ export default function TranslationsManagementPage() {
                   </TableRow>
                 ) : (
                   filteredRecords.map((record) => {
-                    const translationStatus = getTranslationStatus(record);
+                    const currentTranslationState = getTranslationStatus(record);
                     return (
                       <TableRow key={record.id} hover>
                         <TableCell>
@@ -281,8 +285,8 @@ export default function TranslationsManagementPage() {
                         </TableCell>
                         <TableCell>
                           <Chip
-                            label={translationStatus.label}
-                            color={translationStatus.color}
+                            label={currentTranslationState.label}
+                            color={currentTranslationState.color}
                             size="small"
                           />
                         </TableCell>

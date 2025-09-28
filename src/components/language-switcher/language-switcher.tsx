@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useI18n, getSupportedLocales } from 'src/contexts/i18n-context';
+
+import { useI18n } from 'src/contexts/i18n-context';
 
 type Locale = 'hu' | 'en' | 'de';
 
