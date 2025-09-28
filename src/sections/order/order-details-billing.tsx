@@ -134,7 +134,7 @@ export function OrderDetailsBilling({
             toast.error('Hiányzó adatok a számla készítéshez');
             return;
         }
-
+        console.log('Creating invoice for orderData from button:', orderData);
         setIsCreateInvoiceLoading(true);
         
         try {
@@ -175,6 +175,7 @@ export function OrderDetailsBilling({
     const canCreateInvoice = orderData && 
         !isInvoiceCreated && 
         !invoiceDataJson && 
+        !orderData.denyInvoice &&
         orderData.orderStatus !== 'pending' && 
         orderData.orderStatus !== 'cancelled' && 
         orderData.orderStatus !== 'refunded';
@@ -295,6 +296,16 @@ export function OrderDetailsBilling({
                         Telefonszám
                     </Box>
                     {billingAddress?.phoneNumber || '-'}
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Box
+                        component="span"
+                        sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                    >
+                        E-mail
+                    </Box>
+                    {billingAddress?.email || '-'}
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

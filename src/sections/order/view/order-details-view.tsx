@@ -278,16 +278,19 @@ export function OrderDetailsView({ orderId }: Props) {
                         orderStatus: newStatus as OrderStatus,
                     });
                 }
-
+                console.log('orderDData', orderData);
                 // Create invoice in Billingo if status changed to 'processing' and deny_invoice is false
                 if (newStatus === 'processing' && orderData && !orderData.denyInvoice) {
                     if (orderData.invoiceDataJson) {
                         console.log('Invoice already exists for order:', orderData.id);
                         toast.info('A számla már létre van hozva ehhez a rendeléshez. Ha módosítani szeretnéd, előbb töröld a meglévő számlát, majd próbáld újra.');
                     }
+                    else if (orderData.denyInvoice){
+                        toast.info('A számla létrehozása le van tiltva ehhez a rendeléshez.');
+                    }
                     else {
                         try {
-                            console.log('Creating Billingo invoice for order:', orderData.id);
+                            console.log('Creating Billingo invoice for order status change:', orderData.id);
                             const invoiceResult = await createBillingoInvoiceSSR(orderData);
 
                             if (invoiceResult.success) {

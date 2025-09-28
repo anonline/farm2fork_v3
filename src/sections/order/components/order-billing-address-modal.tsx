@@ -42,6 +42,7 @@ type AddressFormData = {
     floor?: string;
     doorbell?: string;
     phoneNumber: string;
+    email?: string;
     note?: string;
 };
 
@@ -53,15 +54,15 @@ type Props = {
     onSave: (address: IAddressItem) => Promise<void>;
 };
 
-export function OrderBillingAddressModal({ 
-    open, 
-    onClose, 
-    currentAddress, 
+export function OrderBillingAddressModal({
+    open,
+    onClose,
+    currentAddress,
     customerId,
-    onSave 
+    onSave
 }: Readonly<Props>) {
     const { customerData, customerDataLoading } = useGetCustomerData(customerId);
-    
+
     const [selectedAddressType, setSelectedAddressType] = useState<'existing' | 'custom'>('existing');
     const [selectedExistingIndex, setSelectedExistingIndex] = useState<number>(-1);
     const [isSaving, setIsSaving] = useState(false);
@@ -78,6 +79,7 @@ export function OrderBillingAddressModal({
             floor: '',
             doorbell: '',
             phoneNumber: '',
+            email: '',
             note: '',
         }
     });
@@ -99,6 +101,7 @@ export function OrderBillingAddressModal({
                 floor: currentAddress.floor || '',
                 doorbell: currentAddress.doorbell || '',
                 phoneNumber: currentAddress.phoneNumber || '',
+                email: currentAddress.email || '',
                 note: currentAddress.note || '',
             });
         }
@@ -120,7 +123,7 @@ export function OrderBillingAddressModal({
     const handleExistingAddressSelect = (index: number) => {
         setSelectedExistingIndex(index);
         const selectedAddress = billingAddresses[index];
-        
+
         // Fill form with selected address data
         reset({
             name: selectedAddress.fullName || '',
@@ -133,6 +136,7 @@ export function OrderBillingAddressModal({
             floor: selectedAddress.floor || '',
             doorbell: selectedAddress.doorbell || '',
             phoneNumber: selectedAddress.phone || '',
+            email: selectedAddress.email || '',
             note: selectedAddress.comment || '',
         });
     };
@@ -154,6 +158,7 @@ export function OrderBillingAddressModal({
                 floor: data.floor,
                 doorbell: data.doorbell,
                 phoneNumber: data.phoneNumber,
+                email: data.email,
                 note: data.note,
             };
 
@@ -168,7 +173,7 @@ export function OrderBillingAddressModal({
         }
     };
 
-    const formatAddressDisplay = (address: IBillingAddress): string => 
+    const formatAddressDisplay = (address: IBillingAddress): string =>
         `${address.postcode || address.zipCode} ${address.city}, ${address.street} ${address.houseNumber}${address.floor ? `, ${address.floor}` : ''}${address.doorbell ? `, ${address.doorbell}` : ''}`;
 
     return (
@@ -181,7 +186,7 @@ export function OrderBillingAddressModal({
                     </IconButton>
                 </Box>
             </DialogTitle>
-            
+
             <DialogContent>
                 <Stack spacing={3} sx={{ pt: 1 }}>
                     {/* Address Type Selection */}
@@ -224,16 +229,16 @@ export function OrderBillingAddressModal({
                                         Mentett címek ({billingAddresses.length})
                                     </Typography>
                                     {billingAddresses.map((address, index) => (
-                                        <Card 
+                                        <Card
                                             key={address.id || index}
                                             variant="outlined"
-                                            sx={{ 
+                                            sx={{
                                                 cursor: 'pointer',
                                                 border: selectedExistingIndex === index ? 2 : 1,
-                                                borderColor: selectedExistingIndex === index 
-                                                    ? 'primary.main' 
+                                                borderColor: selectedExistingIndex === index
+                                                    ? 'primary.main'
                                                     : 'divider',
-                                                backgroundColor: selectedExistingIndex === index 
+                                                backgroundColor: selectedExistingIndex === index
                                                     ? (theme) => alpha(theme.palette.primary.main, 0.04)
                                                     : 'transparent',
                                                 '&:hover': {
@@ -284,7 +289,7 @@ export function OrderBillingAddressModal({
                         <Typography variant="subtitle2" gutterBottom sx={{ mb: 2 }}>
                             {selectedAddressType === 'custom' ? 'Egyedi cím adatai' : 'Cím részletei'}
                         </Typography>
-                        
+
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Stack spacing={2.5}>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -323,7 +328,7 @@ export function OrderBillingAddressModal({
                                             {...field}
                                             label="Adószám"
                                             placeholder="pl. 12345678-1-23"
-                                            sx={{ maxWidth: { xs: '100%', sm: 300 } }}
+                                            fullWidth
                                         />
                                     )}
                                 />
@@ -414,21 +419,38 @@ export function OrderBillingAddressModal({
                                         )}
                                     />
                                 </Stack>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 
-                                <Controller
-                                    name="phoneNumber"
-                                    control={control}
-                                    rules={{ required: 'Telefonszám megadása kötelező' }}
-                                    render={({ field }) => (
-                                        <TextField
-                                            {...field}
-                                            label="Telefonszám *"
-                                            error={!!errors.phoneNumber}
-                                            helperText={errors.phoneNumber?.message}
-                                            sx={{ maxWidth: { xs: '100%', sm: 300 } }}
-                                        />
-                                    )}
-                                />
+                                    <Controller
+                                        name="phoneNumber"
+                                        control={control}
+                                        rules={{ required: 'Telefonszám megadása kötelező' }}
+                                        render={({ field }) => (
+                                            <TextField
+                                                {...field}
+                                                label="Telefonszám *"
+                                                error={!!errors.phoneNumber}
+                                                helperText={errors.phoneNumber?.message}
+                                                fullWidth
+                                            />
+                                        )}
+                                    />
+
+                                    <Controller
+                                        name="email"
+                                        control={control}
+                                        rules={{ required: 'E-mail megadása kötelező' }}
+                                        render={({ field }) => (
+                                            <TextField
+                                                {...field}
+                                                label="E-mail *"
+                                                error={!!errors.email}
+                                                helperText={errors.email?.message}
+                                                fullWidth
+                                            />
+                                        )}
+                                    />
+                                </Stack>
 
                                 <Controller
                                     name="note"
@@ -453,9 +475,9 @@ export function OrderBillingAddressModal({
                 <Button onClick={onClose} color="inherit">
                     Mégse
                 </Button>
-                <Button 
-                    onClick={handleSubmit(onSubmit)} 
-                    variant="contained" 
+                <Button
+                    onClick={handleSubmit(onSubmit)}
+                    variant="contained"
                     disabled={isSaving}
                     startIcon={isSaving ? <CircularProgress size={16} /> : undefined}
                 >
