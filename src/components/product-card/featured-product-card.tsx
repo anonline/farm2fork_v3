@@ -14,9 +14,8 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 
 import { useAuthContext } from 'src/auth/hooks';
 
-import F2FIcons from '../f2ficons/f2ficons';
-import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
 import ProducerInfo from './producer-info';
+import { ProductPriceDetails, ProductQuantitySelector } from './product-card';
 
 
 

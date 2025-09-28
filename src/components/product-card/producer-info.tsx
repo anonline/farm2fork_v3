@@ -1,6 +1,8 @@
 import { Box, Stack, Typography } from "@mui/material";
-import F2FIcons from "../f2ficons/f2ficons";
+
 import { themeConfig } from "src/theme";
+
+import F2FIcons from "../f2ficons/f2ficons";
 
 export default function ProducerInfo({ name, location, img }: Readonly<{ name: string; location: string; img: string }>) {
     return (

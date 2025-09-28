@@ -19,10 +19,10 @@ import { Image } from '../image';
 import F2FIcons from '../f2ficons/f2ficons';
 import ProductGallery from './product-gallery';
 import ProducerProducts from './producer-products';
+import ProducerInfo from '../product-card/producer-info';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
-import ProducerInfo from '../product-card/producer-info';
 
 export default function ProductDetails() {
     const { roles, user } = useAuthContext();
