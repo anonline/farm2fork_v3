@@ -1,16 +1,20 @@
 'use client';
 
+import type { Locale } from 'src/types/database.types';
 import type { IProducerItem } from 'src/types/producer';
 
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useForm, Controller, FormProvider } from 'react-hook-form';
 
 import { LoadingButton } from '@mui/lab';
+import { Translate as TranslateIcon } from '@mui/icons-material';
 import {
     Box,
+    Tab,
     Card,
+    Tabs,
     Stack,
     Checkbox,
     TextField,
@@ -21,6 +25,9 @@ import {
 
 import { useGetProducts } from 'src/actions/product';
 import { uploadFile } from 'src/lib/blob/blobClient';
+import {
+    saveTranslationsBatch,
+} from 'src/actions/translations';
 import {
     createProducer,
     updateProducer,
@@ -33,6 +40,9 @@ import BioBadge from 'src/components/bio-badge/bio-badge';
 import { RHFSwitch, RHFEditor, RHFUpload, RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
+
+const SUPPORTED_LOCALES: Locale[] = ['en', 'de'];
+const TRANSLATABLE_FIELDS = ['name', 'shortDescription', 'producingTags'];
 
 const ProducerSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
@@ -48,6 +58,7 @@ const ProducerSchema = zod.object({
         .optional(),
     productIds: zod.array(zod.string()).optional(),
     enabled: zod.boolean(),
+    translations: zod.any().optional(),
 });
 
 type ProducerSchemaType = zod.infer<typeof ProducerSchema>;
@@ -58,6 +69,10 @@ type Props = {
 
 export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>) {
     const { products, productsLoading } = useGetProducts();
+    
+    // Translation state
+    const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({});
+    const [currentTab, setCurrentTab] = useState(0);
 
     const defaultValues = useMemo(() => {
         const assignedProductIds = currentProducer
@@ -94,6 +109,18 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
     useEffect(() => {
         reset(defaultValues);
     }, [defaultValues, reset]);
+
+    const updateTranslation = (fieldName: string, locale: string, value: string) => {
+        const updatedTranslations = {
+            ...translations,
+            [fieldName]: {
+                ...translations[fieldName],
+                [locale]: value,
+            },
+        };
+        setTranslations(updatedTranslations);
+        setValue('translations', updatedTranslations);
+    };
 
     const generateSlug = (name: string) => {
         const hungarianMap: Record<string, string> = {
@@ -192,6 +219,51 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
 
             await updateProductAssignments(producerId, data.productIds || []);
             toast.success('Termék-hozzárendelések frissítve!');
+
+            // Save translations if any exist
+            if (Object.keys(translations).length > 0) {
+                // Validate that we have a proper ID
+                if (!producerId || producerId === 'undefined') {
+                    console.error('Invalid producer ID for translations:', producerId);
+                    toast.error('Hiba: Érvénytelen termelő azonosító a fordításokhoz');
+                    return;
+                }
+                
+                const translationsToSave: any[] = [];
+                
+                Object.entries(translations).forEach(([fieldName, locales]) => {
+                    Object.entries(locales).forEach(([locale, value]) => {
+                        if (value?.trim()) {
+                            translationsToSave.push({
+                                table_name: 'Producers',
+                                record_id: String(producerId), // Convert to string
+                                field_name: fieldName === 'shortDescription' ? 'short_description' : fieldName,
+                                locale: locale as Locale,
+                                value: value.trim(),
+                            });
+                        }
+                    });
+                });
+
+                if (translationsToSave.length > 0) {
+                    try {
+                        await saveTranslationsBatch(translationsToSave);
+                        toast.success('Fordítások sikeresen mentve!');
+                    } catch (translationError: any) {
+                        console.error('Translation save error:', translationError);
+                        const errorMessage = translationError.message || 'Ismeretlen hiba';
+                        
+                        if (errorMessage.includes('invalid input syntax for type uuid')) {
+                            toast.error('Fordítások mentése sikertelen: Az adatbázis migrációt kell futtatni a UUID hiba miatt. Lásd: database/migrations/004_fix_translations_record_id.sql');
+                        } else if (errorMessage.includes('row-level security policy')) {
+                            toast.error('Fordítások mentése sikertelen: Jogosultsági hiba. Az adatbázis migrációt kell futtatni. Lásd: database/migrations/004_fix_translations_record_id.sql');
+                        } else {
+                            toast.error(`Fordítások mentése sikertelen: ${errorMessage}`);
+                        }
+                        // Don't throw here, let the main producer save succeed
+                    }
+                }
+            }
         } catch (error: any) {
             console.error('Hiba a beküldés során:', error);
             toast.error(error.message || 'Hiba történt a mentés során.');
@@ -216,8 +288,7 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                                     name="slug"
                                     label="URL (slug)"
                                     variant="filled"
-
-                                    InputProps={{ readOnly: true }}
+                                    slotProps={{ input: { readOnly: true } }}
                                 />
                                 <RHFTextField name="companyName" label="Cég neve" />
                                 <RHFTextField name="location" label="Termelő helye" />
@@ -233,6 +304,64 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                                     name="producingTags"
                                     label="Mit termel? (címkék vesszővel elválasztva)"
                                 />
+                            </Stack>
+                        </Card>
+
+                        <Card>
+                            <CardHeader 
+                                title="Fordítások" 
+                                action={<TranslateIcon color="action" />}
+                            />
+                            <Stack spacing={3} sx={{ p: 3 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Itt fordíthatod le a termelő adatait angol és német nyelvre.
+                                </Typography>
+                                
+                                <Tabs
+                                    value={currentTab}
+                                    onChange={(event, newValue) => setCurrentTab(newValue)}
+                                    variant="fullWidth"
+                                >
+                                    <Tab label="Angol (EN)" />
+                                    <Tab label="Német (DE)" />
+                                </Tabs>
+
+                                {SUPPORTED_LOCALES.map((locale, index) => (
+                                    currentTab === index && (
+                                        <Stack spacing={3} key={locale}>
+                                            <Typography variant="subtitle2" color="primary">
+                                                {locale === 'en' ? 'Angol fordítás' : 'Német fordítás'}
+                                            </Typography>
+                                            
+                                            {TRANSLATABLE_FIELDS.map((field) => {
+                                                const getFieldLabel = (fieldName: string) => {
+                                                    switch (fieldName) {
+                                                        case 'name': return 'Termelő neve';
+                                                        case 'shortDescription': return 'Rövid leírás';
+                                                        case 'producingTags': return 'Mit termel?';
+                                                        default: return fieldName;
+                                                    }
+                                                };
+
+                                                const isTextarea = field === 'shortDescription';
+
+                                                return (
+                                                    <TextField
+                                                        key={`${field}-${locale}`}
+                                                        label={`${getFieldLabel(field)} (${locale.toUpperCase()})`}
+                                                        multiline={isTextarea}
+                                                        rows={isTextarea ? 4 : 1}
+                                                        value={translations[field]?.[locale] || ''}
+                                                        onChange={(e) => updateTranslation(field, locale, e.target.value)}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        placeholder={`${getFieldLabel(field)} ${locale === 'en' ? 'angolul' : 'németül'}`}
+                                                    />
+                                                );
+                                            })}
+                                        </Stack>
+                                    )
+                                ))}
                             </Stack>
                         </Card>
 
