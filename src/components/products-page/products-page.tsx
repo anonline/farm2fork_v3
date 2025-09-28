@@ -13,12 +13,12 @@ import {
     Select,
     MenuItem,
     Skeleton,
+    Checkbox,
     TextField,
     IconButton,
     Typography,
     InputAdornment,
     CircularProgress,
-    Checkbox,
 } from '@mui/material';
 
 import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
@@ -498,8 +498,8 @@ export function ProductPageTextFilter({
                             return 'Alkategória';
                         }
                         if (selected.length === 1) {
-                            const selectedCategory = categories.find(c => c.id === selected[0]);
-                            return selectedCategory?.name || 'Alkategória';
+                            const selectedCategoryLabel = categories.find(c => c.id === selected[0]);
+                            return selectedCategoryLabel?.name || 'Alkategória';
                         }
                         return `${selected.length} alkategória`;
                     }}
