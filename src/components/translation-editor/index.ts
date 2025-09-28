@@ -1,0 +1,1 @@
+export { default as TranslationEditor } from './translation-editor';

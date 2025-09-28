@@ -35,6 +35,13 @@ export type ConfigValue = {
         producersPerPage: number;
         infiniteScrollThreshold: number;
     };
+    i18n: {
+        defaultLocale: 'hu' | 'en' | 'de';
+        supportedLocales: ('hu' | 'en' | 'de')[];
+        fallbackLocale: 'hu' | 'en' | 'de';
+        useUrlLocale: boolean;
+        storageKey: string;
+    };
 };
 
 // ----------------------------------------------------------------------
@@ -105,5 +112,15 @@ export const CONFIG: ConfigValue = {
         productsPerPage: 25, // Number of products to load per page
         producersPerPage: 20, // Number of producers to load per page
         infiniteScrollThreshold: 1500, // Distance from bottom in pixels to trigger load more
+    },
+    /**
+     * Internationalization (i18n)
+     */
+    i18n: {
+        defaultLocale: 'hu', // Default language is Hungarian
+        supportedLocales: ['hu', 'en', 'de'], // Supported languages
+        fallbackLocale: 'hu', // Fallback language when translation is missing
+        useUrlLocale: false, // Don't change URLs based on language
+        storageKey: 'farm2fork_locale', // localStorage key for selected language
     },
 };

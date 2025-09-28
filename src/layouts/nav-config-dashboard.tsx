@@ -41,6 +41,7 @@ const ICONS = {
     analytics: icon('ic-analytics'),
     dashboard: icon('ic-dashboard'),
     parameter: icon('ic-parameter'),
+    translations: icon('ic-label'),
 };
 
 // ----------------------------------------------------------------------
@@ -279,6 +280,18 @@ export const navData: NavSectionProps['data'] = [
                     },
                 ],
             },
+            {
+                title: 'Fordítások',
+                path: paths.dashboard.translations.root,
+                icon: ICONS.translations,
+                children: [
+                    { title: 'Összes fordítás', path: paths.dashboard.translations.root },
+                    { title: 'Termékek', path: paths.dashboard.translations.products },
+                    { title: 'Termelők', path: paths.dashboard.translations.producers },
+                    { title: 'Kategóriák', path: paths.dashboard.translations.categories },
+                ],
+            },
+
             /*{
                 title: 'Disabled',
                 path: '#disabled',
