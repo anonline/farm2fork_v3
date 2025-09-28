@@ -476,7 +476,7 @@ export function ProductPageTextFilter({
                     />
                 </Box>
 
-                <Stack direction={'row'} alignItems="center" sx={
+                <Stack direction="row" alignItems="center" sx={
                     {
                         width: { xs: '100%', sm: (categories && selectedCategory != 42 && categories.filter(c => c.enabled && c.parentId == selectedCategory).length > 0 ?  '30%' : 'auto') },
                         gap: { xs: 1, sm: 2 },
