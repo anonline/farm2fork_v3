@@ -165,8 +165,8 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         width: '100%',
                         position: 'relative',
                         overflow: 'hidden',
-                        borderTopLeftRadius: 1,
-                        borderTopRightRadius: 1,
+                        borderTopLeftRadius: '8px',
+                        borderTopRightRadius: '8px',
                     }}
                 >
                     <Image
@@ -179,6 +179,8 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         style={{
                             objectFit: 'cover',
                             cursor: 'pointer',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
                         }}
                     />
                 </Box>
