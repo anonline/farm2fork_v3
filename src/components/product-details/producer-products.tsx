@@ -10,9 +10,10 @@ import ProductCard from 'src/components/product-card/product-card';
 
 interface ProducerProductsProps {
     producerId: string;
+    excludeProductId?: string;
 }
 
-export default function ProducerProducts({ producerId }: Readonly<ProducerProductsProps>) {
+export default function ProducerProducts({ producerId, excludeProductId }: Readonly<ProducerProductsProps>) {
     const { products, loading, error } = useProducts();
 
     if (loading) {
@@ -23,7 +24,7 @@ export default function ProducerProducts({ producerId }: Readonly<ProducerProduc
         );
     }
 
-    const producerProducts = products.filter((product) => product.producerId === producerId);
+    const producerProducts = products.filter((product) => product.producerId === producerId && product.id !== excludeProductId);
 
     if (error) {
         return <Typography color="error">Hiba a termékek betöltésekor: {error}</Typography>;

@@ -34,7 +34,7 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
             setLoading(true);
             const { data, error } = await supabase
                 .from('Products')
-                .select('*')
+                .select('*, producer:Producers!left(*)')
                 .eq('url', slug)
                 .maybeSingle();
             if (error) {
@@ -65,7 +65,6 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
 
 export const useProduct = () => {
     const context = useContext(ProductContext);
-    console.log(context.product);
     if (!context) throw new Error('useProduct csak a ProductProvider-en belül használható');
     return context;
 };

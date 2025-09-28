@@ -110,8 +110,11 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
                         {producer.name}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        {producer.shortDescription ??
-                            'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
+                        {producer.shortDescription
+                            ? producer.shortDescription.length > 200
+                                ? producer.shortDescription.slice(0, 200) + '...'
+                                : producer.shortDescription
+                            : 'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
                     </Typography>
                     <Button sx={buttonStyle}>Tovább a termelőhöz</Button>
                 </Stack>

@@ -22,9 +22,10 @@ import ProducerProducts from './producer-products';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
+import ProducerInfo from '../product-card/producer-info';
 
 export default function ProductDetails() {
-    const {roles, user} = useAuthContext();
+    const { roles, user } = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
 
     const { product, loading } = useProduct();
@@ -55,9 +56,8 @@ export default function ProductDetails() {
                 letterSpacing: '0.32px',
                 color: themeConfig.textColor.default,
             }}
-        >
-            {product?.shortDescription}
-        </Typography>
+            dangerouslySetInnerHTML={{ __html: product?.shortDescription || '' }}
+        />
     );
 
     const renderSeasonality = () =>
@@ -89,17 +89,17 @@ export default function ProductDetails() {
         );
 
     const getPrice = () => {
-        if(user?.user_metadata?.is_vip) {
+        if (user?.user_metadata?.is_vip) {
             return product?.netPriceVIP;
         }
 
-        if(user?.user_metadata?.is_corp) {
+        if (user?.user_metadata?.is_corp) {
             return product?.netPriceCompany;
         }
 
         return product?.salegrossPrice ?? product?.grossPrice;
     }
-    
+
     const renderPriceDetails = () => {
         const priceDetailsStyle = {
             display: 'flex',
@@ -184,6 +184,15 @@ export default function ProductDetails() {
         );
     };
 
+    const renderProducerInfo = () =>
+        product?.producer && (
+            <ProducerInfo
+                name={product.producer.name}
+                location={product.producer.location}
+                img={product.producer.featuredImage}
+            />
+        );
+
     const headRightSectionGap = '20px';
 
     const renderHead = () => (
@@ -234,6 +243,9 @@ export default function ProductDetails() {
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderSeasonality()}
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                    {renderProducerInfo()}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderPriceDetails()}
@@ -303,7 +315,7 @@ export default function ProductDetails() {
             {product?.producerId !== undefined && product?.producerId !== null && (
                 <Container maxWidth="lg" sx={{ padding: '20px' }}>
                     <ProductsProvider>
-                        <ProducerProducts producerId={product.producerId} />
+                        <ProducerProducts producerId={product.producerId} excludeProductId={product.id} />
                     </ProductsProvider>
                 </Container>
             )}

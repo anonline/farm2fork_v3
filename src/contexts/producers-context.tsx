@@ -43,7 +43,15 @@ export function ProducersProvider({ showDisabled = false, children }: Readonly<{
                 setLoadError(error.message);
                 setProducers([]);
             } else {
-                setProducers(data ?? []);
+                const sanitizedData = data.map((producer) => ({
+                    ...producer,
+                    shortDescription: (producer.shortDescription || '').replace(/&([a-zA-Z0-9#]+);/g, (_: string, entity: string) => {
+                        const txt = document.createElement('textarea');
+                        txt.innerHTML = `&${entity};`;
+                        return txt.value;
+                    }),
+                }));
+                setProducers(sanitizedData);
                 setLoadError(null);
             }
             setLoading(false);
