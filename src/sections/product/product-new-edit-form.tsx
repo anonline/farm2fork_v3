@@ -118,7 +118,7 @@ export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct: IProductItem | null }>) {
     const router = useRouter();
 
-    const { categories, loading: categoriesLoading } = useCategories();
+    const { loading: categoriesLoading, allCategories } = useCategories();
     const { producers } = useProducers();
     const { connection } = useProductCategoryConnection();
 
@@ -394,7 +394,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
                     <Grid container spacing={3}>
                         <Grid size={{xs:12, md:6}}>
-                            <CategoryCard isOpen={openCategories} control={control} categoriesLoading={categoriesLoading} categories={categories} />
+                            <CategoryCard isOpen={openCategories} control={control} categoriesLoading={categoriesLoading} categories={allCategories} />
                         </Grid>
                         <Grid size={{xs:12, md:6}}>
                             <SeasonalityCard isOpen={openSeasonality} control={control} />

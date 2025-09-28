@@ -57,7 +57,7 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 export function CategoryListView() {
     const confirmDialog = useBoolean();
 
-    const { categories, loading } = useCategories();
+    const { allCategories: categories, loading } = useCategories();
 
     const [tableData, setTableData] = useState<ICategoryItem[]>(categories);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);

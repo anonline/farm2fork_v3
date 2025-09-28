@@ -18,6 +18,7 @@ type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'de
 
 export interface UseInfiniteProductsProps {
     categoryId?: number;
+    subCategoryId?: number;
     isBio?: boolean;
     sorting?: SortingOption;
     searchText?: string;
@@ -36,6 +37,7 @@ export interface UseInfiniteProductsReturn {
 
 export function useInfiniteProducts({
     categoryId,
+    subCategoryId,
     isBio = false,
     sorting = 'default',
     searchText = '',
@@ -52,91 +54,63 @@ export function useInfiniteProducts({
     const buildQuery = useCallback((offset: number, limit: number) => {
         let query = supabase
             .from('Products')
-            .select('*, producer:Producers(*), category:ProductCategories(*)', { count: 'exact' })
+            .select('*, producer:Producers(*), category:ProductCategories(*), product_categories:ProductCategories_Products!inner(*)', { count: 'exact' })
             .eq('publish', true) // Only fetch published products
             .or('stock.gt.0, stock.is.null, backorder.eq.true') // In stock or backorder allowed
-            .range(offset, offset + limit - 1);
 
-        // Apply category filter (if not "all products" category id 42)
-        if (categoryId !== undefined && categoryId !== 42) {
-            // For category filtering, we need to join with ProductCategories_Products
-            query = supabase
-                .from('ProductCategories_Products')
-                .select(`Products!inner(*,producer:Producers(*),category:ProductCategories(*))`, { count: 'exact' })
-                .eq('categoryId', categoryId)
-                .range(offset, offset + limit - 1);
+
+        let categoryIds: number[] = [];
+        if ((categoryId !== undefined && categoryId !== 42)) {
+            categoryIds.push(categoryId);
         }
+
+        if ((subCategoryId !== undefined && subCategoryId !== 42)) {
+            categoryIds = [subCategoryId];
+        }
+
+        if (categoryIds.length > 0) {
+            query = query.in('product_categories.categoryId', categoryIds);
+        }
+
+        query = query.range(offset, offset + limit - 1);
 
         // Apply bio filter
         if (isBio) {
-            if (categoryId !== undefined && categoryId !== 42) {
-                query = query.eq('Products.bio', true);
-            } else {
-                query = query.eq('bio', true);
-            }
+            query = query.eq('bio', true);
         }
 
         // Apply search filter
         if (searchText.trim()) {
-            if (categoryId !== undefined && categoryId !== 42) {
-                query = query.ilike('Products.name', `%${searchText}%`);
-            } else {
-                query = query.ilike('name', `%${searchText}%`);
-            }
+            query = query.ilike('name', `%${searchText}%`);
         }
 
         // Apply sorting
         if (sorting && sorting !== 'default') {
-            if (categoryId !== undefined && categoryId !== 42) {
-                // For joined queries, use the foreign key syntax
-                switch (sorting) {
-                    case 'name-asc':
-                        query = query.order('Products(name)', { ascending: true });
-                        break;
-                    case 'name-desc':
-                        query = query.order('Products(name)', { ascending: false });
-                        break;
-                    case 'price-asc':
-                        query = query.order('Products(netPrice)', { ascending: true });
-                        break;
-                    case 'price-desc':
-                        query = query.order('Products(netPrice)', { ascending: false });
-                        break;
-                    default:
-                        query = query.order('Products(name)', { ascending: true });
-                        break;
-                }
-            } else {
-                // For direct queries
-                switch (sorting) {
-                    case 'name-asc':
-                        query = query.order('name', { ascending: true });
-                        break;
-                    case 'name-desc':
-                        query = query.order('name', { ascending: false });
-                        break;
-                    case 'price-asc':
-                        query = query.order('netPrice', { ascending: true });
-                        break;
-                    case 'price-desc':
-                        query = query.order('netPrice', { ascending: false });
-                        break;
-                    default:
-                        query = query.order('name', { ascending: true });
-                        break;
-                }
+            // For direct queries
+            switch (sorting) {
+                case 'name-asc':
+                    query = query.order('name', { ascending: true });
+                    break;
+                case 'name-desc':
+                    query = query.order('name', { ascending: false });
+                    break;
+                case 'price-asc':
+                    query = query.order('netPrice', { ascending: true });
+                    break;
+                case 'price-desc':
+                    query = query.order('netPrice', { ascending: false });
+                    break;
+                default:
+                    query = query.order('name', { ascending: true });
+                    break;
             }
         } else {
             // Default sorting
-            if (categoryId !== undefined && categoryId !== 42) {
-                query = query.order('Products(name)', { ascending: true });
-            } else {
-                query = query.order('name', { ascending: true });
-            }
+            query = query.order('name', { ascending: true });
         }
 
         return query;
-    }, [categoryId, isBio, searchText, sorting]);
+    }, [categoryId, subCategoryId, isBio, searchText, sorting]);
 
     // Fetch products for a specific page
     const fetchProducts = useCallback(async (page: number, reset: boolean = false) => {
@@ -151,7 +125,7 @@ export function useInfiniteProducts({
             const offset = page * PRODUCTS_PER_PAGE;
             console.log(`Fetching page ${page}, offset: ${offset}, PRODUCTS_PER_PAGE: ${PRODUCTS_PER_PAGE}`);
             const query = buildQuery(offset, PRODUCTS_PER_PAGE);
-            
+
             const { data, error: supabaseError, count } = await query;
 
             if (supabaseError) {
@@ -160,14 +134,7 @@ export function useInfiniteProducts({
 
             let processedProducts: IProductItem[] = [];
 
-            if (categoryId !== undefined && categoryId !== 42) {
-                // Extract products from the join result
-                processedProducts = (data?.map((item: any) => item.Products).filter(Boolean) as IProductItem[]) ?? [];
-            } else {
-                processedProducts = (data as IProductItem[]) ?? [];
-            }
-
-            console.log(`Received ${processedProducts.length} products, total count: ${count}, reset: ${reset}`);
+            processedProducts = (data as IProductItem[]) ?? [];
 
             if (reset) {
                 setProducts(processedProducts);
@@ -183,14 +150,13 @@ export function useInfiniteProducts({
                     updatedProducts = [...prev, ...newProducts];
                     return updatedProducts;
                 });
-                
+
                 setTotalCount(count ?? 0);
                 // Check if we got a full page and if there are more products to load
                 const newHasMore = processedProducts.length === PRODUCTS_PER_PAGE && (offset + PRODUCTS_PER_PAGE) < (count ?? 0);
-                console.log(`Setting hasMore to ${newHasMore}: processedProducts.length=${processedProducts.length}, PRODUCTS_PER_PAGE=${PRODUCTS_PER_PAGE}, offset=${offset}, count=${count}`);
                 setHasMore(newHasMore);
             }
-            
+
             setError(null);
 
         } catch (err) {
@@ -210,7 +176,6 @@ export function useInfiniteProducts({
     const loadMore = useCallback(() => {
         if (!loadingMore && hasMore) {
             const nextPage = currentPage + 1;
-            console.log(`Loading page ${nextPage}, current products: ${products.length}, hasMore: ${hasMore}`);
             setCurrentPage(nextPage);
             fetchProducts(nextPage, false);
         }
@@ -228,8 +193,8 @@ export function useInfiniteProducts({
         setCurrentPage(0);
         setHasMore(true);
         fetchProducts(0, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [categoryId, isBio, sorting, searchText]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [categoryId, subCategoryId, isBio, sorting, searchText]);
 
     return {
         products,

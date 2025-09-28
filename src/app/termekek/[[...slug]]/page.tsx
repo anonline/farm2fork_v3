@@ -18,7 +18,7 @@ export default async function Page({ params }: Readonly<Props>) {
     return (
         <ProductsProvider>
             <CategoryProvider>
-                <ProductsPage urlSlug={slug?.[0] ?? undefined} />
+                <ProductsPage urlSlug={decodeURIComponent(slug?.[0] ?? '')} />
             </CategoryProvider>
         </ProductsProvider>
     );
