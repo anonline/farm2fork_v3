@@ -1,7 +1,6 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { supabaseSSR } from 'src/lib/supabase-ssr';
+import { supabase } from 'src/lib/supabase';
 import type { 
   Translation, 
   Product, 
@@ -11,8 +10,6 @@ import type {
   TranslationCreate,
   TranslationUpdate 
 } from 'src/types/database.types';
-
-
 
 // =============================================================================
 // TRANSLATION MANAGEMENT ACTIONS
@@ -26,8 +23,6 @@ export async function getTranslationsForRecord(
   recordId: string
 ): Promise<Translation[]> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('translations')
       .select('*')
@@ -59,8 +54,6 @@ export async function saveTranslation(
   value: string
 ): Promise<void> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { error } = await supabase
       .from('translations')
       .upsert(
@@ -96,8 +89,6 @@ export async function deleteTranslation(
   locale: Locale
 ): Promise<void> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { error } = await supabase
       .from('translations')
       .delete()
@@ -123,8 +114,6 @@ export async function saveTranslationsBatch(
   translations: TranslationCreate[]
 ): Promise<void> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { error } = await supabase
       .from('translations')
       .upsert(translations, {
@@ -150,8 +139,6 @@ const supabase = await supabaseSSR(cookieStore);
  */
 export async function getProductsWithTranslations(): Promise<Product[]> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('Products')
       .select(`
@@ -178,8 +165,6 @@ const supabase = await supabaseSSR(cookieStore);
  */
 export async function getProductWithTranslations(productId: string): Promise<Product | null> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('Products')
       .select(`
@@ -239,8 +224,6 @@ export async function deleteProductTranslation(
  */
 export async function getProducersWithTranslations(): Promise<Producer[]> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('Producers')
       .select(`
@@ -267,8 +250,6 @@ const supabase = await supabaseSSR(cookieStore);
  */
 export async function getProducerWithTranslations(producerId: string): Promise<Producer | null> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('Producers')
       .select(`
@@ -315,8 +296,6 @@ export async function saveProducerTranslation(
  */
 export async function getCategoriesWithTranslations(): Promise<Category[]> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('ProductCategories')
       .select(`
@@ -362,8 +341,6 @@ export async function getBulkTranslations(
   recordIds: string[]
 ): Promise<Record<string, Translation[]>> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('translations')
       .select('*')
@@ -396,8 +373,6 @@ const supabase = await supabaseSSR(cookieStore);
  */
 export async function checkTranslationSupport(): Promise<boolean> {
   try {
-    const cookieStore = await cookies();
-const supabase = await supabaseSSR(cookieStore);
     const { data, error } = await supabase
       .from('translations')
       .select('count')
