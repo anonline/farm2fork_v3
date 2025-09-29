@@ -1,7 +1,6 @@
 'use client';
 
 import type { IOrderData } from 'src/types/order-management';
-import type { IShipment } from 'src/types/shipments';
 
 import dayjs, { type Dayjs } from 'dayjs';
 import { useState, useEffect, useCallback } from 'react';
@@ -19,8 +18,8 @@ import { useShipments } from 'src/contexts/shipments/shipments-context';
 
 import { toast } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+
 import { OrdersTable } from './new-shipment-orders-table';
-import { PickersDayProps } from 'node_modules/@mui/lab/esm/PickersDay/PickersDay';
 
 
 
@@ -94,9 +93,7 @@ export function NewShipmentModal({ open, onClose }: Props) {
         );
     }, []);
 
-    const isDateDisabled = (date: Dayjs) => {
-        return existingDates.includes(date.format('YYYY-MM-DD'));
-    };
+    const isDateDisabled = (date: Dayjs) => existingDates.includes(date.format('YYYY-MM-DD'));
 
     const handleSave = () => {
         if (!selectedDate) {

@@ -8,15 +8,14 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
+import { Link, useMediaQuery } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { fCurrency } from 'src/utils/format-number';
 
 import BioBadge from 'src/components/bio-badge/bio-badge';
-import { Link, useMediaQuery } from '@mui/material';
-import { paths } from 'src/routes/paths';
-import { ShipmentItemSummary } from '../view/shipment-details-view';
-import { Iconify } from 'src/components/iconify';
+
+import type { ShipmentItemSummary } from '../view/shipment-details-view';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +31,7 @@ type Props = {
 
 export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Props>) {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
     const columns: GridColDef[] = useMemo(() => [
         {
@@ -202,8 +202,6 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             </Box>
         );
     }
-
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const renderMobileDataGrid = () => (
         <DataGrid

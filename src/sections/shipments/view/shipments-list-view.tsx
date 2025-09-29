@@ -28,14 +28,14 @@ import {
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,
-    GridToolbarFilterButton,
-    GridToolbarColumnsButton,
 } from '@mui/x-data-grid';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { fDate } from 'src/utils/format-time';
 import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
+import { generateMultiSheetShipmentXLS } from 'src/utils/shipment-xls-export';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
@@ -49,7 +49,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { NewShipmentModal } from '../new-shipment-modal';
-
 import { ShipmentsTableToolbar } from '../shipments-table-toolbar';
 import { ShipmentsTableFiltersResult } from '../shipments-table-filters-result';
 import {
@@ -59,8 +58,6 @@ import {
     RenderCellProductCount,
     RenderCellProductAmount,
 } from '../shipments-table-row';
-import { fDate } from 'src/utils/format-time';
-import { generateMultiSheetShipmentXLS, generateShipmentXLS } from 'src/utils/shipment-xls-export';
 
 // ----------------------------------------------------------------------
 
@@ -223,7 +220,7 @@ export function ShipmentsListView() {
                 toast.error('Hiba történt a rendelések ellenőrzése során');
             }
         },
-        []
+        [confirmDialog.onTrue, refreshCounts]
     );
 
     const handleDeleteRowsClick = useCallback(async () => {
@@ -255,7 +252,7 @@ export function ShipmentsListView() {
             console.error('Error checking orders for shipments:', error);
             toast.error('Hiba történt a rendelések ellenőrzése során');
         }
-    }, [selectedRowIds]);
+    }, [selectedRowIds, confirmDialog.onTrue, refreshCounts]);
 
     const handleDeleteRow = useCallback(
         async (id: number) => {
@@ -298,8 +295,8 @@ export function ShipmentsListView() {
         }
     }, [selectedRowIds, deleteShipment]);
 
-    const collectShipmentsDataForPdf = async (tableData: IShipment[]) => {
-        const selectedShipments = tableData.filter(shipment =>
+    const collectShipmentsDataForPdf = async (tableDataforPdf: IShipment[]) => {
+        const selectedShipments = tableDataforPdf.filter(shipment =>
             selectedRowIds.includes(shipment.id)
         );
 
@@ -320,8 +317,8 @@ export function ShipmentsListView() {
         return shipmentsData;
     };
 
-    const collectSummarizedShipmentDataForPdf = async (tableData: IShipment[]) => {
-        const shipmentsData = await collectShipmentsDataForPdf(tableData);
+    const collectSummarizedShipmentDataForPdf = async (tableDataForSummarizedPdf: IShipment[]) => {
+        const shipmentsData = await collectShipmentsDataForPdf(tableDataForSummarizedPdf);
         const summarizedShipmentData = shipmentsData.reduce((acc, { shipment, itemsSummary }) => {
             // Merge itemsSummary into acc
             itemsSummary.forEach(item => {

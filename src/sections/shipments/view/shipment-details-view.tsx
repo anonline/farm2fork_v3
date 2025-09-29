@@ -15,6 +15,8 @@ import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import { alpha, useTheme } from '@mui/material/styles';
 
+import { paths } from 'src/routes/paths';
+
 import { generateShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateShipmentXLS } from 'src/utils/shipment-xls-export';
 
@@ -27,7 +29,6 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { ShipmentItemsTable } from '../components';
-import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -279,7 +280,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         title="Összesítő információk"
                     />
                     <Box sx={{ p: 3, pt: 3 }}>
-                        <Stack direction={'row'} spacing={3} justifyContent={'space-between'} flexWrap="wrap">
+                        <Stack direction="row" spacing={3} justifyContent="space-between" flexWrap="wrap">
                             <Stack spacing={1} sx={{ minWidth: 120 }}>
                                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                     Rendelések száma
@@ -334,7 +335,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         action={
                             <Stack direction="row" spacing={2} justifyContent="flex-end">
                                 <Button
-                                    size={"medium"}
+                                    size="medium"
                                     variant="outlined"
                                     startIcon={<Iconify icon="solar:download-bold" />}
                                     onClick={handleExportPDF}
