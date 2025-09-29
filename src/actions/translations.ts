@@ -1,17 +1,16 @@
 'use server';
 
+import { cookies } from 'next/headers';
+import { supabaseSSR } from 'src/lib/supabase-ssr';
 import type { 
-  Locale, 
+  Translation, 
   Product, 
   Producer, 
   Category,
-  Translation,
-  TranslationCreate 
+  Locale,
+  TranslationCreate,
+  TranslationUpdate 
 } from 'src/types/database.types';
-
-import { cookies } from 'next/headers';
-
-import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 
 
@@ -69,7 +68,7 @@ const supabase = await supabaseSSR(cookieStore);
           table_name: tableName,
           record_id: recordId,
           field_name: fieldName,
-          locale,
+          locale: locale,
           value: value.trim(),
         },
         {

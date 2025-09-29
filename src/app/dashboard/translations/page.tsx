@@ -1,50 +1,49 @@
 'use client';
 
-import type { Product, Producer, Category } from 'src/types/database.types';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { 
-  Edit as EditIcon,
-  Search as SearchIcon,
-  Language as LanguageIcon,
-} from '@mui/icons-material';
-import { 
-  Box, 
   Card, 
+  CardHeader, 
+  CardContent,
+  Typography,
+  Button,
+  Box,
   Chip,
   Table,
-  Paper,
-  Button,
-  Select,
-  Dialog,
-  TableRow,
-  MenuItem,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
-  TextField,
-  CardHeader,
-  Typography,
+  TableRow,
+  Paper,
   IconButton,
-  InputLabel,
-  CardContent,
+  TextField,
+  InputAdornment,
   FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Dialog,
   DialogTitle,
   DialogContent,
-  TableContainer,
-  InputAdornment,
 } from '@mui/material';
+import { 
+  Edit as EditIcon, 
+  Search as SearchIcon,
+  Add as AddIcon,
+  Language as LanguageIcon,
+} from '@mui/icons-material';
 
 import { useI18n } from 'src/contexts/i18n-context';
+import { TranslationEditor } from 'src/components/translation-editor';
 import { 
   getProductsWithTranslations, 
   getProducersWithTranslations,
   getCategoriesWithTranslations 
 } from 'src/actions/translations';
-
-import { TranslationEditor } from 'src/components/translation-editor';
+import type { Product, Producer, Category } from 'src/types/database.types';
 
 type TranslatableRecord = Product | Producer | Category;
 type TableType = 'products' | 'producers' | 'categories';
@@ -107,9 +106,6 @@ export default function TranslationsManagementPage() {
         case 'categories':
           data = await getCategoriesWithTranslations();
           break;
-        default:
-          data = [];
-          break;
       }
       
       setRecords(data);
@@ -137,7 +133,7 @@ export default function TranslationsManagementPage() {
       return { status: 'missing', color: 'error' as const, label: 'Nincs fordítás' };
     }
     
-    const locales = new Set(record.translations.map(tr => tr.locale));
+    const locales = new Set(record.translations.map(t => t.locale));
     const hasEnglish = locales.has('en');
     const hasGerman = locales.has('de');
     
@@ -232,7 +228,7 @@ export default function TranslationsManagementPage() {
       {/* Records Table */}
       <Card>
         <CardHeader
-          title={`${tabs.find(tr => tr.key === activeTab)?.label} (${filteredRecords.length})`}
+          title={`${tabs.find(t => t.key === activeTab)?.label} (${filteredRecords.length})`}
         />
         <CardContent sx={{ p: 0 }}>
           <TableContainer component={Paper} elevation={0}>
@@ -261,7 +257,7 @@ export default function TranslationsManagementPage() {
                   </TableRow>
                 ) : (
                   filteredRecords.map((record) => {
-                    const currentTranslationState = getTranslationStatus(record);
+                    const translationStatus = getTranslationStatus(record);
                     return (
                       <TableRow key={record.id} hover>
                         <TableCell>
@@ -285,8 +281,8 @@ export default function TranslationsManagementPage() {
                         </TableCell>
                         <TableCell>
                           <Chip
-                            label={currentTranslationState.label}
-                            color={currentTranslationState.color}
+                            label={translationStatus.label}
+                            color={translationStatus.color}
                             size="small"
                           />
                         </TableCell>

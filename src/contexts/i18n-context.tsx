@@ -1,15 +1,12 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import type { Product, Producer, Category } from 'src/types/database.types';
-
-import { useState, useEffect, useContext, createContext } from 'react';
-
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
   translateProduct,
   translateProducer,
   translateCategory,
 } from 'src/utils/translate-db';
+import type { Product, Producer, Category } from 'src/types/database.types';
 
 type Locale = 'hu' | 'en' | 'de';
 
@@ -182,9 +179,13 @@ export const useLocale = (): Locale => {
 /**
  * Helper function to get supported locales
  */
-export const getSupportedLocales = (): Locale[] => ['hu', 'en', 'de'];
+export const getSupportedLocales = (): Locale[] => {
+  return ['hu', 'en', 'de'];
+};
 
 /**
  * Helper function to validate locale
  */
-export const isValidLocale = (locale: string): locale is Locale => getSupportedLocales().includes(locale as Locale);
+export const isValidLocale = (locale: string): locale is Locale => {
+  return getSupportedLocales().includes(locale as Locale);
+};
