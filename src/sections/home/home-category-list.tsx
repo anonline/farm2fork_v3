@@ -167,7 +167,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
             <MotionViewport>
                 <Grid container spacing={{ xs: 5, md: 8 }} sx={{ position: 'relative', zIndex: 9 }}>
                     <Grid size={{ xs: 12, md: 6, lg: 5 }}>{renderDescription()}</Grid>
-                    <Grid size={{ xs: 12, md: 6, lg: 7 }}>{renderImage()}</Grid>
+                    <Grid size={{ xs: 12, md: 6, lg: 7 }} sx={{display: {sm: 'none', md: 'block'}}}>{renderImage()}</Grid>
                 </Grid>
             </MotionViewport>
         </Box>

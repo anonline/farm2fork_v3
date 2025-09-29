@@ -529,11 +529,6 @@ export function ShipmentsListView() {
         },
     ], [handleDeleteRowClick]);
 
-    const getTogglableColumns = useCallback(() =>
-        columns
-            .filter((column) => !HIDE_COLUMNS_TOGGLABLE.includes(column.field))
-            .map((column) => column.field), [columns]);
-
     const renderConfirmDialog = () => (
         <ConfirmDialog
             open={confirmDialog.value}

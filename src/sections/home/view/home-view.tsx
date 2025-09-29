@@ -4,7 +4,6 @@ import { Box, Stack, Container } from '@mui/material';
 
 import { CategoryProvider } from 'src/contexts/category-context';
 
-import { BackToTopButton } from 'src/components/animate/back-to-top-button';
 import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
 
 import { HomeHero } from '../home-hero';
@@ -42,9 +41,6 @@ export function HomeView(props: Readonly<HomeViewProps>) {
                     sx={[(theme) => ({ position: 'fixed', zIndex: theme.zIndex.appBar + 1 })]}
                 />
 
-                <BackToTopButton />
-
-                <BackToTopButton />
 
                 <HomeHero
                     heroImg={props.heroImg || ''}

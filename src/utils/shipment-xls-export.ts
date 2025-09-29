@@ -99,7 +99,7 @@ function generateSheet(shipment: IShipment, itemsSummary: ShipmentItemSummary[])
 
     // Calculate totals
     const totalQuantity = itemsSummary.reduce((sum, item) => sum + item.totalQuantity, 0);
-    const totalValue = itemsSummary.reduce((sum, item) => sum + item.totalValue, 0);
+    
 
     // Add totals row
     const totalsRow = ['ÖSSZESEN', '', '', totalQuantity, '', '', '', ''];

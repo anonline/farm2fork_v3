@@ -137,8 +137,7 @@ const styles = StyleSheet.create({
 });
 
 function renderPage({shipment, itemsSummary}: Props) {
-  const totalValue = itemsSummary.reduce((sum, item) => sum + item.totalValue, 0);
-  const totalQuantity = itemsSummary.reduce((sum, item) => sum + item.totalQuantity, 0);
+  
   return (
     <Page size="A4" style={styles.page}>
         {/* Header */}

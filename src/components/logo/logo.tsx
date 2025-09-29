@@ -194,10 +194,10 @@ export function Logo({
     const farmLogoWhite = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="160"
+            width="120"
             height="43"
             viewBox="0 0 114 31"
-            style={{ width: '185px', height: '50px', marginTop: '-7px' }}
+            style={{ width: '120', height: '43px' }}
             fill="none"
         >
             <path
@@ -254,10 +254,9 @@ export function Logo({
     const farmLogoDark = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="160"
+            width="120"
             height="43"
             viewBox="0 0 114 31"
-            style={{ marginTop: '-7px' }}
             fill="none"
         >
             <path
@@ -320,7 +319,7 @@ export function Logo({
             className={mergeClasses([logoClasses.root, className])}
             sx={[
                 {
-                    ...(!isSingle && { width: 160, height: 43 }),
+                    ...(!isSingle && { width: 120, height: 43 }),
                     ...(disabled && { pointerEvents: 'none' }),
                 },
                 ...(Array.isArray(sx) ? sx : [sx]),

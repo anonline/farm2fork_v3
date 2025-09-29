@@ -95,7 +95,6 @@ export function CategoryNewEditForm({
     });
 
     const {
-        reset,
         watch,
         setValue,
         handleSubmit,

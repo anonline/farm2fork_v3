@@ -53,7 +53,7 @@ export function BackToTopButton({
             ]}
             {...other}
         >
-            <Iconify width={24} icon="solar:double-alt-arrow-up-bold-duotone" />
+            <Iconify width={24} icon="eva:arrow-upward-fill" />
         </Fab>
     );
 }

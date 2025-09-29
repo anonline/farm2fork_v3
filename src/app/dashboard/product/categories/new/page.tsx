@@ -10,6 +10,8 @@ import { OptionsEnum } from 'src/types/option';
 
 // ----------------------------------------------------------------------
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = { title: `Új kategória | Dashboard - ${CONFIG.appName}` };
 
 export default async function Page() {

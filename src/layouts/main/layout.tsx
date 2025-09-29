@@ -17,6 +17,7 @@ import { themeConfig } from 'src/theme';
 import { ensureValidAnnouncement } from 'src/actions/announcements';
 
 import { Logo } from 'src/components/logo';
+import { BackToTopButton } from 'src/components/animate';
 import { SideCart, useSideCart, SideCartProvider } from 'src/components/sidecart';
 
 import { useAuthContext } from 'src/auth/hooks';
@@ -338,6 +339,8 @@ function MainLayoutContent({
             cssVars={cssVars}
             sx={sx}
         >
+            <BackToTopButton scrollThreshold="20%" />
+
             {renderMain()}
             <SideCart open={isSideCartOpen} onClose={closeSideCart} />
         </LayoutSection>
