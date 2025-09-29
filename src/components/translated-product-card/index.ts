@@ -1,1 +1,0 @@
-export { default as TranslatedProductCard } from './translated-product-card';

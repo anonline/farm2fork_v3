@@ -249,13 +249,6 @@ export const paths = {
                 root: `${ROOTS.DASHBOARD}/post/categories`,
             },
         },
-        translations: {
-            root: `${ROOTS.DASHBOARD}/translations`,
-            products: `${ROOTS.DASHBOARD}/translations/products`,
-            producers: `${ROOTS.DASHBOARD}/translations/producers`,
-            categories: `${ROOTS.DASHBOARD}/translations/categories`,
-            edit: (tableName: string, recordId: string) => `${ROOTS.DASHBOARD}/translations/${tableName}/${recordId}/edit`,
-        },
         order: {
             root: `${ROOTS.DASHBOARD}/order`,
             details: (id: string) => `${ROOTS.DASHBOARD}/order/${id}`,
@@ -311,6 +304,6 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/emailtemplates`,
             newTemplate: `${ROOTS.DASHBOARD}/emailtemplates/new`,
             editTemplate: (type: string) => `${ROOTS.DASHBOARD}/emailtemplates/${type}/edit`,
-        },
+        }
     },
 };

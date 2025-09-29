@@ -10,7 +10,7 @@ import { primary } from 'src/theme/core/palette';
 import { LocalizationProvider } from 'src/locales';
 import { detectLanguage } from 'src/locales/server';
 import { themeConfig, ThemeProvider } from 'src/theme';
-import { I18nProvider } from 'src/contexts/i18n-context';
+import { I18nProvider } from 'src/locales/i18n-provider';
 
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
@@ -88,7 +88,7 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                     defaultMode={themeConfig.enableSystemMode ? 'system' : themeConfig.defaultMode}
                 />
 
-                <I18nProvider initialLocale={appConfig.i18nLang as 'hu' | 'en' | 'de' | undefined}>
+                <I18nProvider lang={appConfig.i18nLang}>
                     <AuthProvider>
                         <SettingsProvider
                             defaultSettings={defaultSettings}
