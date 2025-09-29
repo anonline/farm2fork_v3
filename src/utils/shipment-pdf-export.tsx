@@ -4,6 +4,7 @@ import React from 'react';
 import { pdf, Page, Text, View, Font, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from 'src/utils/format-number';
+import { fDate } from './format-time';
 
 // Register fonts that support Hungarian characters
 Font.register({
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     fontFamily: 'Roboto',
-
+    lineHeight: 1.2,
   },
   subtitle: {
     fontSize: 12,
@@ -144,7 +145,7 @@ function renderPage({shipment, itemsSummary}: Props) {
           <View>
               {/* Simple logo placeholder */}
                 <Text style={styles.title}>
-                  Szállítási összesítő részletei {shipment.date ? new Date(shipment.date).toLocaleDateString('hu-HU') : 'Nincs megadva'}
+                  {fDate(shipment.date) === 'Invalid date' && typeof shipment.date === 'string' ? shipment.date : fDate(shipment.date)}
                 </Text>
           </View>
           <View style={styles.companyInfo}>
@@ -193,7 +194,7 @@ function renderPage({shipment, itemsSummary}: Props) {
                 <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
                   [BIO]{' '}
                 </Text>
-              )}
+              )}            
               {item.name}
             </Text>
             <Text style={styles.quantityCol}>
@@ -264,8 +265,8 @@ export async function generateMultiShipmentPDF(shipmentsData: Array<{
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  const shipmentIds = shipmentsData.map(s => s.shipment.id).join('-');
-  link.download = `szallitasi-osszesitok-${shipmentIds}-${new Date().toISOString().split('T')[0]}.pdf`;
+  const shipmentDates = shipmentsData.map(s => s.shipment.date).join('-').replaceAll(', ', '_');
+  link.download = `szallitasi-osszesitok-${shipmentDates}-${new Date().toISOString().split('T')[0]}.pdf`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

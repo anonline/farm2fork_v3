@@ -16,7 +16,7 @@ export default function LoggedInHeaderAvatar() {
     
     const initialsFallback = <Iconify icon="solar:user-rounded-bold" />;
     const tooltipFallback = 'Profil megtekintése';
-    const profileUrl = paths.profile.orders; //TODO: Use paths.profil.rendelesek when available
+    const profileUrl = paths.profile.orders; 
     
     // Construct name from CustomerDatas table
     const customerName = customerData 

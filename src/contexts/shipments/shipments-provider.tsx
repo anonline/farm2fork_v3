@@ -64,16 +64,23 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         let productAmount = 0;
         let orderCount = 0;
 
+        const uniqueProductIds = new Set<string>();
+
         orders.forEach((order: IOrderData) => {
-            productCount += order.items.length;
+            // Count unique product IDs across all orders
+            order.items.forEach(item => {
+                uniqueProductIds.add(item.id.toString());
+            });
+
             if (order.items.length > 0) {
                 order.items.forEach(item => {
                     productAmount += item.subtotal;
                 });
             };
-            productAmount += order.surchargeAmount || 0;
             orderCount += 1;
         });
+
+        productCount = uniqueProductIds.size;
 
         // Update the shipment with the new counts
         const { error: updateError } = await supabase

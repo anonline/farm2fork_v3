@@ -57,6 +57,8 @@ import {
     RenderCellProductCount,
     RenderCellProductAmount,
 } from '../shipments-table-row';
+import { fDate } from 'src/utils/format-time';
+import { generateMultiSheetShipmentXLS, generateShipmentXLS } from 'src/utils/shipment-xls-export';
 
 // ----------------------------------------------------------------------
 
@@ -67,101 +69,101 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 // ----------------------------------------------------------------------
 
 type ShipmentItemSummary = {
-  id: string;
-  name: string;
-  size?: string;
-  unit?: string;
-  totalQuantity: number;
-  averagePrice: number;
-  totalValue: number;
-  orderCount: number;
-  customersCount: number;
-  customers: string[];
-  productId?: string;
-  isBio?: boolean;
+    id: string;
+    name: string;
+    size?: string;
+    unit?: string;
+    totalQuantity: number;
+    averagePrice: number;
+    totalValue: number;
+    orderCount: number;
+    customersCount: number;
+    customers: string[];
+    productId?: string;
+    isBio?: boolean;
 };
 
 /**
  * Fetch and generate itemsSummary for a single shipment
  */
 async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentItemSummary[]> {
-  const ordersResult = await getOrdersByShipmentId(shipmentId);
-  
-  if (ordersResult.error || !ordersResult.orders) {
-    throw new Error(ordersResult.error || 'Failed to fetch orders');
-  }
+    const ordersResult = await getOrdersByShipmentId(shipmentId);
 
-  const orders = ordersResult.orders;
-  
-  // Get unique product IDs
-  const productIds = Array.from(new Set(
-    orders.flatMap(order => order.items.map(item => item.id))
-  )).filter(Boolean);
-
-  // Fetch product data
-  let products: IProductItem[] = [];
-  if (productIds.length > 0) {
-    const productsResult = await fetchGetProductsByIds(productIds);
-    if (productsResult.error) {
-      console.warn('Failed to fetch products:', productsResult.error);
-    } else {
-      products = productsResult.products;
+    if (ordersResult.error || !ordersResult.orders) {
+        throw new Error(ordersResult.error || 'Failed to fetch orders');
     }
-  }
 
-  // Generate items summary
-  const itemsMap = new Map<string, {
-    item: IOrderItem;
-    quantities: number[];
-    prices: number[];
-    customers: Set<string>;
-    orderIds: Set<string>;
-  }>();
+    const orders = ordersResult.orders;
 
-  orders.forEach((order) => {
-    order.items.forEach((item) => {
-      const key = `${item.name}-${item.size || ''}-${item.unit || ''}`;
-      
-      if (!itemsMap.has(key)) {
-        itemsMap.set(key, {
-          item,
-          quantities: [],
-          prices: [],
-          customers: new Set(),
-          orderIds: new Set(),
+    // Get unique product IDs
+    const productIds = Array.from(new Set(
+        orders.flatMap(order => order.items.map(item => item.id))
+    )).filter(Boolean);
+
+    // Fetch product data
+    let products: IProductItem[] = [];
+    if (productIds.length > 0) {
+        const productsResult = await fetchGetProductsByIds(productIds);
+        if (productsResult.error) {
+            console.warn('Failed to fetch products:', productsResult.error);
+        } else {
+            products = productsResult.products;
+        }
+    }
+
+    // Generate items summary
+    const itemsMap = new Map<string, {
+        item: IOrderItem;
+        quantities: number[];
+        prices: number[];
+        customers: Set<string>;
+        orderIds: Set<string>;
+    }>();
+
+    orders.forEach((order) => {
+        order.items.forEach((item) => {
+            const key = `${item.name}-${item.size || ''}-${item.unit || ''}`;
+
+            if (!itemsMap.has(key)) {
+                itemsMap.set(key, {
+                    item,
+                    quantities: [],
+                    prices: [],
+                    customers: new Set(),
+                    orderIds: new Set(),
+                });
+            }
+
+            const summary = itemsMap.get(key)!;
+            summary.quantities.push(item.quantity);
+            summary.prices.push(item.grossPrice);
+            summary.customers.add(order.customerName);
+            summary.orderIds.add(order.id);
         });
-      }
-
-      const summary = itemsMap.get(key)!;
-      summary.quantities.push(item.quantity);
-      summary.prices.push(item.netPrice);
-      summary.customers.add(order.customerName);
-      summary.orderIds.add(order.id);
     });
-  });
 
-  return Array.from(itemsMap.entries()).map(([key, data]) => {
-    const totalQuantity = data.quantities.reduce((sum, qty) => sum + qty, 0);
-    const averagePrice = data.prices.reduce((sum, price) => sum + price, 0) / data.prices.length;
-    
-    // Find corresponding product data
-    const productData = products.find(product => product.id === data.item.id);
-    
-    return {
-      id: key,
-      name: data.item.name,
-      size: data.item.size,
-      unit: data.item.unit,
-      totalQuantity,
-      averagePrice,
-      totalValue: totalQuantity * averagePrice,
-      orderCount: data.orderIds.size,
-      customersCount: data.customers.size,
-      customers: Array.from(data.customers),
-      productId: data.item.id,
-      isBio: productData?.bio || false,
-    };
-  }).sort((a, b) => b.totalValue - a.totalValue);
+    return Array.from(itemsMap.entries()).map(([key, data]) => {
+        const totalQuantity = data.quantities.reduce((sum, qty) => sum + qty, 0);
+        const averagePrice = data.prices.reduce((sum, price) => sum + price, 0) / data.prices.length;
+
+        // Find corresponding product data
+        const productData = products.find(product => product.id === data.item.id);
+
+        return {
+            id: key,
+            name: data.item.name,
+            size: data.item.size,
+            unit: data.item.unit,
+            totalQuantity,
+            averagePrice,
+            totalValue: totalQuantity * averagePrice,
+            orderCount: data.orderIds.size,
+            customersCount: data.customers.size,
+            customers: Array.from(data.customers),
+            productId: data.item.id,
+            isBio: productData?.bio || false,
+        };
+    }).sort((a, b) => b.totalValue - a.totalValue);
 }
 
 // ----------------------------------------------------------------------
@@ -228,37 +230,129 @@ export function ShipmentsListView() {
         }
     }, [selectedRowIds, tableData]);
 
-    const handleExportSelectedToPDF = useCallback(async () => {
+    const collectShipmentsDataForPdf = async (tableData: IShipment[]) => {
+        const selectedShipments = tableData.filter(shipment =>
+            selectedRowIds.includes(shipment.id)
+        );
+
+        // Fetch data for each shipment
+        const shipmentsData = await Promise.all(
+            selectedShipments.map(async (shipment) => {
+                try {
+                    const itemsSummary = await fetchShipmentItemsSummary(shipment.id);
+                    return { shipment, itemsSummary };
+                } catch (error) {
+                    console.error(`Error fetching data for shipment ${shipment.id}:`, error);
+                    // Return empty itemsSummary if there's an error
+                    return { shipment, itemsSummary: [] };
+                }
+            })
+        );
+
+        return shipmentsData;
+    };
+
+    const collectSummarizedShipmentDataForPdf = async (tableData: IShipment[]) => {
+        const shipmentsData = await collectShipmentsDataForPdf(tableData);
+        const summarizedShipmentData = shipmentsData.reduce((acc, { shipment, itemsSummary }) => {
+            // Merge itemsSummary into acc
+            itemsSummary.forEach(item => {
+                const existingItem = acc.itemsSummary.find(i => i.id === item.id);
+                if (existingItem) {
+                    // Update existing item
+                    existingItem.totalQuantity += item.totalQuantity;
+                    existingItem.totalValue += item.totalValue;
+                    existingItem.orderCount += item.orderCount;
+                    existingItem.customersCount += item.customersCount;
+                    existingItem.customers = Array.from(new Set([...existingItem.customers, ...item.customers]));
+                } else {
+                    // Add new item
+                    acc.itemsSummary.push({ ...item });
+                }
+            });
+
+            // Update shipment-level data
+            acc.shipment.orderCount += shipment.orderCount;
+            acc.shipment.productCount = itemsSummary.length;
+            acc.shipment.productAmount += shipment.productAmount;
+
+            acc.shipment.date += (typeof acc.shipment.date === 'string' && acc.shipment.date.length > 0 ? ', ' : '') + fDate(shipment.date);
+            return acc;
+        }, {
+            shipment: {
+                id: 0,
+                date: '',
+                orderCount: 0,
+                productCount: 0,
+                productAmount: 0,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            } as unknown as IShipment,
+            itemsSummary: [] as ShipmentItemSummary[],
+        });
+
+        return summarizedShipmentData;
+    };
+
+    const handleSummarizedExportSelectedPdf = useCallback(async () => {
         if (selectedRowIds.length === 0) {
             toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
             return;
         }
 
         try {
-            // Get selected shipments
-            const selectedShipments = tableData.filter(shipment => 
-                selectedRowIds.includes(shipment.id)
-            );
+            const summarizedShipmentData = await collectSummarizedShipmentDataForPdf(tableData);
+            await generateMultiShipmentPDF([summarizedShipmentData]);
+            toast.success('PDF export sikeresen elkészült!');
+        } catch (error) {
+            console.error('PDF export error:', error);
+            toast.error('Hiba a PDF exportálása során!');
+        }
 
-            // Fetch data for each shipment
-            const shipmentsData = await Promise.all(
-                selectedShipments.map(async (shipment) => {
-                    try {
-                        const itemsSummary = await fetchShipmentItemsSummary(shipment.id);
-                        return { shipment, itemsSummary };
-                    } catch (error) {
-                        console.error(`Error fetching data for shipment ${shipment.id}:`, error);
-                        // Return empty itemsSummary if there's an error
-                        return { shipment, itemsSummary: [] };
-                    }
-                })
-            );
+    }, [selectedRowIds, tableData]);
 
+    const handleExportSelectedToPDF = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+        try {
+            const shipmentsData = await collectShipmentsDataForPdf(tableData);
             await generateMultiShipmentPDF(shipmentsData);
             toast.success('PDF export sikeresen elkészült!');
         } catch (error) {
             console.error('PDF export error:', error);
             toast.error('Hiba a PDF exportálása során!');
+        }
+    }, [selectedRowIds, tableData]);
+
+    const handleExportXLS = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+        try {
+            const shipmentsData = await collectShipmentsDataForPdf(tableData);
+            generateMultiSheetShipmentXLS(shipmentsData);
+            toast.success('XLS export sikeresen elkészült!');
+        } catch (err) {
+            console.error('XLS export error:', err);
+            toast.error('Hiba az XLS exportálása során');
+        }
+    }, [selectedRowIds, tableData]);
+
+    const handleSummarizedExportXLS = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+        try {
+            const shipmentsData = await collectSummarizedShipmentDataForPdf(tableData);
+            generateMultiSheetShipmentXLS([shipmentsData]);
+            toast.success('XLS export sikeresen elkészült!');
+        } catch (err) {
+            console.error('XLS export error:', err);
+            toast.error('Hiba az XLS exportálása során');
         }
     }, [selectedRowIds, tableData]);
 
@@ -272,9 +366,12 @@ export function ShipmentsListView() {
                 filteredResults={dataFiltered.length}
                 onOpenConfirmDeleteRows={confirmDialog.onTrue}
                 onExportSelectedToPDF={handleExportSelectedToPDF}
+                onSummarizedExportSelectedPdf={handleSummarizedExportSelectedPdf}
+                onExportSelectedToXLS={handleExportXLS}
+                onSummarizedExportSelectedXLS={handleSummarizedExportXLS}
             />
         ),
-        [selectedRowIds, canReset, dataFiltered.length, confirmDialog.onTrue, handleExportSelectedToPDF]
+        [selectedRowIds, canReset, dataFiltered.length, confirmDialog.onTrue, handleExportSelectedToPDF, handleSummarizedExportSelectedPdf]
     );
 
     const columns: GridColDef[] = useMemo(() => [
@@ -478,6 +575,9 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     filters: UseSetStateReturn<IShipmentsTableFilters>;
     onOpenConfirmDeleteRows: () => void;
     onExportSelectedToPDF: () => void;
+    onSummarizedExportSelectedPdf: () => void;
+    onExportSelectedToXLS: () => void;
+    onSummarizedExportSelectedXLS: () => void;
 };
 
 const CustomToolbar = memo(function CustomToolbar({
@@ -488,6 +588,9 @@ const CustomToolbar = memo(function CustomToolbar({
     setFilterButtonEl,
     onOpenConfirmDeleteRows,
     onExportSelectedToPDF,
+    onSummarizedExportSelectedPdf,
+    onExportSelectedToXLS,
+    onSummarizedExportSelectedXLS,
 }: CustomToolbarProps) {
     return (
         <>
@@ -509,14 +612,32 @@ const CustomToolbar = memo(function CustomToolbar({
                                 size="small"
                                 color="primary"
                                 startIcon={<Iconify icon="mingcute:pdf-fill" />}
+                                onClick={onSummarizedExportSelectedPdf}
+                            >
+                                Összevont PDF nyomtatás
+                            </Button>
+                            <Button
+                                size="small"
+                                color="primary"
+                                startIcon={<Iconify icon="mingcute:pdf-fill" />}
                                 onClick={onExportSelectedToPDF}
                             >
-                                PDF nyomtatás ({selectedRowIds.length})
+                                Különálló PDF nyomtatás ({selectedRowIds.length})
+                            </Button>
+
+                            <Button
+                                size="small"
+                                color="primary"
+                                startIcon={<Iconify icon="mingcute:table-2-fill" />}
+                                onClick={onSummarizedExportSelectedXLS}
+                            >
+                                Összevont XLS nyomtatás
                             </Button>
                             <Button
                                 size="small"
                                 color="primary"
                                 startIcon={<Iconify icon="mingcute:table-2-fill" />}
+                                onClick={onExportSelectedToXLS}
                             >
                                 XLS nyomtatás ({selectedRowIds.length})
                             </Button>
@@ -530,8 +651,6 @@ const CustomToolbar = memo(function CustomToolbar({
                             </Button>
                         </>
                     )}
-                    <GridToolbarColumnsButton />
-                    <GridToolbarFilterButton ref={setFilterButtonEl} />
                 </Box>
             </GridToolbarContainer>
             {canReset && (

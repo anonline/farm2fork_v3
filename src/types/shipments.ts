@@ -1,6 +1,6 @@
 export interface IShipment {
     id: number;
-    date: Date;
+    date: Date | string;
     productCount: number;
     productAmount: number;
     orderCount: number;
