@@ -1,3 +1,5 @@
+import { User } from '@supabase/supabase-js';
+import { IBillingAddress, IShippingAddress } from './address';
 import type { IDateValue, ISocialLink } from './common';
 
 // ----------------------------------------------------------------------
@@ -6,6 +8,7 @@ export type IUserTableFilters = {
     name: string;
     role: string[];
     status: string;
+    roleTab: string;
 };
 
 export type IUserProfileCover = {
@@ -66,7 +69,7 @@ export type IUserProfilePost = {
 export type IUserCard = {
     id: string;
     name: string;
-    role: string;
+    role: IRole;
     coverUrl: string;
     avatarUrl: string;
     totalPosts: number;
@@ -77,19 +80,21 @@ export type IUserCard = {
 export type IUserItem = {
     id: string;
     name: string;
-    city: string;
-    role: string;
+    city: string; //unused
+    role: IRole;
     email: string;
-    state: string;
-    status: string;
-    address: string;
-    country: string;
-    zip: string;
-    company: string;
-    avatarUrl: string;
-    phone: string;
-    isVerified: boolean;
+    state: string; //unused
+    status: string; //unused
+    address: string; //unused
+    country: string; //unused
+    zip: string; //unused
+    company: string; //unused
+    avatarUrl: string; //unused
+    phone: string; //unused
+    isVerified: boolean; //unused
     createdAt: IDateValue;
+    supabaseUser: User;
+    customerData: ICustomerData | null;
 };
 
 export type IUserAccountBillingHistory = {
@@ -98,3 +103,27 @@ export type IUserAccountBillingHistory = {
     invoiceNumber: string;
     createdAt: IDateValue;
 };
+
+
+
+export type ICustomerData = {
+    id: string;
+    created_at: Date | string;
+    firstname: string;
+    lastname: string;
+    companyName: string;
+    uid: string;
+    newsletterConsent: boolean;
+    deliveryAddress: IShippingAddress;
+    billingAddress: IBillingAddress;
+    acquisitionSource: string;
+    isCompany: boolean;
+    discountPercent: number;
+}
+
+export type IRole = {
+    uid: string;
+    is_admin:boolean;
+    is_vip:boolean;
+    is_corp:boolean;
+}

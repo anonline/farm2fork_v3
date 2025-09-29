@@ -2,7 +2,7 @@ import type { IUserItem } from 'src/types/user';
 
 import { cookies } from 'next/headers';
 
-import { supabaseAdmin } from 'src/lib/supabase-ssr';
+import { supabaseAdmin, supabaseSSR } from 'src/lib/supabase-ssr';
 
 // ----------------------------------------------------------------------
 
@@ -57,4 +57,24 @@ export async function getUserById(id: string): Promise<IUserItem> {
         country: user.user_metadata?.country ?? '',
         createdAt: user.created_at ?? '',
     } as IUserItem;
+}
+
+
+export async function getUsersAdmin(page: number = 1, perPage: number = 10000) {
+    const cookieStore = await cookies();
+    const client = await supabaseAdmin(cookieStore);
+
+    const response = await client.listUsers({ page, perPage });
+
+    if (response.error) throw response.error.message;
+
+    return response.data.users;
+}
+
+export async function getUsersRoles() {
+    const cookieStore = await cookies();
+    const client = await supabaseSSR(cookieStore);
+    const { data, error } = await client.from('roles').select('*');
+    if (error) throw error.message;
+    return data;
 }

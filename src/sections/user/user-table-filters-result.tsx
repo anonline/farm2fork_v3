@@ -23,9 +23,9 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
         updateFilters({ name: '' });
     }, [onResetPage, updateFilters]);
 
-    const handleRemoveStatus = useCallback(() => {
+    const handleRemoveRoleTab = useCallback(() => {
         onResetPage();
-        updateFilters({ status: 'all' });
+        updateFilters({ roleTab: 'all' });
     }, [onResetPage, updateFilters]);
 
     const handleRemoveRole = useCallback(
@@ -43,18 +43,35 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
         resetFilters();
     }, [onResetPage, resetFilters]);
 
+    const roleTabLabel = () => {
+        switch (currentFilters.roleTab) {
+            case 'all':
+                return 'Összes';
+            case 'admin':
+                return 'Admin';
+            case 'corp':
+                return 'Céges';
+            case 'vip':
+                return 'VIP';
+            case 'user':
+                return 'Magánszemély';
+            default:
+                return currentFilters.roleTab;
+        }
+    };
+
     return (
         <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-            <FiltersBlock label="Status:" isShow={currentFilters.status !== 'all'}>
+            <FiltersBlock label="Szerepkör:" isShow={currentFilters.roleTab !== 'all'}>
                 <Chip
                     {...chipProps}
-                    label={currentFilters.status}
-                    onDelete={handleRemoveStatus}
+                    label={roleTabLabel()}
+                    onDelete={handleRemoveRoleTab}
                     sx={{ textTransform: 'capitalize' }}
                 />
             </FiltersBlock>
 
-            <FiltersBlock label="Role:" isShow={!!currentFilters.role.length}>
+            {/*<FiltersBlock label="Jogosultság:" isShow={!!currentFilters.role.length}>
                 {currentFilters.role.map((item) => (
                     <Chip
                         {...chipProps}
@@ -63,9 +80,9 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
                         onDelete={() => handleRemoveRole(item)}
                     />
                 ))}
-            </FiltersBlock>
+            </FiltersBlock>*/}
 
-            <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>
+            <FiltersBlock label="Keresés:" isShow={!!currentFilters.name}>
                 <Chip {...chipProps} label={currentFilters.name} onDelete={handleRemoveKeyword} />
             </FiltersBlock>
         </FiltersResult>

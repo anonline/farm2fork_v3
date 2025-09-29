@@ -22,7 +22,7 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 
-import { UserQuickEditForm } from './user-quick-edit-form';
+
 
 // ----------------------------------------------------------------------
 
@@ -43,16 +43,7 @@ export function UserTableRow({
 }: Readonly<Props>) {
     const menuActions = usePopover();
     const confirmDialog = useBoolean();
-    const quickEditForm = useBoolean();
-
-    const renderQuickEditForm = () => (
-        <UserQuickEditForm
-            currentUser={row}
-            open={quickEditForm.value}
-            onClose={quickEditForm.onFalse}
-        />
-    );
-
+    
     const renderMenuActions = () => (
         <CustomPopover
             open={menuActions.open}
@@ -68,7 +59,7 @@ export function UserTableRow({
                         onClick={() => menuActions.onClose()}
                     >
                         <Iconify icon="solar:pen-bold" />
-                        Edit
+                        Szerkesztés
                     </MenuItem>
                 </li>
 
@@ -80,7 +71,7 @@ export function UserTableRow({
                     sx={{ color: 'error.main' }}
                 >
                     <Iconify icon="solar:trash-bin-trash-bold" />
-                    Delete
+                    Törlés
                 </MenuItem>
             </MenuList>
         </CustomPopover>
@@ -90,11 +81,11 @@ export function UserTableRow({
         <ConfirmDialog
             open={confirmDialog.value}
             onClose={confirmDialog.onFalse}
-            title="Delete"
-            content="Are you sure want to delete?"
+            title="Törlés"
+            content="Biztosan törölni akarja a felhasználót?"
             action={
                 <Button variant="contained" color="error" onClick={onDeleteRow}>
-                    Delete
+                    Törlés
                 </Button>
             }
         />
@@ -138,37 +129,46 @@ export function UserTableRow({
                     </Box>
                 </TableCell>
 
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phone}</TableCell>
+                <TableCell align="center">
+                    {row.customerData?.discountPercent && row.customerData?.discountPercent > 0 ? (
+                        <Label
+                            variant="soft"
+                            color='default'
+                        >
+                            {row.customerData?.discountPercent} %
+                        </Label>
+                    ) : (
+                        <Box sx={{ color: 'text.disabled' }}></Box>
+                    )}
+                </TableCell>
 
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.company}</TableCell>
-
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.role}</TableCell>
-
-                <TableCell>
+                <TableCell sx={{ whiteSpace: 'nowrap' }} align="center">
                     <Label
                         variant="soft"
                         color={
-                            (row.status === 'active' && 'success') ||
-                            (row.status === 'pending' && 'warning') ||
-                            (row.status === 'banned' && 'error') ||
+                            (row.role.is_corp && 'success') ||
+                            (row.role.is_vip && 'warning') ||
+                            (row.role.is_admin && 'error') ||
                             'default'
                         }
                     >
-                        {row.status}
+                        {row.role.is_admin && 'Admin' || row.role.is_vip && 'VIP' || row.role.is_corp && 'Céges' || 'Magánszemély'}
+
                     </Label>
                 </TableCell>
 
+                <TableCell align="center">
+                    {row.customerData?.newsletterConsent ?
+                        <Iconify icon="solar:check-circle-bold" width={20} height={20} sx={{ color: 'success.main' }} />
+                        :
+                        <Iconify icon="solar:close-circle-bold" width={20} height={20} sx={{ color: 'error.main' }} />
+                    }
+                </TableCell>
+
+                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.customerData?.acquisitionSource}</TableCell>
+
                 <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Tooltip title="Quick Edit" placement="top" arrow>
-                            <IconButton
-                                color={quickEditForm.value ? 'inherit' : 'default'}
-                                onClick={quickEditForm.onTrue}
-                            >
-                                <Iconify icon="solar:pen-bold" />
-                            </IconButton>
-                        </Tooltip>
-
                         <IconButton
                             color={menuActions.open ? 'inherit' : 'default'}
                             onClick={menuActions.onOpen}
@@ -179,7 +179,6 @@ export function UserTableRow({
                 </TableCell>
             </TableRow>
 
-            {renderQuickEditForm()}
             {renderMenuActions()}
             {renderConfirmDialog()}
         </>

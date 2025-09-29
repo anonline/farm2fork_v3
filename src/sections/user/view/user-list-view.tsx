@@ -44,17 +44,26 @@ import {
 import { UserTableRow } from '../user-table-row';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { UserTableFiltersResult } from '../user-table-filters-result';
+import { getUsers } from 'src/actions/user-management';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
 
+const TAB_OPTIONS = [
+    { value: 'all', label: 'Összes' },
+    { value: 'corp', label: 'Céges' },
+    { value: 'vip', label: 'VIP' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'user', label: 'Magányszemély' },
+];
+
 const TABLE_HEAD: TableHeadCellProps[] = [
-    { id: 'name', label: 'Name' },
-    { id: 'phoneNumber', label: 'Phone number', width: 180 },
-    { id: 'company', label: 'Company', width: 220 },
-    { id: 'role', label: 'Role', width: 180 },
-    { id: 'status', label: 'Status', width: 100 },
+    { id: 'name', label: 'Név' },
+    { id: 'discount', label: 'Kedvezmény (%)', width: 150, align: 'center' },
+    { id: 'role', label: 'Jogosultság', width: 180, align: 'center' },
+    { id: 'status', label: 'Hírlevél', width: 100, align: 'center' },
+    { id: 'phoneNumber', label: 'Honnan hallott rólunk?', width: 250 },
     { id: '', width: 88 },
 ];
 
@@ -64,6 +73,7 @@ type Props = {
 };
 
 export function UserListView(usersData: Readonly<Props>) {
+    
     const table = useTable();
     const _userList = usersData._userList;
 
@@ -71,7 +81,7 @@ export function UserListView(usersData: Readonly<Props>) {
 
     const [tableData, setTableData] = useState<IUserItem[]>(_userList);
 
-    const filters = useSetState<IUserTableFilters>({ name: '', role: [], status: 'all' });
+    const filters = useSetState<IUserTableFilters>({ name: '', role: [], status: 'all', roleTab: 'all' });
     const { state: currentFilters, setState: updateFilters } = filters;
 
     const dataFiltered = applyFilter({
@@ -83,7 +93,7 @@ export function UserListView(usersData: Readonly<Props>) {
     const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
     const canReset =
-        !!currentFilters.name || currentFilters.role.length > 0 || currentFilters.status !== 'all';
+        !!currentFilters.name || currentFilters.role.length > 0 || currentFilters.status !== 'all' || currentFilters.roleTab !== 'all';
 
     const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -91,7 +101,7 @@ export function UserListView(usersData: Readonly<Props>) {
         (id: string) => {
             const deleteRow = tableData.filter((row) => row.id !== id);
 
-            toast.success('Delete success!');
+            toast.success('Törlés sikeres!');
 
             setTableData(deleteRow);
 
@@ -103,17 +113,17 @@ export function UserListView(usersData: Readonly<Props>) {
     const handleDeleteRows = useCallback(() => {
         const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-        toast.success('Delete success!');
+        toast.success('Törlés sikeres!');
 
         setTableData(deleteRows);
 
         table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
     }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-    const handleFilterStatus = useCallback(
+    const handleFilterRoleTab = useCallback(
         (event: React.SyntheticEvent, newValue: string) => {
             table.onResetPage();
-            updateFilters({ status: newValue });
+            updateFilters({ roleTab: newValue });
         },
         [updateFilters, table]
     );
@@ -122,10 +132,10 @@ export function UserListView(usersData: Readonly<Props>) {
         <ConfirmDialog
             open={confirmDialog.value}
             onClose={confirmDialog.onFalse}
-            title="Delete"
+            title="Törlés"
             content={
                 <>
-                    Are you sure want to delete <strong> {table.selected.length} </strong> items?
+                    Biztosan törölni akarja a kijelölt <strong> {table.selected.length} </strong> felhasználót?
                 </>
             }
             action={
@@ -137,7 +147,7 @@ export function UserListView(usersData: Readonly<Props>) {
                         confirmDialog.onFalse();
                     }}
                 >
-                    Delete
+                    Törlés
                 </Button>
             }
         />
@@ -147,11 +157,11 @@ export function UserListView(usersData: Readonly<Props>) {
         <>
             <DashboardContent>
                 <CustomBreadcrumbs
-                    heading="List"
+                    heading="Felhasználók"
                     links={[
                         { name: 'Dashboard', href: paths.dashboard.root },
-                        { name: 'User', href: paths.dashboard.user.root },
-                        { name: 'List' },
+                        { name: 'Felhasználók', href: paths.dashboard.user.root },
+                        { name: 'Lista' },
                     ]}
                     action={
                         <Button
@@ -160,7 +170,7 @@ export function UserListView(usersData: Readonly<Props>) {
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                         >
-                            New user
+                            Új felhasználó
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
@@ -168,8 +178,8 @@ export function UserListView(usersData: Readonly<Props>) {
 
                 <Card>
                     <Tabs
-                        value={currentFilters.status}
-                        onChange={handleFilterStatus}
+                        value={currentFilters.roleTab}
+                        onChange={handleFilterRoleTab}
                         sx={[
                             (theme) => ({
                                 px: 2.5,
@@ -177,7 +187,7 @@ export function UserListView(usersData: Readonly<Props>) {
                             }),
                         ]}
                     >
-                        {STATUS_OPTIONS.map((tab) => (
+                        {TAB_OPTIONS.map((tab) => (
                             <Tab
                                 key={tab.value}
                                 iconPosition="end"
@@ -187,21 +197,32 @@ export function UserListView(usersData: Readonly<Props>) {
                                     <Label
                                         variant={
                                             ((tab.value === 'all' ||
-                                                tab.value === currentFilters.status) &&
+                                                tab.value === currentFilters.roleTab) &&
                                                 'filled') ||
                                             'soft'
                                         }
                                         color={
-                                            (tab.value === 'active' && 'success') ||
-                                            (tab.value === 'pending' && 'warning') ||
-                                            (tab.value === 'banned' && 'error') ||
+                                            (tab.value === 'corp' && 'success') ||
+                                            (tab.value === 'vip' && 'warning') ||
+                                            (tab.value === 'admin' && 'error') ||
                                             'default'
                                         }
                                     >
-                                        {['active', 'pending', 'banned', 'rejected'].includes(
+                                        {['corp', 'vip', 'admin', 'user'].includes(
                                             tab.value
                                         )
-                                            ? tableData.filter((user) => user.status === tab.value)
+                                            ? tableData.filter((user) => {
+                                                switch (tab.value) {
+                                                    case 'corp':
+                                                        return user.role.is_corp;
+                                                    case 'vip':
+                                                        return user.role.is_vip;
+                                                    case 'admin':
+                                                        return user.role.is_admin;
+                                                    default:
+                                                        return !(user.role.is_admin || user.role.is_vip || user.role.is_corp);
+                                                }
+                                            })
                                                   .length
                                             : tableData.length}
                                     </Label>
@@ -320,7 +341,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-    const { name, status, role } = filters;
+    const { name, role, roleTab } = filters;
 
     const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -334,16 +355,42 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
 
     if (name) {
         inputData = inputData.filter((user) =>
-            user.name.toLowerCase().includes(name.toLowerCase())
+            user.name.toLowerCase().includes(name.toLowerCase()) ||
+            user.email.toLowerCase().includes(name.toLowerCase()) ||
+            (user.customerData?.discountPercent && user.customerData.discountPercent.toString().includes(name))
         );
     }
 
-    if (status !== 'all') {
-        inputData = inputData.filter((user) => user.status === status);
+    if (roleTab !== 'all') {
+        inputData = inputData.filter((user) => {
+            switch (filters.roleTab) {
+                case 'corp':
+                    return user.role.is_corp;
+                case 'vip':
+                    return user.role.is_vip;
+                case 'admin':
+                    return user.role.is_admin;
+                default:
+                    return !(user.role.is_admin || user.role.is_vip || user.role.is_corp);
+            }
+        });
     }
 
     if (role.length) {
-        inputData = inputData.filter((user) => role.includes(user.role));
+        inputData = inputData.filter((user) => {
+            return role.map((roleFilter) => {
+                switch (roleFilter) {
+                    case 'Admin':
+                        return user.role.is_admin;
+                    case 'VIP':
+                        return user.role.is_vip;
+                    case 'Céges':
+                        return user.role.is_corp;
+                    default:
+                        return !(user.role.is_admin || user.role.is_vip || user.role.is_corp);
+                }
+            }).find((roleMatch) => roleMatch === true);
+        });
     }
 
     return inputData;
