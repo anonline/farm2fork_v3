@@ -132,10 +132,21 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
             refreshCounts(order.shipmentId);
         }
 
+        const {data:shipmentData, error:shipmentError} = await supabase
+            .from('Shipments')
+            .select('*')
+            .eq('id', newShipmentId)
+            .single();
+
+        if (shipmentError) {
+            console.error('Error fetching shipment:', shipmentError);
+            return;
+        }
+
         //update order with shipmentId
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ shipmentId: newShipmentId })
+            .update({ shipmentId: newShipmentId, planned_shipping_date_time: shipmentData.date })
             .eq('id', orderId);
 
         if (updateError) {
@@ -198,21 +209,34 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         refreshCounts(shipmentId);
     }, []);
 
-    const setOrderToShipmentByDate = useCallback(async (orderId: string, date: Date | null) => {
+    const setOrderToShipmentByDate = useCallback(async (orderId: string, date: Date | string | null) => {
         //get shipment by date
         let shipmentId = null;
+
+        // Handle both Date objects and date strings
+        let dateForQuery: string | null = null;
+        if (date) {
+            if (typeof date === 'string') {
+                // If it's already a string, use it directly (assume YYYY-MM-DD format)
+                dateForQuery = date;
+            } else {
+                // If it's a Date object, convert to ISO string
+                // Convert to local date string (YYYY-MM-DD) to avoid timezone issues
+                dateForQuery = date.toDateString(); // 'sv-SE' gives YYYY-MM-DD
+            }
+        }
 
         const { data: existingShipment, error: shipmentFetchError } = await supabase
             .from('Shipments')
             .select('*')
-            .eq('date', date ? date.toISOString() : null)
+            .eq('date', dateForQuery)
             .single();
 
         if (shipmentFetchError) { // PGRST116 = No rows found
             //create new shipment
             const { data: newShipment, error: shipmentError } = await supabase
                 .from('Shipments')
-                .insert([{ date, productCount: 0, productAmount: 0, orderCount: 0 } as IShipment])
+                .insert([{ date: dateForQuery, productCount: 0, productAmount: 0, orderCount: 0 } as IShipment])
                 .select()
                 .single();
 

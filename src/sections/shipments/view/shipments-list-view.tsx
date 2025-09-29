@@ -48,6 +48,8 @@ import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { NewShipmentModal } from '../new-shipment-modal';
+
 import { ShipmentsTableToolbar } from '../shipments-table-toolbar';
 import { ShipmentsTableFiltersResult } from '../shipments-table-filters-result';
 import {
@@ -170,6 +172,7 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
 
 export function ShipmentsListView() {
     const confirmDialog = useBoolean();
+    const newShipmentModal = useBoolean();
 
     const { shipments, shipmentsLoading, shipmentsMutate } = useShipments();
 
@@ -487,8 +490,7 @@ export function ShipmentsListView() {
                     action={
                         <>
                             <Button
-                                component={RouterLink}
-                                href="#"
+                                onClick={newShipmentModal.onTrue}
                                 variant="contained"
                                 startIcon={<Iconify icon="mingcute:add-line" />}
                             >
@@ -554,6 +556,11 @@ export function ShipmentsListView() {
                     />
                 </Card>
             </DashboardContent>
+
+            <NewShipmentModal 
+                open={newShipmentModal.value} 
+                onClose={newShipmentModal.onFalse} 
+            />
 
             {renderConfirmDialog()}
         </>
