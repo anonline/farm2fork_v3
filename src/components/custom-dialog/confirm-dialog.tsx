@@ -25,7 +25,7 @@ export function ConfirmDialog({
             <DialogActions>
                 {action}
 
-                <Button variant="outlined" color="inherit" onClick={onClose}>
+                <Button variant="outlined" color="inherit" onClick={onClose} sx={{ ml: 1 }}>
                     Mégse
                 </Button>
             </DialogActions>

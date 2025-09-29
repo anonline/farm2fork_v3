@@ -258,6 +258,53 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         console.error('No shipment found or created for date:', date);
     }, []);
 
+    const deleteShipment = useCallback(async (shipmentId: number): Promise<{ success: boolean; error?: string; orderCount?: number }> => {
+        try {
+            // First, check how many orders are associated with this shipment
+            const { data: orders, error: ordersError } = await supabase
+                .from('orders')
+                .select('id')
+                .eq('shipmentId', shipmentId)
+                .neq('order_status', 'cancelled')
+                .neq('order_status', 'refunded');
+
+            if (ordersError) {
+                console.error('Error fetching orders for shipment:', ordersError);
+                return { success: false, error: 'Hiba történt a rendelések lekérdezése során.' };
+            }
+
+            const orderCount = orders?.length || 0;
+
+            // If there are associated orders, return error with count
+            if (orderCount > 0) {
+                return { 
+                    success: false, 
+                    error: `Nem törölhető a szállítási összesítő! ${orderCount} rendelés van hozzárendelve.`, 
+                    orderCount 
+                };
+            }
+
+            // No orders associated, safe to delete
+            const { error: deleteError } = await supabase
+                .from('Shipments')
+                .delete()
+                .eq('id', shipmentId);
+
+            if (deleteError) {
+                console.error('Error deleting shipment:', deleteError);
+                return { success: false, error: 'Hiba történt a szállítási összesítő törlése során.' };
+            }
+
+            // Update local state
+            setShipments(prev => prev.filter(shipment => shipment.id !== shipmentId));
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Unexpected error deleting shipment:', error);
+            return { success: false, error: 'Váratlan hiba történt a törlés során.' };
+        }
+    }, []);
+
     useEffect(() => {
         fetchShipments();
     }, [fetchShipments]);
@@ -271,7 +318,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         refreshCounts,
         setOrderToShipment,
         removeOrderFromShipment,
-        setOrderToShipmentByDate
+        setOrderToShipmentByDate,
+        deleteShipment
     }), [
         shipments,
         shipmentsLoading,
@@ -281,7 +329,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         refreshCounts,
         setOrderToShipment,
         removeOrderFromShipment,
-        setOrderToShipmentByDate
+        setOrderToShipmentByDate,
+        deleteShipment
     ]);
 
     return <ShipmentsContext.Provider value={memoizedValue}>{children}</ShipmentsContext.Provider>;

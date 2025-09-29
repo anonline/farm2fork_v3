@@ -174,11 +174,16 @@ export function ShipmentsListView() {
     const confirmDialog = useBoolean();
     const newShipmentModal = useBoolean();
 
-    const { shipments, shipmentsLoading, shipmentsMutate } = useShipments();
+    const { shipments, shipmentsLoading, shipmentsMutate, deleteShipment, refreshCounts } = useShipments();
 
     const [tableData, setTableData] = useState<IShipment[]>([]);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
+    const [deleteInfo, setDeleteInfo] = useState<{
+        shipmentId: number;
+        orderCount: number;
+        type: 'single' | 'batch';
+    } | null>(null);
 
     const filters = useSetState<IShipmentsTableFilters>({});
     const { state: currentFilters } = filters;
@@ -199,39 +204,99 @@ export function ShipmentsListView() {
         }), [tableData, currentFilters]
     );
 
+    const handleDeleteRowClick = useCallback(
+        async (id: number) => {
+            try {
+                // First check how many orders are associated
+                const ordersResult = await getOrdersByShipmentId(id);
+                const orderCount = ordersResult.error ? 0 : (ordersResult.orders?.length || 0);
+
+                setDeleteInfo({
+                    shipmentId: id,
+                    orderCount,
+                    type: 'single'
+                });
+                refreshCounts(id);
+                confirmDialog.onTrue();
+            } catch (error) {
+                console.error('Error checking orders for shipment:', error);
+                toast.error('Hiba történt a rendelések ellenőrzése során');
+            }
+        },
+        []
+    );
+
+    const handleDeleteRowsClick = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+
+        try {
+            // Check orders for all selected shipments
+            let totalOrderCount = 0;
+            for (const id of selectedRowIds) {
+                const ordersResult = await getOrdersByShipmentId(Number(id));
+                if (!ordersResult.error && ordersResult.orders) {
+                    totalOrderCount += ordersResult.orders.length;
+                }
+
+                refreshCounts(Number(id));
+            }
+
+            setDeleteInfo({
+                shipmentId: 0, // Not used for batch delete
+                orderCount: totalOrderCount,
+                type: 'batch'
+            });
+
+            confirmDialog.onTrue();
+        } catch (error) {
+            console.error('Error checking orders for shipments:', error);
+            toast.error('Hiba történt a rendelések ellenőrzése során');
+        }
+    }, [selectedRowIds]);
+
     const handleDeleteRow = useCallback(
         async (id: number) => {
             try {
-                // TODO: Implement delete shipment API call
-                // await deleteShipment(id);
+                const result = await deleteShipment(id);
 
-                const updatedShipments = tableData.filter((row) => row.id !== id);
-                setTableData(updatedShipments);
-
-                toast.success('Törlés sikeres!');
+                if (result.success) {
+                    toast.success('Szállítási összesítő sikeresen törölve!');
+                } else {
+                    toast.error(result.error || 'A törlés sikertelen!');
+                }
             } catch (error) {
                 console.error(error);
                 toast.error('A törlés sikertelen!');
             }
         },
-        [tableData]
+        [deleteShipment]
     );
 
     const handleDeleteRows = useCallback(async () => {
         try {
-            // TODO: Implement batch delete shipments API call
-            // await Promise.all(selectedRowIds.map((id) => deleteShipment(Number(id))));
+            const results = await Promise.all(
+                selectedRowIds.map((id) => deleteShipment(Number(id)))
+            );
 
-            const updatedShipments = tableData.filter((row) => !selectedRowIds.includes(row.id));
-            setTableData(updatedShipments);
+            const failedDeletions = results.filter(result => !result.success);
 
-            toast.success('Törlés sikeres!');
-            setSelectedRowIds([]);
+            if (failedDeletions.length === 0) {
+                toast.success('Minden szállítási összesítő sikeresen törölve!');
+                setSelectedRowIds([]);
+            } else if (failedDeletions.length === results.length) {
+                toast.error('Egyetlen szállítási összesítő sem törölhető - rendelések vannak hozzájuk rendelve!');
+            } else {
+                toast.warning(`${results.length - failedDeletions.length} összesítő törölve, ${failedDeletions.length} nem törölhető rendelések miatt.`);
+                setSelectedRowIds([]);
+            }
         } catch (error) {
             console.error(error);
             toast.error('A tömeges törlés sikertelen!');
         }
-    }, [selectedRowIds, tableData]);
+    }, [selectedRowIds, deleteShipment]);
 
     const collectShipmentsDataForPdf = async (tableData: IShipment[]) => {
         const selectedShipments = tableData.filter(shipment =>
@@ -359,6 +424,26 @@ export function ShipmentsListView() {
         }
     }, [selectedRowIds, tableData]);
 
+    const handleRecalculate = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+        try {
+            const selectedShipments = tableData.filter(shipment =>
+                selectedRowIds.includes(shipment.id)
+            );
+
+            selectedShipments.forEach(async (shipment) => {
+                refreshCounts(shipment.id);
+            });
+            toast.success('Frissítés sikeresen elkészült!');
+        } catch (err) {
+            console.error('Shipment refresh error:', err);
+            toast.error('Hiba az összesítők frissítése során');
+        }
+    }, [selectedRowIds, tableData]);
+
     const CustomToolbarCallback = useCallback(
         (props: any) => (
             <CustomToolbar
@@ -367,14 +452,15 @@ export function ShipmentsListView() {
                 canReset={canReset}
                 selectedRowIds={selectedRowIds}
                 filteredResults={dataFiltered.length}
-                onOpenConfirmDeleteRows={confirmDialog.onTrue}
+                onOpenConfirmDeleteRows={handleDeleteRowsClick}
                 onExportSelectedToPDF={handleExportSelectedToPDF}
                 onSummarizedExportSelectedPdf={handleSummarizedExportSelectedPdf}
                 onExportSelectedToXLS={handleExportXLS}
                 onSummarizedExportSelectedXLS={handleSummarizedExportXLS}
+                onRecalculate={handleRecalculate}
             />
         ),
-        [selectedRowIds, canReset, dataFiltered.length, confirmDialog.onTrue, handleExportSelectedToPDF, handleSummarizedExportSelectedPdf]
+        [selectedRowIds, canReset, dataFiltered.length, handleDeleteRowsClick, handleExportSelectedToPDF, handleSummarizedExportSelectedPdf]
     );
 
     const columns: GridColDef[] = useMemo(() => [
@@ -439,12 +525,12 @@ export function ShipmentsListView() {
                     key={`delete-${params.row.id}`}
                     icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                     label="Törlés"
-                    onClick={() => handleDeleteRow(params.row.id)}
+                    onClick={() => handleDeleteRowClick(params.row.id)}
                     sx={{ color: 'error.main' }}
                 />,
             ],
         },
-    ], [handleDeleteRow]);
+    ], [handleDeleteRowClick]);
 
     const getTogglableColumns = useCallback(() =>
         columns
@@ -454,25 +540,115 @@ export function ShipmentsListView() {
     const renderConfirmDialog = () => (
         <ConfirmDialog
             open={confirmDialog.value}
-            onClose={confirmDialog.onFalse}
-            title="Törlés"
+            onClose={() => {
+                confirmDialog.onFalse();
+                setDeleteInfo(null);
+            }}
+            
+            title="Szállítási összesítő törlése"
             content={
-                <>
-                    Biztosan törölni szeretnéd ezt a <strong> {selectedRowIds.length} </strong>{' '}
-                    elemet?
-                </>
+                deleteInfo ? (
+                    <Box>
+                        {deleteInfo.type === 'single' ? (
+                            <Box>
+                                <Box sx={{ mb: 1 }}>
+                                    Biztosan törölni szeretnéd ezt a szállítási összesítőt?
+                                </Box>
+                                {deleteInfo.orderCount > 0 ? (
+                                    <Box sx={{
+                                        p: 2,
+                                        bgcolor: 'warning.lighter',
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: 'warning.main'
+                                    }}>
+                                        <Box sx={{ fontWeight: 'bold', color: 'warning.dark', mb: 1 }}>
+                                            ⚠️ Figyelem!
+                                        </Box>
+                                        <Box sx={{ mb: 1 }}>
+                                            Ehhez a szállítási összesítőhöz <strong>{deleteInfo.orderCount} rendelés</strong> tartozik.
+                                        </Box>
+                                        <Box sx={{ color: 'text.secondary' }}>
+                                            A törlés előtt kérlek helyezd át ezeket a rendeléseket egy másik összesítőbe, vagy távolítsd el őket az összesítőből.
+                                        </Box>
+                                    </Box>
+                                ) : (
+                                    <Box sx={{
+                                        p: 2,
+                                        bgcolor: 'success.lighter',
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: 'success.main'
+                                    }}>
+                                        <Box sx={{ color: 'success.dark' }}>
+                                            ✅ Nincs rendelés hozzárendelve ehhez az összesítőhöz. Biztonságosan törölhető.
+                                        </Box>
+                                    </Box>
+                                )}
+                            </Box>
+                        ) : (
+                            <Box>
+                                <Box sx={{ mb: 1 }}>
+                                    Biztosan törölni szeretnéd ezt a <strong>{selectedRowIds.length}</strong> szállítási összesítőt?
+                                </Box>
+                                {deleteInfo.orderCount > 0 ? (
+                                    <Box sx={{
+                                        p: 2,
+                                        bgcolor: 'warning.lighter',
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: 'warning.main'
+                                    }}>
+                                        <Box sx={{ fontWeight: 'bold', color: 'warning.dark', mb: 1 }}>
+                                            ⚠️ Figyelem!
+                                        </Box>
+                                        <Box sx={{ mb: 1 }}>
+                                            A kiválasztott összesítőkhöz összesen <strong>{deleteInfo.orderCount} rendelés</strong> tartozik.
+                                        </Box>
+                                        <Box sx={{ color: 'text.secondary' }}>
+                                            Csak azok az összesítők törölhetők, amelyekhez nincs rendelés hozzárendelve.
+                                        </Box>
+                                    </Box>
+                                ) : (
+                                    <Box sx={{
+                                        p: 2,
+                                        bgcolor: 'success.lighter',
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: 'success.main'
+                                    }}>
+                                        <Box sx={{ color: 'success.dark' }}>
+                                            ✅ Nincs rendelés hozzárendelve ezekhez az összesítőkhöz. Biztonságosan törölhetők.
+                                        </Box>
+                                    </Box>
+                                )}
+                            </Box>
+                        )}
+                    </Box>
+                ) : (
+                    <Box>Biztosan törölni szeretnéd?</Box>
+                )
             }
             action={
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => {
-                        handleDeleteRows();
-                        confirmDialog.onFalse();
-                    }}
-                >
-                    Törlés
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    
+                    <Button
+                        variant="contained"
+                        color={deleteInfo?.orderCount === 0 ? "error" : "warning"}
+                        disabled={deleteInfo?.orderCount ? deleteInfo.orderCount > 0 : false}
+                        onClick={() => {
+                            if (deleteInfo?.type === 'single') {
+                                handleDeleteRow(deleteInfo.shipmentId);
+                            } else {
+                                handleDeleteRows();
+                            }
+                            confirmDialog.onFalse();
+                            setDeleteInfo(null);
+                        }}
+                    >
+                        {deleteInfo?.orderCount === 0 ? "Törlés" : "Nem törölhető"}
+                    </Button>
+                </Box>
             }
         />
     );
@@ -557,9 +733,9 @@ export function ShipmentsListView() {
                 </Card>
             </DashboardContent>
 
-            <NewShipmentModal 
-                open={newShipmentModal.value} 
-                onClose={newShipmentModal.onFalse} 
+            <NewShipmentModal
+                open={newShipmentModal.value}
+                onClose={newShipmentModal.onFalse}
             />
 
             {renderConfirmDialog()}
@@ -585,6 +761,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     onSummarizedExportSelectedPdf: () => void;
     onExportSelectedToXLS: () => void;
     onSummarizedExportSelectedXLS: () => void;
+    onRecalculate: () => void;
 };
 
 const CustomToolbar = memo(function CustomToolbar({
@@ -598,6 +775,7 @@ const CustomToolbar = memo(function CustomToolbar({
     onSummarizedExportSelectedPdf,
     onExportSelectedToXLS,
     onSummarizedExportSelectedXLS,
+    onRecalculate
 }: CustomToolbarProps) {
     return (
         <>
@@ -615,6 +793,14 @@ const CustomToolbar = memo(function CustomToolbar({
                 >
                     {!!selectedRowIds.length && (
                         <>
+                            <Button
+                                size="small"
+                                color="primary"
+                                startIcon={<Iconify icon="solar:restart-bold" />}
+                                onClick={onRecalculate}
+                            >
+                                Újrakalkulálás
+                            </Button>
                             <Button
                                 size="small"
                                 color="primary"

@@ -16,6 +16,7 @@ export type ShipmentsContextType = {
     setOrderToShipment: (orderId: string, shipmentId: number) => Promise<void>;
     removeOrderFromShipment: (orderId: string) => Promise<void>;
     setOrderToShipmentByDate: (orderId: string, date: Date) => Promise<void>;
+    deleteShipment: (shipmentId: number) => Promise<{ success: boolean; error?: string; orderCount?: number }>;
 };
 
 export const ShipmentsContext = createContext<ShipmentsContextType | undefined>(undefined);
