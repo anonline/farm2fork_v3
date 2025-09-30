@@ -133,9 +133,10 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     const openSeasonality = useBoolean(true);
 
     const defaultValues = useMemo<NewProductSchemaType>(() => {
+        
         const assignedCategoryIds = currentProduct
             ? connection
-                .filter(c => c.productId === currentProduct.id)
+                .filter(c => c.productId.toString() === currentProduct.id.toString())
                 .map(c => c.categoryId)
             : [];
 

@@ -31,9 +31,32 @@ export function ProductCategoryConnectionProvider({ children }: Readonly<{ child
         async function fetchConnection() {
             setLoading(true);
 
-            const { data, error: responseError } = await supabase
-                .from("ProductCategories_Products")
-                .select("*")
+            // Fetch all results by paginating in batches of 1000
+            let allData: IProductCategoryConnection[] = [];
+            let responseError: any = null;
+            let from = 0;
+            const batchSize = 1000;
+
+            while (true) {
+                const { data, error } = await supabase
+                    .from("ProductCategories_Products")
+                    .select("*")
+                    .range(from, from + batchSize - 1);
+
+                if (error) {
+                    responseError = error;
+                    break;
+                }
+
+                if (data && data.length > 0) {
+                    allData = allData.concat(data as IProductCategoryConnection[]);
+                    if (data.length < batchSize) break; // Last batch
+                    from += batchSize;
+                } else {
+                    break;
+                }
+            }
+            const data = allData;
 
             if (responseError) {
                 setError(responseError.message);
