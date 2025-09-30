@@ -20,15 +20,15 @@ type SzezonalitasViewProps = {
 const categoriesToList = [
     {
         categoryTitle: 'Zöldségek',
-        categoryId: 3,
+        categoryId: 50,
     },
     {
         categoryTitle: 'Gyümölcsök',
-        categoryId: 4,
+        categoryId: 61,
     },
     {
         categoryTitle: 'Erdei és fűszernövények',
-        categoryId: 5,
+        categoryId: 59,
     },
 ];
 

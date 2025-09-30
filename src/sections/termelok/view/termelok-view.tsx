@@ -16,8 +16,7 @@ export default function TermelokView({ viewslug }: any) {
     if (error) {
         return <Typography color="error">Hiba: {error}</Typography>;
     }
-    console.log(viewslug);
-    console.log(producers);
+
     const SelectedProducer = producers.find((p) => p.slug === viewslug);
 
     return (

@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Box, Grid, Typography, CircularProgress } from '@mui/material';
 
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
+import { IProductItem } from 'src/types/product';
 
 interface ProducerProductsProps {
     producerId: string;
@@ -14,7 +15,16 @@ interface ProducerProductsProps {
 
 export default function TermelokTermekek({ producerId }: Readonly<ProducerProductsProps>) {
     const { products, loading, error } = useProducts();
+    const [producerProducts, setProducerProducts] = useState<IProductItem[]>([]);
 
+    console.log('Producer ID:', producerId);
+    useEffect(() => {
+        const filteredProducts = products.filter((product) => product.producerId === producerId);
+        setProducerProducts(filteredProducts);
+    }, [products, producerId]);
+
+    console.log('All products:', products);
+    
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -22,8 +32,6 @@ export default function TermelokTermekek({ producerId }: Readonly<ProducerProduc
             </Box>
         );
     }
-
-    const producerProducts = products.filter((product) => product.producerId === producerId);
 
     if (error) {
         return <Typography color="error">Hiba a termékek betöltésekor: {error}</Typography>;

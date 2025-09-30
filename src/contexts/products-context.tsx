@@ -18,7 +18,7 @@ export type ProductsContextType = {
 export const ProductsContext = createContext<ProductsContextType>({
     products: [],
     loading: false,
-    error: null,
+    error: null
 });
 
 export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>) {
@@ -236,12 +236,25 @@ export function ProductsInMonthInCategoryProvider({
             setLoading(true);
             setError(null);
 
+            
+
             let query = supabase.from('ProductCategories_Products').select(`
                     Products(*)
                 `);
 
             if (categoryId) {
-                query = query.eq('categoryId', categoryId);
+                let {data:subcategories} = await supabase.from('ProductCategories').select('*').eq('parentId', categoryId);
+
+                const categoryFilters = [
+                    'categoryId.eq.' + categoryId,
+                ]
+
+                if(subcategories){
+                    const subcategoryIds = subcategories.map((subcat) => subcat.id);
+                    categoryFilters.push(...subcategoryIds.map((id) => 'categoryId.eq.' + id));
+                }
+
+                query = query.or(categoryFilters.join(','));
             }
             if (month) {
                 query = query.contains('Products.seasonality', [MONTH_NAMES[month]]);
