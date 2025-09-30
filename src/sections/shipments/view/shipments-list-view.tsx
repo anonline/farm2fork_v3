@@ -2,8 +2,8 @@
 
 import type { IProductItem } from 'src/types/product';
 import type { Theme, SxProps } from '@mui/material/styles';
-import type { IOrderData, IOrderItem } from 'src/types/order-management';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { IOrderData, IOrderItem } from 'src/types/order-management';
 import type { IShipment, IShipmentsTableFilters } from 'src/types/shipments';
 import type {
     GridColDef,
