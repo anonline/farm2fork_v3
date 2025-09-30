@@ -20,14 +20,19 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 const NAV_ITEMS = [
     {
-        label: 'General',
+        label: 'Általános',
         icon: <Iconify width={24} icon="solar:user-id-bold" />,
         href: paths.dashboard.user.account,
     },
     {
-        label: 'Billing',
+        label: 'Számlázás',
         icon: <Iconify width={24} icon="solar:bill-list-bold" />,
         href: `${paths.dashboard.user.account}/billing`,
+    },
+    {
+        label: 'Szállítás',
+        icon: <Iconify width={24} icon="carbon:delivery" />,
+        href: `${paths.dashboard.user.account}/shipping`,
     },
     {
         label: 'Notifications',
@@ -40,7 +45,7 @@ const NAV_ITEMS = [
         href: `${paths.dashboard.user.account}/socials`,
     },
     {
-        label: 'Security',
+        label: 'Biztonság',
         icon: <Iconify width={24} icon="ic:round-vpn-key" />,
         href: `${paths.dashboard.user.account}/change-password`,
     },
@@ -54,11 +59,11 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
     return (
         <DashboardContent {...other}>
             <CustomBreadcrumbs
-                heading="Account"
+                heading="Felhasználói fiók"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'User', href: paths.dashboard.user.root },
-                    { name: 'Account' },
+                    { name: 'Felhasználók', href: paths.dashboard.user.root },
+                    { name: 'Fiók' },
                 ]}
                 sx={{ mb: 3 }}
             />

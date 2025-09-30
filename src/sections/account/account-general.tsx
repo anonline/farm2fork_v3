@@ -15,64 +15,77 @@ import { fData } from 'src/utils/format-number';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { IRole, IUserItem } from 'src/types/user';
+import { Iconify } from 'src/components/iconify/iconify';
+
 
 // ----------------------------------------------------------------------
 
 export type UpdateUserSchemaType = zod.infer<typeof UpdateUserSchema>;
 
 export const UpdateUserSchema = zod.object({
-    displayName: zod.string().min(1, { message: 'Name is required!' }),
+    firstname: zod.string().min(1, { message: 'Keresztnév megadása kötelező!' }),
+    lastname: zod.string().min(1, { message: 'Vezetéknév megadása kötelező!' }),
     email: zod
         .string()
-        .min(1, { message: 'Email is required!' })
-        .email({ message: 'Email must be a valid email address!' }),
-    photoURL: schemaHelper.file({ message: 'Avatar is required!' }),
-    phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-    country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-        // message for null value
-        message: 'Country is required!',
+        .min(1, { message: 'E-mail megadása kötelező!' })
+        .email({ message: 'E-mail érvénytelen!' }),
+    acquisitionSource: zod.string().optional(),
+    discountPercent: zod.preprocess(
+        (val) => {
+            if (val === '' || val === null || val === undefined) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? val : num;
+        },
+        zod.number({ message: 'Csak számot lehet megadni!' })
+            .min(0, { message: 'Érvényes kedvezmény százalék megadása szükséges!' })
+            .max(100, { message: 'A kedvezmény százalékának 0 és 100 között kell lennie!' })
+            .optional()
+    ),
+    isCompany: zod.boolean(),
+    CompanyName: zod.string().optional(),
+    role: zod.object({
+        uid: zod.string().optional(),
+        is_admin: zod.boolean().optional(),
+        is_vip: zod.boolean().optional(),
+        is_corp: zod.boolean().optional(),
+    }).optional().refine((role) => role?.is_admin || role?.is_vip || role?.is_corp, {
+        message: 'Legalább egy szerepkör kiválasztása kötelező!',
+        path: ['role'],
     }),
-    address: zod.string().min(1, { message: 'Address is required!' }),
-    state: zod.string().min(1, { message: 'State is required!' }),
-    city: zod.string().min(1, { message: 'City is required!' }),
-    zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-    about: zod.string().min(1, { message: 'About is required!' }),
-    // Not required
-    isPublic: zod.boolean(),
+    id: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
 
-export function AccountGeneral() {
-    const { user } = useMockedUser();
+type AccountGeneralProps = {
+    user?: IUserItem;
+};
+
+export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
 
     const currentUser: UpdateUserSchemaType = {
-        displayName: user?.displayName,
-        email: user?.email,
-        photoURL: user?.photoURL,
-        phoneNumber: user?.phoneNumber,
-        country: user?.country,
-        address: user?.address,
-        state: user?.state,
-        city: user?.city,
-        zipCode: user?.zipCode,
-        about: user?.about,
-        isPublic: user?.isPublic,
+        id: user?.id || '',
+        firstname: user?.customerData?.firstname || '',
+        lastname: user?.customerData?.lastname || '',
+        email: user?.email || '',
+        acquisitionSource: user?.customerData?.acquisitionSource || '',
+        discountPercent: user?.customerData?.discountPercent || 0,
+        isCompany: user?.customerData?.isCompany || false,
+        CompanyName: user?.customerData?.companyName || '',
+        role: user?.role || { uid: '', is_admin: false, is_vip: false, is_corp: false } as IRole,
     };
 
     const defaultValues: UpdateUserSchemaType = {
-        displayName: '',
+        id: '',
+        firstname: '',
+        lastname: '',
         email: '',
-        photoURL: null,
-        phoneNumber: '',
-        country: null,
-        address: '',
-        state: '',
-        city: '',
-        zipCode: '',
-        about: '',
-        isPublic: false,
+        acquisitionSource: '',
+        discountPercent: 0,
+        isCompany: false,
+        CompanyName: '',
+        role: { uid: '', is_admin: false, is_vip: false, is_corp: false } as IRole,
     };
 
     const methods = useForm<UpdateUserSchemaType>({
@@ -90,7 +103,7 @@ export function AccountGeneral() {
     const onSubmit = handleSubmit(async (data) => {
         try {
             await new Promise((resolve) => setTimeout(resolve, 500));
-            toast.success('Update success!');
+            toast.success('Mentés sikeres!');
             console.info('DATA', data);
         } catch (error) {
             console.error(error);
@@ -100,50 +113,9 @@ export function AccountGeneral() {
     return (
         <Form methods={methods} onSubmit={onSubmit}>
             <Grid container spacing={3}>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Card
-                        sx={{
-                            pt: 10,
-                            pb: 5,
-                            px: 3,
-                            textAlign: 'center',
-                        }}
-                    >
-                        <Field.UploadAvatar
-                            name="photoURL"
-                            maxSize={3145728}
-                            helperText={
-                                <Typography
-                                    variant="caption"
-                                    sx={{
-                                        mt: 3,
-                                        mx: 'auto',
-                                        display: 'block',
-                                        textAlign: 'center',
-                                        color: 'text.disabled',
-                                    }}
-                                >
-                                    Allowed *.jpeg, *.jpg, *.png, *.gif
-                                    <br /> max size of {fData(3145728)}
-                                </Typography>
-                            }
-                        />
-
-                        <Field.Switch
-                            name="isPublic"
-                            labelPlacement="start"
-                            label="Public profile"
-                            sx={{ mt: 5 }}
-                        />
-
-                        <Button variant="soft" color="error" sx={{ mt: 3 }}>
-                            Delete user
-                        </Button>
-                    </Card>
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 8 }}>
+                <Grid size={{ xs: 12, md: 12 }}>
                     <Card sx={{ p: 3 }}>
+                        <Field.Text name="id" label="Felhasználó azonosító" disabled sx={{ mb: 3 }} />
                         <Box
                             sx={{
                                 rowGap: 3,
@@ -152,27 +124,32 @@ export function AccountGeneral() {
                                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
                             }}
                         >
-                            <Field.Text name="displayName" label="Name" />
-                            <Field.Text name="email" label="Email address" />
-                            <Field.Phone name="phoneNumber" label="Phone number" />
-                            <Field.Text name="address" label="Address" />
+                            <Field.Text name="lastname" label="Vezetéknév" />
+                            <Field.Text name="firstname" label="Keresztnév" />
+                            <Field.Text name="email" label="Email cím" />
+                            <Field.Text name="discountPercent" label="Kedvezmény százalék" />
 
-                            <Field.CountrySelect
-                                name="country"
-                                label="Country"
-                                placeholder="Choose a country"
-                            />
-
-                            <Field.Text name="state" label="State/region" />
-                            <Field.Text name="city" label="City" />
-                            <Field.Text name="zipCode" label="Zip/code" />
+                            <Field.Checkbox name="isCompany" label="Céges regisztráció" />
+                            {methods.watch('isCompany') && (
+                                <Field.Text name="CompanyName" label="Cégnév" />
+                            )}
                         </Box>
 
-                        <Stack spacing={3} sx={{ mt: 3, alignItems: 'flex-end' }}>
-                            <Field.Text name="about" multiline rows={4} label="About" />
+                        <Typography variant="h6" sx={{ mt: 5, mb: 3 }}>Felhasználói szerepkörök</Typography>
+                        <Stack direction={'column'} spacing={1} sx={{ my: 3 }}>
+                            <Field.Checkbox name="role.is_admin" label="Admin" />
+                            <Field.Checkbox name="role.is_vip" label="VIP ügyfél" />
+                            <Field.Checkbox name="role.is_corp" label="Vállalati ügyfél" />
+                        </Stack>
 
+                        <Field.Text name="acquisitionSource" multiline rows={4} label="Honnan hallott rólunk?" sx={{ my: 3 }} />
+
+                        <Stack spacing={3} direction="row" sx={{ mt: 3, alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Button variant="soft" color="error">
+                                Felhasználó törlése
+                            </Button>
                             <Button type="submit" variant="contained" loading={isSubmitting}>
-                                Save changes
+                                Változtatások mentése
                             </Button>
                         </Stack>
                     </Card>

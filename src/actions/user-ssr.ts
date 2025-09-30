@@ -71,10 +71,29 @@ export async function getUsersAdmin(page: number = 1, perPage: number = 10000) {
     return response.data.users;
 }
 
+export async function getUserAdmin(id:string) {
+    const cookieStore = await cookies();
+    const client = await supabaseAdmin(cookieStore);
+
+    const response = await client.getUserById(id);
+
+    if (response.error) throw response.error.message;
+
+    return response.data.user;
+}
+
 export async function getUsersRoles() {
     const cookieStore = await cookies();
     const client = await supabaseSSR(cookieStore);
     const { data, error } = await client.from('roles').select('*');
+    if (error) throw error.message;
+    return data;
+}
+
+export async function getUserRoles(id:string) {
+    const cookieStore = await cookies();
+    const client = await supabaseSSR(cookieStore);
+    const { data, error } = await client.from('roles').select('*').eq('uid', id).single();
     if (error) throw error.message;
     return data;
 }

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { getUser } from 'src/actions/user-management';
 
 import { CONFIG } from 'src/global-config';
-import { getUserById } from 'src/actions/user-ssr';
+
 
 import { UserEditView } from 'src/sections/user/view';
 
@@ -15,8 +16,12 @@ type Props = {
 
 export default async function Page({ params }: Readonly<Props>) {
     const { id } = await params;
-    const currentUser = await getUserById(id);
+    const currentUser = await getUser(id);
 
+    if(!currentUser) {
+        throw new Error('User not found');
+    }
+    
     return <UserEditView user={currentUser} />;
 }
 
