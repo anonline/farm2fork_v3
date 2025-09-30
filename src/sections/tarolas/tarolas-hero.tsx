@@ -3,7 +3,7 @@
 import { Box, Container, Typography } from '@mui/material';
 
 export default function TarolasHero() {
-    const heroImageUrl = 'https://images.unsplash.com/photo-1542189824-556a3a4834de?q=80&w=2070';
+    const heroImageUrl = 'https://farm2fork.hu/wp-content/uploads/2024/07/feher-csiperkegomba_873_2-scaled.jpg';
 
     return (
         <Box sx={{ width: '100%', mb: 4 }}>
