@@ -52,9 +52,14 @@ export function useInfiniteProducts({
     const [totalCount, setTotalCount] = useState(0);
 
     const {user} = useAuthContext(); 
-    const isVIP = user?.user_metadata?.is_vip || false;
-    const isCORP = user?.user_metadata?.is_corp || false;
+    const [isVIP, setIsVIP] = useState(false);
+    const [isCORP, setIsCORP] = useState(false);
 
+    useEffect(() => {
+        setIsVIP(user?.user_metadata?.is_vip || false);
+        setIsCORP(user?.user_metadata?.is_corp || false);
+    }, [user]);
+    
     // Build the query based on filters
     const buildQuery = useCallback((offset: number, limit: number) => {
         let query = supabase
@@ -124,7 +129,7 @@ export function useInfiniteProducts({
         }
 
         return query;
-    }, [categoryId, subCategoryIds, isBio, searchText, sorting]);
+    }, [categoryId, subCategoryIds, isBio, searchText, sorting, isVIP, isCORP]);
 
     // Fetch products for a specific page
     const fetchProducts = useCallback(async (page: number, reset: boolean = false) => {
@@ -208,7 +213,7 @@ export function useInfiniteProducts({
         setHasMore(true);
         fetchProducts(0, true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [categoryId, subCategoryIds, isBio, sorting, searchText]);
+    }, [categoryId, subCategoryIds, isBio, sorting, searchText, isVIP, isCORP]);
 
     return {
         products,
