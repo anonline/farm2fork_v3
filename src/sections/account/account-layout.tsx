@@ -56,6 +56,26 @@ const NAV_ITEMS = [
 export function AccountLayout({ children, ...other }: DashboardContentProps) {
     const pathname = usePathname();
 
+    // Find the matching tab value, preserving ID if present
+    const getCurrentTabValue = () => {
+        const cleanPathname = removeLastSlash(pathname);
+        
+        // Check if we have an ID at the end (UUID pattern)
+        const idMatch = cleanPathname.match(/\/([a-f0-9-]{36})$/);
+        const userId = idMatch ? idMatch[1] : null;
+        
+        // Find the base tab that matches (without the ID)
+        const basePathname = userId ? cleanPathname.replace(`/${userId}`, '') : cleanPathname;
+        const matchingTab = NAV_ITEMS.find(tab => tab.href === basePathname);
+        
+        // Return the tab href with ID preserved if it exists
+        if (matchingTab && userId) {
+            return `${matchingTab.href}/${userId}`;
+        }
+        
+        return matchingTab ? matchingTab.href : NAV_ITEMS[0].href;
+    };
+
     return (
         <DashboardContent {...other}>
             <CustomBreadcrumbs
@@ -68,17 +88,24 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
                 sx={{ mb: 3 }}
             />
 
-            <Tabs value={removeLastSlash(pathname)} sx={{ mb: { xs: 3, md: 5 } }}>
-                {NAV_ITEMS.map((tab) => (
-                    <Tab
-                        component={RouterLink}
-                        key={tab.href}
-                        label={tab.label}
-                        icon={tab.icon}
-                        value={tab.href}
-                        href={tab.href}
-                    />
-                ))}
+            <Tabs value={getCurrentTabValue()} sx={{ mb: { xs: 3, md: 5 } }}>
+                {NAV_ITEMS.map((tab) => {
+                    const cleanPathname = removeLastSlash(pathname);
+                    const idMatch = cleanPathname.match(/\/([a-f0-9-]{36})$/);
+                    const userId = idMatch ? idMatch[1] : null;
+                    const tabHref = userId ? `${tab.href}/${userId}` : tab.href;
+                    
+                    return (
+                        <Tab
+                            component={RouterLink}
+                            key={tab.href}
+                            label={tab.label}
+                            icon={tab.icon}
+                            value={tabHref}
+                            href={tabHref}
+                        />
+                    );
+                })}
             </Tabs>
 
             {children}

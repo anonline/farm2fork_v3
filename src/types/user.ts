@@ -119,6 +119,7 @@ export type ICustomerData = {
     acquisitionSource: string;
     isCompany: boolean;
     discountPercent: number;
+    paymentDue: number;
 }
 
 export type IRole = {

@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -10,13 +9,14 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-import { fData } from 'src/utils/format-number';
-
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { IRole, IUserItem } from 'src/types/user';
-import { Iconify } from 'src/components/iconify/iconify';
+import { ICustomerData, IRole, IUserItem } from 'src/types/user';
+import { useCallback } from 'react';
+import { addUser, upsertUserCustomerData } from 'src/actions/user-client';
+
+
 
 
 // ----------------------------------------------------------------------
@@ -54,6 +54,18 @@ export const UpdateUserSchema = zod.object({
         path: ['role'],
     }),
     id: zod.string().optional(),
+    newsletterConsent: zod.boolean(),
+    paymentDue: zod.preprocess(
+        (val) => {
+            if (val === '' || val === null || val === undefined) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? val : num;
+        },
+        zod.number({ message: 'Csak számot lehet megadni!' })
+            .min(1, { message: 'Fizetési határidő 1-365 nap között kell lennie!' })
+            .max(365, { message: 'Fizetési határidő 1-365 nap között kell lennie!' })
+    ),
+    password: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -74,6 +86,9 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
         isCompany: user?.customerData?.isCompany || false,
         CompanyName: user?.customerData?.companyName || '',
         role: user?.role || { uid: '', is_admin: false, is_vip: false, is_corp: false } as IRole,
+        newsletterConsent: user?.customerData?.newsletterConsent || false,
+        paymentDue: user?.customerData?.paymentDue || 30,
+        password: '',
     };
 
     const defaultValues: UpdateUserSchemaType = {
@@ -86,6 +101,9 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
         isCompany: false,
         CompanyName: '',
         role: { uid: '', is_admin: false, is_vip: false, is_corp: false } as IRole,
+        newsletterConsent: false,
+        paymentDue: 30,
+        password: '',
     };
 
     const methods = useForm<UpdateUserSchemaType>({
@@ -100,15 +118,53 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
         formState: { isSubmitting },
     } = methods;
 
-    const onSubmit = handleSubmit(async (data) => {
+    const onSubmit = handleSubmit(async (data: UpdateUserSchemaType) => {
         try {
-            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            const userId = await handleUpsertUser(data);
+            data.id = userId;
+
+            await handleCustomerDataSave(data);
+            
             toast.success('Mentés sikeres!');
             console.info('DATA', data);
         } catch (error) {
             console.error(error);
         }
     });
+
+    const handleCustomerDataSave = useCallback(
+        async (data: UpdateUserSchemaType) => {
+            if (!user?.id) {
+                return false;
+            }
+
+            return await upsertUserCustomerData({
+                id: user?.customerData?.id || '',
+                firstname: data.firstname,
+                lastname: data.lastname,
+                companyName: data.isCompany ? data.CompanyName : '',
+                uid: user?.id || '',
+                newsletterConsent: data.newsletterConsent || false,
+                acquisitionSource: data.acquisitionSource || '',
+                isCompany: data.isCompany || false,
+                discountPercent: data.discountPercent || 0,
+                paymentDue: data.paymentDue || 30,
+            } as Partial<ICustomerData>);
+        },
+        [user]
+    );
+
+    const handleUpsertUser = useCallback(
+        async (data: UpdateUserSchemaType) => {
+
+            return await addUser({
+                id: user?.id || undefined,
+                email: data.email,
+            } as Partial<IUserItem>, data.password);
+        },
+        [user]
+    );
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
@@ -133,6 +189,7 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
                             {methods.watch('isCompany') && (
                                 <Field.Text name="CompanyName" label="Cégnév" />
                             )}
+                            <Field.Text name="paymentDue" label="Fizetési határidő (nap)" />
                         </Box>
 
                         <Typography variant="h6" sx={{ mt: 5, mb: 3 }}>Felhasználói szerepkörök</Typography>
@@ -143,6 +200,16 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
                         </Stack>
 
                         <Field.Text name="acquisitionSource" multiline rows={4} label="Honnan hallott rólunk?" sx={{ my: 3 }} />
+
+                        <Field.Checkbox name="newsletterConsent" label="Hozzájárulok, hogy hírlevelet küldjetek nekem." />
+                        
+                        <Typography variant="h6" sx={{ mt: 5, mb: 3 }}>Jelszó</Typography>
+                        <Stack direction={'column'} spacing={1} sx={{ my: 3 }}>
+                            <Field.Text name="password" label="Jelszó" type="password" />
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Új felhasználó létrehozásakor vagy jelszó módosításakor kötelező megadni a jelszót.
+                            </Typography>
+                        </Stack>
 
                         <Stack spacing={3} direction="row" sx={{ mt: 3, alignItems: 'center', justifyContent: 'space-between' }}>
                             <Button variant="soft" color="error">

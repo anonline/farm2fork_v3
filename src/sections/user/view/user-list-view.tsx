@@ -44,7 +44,6 @@ import {
 import { UserTableRow } from '../user-table-row';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { UserTableFiltersResult } from '../user-table-filters-result';
-import { getUsers } from 'src/actions/user-management';
 
 // ----------------------------------------------------------------------
 
@@ -60,6 +59,7 @@ const TAB_OPTIONS = [
 
 const TABLE_HEAD: TableHeadCellProps[] = [
     { id: 'name', label: 'Név' },
+    { id: 'companyName', label: 'Cégnév' },
     { id: 'discount', label: 'Kedvezmény (%)', width: 150, align: 'center' },
     { id: 'role', label: 'Jogosultság', width: 180, align: 'center' },
     { id: 'status', label: 'Hírlevél', width: 100, align: 'center' },

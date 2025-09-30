@@ -43,7 +43,7 @@ export function UserTableRow({
 }: Readonly<Props>) {
     const menuActions = usePopover();
     const confirmDialog = useBoolean();
-    
+
     const renderMenuActions = () => (
         <CustomPopover
             open={menuActions.open}
@@ -129,6 +129,29 @@ export function UserTableRow({
                     </Box>
                 </TableCell>
 
+                <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {row.customerData?.companyName ? (
+                            <Tooltip title={row.customerData.companyName}>
+                                <span>{row.customerData.companyName}</span>
+                            </Tooltip>
+                        ) : (
+                            <Box sx={{ color: 'text.disabled' }}></Box>
+                        )}
+
+                        {(row.customerData?.isCompany || row.role.is_corp) && (row.customerData?.companyName || '').length < 1 && (
+                            <Tooltip title="A felhasználó céges regisztrációval/szerepkörrel rendelkezik, de nincs megadva cégnév a kapcsolódó adatok között.">
+                                <Iconify icon="solar:danger-triangle-bold" width={20} height={20} sx={{ color: 'warning.main', ml: 1 }} />
+                            </Tooltip>
+                        )}
+                        {!(row.customerData?.isCompany || row.role.is_corp) && (row.customerData?.companyName || '').length > 0 && (
+                            <Tooltip title="A felhasználó NEM céges regisztrációval/szerepkörrel rendelkezik, de van megadva cégnév a kapcsolódó adatok között.">
+                                <Iconify icon="solar:danger-triangle-bold" width={20} height={20} sx={{ color: 'warning.main', ml: 1 }} />
+                            </Tooltip>
+                        )}
+                    </Box>
+                </TableCell>
+
                 <TableCell align="center">
                     {row.customerData?.discountPercent && row.customerData?.discountPercent > 0 ? (
                         <Label
@@ -143,18 +166,32 @@ export function UserTableRow({
                 </TableCell>
 
                 <TableCell sx={{ whiteSpace: 'nowrap' }} align="center">
-                    <Label
-                        variant="soft"
-                        color={
-                            (row.role.is_corp && 'success') ||
-                            (row.role.is_vip && 'warning') ||
-                            (row.role.is_admin && 'error') ||
-                            'default'
-                        }
-                    >
-                        {row.role.is_admin && 'Admin' || row.role.is_vip && 'VIP' || row.role.is_corp && 'Céges' || 'Magánszemély'}
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Label
+                            variant="soft"
+                            color={
+                                (row.role.is_corp && 'success') ||
+                                (row.role.is_vip && 'warning') ||
+                                (row.role.is_admin && 'error') ||
+                                'default'
+                            }
+                        >
+                            {row.role.is_admin && 'Admin' || row.role.is_vip && 'VIP' || row.role.is_corp && 'Céges' || 'Magánszemély'}
 
-                    </Label>
+                        </Label>
+                        {!row.customerData?.isCompany && row.role.is_corp && (
+                            <Tooltip title="A felhasználó céges szerepkörrel rendelkezik, de nem céges regisztrációval.">
+                                <Iconify icon="solar:danger-triangle-bold" width={20} height={20} sx={{ color: 'warning.main', ml: 1 }} />
+                            </Tooltip>
+                        )}
+                        {row.customerData?.isCompany && !row.role.is_corp && (
+                            <Tooltip title="A felhasználó céges regisztrációval rendelkezik, de nem céges szerepkörrel.">
+                                <Iconify icon="solar:danger-triangle-bold" width={20} height={20} sx={{ color: 'warning.main', ml: 1 }} />
+                            </Tooltip>
+                        )}
+
+
+                    </Box>
                 </TableCell>
 
                 <TableCell align="center">
