@@ -26,6 +26,12 @@ export default function FeaturedCard({ isOpen }: Readonly<FeaturedCardProps>) {
                     <RHFSwitch name="featured" label="Főoldalon kiemelt termék" />
                     <RHFSwitch name="star" label="Szezonális sztár termék" />
                     <RHFSwitch name="bio" label="Bio termék" />
+
+                    <Divider />
+
+                    <RHFSwitch name="isPublic" label="Publikus termék" />
+                    <RHFSwitch name="isVip" label="VIP vásárlók számára elérhető" />
+                    <RHFSwitch name="isCorp" label="Céges vásárlók számára elérhető" />
                 </Stack>
             </Collapse>
         </Card>

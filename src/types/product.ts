@@ -110,6 +110,9 @@ export type IProductItem = {
     }[];
     stock: number | null;
     backorder: boolean;
+    isVip: boolean;
+    isCorp: boolean;
+    isPublic: boolean;
 };
 
 export type IProductCategory = {

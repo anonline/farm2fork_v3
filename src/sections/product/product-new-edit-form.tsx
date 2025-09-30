@@ -99,6 +99,9 @@ export const NewProductSchema = zod.object({
         .min(0, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
         .max(100, { message: 'Kérjük, adjon meg egy érvényes ÁFA százalékot!' })
         .default(27),
+    isPublic: zod.boolean().default(true),
+    isVip: zod.boolean().default(false),
+    isCorp: zod.boolean().default(false),
 })
     .refine((data) => {
         if (!data.backorder && data.stock !== null) {
@@ -174,6 +177,9 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             salegrossPrice: currentProduct?.salegrossPrice || null,
             storingInformation: currentProduct?.storingInformation || '',
             usageInformation: currentProduct?.usageInformation || '',
+            isPublic: currentProduct?.isPublic ?? true,
+            isVip: currentProduct?.isVip ?? false,
+            isCorp: currentProduct?.isCorp ?? false,
         }
     }, [currentProduct, connection]);
 
