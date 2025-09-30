@@ -38,13 +38,13 @@ export function ProductCategoryConnectionProvider({ children }: Readonly<{ child
             const batchSize = 1000;
 
             while (true) {
-                const { data, error } = await supabase
+                const { data, error: productCategoryError } = await supabase
                     .from("ProductCategories_Products")
                     .select("*")
                     .range(from, from + batchSize - 1);
 
-                if (error) {
-                    responseError = error;
+                if (productCategoryError) {
+                    responseError = productCategoryError;
                     break;
                 }
 

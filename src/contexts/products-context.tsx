@@ -243,7 +243,7 @@ export function ProductsInMonthInCategoryProvider({
                 `);
 
             if (categoryId) {
-                let {data:subcategories} = await supabase.from('ProductCategories').select('*').eq('parentId', categoryId);
+                const {data:subcategories} = await supabase.from('ProductCategories').select('*').eq('parentId', categoryId);
 
                 const categoryFilters = [
                     'categoryId.eq.' + categoryId,

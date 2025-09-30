@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
 
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
 import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 export async function GET(req: NextRequest) {

@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import type { IProductItem } from 'src/types/product';
+
+import React, { useState, useEffect } from 'react';
 
 import { Box, Grid, Typography, CircularProgress } from '@mui/material';
 
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
-import { IProductItem } from 'src/types/product';
 
 interface ProducerProductsProps {
     producerId: string;

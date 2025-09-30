@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useCallback } from 'react';
 
 import { CONFIG } from 'src/global-config';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

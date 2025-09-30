@@ -1,20 +1,22 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useRef, useEffect } from 'react';
+
 import { Box, Badge } from '@mui/material';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { useAuthContext } from 'src/auth/hooks';
 import { fetchGetProductsByIds } from 'src/actions/product';
 
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { CheckoutCart } from '../checkout-cart';
 import { useCheckoutContext } from '../context';
 import { CheckoutPayment } from '../checkout-payment';
 import { CheckoutOrderComplete } from '../checkout-order-complete';
-import { toast } from 'sonner';
 
 // ----------------------------------------------------------------------
 
