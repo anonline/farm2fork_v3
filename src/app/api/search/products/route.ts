@@ -1,14 +1,13 @@
+import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '' // vagy anon key, ha nincs jogosultságigény
-);
+import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 export async function GET(req: NextRequest) {
+    const cookieStore = await cookies();
+    const supabase = await supabaseSSR(cookieStore);
+
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
@@ -17,15 +16,40 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 });
     }
 
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    
+
+    const {data:roles, error: rolesError } = await supabase
+        .from('roles')
+        .select('*')
+        .eq('uid', user?.id ?? undefined)
+        .single();
+
+    const isVIP = roles?.is_vip || false;
+    const isCORP = roles?.is_corp || false;
+    
+
     const searchTerm = `%${q}%`;
 
     const baseQuery = `tags.ilike.${searchTerm},name.ilike.${searchTerm}`;
 
-    const productsResponse = await supabase
+    let query = supabase
         .from('Products')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('publish', true)
         .or(baseQuery);
+
+    if (isVIP) {
+        query = query.eq('isVip', true);
+    } else if (isCORP) {
+        query = query.eq('isCorp', true);
+    } else {
+        query = query.eq('isPublic', true);
+    }
+
+    const productsResponse = await query;
 
     if (productsResponse.error) {
         return NextResponse.json(

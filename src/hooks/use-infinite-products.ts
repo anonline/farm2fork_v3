@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useCallback } from 'react';
 
 import { CONFIG } from 'src/global-config';
+import { useAuthContext } from 'src/auth/hooks';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -50,6 +51,10 @@ export function useInfiniteProducts({
     const [hasMore, setHasMore] = useState(true);
     const [totalCount, setTotalCount] = useState(0);
 
+    const {user} = useAuthContext(); 
+    const isVIP = user?.user_metadata?.is_vip || false;
+    const isCORP = user?.user_metadata?.is_corp || false;
+
     // Build the query based on filters
     const buildQuery = useCallback((offset: number, limit: number) => {
         let query = supabase
@@ -57,7 +62,16 @@ export function useInfiniteProducts({
             .select('*, producer:Producers(*), category:ProductCategories(*), product_categories:ProductCategories_Products!inner(*)', { count: 'exact' })
             .eq('publish', true) // Only fetch published products
             .or('stock.gt.0, stock.is.null, backorder.eq.true') // In stock or backorder allowed
-
+        
+        if(isVIP){
+            query = query.eq('isVip', true);
+        }
+        else if(isCORP){
+            query = query.eq('isCorp', true);
+        }
+        else{
+            query = query.eq('isPublic', true);
+        }
 
         let categoryIds: number[] = [];
         if ((categoryId !== undefined && categoryId !== 42)) {
