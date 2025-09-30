@@ -1,15 +1,15 @@
 'use client';
 
+import type { IUserItem } from 'src/types/user';
 import type { IconButtonProps } from '@mui/material/IconButton';
 
-import { varAlpha } from 'minimal-shared/utils';
+import { useState, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
 import Drawer from '@mui/material/Drawer';
-import Tooltip from '@mui/material/Tooltip';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
@@ -19,14 +19,14 @@ import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { _mock } from 'src/_mock';
+import { getUser } from 'src/actions/user-management';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateBorder } from 'src/components/animate';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
@@ -44,8 +44,16 @@ export type AccountDrawerProps = IconButtonProps & {
 
 export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
     const pathname = usePathname();
+    const {user:userJwt} = useAuthContext();
+    const [user, setUser] = useState<IUserItem | undefined>(undefined);
+    useEffect(() => {
+        if (!userJwt) return;
+        (async () => {
+            setUser(await getUser(userJwt.id));
+        })();
+    }, [userJwt]);
 
-    const { user } = useMockedUser();
+
 
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
@@ -56,8 +64,8 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                 primaryBorder: { size: 120, sx: { color: 'primary.main' } },
             }}
         >
-            <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 1, height: 1 }}>
-                {user?.displayName?.charAt(0).toUpperCase()}
+            <Avatar alt={user?.customerData?.lastname || '' + ' ' + user?.customerData?.firstname || ''} sx={{ width: 1, height: 1 }}>
+                {user?.customerData?.firstname?.charAt(0).toUpperCase()}
             </Avatar>
         </AnimateBorder>
     );
@@ -120,8 +128,8 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         <>
             <AccountButton
                 onClick={onOpen}
-                photoURL={user?.photoURL}
-                displayName={user?.displayName}
+                photoURL=''
+                displayName={user?.customerData?.lastname || '' + ' ' + user?.customerData?.firstname || ''}
                 sx={sx}
                 {...other}
             />
@@ -159,7 +167,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                         {renderAvatar()}
 
                         <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-                            {user?.displayName}
+                            {user?.customerData?.lastname} {user?.customerData?.firstname}
                         </Typography>
 
                         <Typography
@@ -171,7 +179,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                         </Typography>
                     </Box>
 
-                    <Box
+                    {/*<Box
                         sx={{
                             p: 3,
                             gap: 1,
@@ -210,7 +218,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                         </Tooltip>
                     </Box>
 
-                    {renderList()}
+                    {renderList()}*/}
                 </Scrollbar>
 
                 <Box sx={{ p: 2.5 }}>

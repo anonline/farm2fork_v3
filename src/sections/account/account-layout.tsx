@@ -23,21 +23,25 @@ const NAV_ITEMS = [
         label: 'Általános',
         icon: <Iconify width={24} icon="solar:user-id-bold" />,
         href: paths.dashboard.user.account,
+        disabled: true
     },
     {
         label: 'Számlázás',
         icon: <Iconify width={24} icon="solar:bill-list-bold" />,
         href: `${paths.dashboard.user.account}/billing`,
+        disabled: true
     },
     {
         label: 'Szállítás',
         icon: <Iconify width={24} icon="carbon:delivery" />,
         href: `${paths.dashboard.user.account}/shipping`,
+        disabled: true
     },
     {
-        label: 'Notifications',
+        label: 'Rendelések',
         icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
         href: `${paths.dashboard.user.account}/notifications`,
+        disabled: true
     },
     /*{
         label: 'Social links',
@@ -89,7 +93,7 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
             />
 
             <Tabs value={getCurrentTabValue()} sx={{ mb: { xs: 3, md: 5 } }}>
-                {NAV_ITEMS.map((tab) => {
+                {NAV_ITEMS.map((tab, index) => {
                     const cleanPathname = removeLastSlash(pathname);
                     const idMatch = cleanPathname.match(/\/([a-f0-9-]{36})$/);
                     const userId = idMatch ? idMatch[1] : null;
@@ -103,6 +107,7 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
                             icon={tab.icon}
                             value={tabHref}
                             href={tabHref}
+                            disabled={ index == 0 ? false : userId == null }
                         />
                     );
                 })}
