@@ -141,7 +141,7 @@ export function OrderDetailsToolbar({
 
     const renderStatusLabel = () => {
         if (status === 'pending') return 'Új';
-        if (status === 'inprogress') return 'Feldolgozva';
+        if (status === 'inprogress' || status === 'processing') return 'Feldolgozva';
         if (status === 'completed') return 'Teljesítve';
         if (status === 'cancelled') return 'Törölve';
         return 'Ismeretlen';

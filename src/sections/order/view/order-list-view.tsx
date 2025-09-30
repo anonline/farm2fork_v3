@@ -485,6 +485,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
         );
     }
 
+    console.log('Filtering with shipments:', shipments);
     if (shipments.length > 0) {
         inputData = inputData.filter((order) => {
             if (order.shipmentId) {

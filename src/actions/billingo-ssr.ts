@@ -182,7 +182,7 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
             invoiceItems.push({
                 name: 'Szállítási költség',
                 unit_price: Math.round(orderData.shippingCost * 100) / 100,
-                unit_price_type: UnitPriceType.NET,
+                unit_price_type: UnitPriceType.GROSS,
                 quantity: 1,
                 unit: 'db',
                 vat: Vat._27_,
