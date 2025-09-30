@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
-import { getUsers } from 'src/actions/user-ssr';
 import { getUsers as getUsersClient } from 'src/actions/user-management';
+
 import { UserListView } from 'src/sections/user/view';
 
 // ----------------------------------------------------------------------

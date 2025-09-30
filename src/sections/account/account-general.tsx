@@ -1,8 +1,10 @@
+import type { IRole, IUserItem, ICustomerData } from 'src/types/user';
+
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState, useCallback } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -12,12 +14,12 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
-import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 
-import { ICustomerData, IRole, IUserItem } from 'src/types/user';
-import { addUser, upsertUserCustomerData, deleteUser } from 'src/actions/user-client';
+import { addUser, deleteUser, upsertUserCustomerData } from 'src/actions/user-client';
+
+import { toast } from 'src/components/snackbar';
+import { Form, Field } from 'src/components/hook-form';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 
 
@@ -207,7 +209,7 @@ export function AccountGeneral({ user, onUserDeleted }: Readonly<AccountGeneralP
                         </Box>
 
                         <Typography variant="h6" sx={{ mt: 5, mb: 3 }}>Felhasználói szerepkörök</Typography>
-                        <Stack direction={'column'} spacing={1} sx={{ my: 3 }}>
+                        <Stack direction="column" spacing={1} sx={{ my: 3 }}>
                             <Field.Checkbox name="role.is_admin" label="Admin" />
                             <Field.Checkbox name="role.is_vip" label="VIP ügyfél" />
                             <Field.Checkbox name="role.is_corp" label="Vállalati ügyfél" />
@@ -218,7 +220,7 @@ export function AccountGeneral({ user, onUserDeleted }: Readonly<AccountGeneralP
                         <Field.Checkbox name="newsletterConsent" label="Hozzájárulok, hogy hírlevelet küldjetek nekem." />
 
                         <Typography variant="h6" sx={{ mt: 5, mb: 3 }}>Jelszó</Typography>
-                        <Stack direction={'column'} spacing={1} sx={{ my: 3 }}>
+                        <Stack direction="column" spacing={1} sx={{ my: 3 }}>
                             <Field.Text name="password" label="Jelszó" type="password" />
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 Új felhasználó létrehozásakor vagy jelszó módosításakor kötelező megadni a jelszót.

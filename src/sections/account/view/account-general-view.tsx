@@ -1,6 +1,7 @@
 'use client';
 
-import { IUserItem } from 'src/types/user';
+import type { IUserItem } from 'src/types/user';
+
 import { AccountGeneral } from '../account-general';
 
 // ----------------------------------------------------------------------

@@ -20,7 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { _roles, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _roles } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
@@ -46,8 +46,6 @@ import { UserTableToolbar } from '../user-table-toolbar';
 import { UserTableFiltersResult } from '../user-table-filters-result';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
 
 const TAB_OPTIONS = [
     { value: 'all', label: 'Összes' },
@@ -377,8 +375,7 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
     }
 
     if (role.length) {
-        inputData = inputData.filter((user) => {
-            return role.map((roleFilter) => {
+        inputData = inputData.filter((user) => role.map((roleFilter) => {
                 switch (roleFilter) {
                     case 'Admin':
                         return user.role.is_admin;
@@ -389,8 +386,7 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
                     default:
                         return !(user.role.is_admin || user.role.is_vip || user.role.is_corp);
                 }
-            }).find((roleMatch) => roleMatch === true);
-        });
+            }).find((roleMatch) => roleMatch === true));
     }
 
     return inputData;

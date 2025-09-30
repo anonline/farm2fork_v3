@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { getUser } from 'src/actions/user-management';
 
 import { CONFIG } from 'src/global-config';
-
+import { getUser } from 'src/actions/user-management';
 
 import { UserEditView } from 'src/sections/user/view';
 

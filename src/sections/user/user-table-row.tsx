@@ -136,7 +136,7 @@ export function UserTableRow({
                                 <span>{row.customerData.companyName}</span>
                             </Tooltip>
                         ) : (
-                            <Box sx={{ color: 'text.disabled' }}></Box>
+                            <Box sx={{ color: 'text.disabled' }} />
                         )}
 
                         {(row.customerData?.isCompany || row.role.is_corp) && (row.customerData?.companyName || '').length < 1 && (
@@ -161,7 +161,7 @@ export function UserTableRow({
                             {row.customerData?.discountPercent} %
                         </Label>
                     ) : (
-                        <Box sx={{ color: 'text.disabled' }}></Box>
+                        <Box sx={{ color: 'text.disabled' }} />
                     )}
                 </TableCell>
 

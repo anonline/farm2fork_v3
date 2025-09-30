@@ -4,7 +4,7 @@ import type { IRole, IUserItem } from 'src/types/user';
 
 import { cookies } from 'next/headers';
 
-import { supabaseAdmin, supabaseSSR } from 'src/lib/supabase-ssr';
+import { supabaseSSR, supabaseAdmin } from 'src/lib/supabase-ssr';
 
 // ----------------------------------------------------------------------
 

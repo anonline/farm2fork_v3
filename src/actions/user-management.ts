@@ -1,5 +1,7 @@
+import type { IRole, IUserItem, ICustomerData } from 'src/types/user';
+
 import { supabase } from 'src/lib/supabase';
-import { ICustomerData, IRole, IUserItem } from 'src/types/user';
+
 import { getUserAdmin, getUserRoles, getUsersAdmin, getUsersRoles } from './user-ssr';
 
 export async function getUsers(page: number = 1, limit: number = 25): Promise<IUserItem[]> {
@@ -12,7 +14,7 @@ export async function getUsers(page: number = 1, limit: number = 25): Promise<IU
     const supabaseUsers = await getUsersAdmin(page, limit);
 
     const userList = supabaseUsers.map((user) => {
-        const customerData =
+        const selectedCustomerData =
             fetchedCustomerData.find(
                 (customerData: ICustomerData) => customerData.uid === user.id
             ) || null;
@@ -22,11 +24,11 @@ export async function getUsers(page: number = 1, limit: number = 25): Promise<IU
         return {
             id: user.id,
             name:
-                `${customerData?.lastname || ''} ${customerData?.firstname || ''}`.trim() ||
+                `${selectedCustomerData?.lastname || ''} ${selectedCustomerData?.firstname || ''}`.trim() ||
                 user.email,
             email: user.email,
             role: roleData,
-            customerData: customerData,
+            customerData: selectedCustomerData,
             createdAt: user.created_at,
         } as IUserItem;
     });

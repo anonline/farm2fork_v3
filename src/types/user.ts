@@ -1,6 +1,7 @@
-import { User } from '@supabase/supabase-js';
-import { IBillingAddress, IShippingAddress } from './address';
+import type { User } from '@supabase/supabase-js';
+
 import type { IDateValue, ISocialLink } from './common';
+import type { IBillingAddress, IShippingAddress } from './address';
 
 // ----------------------------------------------------------------------
 

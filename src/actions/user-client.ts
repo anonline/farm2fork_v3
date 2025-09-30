@@ -1,5 +1,7 @@
+import type { IRole, IUserItem, ICustomerData } from 'src/types/user';
+
 import { supabase } from 'src/lib/supabase';
-import { ICustomerData, IRole, IUserItem } from 'src/types/user';
+
 import { updateUserSSR, createUserSSR, deleteUserSSR } from './user-ssr';
 
 // ----------------------------------------------------------------------
@@ -39,7 +41,7 @@ export async function addUser(userItem: Partial<IUserItem>, password: string | u
         // Update existing user using SSR admin client
         const userId = await updateUserSSR(userItem.id, {
             email: userItem.email,
-            password: password,
+            password,
             roles: userItem.role as IRole
         });
         return userId;
@@ -52,7 +54,7 @@ export async function addUser(userItem: Partial<IUserItem>, password: string | u
 
     const userId = await createUserSSR({
         email: userItem.email,
-        password: password,
+        password,
         roles: userItem.role as IRole
     });
     
