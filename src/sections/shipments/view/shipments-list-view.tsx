@@ -2,7 +2,7 @@
 
 import type { IProductItem } from 'src/types/product';
 import type { Theme, SxProps } from '@mui/material/styles';
-import type { IOrderItem } from 'src/types/order-management';
+import type { IOrderData, IOrderItem } from 'src/types/order-management';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { IShipment, IShipmentsTableFilters } from 'src/types/shipments';
 import type {
@@ -14,7 +14,7 @@ import type {
 } from '@mui/x-data-grid';
 
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
-import { memo, useMemo, useState, useEffect, useCallback, Fragment } from 'react';
+import { memo, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -442,7 +442,168 @@ export function ShipmentsListView() {
     }, [selectedRowIds, tableData]);
 
     const handleExportByShipmentMethod = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
 
+        try {
+            const selectedShipments = tableData.filter(shipment =>
+                selectedRowIds.includes(shipment.id)
+            );
+
+            // Fetch all orders for selected shipments
+            const allOrders: IOrderData[] = [];
+            for (const shipment of selectedShipments) {
+                const ordersResult = await getOrdersByShipmentId(shipment.id);
+                if (!ordersResult.error && ordersResult.orders) {
+                    allOrders.push(...ordersResult.orders);
+                }
+            }
+
+            if (allOrders.length === 0) {
+                toast.warning('Nincsenek rendelések a kiválasztott szállítási összesítőkben!');
+                return;
+            }
+
+            // Group orders by shipment method
+            const ordersByShipmentMethod: Record<string, IOrderData[]> = {};
+            const pickupOrders: Record<string, IOrderData[]> = {}; // For pickup locations
+
+            allOrders.forEach(order => {
+                const shipBy = order.shippingMethod?.name || 'Ismeretlen';
+                
+                if (shipBy === 'Személyes átvétel') {
+                    // Group pickup orders by pickup location
+                    // For pickup orders, we need to get the pickup location from shippingAddress
+                    const pickupLocationId = order.shippingAddress?.id || 'Ismeretlen átvételi pont'; 
+                    if (!pickupOrders[pickupLocationId]) {
+                        pickupOrders[pickupLocationId] = [];
+                    }
+                    pickupOrders[pickupLocationId].push(order);
+                } else {
+                    // Group other shipment methods normally
+                    if (!ordersByShipmentMethod[shipBy]) {
+                        ordersByShipmentMethod[shipBy] = [];
+                    }
+                    ordersByShipmentMethod[shipBy].push(order);
+                }
+            });
+
+            // Fetch pickup locations for resolving names
+            const pickupLocationsResponse = await import('src/lib/supabase')
+                .then(async (supabaseModule) => {
+                    const { data: locations } = await supabaseModule.supabase
+                        .from('PickupLocations')
+                        .select('*')
+                        .order('name', { ascending: true });
+                    return locations || [];
+                })
+                .catch(() => []);
+
+            // Create summary data for export
+            const summaryData: Array<{
+                shipment: IShipment;
+                itemsSummary: ShipmentItemSummary[];
+                groupType: 'shipment_method' | 'pickup_location';
+                groupName: string;
+                orders: IOrderData[];
+            }> = [];
+
+            // Process shipment method groups
+            Object.entries(ordersByShipmentMethod).forEach(([method, orders]) => {
+                const groupSummary = createGroupSummary(orders, method, 'shipment_method');
+                summaryData.push(groupSummary);
+            });
+
+            // Process pickup location groups
+            Object.entries(pickupOrders).forEach(([locationId, orders]) => {
+                const pickupLocation = pickupLocationsResponse.find(loc => loc.id.toString() === locationId);
+                const locationName = pickupLocation ? 
+                    `${pickupLocation.name} (${pickupLocation.postcode} ${pickupLocation.city} ${pickupLocation.address})` : 
+                    `Átvételi pont #${locationId}`;
+                
+                const groupSummary = createGroupSummary(orders, locationName, 'pickup_location');
+                summaryData.push(groupSummary);
+            });
+
+            // Generate export (using existing PDF export function as base)
+            await generateMultiShipmentPDF(summaryData);
+            toast.success('Szállítási módok szerinti összesítő PDF export sikeresen elkészült!');
+
+        } catch (error) {
+            console.error('Export by shipment method error:', error);
+            toast.error('Hiba a szállítási módok szerinti exportálás során!');
+        }
+    }, [selectedRowIds, tableData]);
+
+    // Helper function to create group summary
+    const createGroupSummary = useCallback((orders: IOrderData[], groupName: string, groupType: 'shipment_method' | 'pickup_location') => {
+        // Create items summary by aggregating order items
+        const itemsSummary: ShipmentItemSummary[] = [];
+        const itemsMap = new Map<string, {
+            totalQuantity: number;
+            totalValue: number;
+            orderCount: number;
+            customers: Set<string>;
+            item: any;
+        }>();
+
+        orders.forEach(order => {
+            order.items.forEach((item: any) => {
+                const key = item.id;
+                if (!itemsMap.has(key)) {
+                    itemsMap.set(key, {
+                        totalQuantity: 0,
+                        totalValue: 0,
+                        orderCount: 0,
+                        customers: new Set(),
+                        item
+                    });
+                }
+                
+                const mapItem = itemsMap.get(key)!;
+                mapItem.totalQuantity += item.quantity;
+                mapItem.totalValue += item.subtotal;
+                mapItem.orderCount += 1;
+                mapItem.customers.add(order.customerName);
+            });
+        });
+
+        // Convert map to summary array
+        itemsMap.forEach((data, itemId) => {
+            itemsSummary.push({
+                id: itemId,
+                name: data.item.name,
+                size: data.item.size,
+                unit: data.item.unit,
+                totalQuantity: data.totalQuantity,
+                averagePrice: data.totalValue / data.totalQuantity,
+                totalValue: data.totalValue,
+                orderCount: data.orderCount,
+                customersCount: data.customers.size,
+                customers: Array.from(data.customers),
+                productId: itemId,
+            });
+        });
+
+        // Create mock shipment for the group
+        const mockShipment: IShipment = {
+            id: 0,
+            date: groupName, // Use group name as "date" for display
+            orderCount: orders.length,
+            productCount: itemsSummary.length,
+            productAmount: orders.reduce((sum, order) => sum + order.total, 0),
+            updatedAt: new Date(),
+        };
+
+        return {
+            shipment: mockShipment,
+            itemsSummary,
+            groupType,
+            groupName,
+            orders
+        };
     }, []);
 
     const CustomToolbarCallback = useCallback(

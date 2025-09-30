@@ -1,6 +1,6 @@
 import type { IShipment } from 'src/types/shipments';
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import { pdf, Page, Text, View, Font, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from 'src/utils/format-number';
@@ -187,8 +187,8 @@ function renderPage({shipment, itemsSummary}: Props) {
         </View>
 
         {/* Table Rows */}
-        {itemsSummary.map((item) => (
-          <View key={item.id} style={styles.tableRow}>
+        {itemsSummary.map((item, index) => (
+          <View key={item.id + '-' + index} style={styles.tableRow}>
             <Text style={styles.productCol}>
               {item.isBio && (
                 <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
@@ -247,7 +247,9 @@ function MultiShipmentPDF({ shipmentsData }: Readonly<MultiShipmentPDFProps>) {
   return (
     <Document>
       {shipmentsData.map(({ shipment, itemsSummary }, index) => (
-        renderPage({shipment, itemsSummary})
+        <Fragment key={shipment.id + '-' + index}>
+          {renderPage({ shipment, itemsSummary })}
+        </Fragment>
       ))}
     </Document>
   );
