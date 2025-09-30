@@ -27,7 +27,7 @@ type Props = {
     onSearchFriends: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function ProfileFriends({ friends, searchFriends, onSearchFriends }: Props) {
+export function ProfileFriends({ friends, searchFriends, onSearchFriends }: Readonly<Props>) {
     const dataFiltered = applyFilter({ inputData: friends, query: searchFriends });
 
     const notFound = !dataFiltered.length && !!searchFriends;
@@ -94,7 +94,7 @@ type FriendCardProps = {
     item: IUserProfileFriend;
 };
 
-function FriendCard({ item }: FriendCardProps) {
+function FriendCard({ item }: Readonly<FriendCardProps>) {
     const menuActions = usePopover();
 
     const handleDelete = () => {

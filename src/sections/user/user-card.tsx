@@ -71,7 +71,7 @@ export function UserCard({ user, sx, ...other }: Props) {
             <ListItemText
                 sx={{ mt: 7, mb: 1 }}
                 primary={user.name}
-                secondary={user.role}
+                secondary={user.role.is_vip ? 'VIP Felhasználó' : 'Normál Felhasználó'}
                 slotProps={{
                     primary: { sx: { typography: 'subtitle1' } },
                     secondary: { sx: { mt: 0.5 } },

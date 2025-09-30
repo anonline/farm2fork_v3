@@ -18,7 +18,7 @@ type Props = {
     gallery: IUserProfileGallery[];
 };
 
-export function ProfileGallery({ gallery }: Props) {
+export function ProfileGallery({ gallery }: Readonly<Props>) {
     const slides = gallery.map((slide) => ({ src: slide.imageUrl }));
     const lightbox = useLightBox(slides);
 

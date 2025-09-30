@@ -1,5 +1,4 @@
 import type { IUserTableFilters } from 'src/types/user';
-import type { SelectChangeEvent } from '@mui/material/Select';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
 import { useCallback } from 'react';
@@ -20,7 +19,7 @@ type Props = {
     };
 };
 
-export function UserTableToolbar({ filters, options, onResetPage }: Props) {
+export function UserTableToolbar({ filters, options, onResetPage }: Readonly<Props>) {
 
     const { state: currentFilters, setState: updateFilters } = filters;
 
@@ -28,19 +27,6 @@ export function UserTableToolbar({ filters, options, onResetPage }: Props) {
         (event: React.ChangeEvent<HTMLInputElement>) => {
             onResetPage();
             updateFilters({ name: event.target.value });
-        },
-        [onResetPage, updateFilters]
-    );
-
-    const handleFilterRole = useCallback(
-        (event: SelectChangeEvent<string[]>) => {
-            const newValue =
-                typeof event.target.value === 'string'
-                    ? event.target.value.split(',')
-                    : event.target.value;
-
-            onResetPage();
-            updateFilters({ role: newValue });
         },
         [onResetPage, updateFilters]
     );

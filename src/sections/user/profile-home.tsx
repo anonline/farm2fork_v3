@@ -29,7 +29,7 @@ type Props = {
     posts: IUserProfilePost[];
 };
 
-export function ProfileHome({ info, posts }: Props) {
+export function ProfileHome({ info, posts }: Readonly<Props>) {
     const fileRef = useRef<HTMLInputElement>(null);
 
     const handleAttach = () => {

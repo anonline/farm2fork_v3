@@ -28,16 +28,6 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
         updateFilters({ roleTab: 'all' });
     }, [onResetPage, updateFilters]);
 
-    const handleRemoveRole = useCallback(
-        (inputValue: string) => {
-            const newValue = currentFilters.role.filter((item) => item !== inputValue);
-
-            onResetPage();
-            updateFilters({ role: newValue });
-        },
-        [onResetPage, updateFilters, currentFilters.role]
-    );
-
     const handleReset = useCallback(() => {
         onResetPage();
         resetFilters();

@@ -13,7 +13,7 @@ type Props = {
     users: IUserCard[];
 };
 
-export function UserCardList({ users }: Props) {
+export function UserCardList({ users }: Readonly<Props>) {
     const [page, setPage] = useState(1);
 
     const rowsPerPage = 12;

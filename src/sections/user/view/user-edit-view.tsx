@@ -8,8 +8,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { UserNewEditForm } from '../user-new-edit-form';
-
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -30,7 +28,6 @@ export function UserEditView({ user: currentUser }: Props) {
                 sx={{ mb: { xs: 3, md: 5 } }}
             />
 
-            <UserNewEditForm currentUser={currentUser} />
         </DashboardContent>
     );
 }

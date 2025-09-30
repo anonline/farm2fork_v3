@@ -18,7 +18,7 @@ type Props = {
     followers: IUserProfileFollower[];
 };
 
-export function ProfileFollowers({ followers }: Props) {
+export function ProfileFollowers({ followers }: Readonly<Props>) {
     const _mockFollowed = followers.slice(4, 8).map((i) => i.id);
 
     const [followed, setFollowed] = useState<string[]>(_mockFollowed);

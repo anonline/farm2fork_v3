@@ -32,7 +32,7 @@ type Props = {
     post: IUserProfilePost;
 };
 
-export function ProfilePostItem({ post }: Props) {
+export function ProfilePostItem({ post }: Readonly<Props>) {
     const { user } = useMockedUser();
 
     const commentRef = useRef<HTMLInputElement>(null);
