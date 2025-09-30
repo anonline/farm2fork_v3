@@ -14,7 +14,7 @@ import type {
 } from '@mui/x-data-grid';
 
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
-import { memo, useMemo, useState, useEffect, useCallback } from 'react';
+import { memo, useMemo, useState, useEffect, useCallback, Fragment } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -536,7 +536,7 @@ export function ShipmentsListView() {
                 confirmDialog.onFalse();
                 setDeleteInfo(null);
             }}
-            
+
             title="Szállítási összesítő törlése"
             content={
                 deleteInfo ? (
@@ -623,7 +623,7 @@ export function ShipmentsListView() {
             }
             action={
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    
+
                     <Button
                         variant="contained"
                         color={deleteInfo?.orderCount === 0 ? "error" : "warning"}
@@ -754,6 +754,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     onExportSelectedToXLS: () => void;
     onSummarizedExportSelectedXLS: () => void;
     onRecalculate: () => void;
+    onExportByShipmentMethod?: () => void;
 };
 
 const CustomToolbar = memo(function CustomToolbar({
@@ -767,7 +768,8 @@ const CustomToolbar = memo(function CustomToolbar({
     onSummarizedExportSelectedPdf,
     onExportSelectedToXLS,
     onSummarizedExportSelectedXLS,
-    onRecalculate
+    onRecalculate,
+    onExportByShipmentMethod
 }: CustomToolbarProps) {
     return (
         <>
@@ -779,6 +781,7 @@ const CustomToolbar = memo(function CustomToolbar({
                         gap: 1,
                         flexGrow: 1,
                         display: 'flex',
+                        flexWrap: 'wrap',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
                     }}
@@ -788,51 +791,115 @@ const CustomToolbar = memo(function CustomToolbar({
                             <Button
                                 size="small"
                                 color="primary"
+                                variant='outlined'
+                                startIcon={<Iconify icon="carbon:delivery" />}
+                                onClick={onExportByShipmentMethod}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mx: { xs: 0, sm: 1 }
+                                    }
+                                }}
+                            >
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Szállítási mód szerint
+                                </Box>
+                            </Button>
+                            <Button
+                                size="small"
+                                color="primary"
+                                variant='outlined'
                                 startIcon={<Iconify icon="solar:restart-bold" />}
                                 onClick={onRecalculate}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mx: { xs: 0, sm: 1 }
+                                    }
+                                }}
                             >
-                                Újrakalkulálás
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Újrakalkulálás
+                                </Box>
                             </Button>
                             <Button
                                 size="small"
                                 color="primary"
-                                startIcon={<Iconify icon="mingcute:pdf-fill" />}
+                                variant='outlined'
+                                startIcon={<Iconify icon="solar:notes-bold-duotone" />}
                                 onClick={onSummarizedExportSelectedPdf}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mr: { xs: 0, sm: 1 }
+                                    }
+                                }}
                             >
-                                Összevont PDF nyomtatás
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Összevont PDF
+                                </Box>
                             </Button>
                             <Button
                                 size="small"
                                 color="primary"
+                                variant='outlined'
                                 startIcon={<Iconify icon="mingcute:pdf-fill" />}
                                 onClick={onExportSelectedToPDF}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mr: { xs: 0, sm: 1 }
+                                    }
+                                }}
                             >
-                                Különálló PDF nyomtatás ({selectedRowIds.length})
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Különálló PDF ({selectedRowIds.length})
+                                </Box>
                             </Button>
 
                             <Button
                                 size="small"
                                 color="primary"
-                                startIcon={<Iconify icon="mingcute:table-2-fill" />}
+                                variant='outlined'
+                                startIcon={<Iconify icon="ic:round-view-list" />}
                                 onClick={onSummarizedExportSelectedXLS}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mr: { xs: 0, sm: 1 }
+                                    }
+                                }}
                             >
-                                Összevont XLS nyomtatás
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Összevont XLS
+                                </Box>
                             </Button>
                             <Button
                                 size="small"
                                 color="primary"
+                                variant='outlined'
                                 startIcon={<Iconify icon="mingcute:table-2-fill" />}
                                 onClick={onExportSelectedToXLS}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mr: { xs: 0, sm: 1 }
+                                    }
+                                }}
                             >
-                                XLS nyomtatás ({selectedRowIds.length})
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    XLS ({selectedRowIds.length})
+                                </Box>
                             </Button>
                             <Button
                                 size="small"
                                 color="error"
+                                variant='outlined'
                                 startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
                                 onClick={onOpenConfirmDeleteRows}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mr: { xs: 0, sm: 1 }
+                                    }
+                                }}
                             >
-                                Törlés ({selectedRowIds.length})
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    ({selectedRowIds.length})
+                                </Box>
                             </Button>
                         </>
                     )}
