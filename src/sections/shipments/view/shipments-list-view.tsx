@@ -441,6 +441,10 @@ export function ShipmentsListView() {
         }
     }, [selectedRowIds, tableData]);
 
+    const handleExportByShipmentMethod = useCallback(async () => {
+
+    }, []);
+
     const CustomToolbarCallback = useCallback(
         (props: any) => (
             <CustomToolbar
@@ -455,6 +459,7 @@ export function ShipmentsListView() {
                 onExportSelectedToXLS={handleExportXLS}
                 onSummarizedExportSelectedXLS={handleSummarizedExportXLS}
                 onRecalculate={handleRecalculate}
+                onExportByShipmentMethod={handleExportByShipmentMethod}
             />
         ),
         [selectedRowIds, canReset, dataFiltered.length, handleDeleteRowsClick, handleExportSelectedToPDF, handleSummarizedExportSelectedPdf]
