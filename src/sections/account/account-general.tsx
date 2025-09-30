@@ -49,10 +49,7 @@ export const UpdateUserSchema = zod.object({
         is_admin: zod.boolean().optional(),
         is_vip: zod.boolean().optional(),
         is_corp: zod.boolean().optional(),
-    }).optional().refine((role) => role?.is_admin || role?.is_vip || role?.is_corp, {
-        message: 'Legalább egy szerepkör kiválasztása kötelező!',
-        path: ['role'],
-    }),
+    }).optional(),
     id: zod.string().optional(),
     newsletterConsent: zod.boolean(),
     paymentDue: zod.preprocess(
@@ -122,46 +119,37 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
         try {
 
             const userId = await handleUpsertUser(data);
-            data.id = userId;
 
-            await handleCustomerDataSave(data);
-            
             toast.success('Mentés sikeres!');
             console.info('DATA', data);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error(`Mentés sikertelen: ${error.message || 'Ismeretlen hiba történt'}`);
         }
     });
 
-    const handleCustomerDataSave = useCallback(
+    const handleUpsertUser = useCallback(
         async (data: UpdateUserSchemaType) => {
-            if (!user?.id) {
-                return false;
-            }
 
-            return await upsertUserCustomerData({
-                id: user?.customerData?.id || '',
+            const userId = await addUser({
+                id: user?.id || undefined,
+                email: data.email,
+            } as Partial<IUserItem>, data.password);
+
+            await upsertUserCustomerData({
+                id: user?.customerData?.id || undefined,
                 firstname: data.firstname,
                 lastname: data.lastname,
                 companyName: data.isCompany ? data.CompanyName : '',
-                uid: user?.id || '',
+                uid: userId,
                 newsletterConsent: data.newsletterConsent || false,
                 acquisitionSource: data.acquisitionSource || '',
                 isCompany: data.isCompany || false,
                 discountPercent: data.discountPercent || 0,
                 paymentDue: data.paymentDue || 30,
             } as Partial<ICustomerData>);
-        },
-        [user]
-    );
 
-    const handleUpsertUser = useCallback(
-        async (data: UpdateUserSchemaType) => {
 
-            return await addUser({
-                id: user?.id || undefined,
-                email: data.email,
-            } as Partial<IUserItem>, data.password);
         },
         [user]
     );
@@ -202,7 +190,7 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
                         <Field.Text name="acquisitionSource" multiline rows={4} label="Honnan hallott rólunk?" sx={{ my: 3 }} />
 
                         <Field.Checkbox name="newsletterConsent" label="Hozzájárulok, hogy hírlevelet küldjetek nekem." />
-                        
+
                         <Typography variant="h6" sx={{ mt: 5, mb: 3 }}>Jelszó</Typography>
                         <Stack direction={'column'} spacing={1} sx={{ my: 3 }}>
                             <Field.Text name="password" label="Jelszó" type="password" />

@@ -39,16 +39,16 @@ const NAV_ITEMS = [
         icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
         href: `${paths.dashboard.user.account}/notifications`,
     },
-    {
+    /*{
         label: 'Social links',
         icon: <Iconify width={24} icon="solar:share-bold" />,
         href: `${paths.dashboard.user.account}/socials`,
-    },
-    {
+    },*/
+    /*{
         label: 'Biztonság',
         icon: <Iconify width={24} icon="ic:round-vpn-key" />,
         href: `${paths.dashboard.user.account}/change-password`,
-    },
+    },*/
 ];
 
 // ----------------------------------------------------------------------

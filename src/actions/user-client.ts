@@ -1,5 +1,6 @@
 import { supabase } from 'src/lib/supabase';
 import { ICustomerData, IRole, IUserItem } from 'src/types/user';
+import { updateUserSSR, createUserSSR } from './user-ssr';
 
 // ----------------------------------------------------------------------
 // Client-side user operations (can be used in client components)
@@ -33,23 +34,25 @@ export async function updateUserRole(id: string, roleUpdates: Partial<IRole>): P
 
 export async function addUser(userItem: Partial<IUserItem>, password: string | undefined): Promise<string> {
     console.log('Adding/updating user...', userItem);
-    if(userItem.id) {
-        const { data, error } = await supabase.auth.admin.updateUserById(userItem.id, {
+    
+    if (userItem.id) {
+        // Update existing user using SSR admin client
+        const userId = await updateUserSSR(userItem.id, {
             email: userItem.email,
             password: password,
-            email_confirm: true,
         });
-        if (error) throw error.message;
-    
-        return data.user.id;    
+        return userId;
     }
 
-    const { data: user, error: userError } = await supabase.auth.admin.createUser({
+    // Create new user using SSR admin client
+    if (!userItem.email || !password) {
+        throw new Error('Email és jelszó megadása kötelező új felhasználó létrehozásához');
+    }
+
+    const userId = await createUserSSR({
         email: userItem.email,
         password: password,
-        email_confirm: true,
     });
-    if (userError) throw userError.message;
-
-    return user.user.id;
+    
+    return userId;
 }

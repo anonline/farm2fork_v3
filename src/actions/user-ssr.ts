@@ -1,3 +1,5 @@
+'use server'
+
 import type { IUserItem } from 'src/types/user';
 
 import { cookies } from 'next/headers';
@@ -96,4 +98,32 @@ export async function getUserRoles(id:string) {
     const { data, error } = await client.from('roles').select('*').eq('uid', id).single();
     if (error) throw error.message;
     return data;
+}
+
+export async function updateUserSSR(userId: string, userUpdates: { email?: string; password?: string }) {
+    const cookieStore = await cookies();
+    const adminClient = await supabaseAdmin(cookieStore);
+
+    const { data, error } = await adminClient.updateUserById(userId, {
+        email: userUpdates.email,
+        password: userUpdates.password,
+        email_confirm: true,
+    });
+
+    if (error) throw error.message;
+    return data.user.id;
+}
+
+export async function createUserSSR(userItem: { email: string; password: string }) {
+    const cookieStore = await cookies();
+    const adminClient = await supabaseAdmin(cookieStore);
+
+    const { data, error } = await adminClient.createUser({
+        email: userItem.email,
+        password: userItem.password,
+        email_confirm: true,
+    });
+
+    if (error) throw error.message;
+    return data.user.id;
 }
