@@ -1,6 +1,8 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -9,12 +11,13 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
+import { paths } from 'src/routes/paths';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { ICustomerData, IRole, IUserItem } from 'src/types/user';
-import { useCallback } from 'react';
-import { addUser, upsertUserCustomerData } from 'src/actions/user-client';
+import { addUser, upsertUserCustomerData, deleteUser } from 'src/actions/user-client';
 
 
 
@@ -69,9 +72,13 @@ export const UpdateUserSchema = zod.object({
 
 type AccountGeneralProps = {
     user?: IUserItem;
+    onUserDeleted?: () => void;
 };
 
-export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
+export function AccountGeneral({ user, onUserDeleted }: Readonly<AccountGeneralProps>) {
+    const router = useRouter();
+    const [openConfirm, setOpenConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const currentUser: UpdateUserSchemaType = {
         id: user?.id || '',
@@ -134,6 +141,7 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
             const userId = await addUser({
                 id: user?.id || undefined,
                 email: data.email,
+                role: data.role || { uid: '', is_admin: false, is_vip: false, is_corp: false } as IRole,
             } as Partial<IUserItem>, data.password);
 
             await upsertUserCustomerData({
@@ -153,6 +161,24 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
         },
         [user]
     );
+
+    const handleDeleteUser = useCallback(async () => {
+        if (!user?.id) return;
+
+        setIsDeleting(true);
+        try {
+            await deleteUser(user.id);
+            toast.success('Felhasználó sikeresen törölve!');
+            setOpenConfirm(false);
+            onUserDeleted?.();
+            router.push(paths.dashboard.user.list);
+        } catch (error: any) {
+            console.error('Delete user error:', error);
+            toast.error(`Törlés sikertelen: ${error.message || 'Ismeretlen hiba történt'}`);
+        } finally {
+            setIsDeleting(false);
+        }
+    }, [user?.id, onUserDeleted, router]);
 
     return (
         <Form methods={methods} onSubmit={onSubmit}>
@@ -200,7 +226,12 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
                         </Stack>
 
                         <Stack spacing={3} direction="row" sx={{ mt: 3, alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Button variant="soft" color="error">
+                            <Button 
+                                variant="soft" 
+                                color="error"
+                                onClick={() => setOpenConfirm(true)}
+                                disabled={!user?.id || isSubmitting}
+                            >
                                 Felhasználó törlése
                             </Button>
                             <Button type="submit" variant="contained" loading={isSubmitting}>
@@ -210,6 +241,34 @@ export function AccountGeneral({ user }: Readonly<AccountGeneralProps>) {
                     </Card>
                 </Grid>
             </Grid>
+
+            <ConfirmDialog
+                open={openConfirm}
+                onClose={() => setOpenConfirm(false)}
+                title="Felhasználó törlése"
+                content={
+                    <Typography>
+                        Biztosan törölni szeretné ezt a felhasználót?
+                        <br />
+                        <strong>{user?.customerData?.lastname} {user?.customerData?.firstname}</strong>
+                        <br />
+                        <em>{user?.email}</em>
+                        <br /><br />
+                        Ez a művelet nem vonható vissza!
+                    </Typography>
+                }
+                action={
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={handleDeleteUser}
+                        loading={isDeleting}
+                        disabled={isDeleting}
+                    >
+                        Törlés
+                    </Button>
+                }
+            />
         </Form>
     );
 }

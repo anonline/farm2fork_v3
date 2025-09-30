@@ -1,6 +1,6 @@
 import { supabase } from 'src/lib/supabase';
 import { ICustomerData, IRole, IUserItem } from 'src/types/user';
-import { updateUserSSR, createUserSSR } from './user-ssr';
+import { updateUserSSR, createUserSSR, deleteUserSSR } from './user-ssr';
 
 // ----------------------------------------------------------------------
 // Client-side user operations (can be used in client components)
@@ -40,6 +40,7 @@ export async function addUser(userItem: Partial<IUserItem>, password: string | u
         const userId = await updateUserSSR(userItem.id, {
             email: userItem.email,
             password: password,
+            roles: userItem.role as IRole
         });
         return userId;
     }
@@ -52,7 +53,21 @@ export async function addUser(userItem: Partial<IUserItem>, password: string | u
     const userId = await createUserSSR({
         email: userItem.email,
         password: password,
+        roles: userItem.role as IRole
     });
     
     return userId;
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+    console.log('Deleting user...', id);
+    
+    if (!id) {
+        throw new Error('Felhasználó azonosító megadása kötelező');
+    }
+
+    // Delete user using SSR admin client
+    const success = await deleteUserSSR(id);
+    
+    return success;
 }

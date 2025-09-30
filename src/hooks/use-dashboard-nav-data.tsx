@@ -110,8 +110,7 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                         icon: ICONS.user,
                         children: [
                             { title: 'Összes felhasználó', path: paths.dashboard.user.list },
-                            { title: 'Új felhasználó', path: paths.dashboard.user.new },
-                            { title: 'Profil', path: paths.dashboard.user.account },
+                            { title: 'Új felhasználó', path: paths.dashboard.user.account },
                         ],
                     },
                     {

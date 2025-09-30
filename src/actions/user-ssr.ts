@@ -1,6 +1,6 @@
 'use server'
 
-import type { IUserItem } from 'src/types/user';
+import type { IRole, IUserItem } from 'src/types/user';
 
 import { cookies } from 'next/headers';
 
@@ -100,30 +100,63 @@ export async function getUserRoles(id:string) {
     return data;
 }
 
-export async function updateUserSSR(userId: string, userUpdates: { email?: string; password?: string }) {
+export async function updateUserSSR(userId: string, userUpdates: { email?: string; password?: string, roles: IRole }) {
     const cookieStore = await cookies();
     const adminClient = await supabaseAdmin(cookieStore);
+    const ssrClient = await supabaseSSR(cookieStore);
 
     const { data, error } = await adminClient.updateUserById(userId, {
         email: userUpdates.email,
         password: userUpdates.password,
         email_confirm: true,
     });
-
     if (error) throw error.message;
+
+    const { error: roleError } = await ssrClient.from('roles').insert({
+        uid: data.user.id,
+        is_admin: userUpdates.roles.is_admin,
+        is_vip: userUpdates.roles.is_vip,
+        is_corp: userUpdates.roles.is_corp
+    });
+    if (roleError) throw roleError.message;
+
     return data.user.id;
 }
 
-export async function createUserSSR(userItem: { email: string; password: string }) {
+export async function createUserSSR(userItem: { email: string; password: string, roles: IRole }) {
     const cookieStore = await cookies();
     const adminClient = await supabaseAdmin(cookieStore);
+    const ssrClient = await supabaseSSR(cookieStore);
 
     const { data, error } = await adminClient.createUser({
         email: userItem.email,
         password: userItem.password,
         email_confirm: true,
     });
-
     if (error) throw error.message;
+
+    const { error: roleError } = await ssrClient.from('roles').insert({
+        uid: data.user.id,
+        is_admin: userItem.roles.is_admin,
+        is_vip: userItem.roles.is_vip,
+        is_corp: userItem.roles.is_corp
+    });
+
+    if (roleError) throw roleError.message;
+
     return data.user.id;
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteUserSSR(id: string): Promise<boolean> {
+    const cookieStore = await cookies();
+    const adminClient = await supabaseAdmin(cookieStore);
+
+    // Delete user from auth
+    const { error } = await adminClient.deleteUser(id);
+    
+    if (error) throw error.message;
+    
+    return true;
 }
