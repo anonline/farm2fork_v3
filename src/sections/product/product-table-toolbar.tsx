@@ -213,7 +213,7 @@ export function ProductTableToolbar({ filters, options }: Props) {
                             <Checkbox
                                 disableRipple
                                 size="small"
-                                checked={publish.includes(option.value)}
+                                checked={bio.includes(option.value)}
                                 slotProps={{
                                     input: {
                                         id: `${option.value}-checkbox`,

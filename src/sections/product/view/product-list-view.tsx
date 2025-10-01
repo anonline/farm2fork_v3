@@ -91,14 +91,21 @@ export function ProductListView() {
     const filters = useSetState<IProductTableFilters>({ publish: [], stock: [], bio: [] });
     const { state: currentFilters } = filters;
 
+    const initState = useBoolean(true);
+
     const [columnVisibilityModel, setColumnVisibilityModel] =
         useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
 
     useEffect(() => {
         if (products.length) {
             setTableData(products);
+            // Set default filter to published products only after data is loaded
+            if (initState.value) {
+                filters.setState({ publish: ['true'], stock: [], bio: [] });
+                initState.onFalse();
+            }
         }
-    }, [products]);
+    }, [products, currentFilters.publish.length, currentFilters.stock.length, currentFilters.bio.length, filters]);
 
     const canReset =
         currentFilters.publish.length > 0 ||
@@ -305,7 +312,7 @@ export function ProductListView() {
 
                 <Card
                     sx={{
-                        minHeight: 640,
+                        minHeight: 840,
                         flexGrow: { md: 1 },
                         display: { md: 'flex' },
                         height: { xs: 800, md: '1px' },
@@ -319,7 +326,7 @@ export function ProductListView() {
                         columns={columns}
                         loading={productsLoading}
                         getRowHeight={() => 'auto'}
-                        pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
+                        pageSizeOptions={[5, 10, 20, 50, 100, { value: -1, label: 'Összes' }]}
                         initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
                         onRowSelectionModelChange={(newSelectionModel) =>
                             setSelectedRowIds(newSelectionModel)
