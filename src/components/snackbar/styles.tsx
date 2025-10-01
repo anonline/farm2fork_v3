@@ -159,8 +159,8 @@ export const SnackbarRoot = styled(Toaster)(({ theme }) => {
         [`& .${snackbarClasses.success}`]: {
             ...baseStyles.toastColor,
             [`& .${snackbarClasses.icon}`]: {
-                color: theme.vars.palette.success.main,
-                backgroundColor: varAlpha(theme.vars.palette.success.mainChannel, 0.08),
+                color: '#4a6e50',
+                backgroundColor: '#e4ebc2',
             },
         },
         /**
