@@ -578,18 +578,25 @@ export function OrderDetailsView({ orderId }: Props) {
         setShowCancellationAlert(false);
     }, []);
 
-    const handleItemChange = useCallback((itemId: string, field: 'price' | 'quantity', value: number) => {
+    const handleItemChange = useCallback((itemId: string, field: 'netPrice' | 'grossPrice' | 'quantity', value: number) => {
         setEditedItems(prev =>
             prev.map(item => {
                 if (item.id === itemId) {
                     const updatedItem = { ...item, [field]: value };
                     // Recalculate subtotal
+                    console.log('updatedItem', updatedItem);
+                    console.log('field', field);
+                    console.log('value', value);
+
                     if (['company', 'vip'].includes(order?.customer?.userType || 'public')) {
-                        updatedItem.subtotal = updatedItem.netPrice * updatedItem.quantity;
+                        updatedItem.grossPrice = Math.round(updatedItem.netPrice * (1 + updatedItem.vat/100));
                     }
                     else{
-                        updatedItem.subtotal = updatedItem.grossPrice * updatedItem.quantity;
+                        updatedItem.netPrice = Math.round(updatedItem.grossPrice / (1 + updatedItem.vat/100));
                     }
+                    
+                    updatedItem.subtotal = updatedItem.grossPrice * updatedItem.quantity;
+
                     return updatedItem;
                 }
                 return item;
@@ -615,17 +622,19 @@ export function OrderDetailsView({ orderId }: Props) {
 
     const handleItemAdd = useCallback((products: ProductForOrder[]) => {
         // Transform ProductForOrder[] to IOrderProductItem[] and add to edited items
+        console.log('products to add', products);
         const newOrderItems = products.map(product => ({
             id: !product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             sku: product.sku,
             name: product.name,
             netPrice: product.netPrice, // Use net price as the base price
-            grossPrice: product.netPrice, // Use net price as the base price
+            grossPrice: product.grossPrice, // Use net price as the base price
             coverUrl: product.coverUrl,
             quantity: product.quantity,
             unit: product.unit,
+            vat: product.vat,
             note: product.isCustom ? 'Egyedi termék' : '',
-            subtotal: product.netPrice * product.quantity,
+            subtotal: (order?.customer.userType == 'company' || order?.customer.userType == 'vip' ? product.netPrice * product.quantity : product.grossPrice * product.quantity),
             slug: product.isCustom ? '' : product.id, // Use product ID as slug for existing products
         }));
         setEditedItems(prev => [...prev, ...newOrderItems]);

@@ -54,7 +54,9 @@ export async function GET(req: NextRequest) {
                 seasonality,
                 cardText,
                 createdAt,
-                allowedRoles,
+                isVip,
+                isCorp,
+                isPublic,
                 producer:Producers(
                     id,
                     name,

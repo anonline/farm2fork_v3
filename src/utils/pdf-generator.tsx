@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
     },
     infoSection: {
-        marginBottom: 15,
+        marginBottom: 10,
     },
     infoRow: {
         flexDirection: 'row',
@@ -201,6 +201,10 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                         <View style={styles.infoRow}>
                             <Text style={styles.infoLabel}>Szállítási idő:</Text>
                             <Text style={styles.infoValue}>{order.shipment_time || ''}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>Szállítási megj.:</Text>
+                            <Text style={styles.infoValue}>{order.shippingAddress?.note || ''}</Text>
                         </View>
                     </View>
 

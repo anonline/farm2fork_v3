@@ -66,6 +66,7 @@ export type IOrderProductItem = {
     note: string;
     subtotal: number;
     slug: string;
+    vat: number;
 };
 
 export type IOrderItem = {

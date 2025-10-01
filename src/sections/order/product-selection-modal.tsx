@@ -31,6 +31,7 @@ export type ProductForOrder = {
     name: string;
     sku: string;
     netPrice: number;
+    grossPrice: number;
     vat: number;
     unit: string;
     quantity: number;
@@ -47,9 +48,10 @@ type Props = {
     open: boolean;
     onClose: () => void;
     onAddProducts: (products: ProductForOrder[]) => void;
+    userType: 'public' | 'vip' | 'company';
 };
 
-export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
+export function ProductSelectionModal({ open, onClose, onAddProducts, userType = 'public' }: Readonly<Props>) {
     const [selectedProducts, setSelectedProducts] = useState<ProductForOrder[]>([]);
     const [searchValue, setSearchValue] = useState('');
     const [showCustomProduct, setShowCustomProduct] = useState(false);
@@ -70,13 +72,17 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
     }, [searchValue]);
 
     const { searchResults, searchLoading } = useSearchProductsAdmin(debouncedSearchValue);
-    
+
     // Transform products for autocomplete
     const productOptions = searchResults.map((product: IProductItem, index) => ({
         id: product.id.toString(),
         name: product.name,
         sku: product.sku,
+        slug: product.slug || '',
         netPrice: product.netPrice,
+        grossPrice: product.grossPrice,
+        netPriceVIP: product.netPriceVIP,
+        netPriceCompany: product.netPriceCompany,
         vat: product.vat,
         unit: product.unit,
         quantity: 1,
@@ -105,7 +111,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
     }, []);
 
     const handleProductChange = useCallback((index: number, field: keyof ProductForOrder, value: any) => {
-        setSelectedProducts(prev => prev.map((product, i) => 
+        setSelectedProducts(prev => prev.map((product, i) =>
             i === index ? { ...product, [field]: value } : product
         ));
 
@@ -121,7 +127,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
     }, [errors]);
 
     const handleAddCustomProduct = useCallback(() => {
-        if (!customProduct.name || !customProduct.netPrice || customProduct.netPrice <= 0) {
+        if (!customProduct.name || (customProduct.netPrice || 0) < 0) {
             return;
         }
 
@@ -129,7 +135,8 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
             id: `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             name: customProduct.name,
             sku: `CUSTOM_${Date.now()}`,
-            netPrice: customProduct.netPrice,
+            netPrice: customProduct?.netPrice || 0,
+            grossPrice: customProduct.netPrice ? Math.round(customProduct.netPrice * (1 + (customProduct.vat || 27) / 100)) : 0,
             vat: customProduct.vat || 27,
             unit: customProduct.unit || 'db',
             quantity: customProduct.quantity || 1,
@@ -157,14 +164,14 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
         const newErrors: Record<string, string> = {};
 
         selectedProducts.forEach((product, index) => {
-            if (product.quantity <= 0) {
-                newErrors[`${index}_quantity`] = 'A mennyiség nem lehet nulla vagy negatív';
+            if (product.quantity < 0) {
+                newErrors[`${index}_quantity`] = 'A mennyiség nem lehet negatív';
             }
             if (product.vat < 0) {
                 newErrors[`${index}_vat`] = 'Az ÁFA nem lehet negatív';
             }
-            if (product.netPrice <= 0) {
-                newErrors[`${index}_netPrice`] = 'A nettó ár nem lehet nulla vagy negatív';
+            if (product.netPrice < 0) {
+                newErrors[`${index}_netPrice`] = 'A nettó ár nem lehet negatív';
             }
         });
 
@@ -205,25 +212,25 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
     }, [onClose]);
 
     // Check for stock warnings - only warn if stock management is on, stock is low, and backorder is not allowed
-    const stockWarnings = selectedProducts.filter(product => 
-        product.manageStock && 
-        product.stock !== null && 
-        product.stock <= 0 && 
+    const stockWarnings = selectedProducts.filter(product =>
+        product.manageStock &&
+        product.stock !== null &&
+        product.stock <= 0 &&
         !product.backorder
     );
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={handleClose} 
-            maxWidth="md" 
+        <Dialog
+            open={open}
+            onClose={handleClose}
+            maxWidth="lg"
             fullWidth
             sx={{
                 '& .MuiDialog-paper': {
                     margin: { xs: 1, sm: 2 },
                     maxHeight: { xs: 'calc(100vh - 16px)', sm: 'calc(100vh - 64px)' },
                     borderRadius: { xs: 2, sm: 1 },
-                    width: { xs: 'calc(100vw - 16px)', sm: 'auto' }
+                    width: { xs: 'calc(100vw - 16px)', sm: '50vw' }
                 }
             }}
         >
@@ -296,19 +303,19 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                     <Typography variant="body2" fontWeight="medium">
                                                         {option.name}
                                                     </Typography>
-                                                {option.bio && (
-                                                    <BioBadge style={{ marginLeft: 4 }} width={28} height={28} />
-                                                )}
-                                            </Stack>
-                                            <Typography variant="caption" color="text.secondary">
-                                                {fCurrency(option.netPrice)} / {option.unit}
-                                                {option.manageStock && option.stock !== null && (
-                                                    <span> • Készlet: {option.stock}</span>
-                                                )}
-                                            </Typography>
-                                        </Box>
-                                    </Stack>
-                                </Box>
+                                                    {option.bio && (
+                                                        <BioBadge style={{ marginLeft: 4 }} width={28} height={28} />
+                                                    )}
+                                                </Stack>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {fCurrency(userType === 'company' ? option.netPriceCompany : userType === 'vip' ? option.netPriceVIP : option.grossPrice)} / {option.unit}
+                                                    {option.manageStock && option.stock !== null && (
+                                                        <span> • Készlet: {option.stock}</span>
+                                                    )}
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Box>
                                 );
                             }}
                         />
@@ -363,11 +370,20 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                         required
                                         fullWidth
                                     />
+                                    <TextField
+                                        label="Összesen"
+                                        type="number"
+                                        variant={'filled'}
+                                        value={((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)).toFixed(((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)) % 1 === 0 ? 0 : 2)}
+                                        disabled
+                                        
+                                        fullWidth
+                                    />
                                 </Stack>
                                 <Button
                                     variant="contained"
                                     onClick={handleAddCustomProduct}
-                                    disabled={!customProduct.name || !customProduct.netPrice || customProduct.netPrice <= 0}
+                                    disabled={!customProduct.name || (customProduct?.netPrice || 0) < 0}
                                     startIcon={<Iconify icon="mingcute:add-line" />}
                                 >
                                     Egyedi termék hozzáadása
@@ -481,6 +497,15 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                         inputProps={{ min: 0.01, step: 0.01 }}
                                                         sx={{ flex: 1 }}
                                                     />
+                                                    <TextField
+                                                        label="Összesen"
+                                                        type="number"
+                                                        value={(product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100)}
+                                                        disabled
+                                                        inputProps={{ min: 0.01, step: 0.01 }}
+
+                                                        fullWidth
+                                                    />
                                                 </Stack>
                                             </Stack>
                                         </Box>
@@ -515,6 +540,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                             label="Nettó egységár"
                                                             type="number"
                                                             size="small"
+                                                            variant={'filled'}
                                                             value={product.netPrice}
                                                             onChange={(e) => handleProductChange(index, 'netPrice', parseFloat(e.target.value) || 0)}
                                                             error={!!errors[`${index}_netPrice`]}
@@ -526,6 +552,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                             label="Egység"
                                                             size="small"
                                                             value={product.unit}
+                                                            variant={'filled'}
                                                             onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
                                                             sx={{ width: 80 }}
                                                         />
@@ -534,6 +561,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                             type="number"
                                                             size="small"
                                                             value={product.vat}
+                                                            variant={'filled'}
                                                             onChange={(e) => handleProductChange(index, 'vat', parseInt(e.target.value) || 0)}
                                                             error={!!errors[`${index}_vat`]}
                                                             helperText={errors[`${index}_vat`]}
@@ -544,11 +572,24 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                                                             label="Mennyiség"
                                                             type="number"
                                                             size="small"
+                                                            variant={'filled'}
                                                             value={product.quantity}
                                                             onChange={(e) => handleProductChange(index, 'quantity', parseFloat(e.target.value) || 0)}
                                                             error={!!errors[`${index}_quantity`]}
                                                             helperText={errors[`${index}_quantity`]}
                                                             inputProps={{ min: 0.01, step: 0.01 }}
+                                                            sx={{ width: 100 }}
+                                                        />
+                                                        <TextField
+                                                            label="Összesen"
+                                                            type="number"
+                                                            size="small"
+                                                            variant={'filled'}
+                                                            value={
+                                                                (Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))).toFixed((Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))) % 1 === 0 ? 0 : 2)
+                                                            }
+                                                            disabled
+                                                            
                                                             sx={{ width: 100 }}
                                                         />
                                                     </Stack>
@@ -576,13 +617,13 @@ export function ProductSelectionModal({ open, onClose, onAddProducts }: Props) {
                 </Stack>
             </DialogContent>
 
-            <DialogActions sx={{ 
+            <DialogActions sx={{
                 flexDirection: { xs: 'column', sm: 'row' },
                 gap: { xs: 1, sm: 0 },
                 p: { xs: 2, sm: 3 }
             }}>
-                <Button 
-                    onClick={handleClose} 
+                <Button
+                    onClick={handleClose}
                     color="inherit"
                     sx={{ width: { xs: '100%', sm: 'auto' } }}
                 >

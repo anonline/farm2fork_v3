@@ -166,13 +166,15 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
 
         // Add order items
         orderData.items.forEach((item) => {
+            const vatPercent = item.vatPercent || item.netPrice ? Math.round((item.grossPrice - item.netPrice) / item.netPrice * 100) : 27;
+
             invoiceItems.push({
                 name: item.name,
-                unit_price: Math.round(item.netPrice * 100) / 100, // Round to 2 decimals
-                unit_price_type: UnitPriceType.NET,
+                unit_price: item.grossPrice, // Round to 2 decimals
+                unit_price_type: UnitPriceType.GROSS,
                 quantity: Math.round(item.quantity * 100) / 100,
                 unit: item.unit || 'db', // piece
-                vat: ItemVatToBillingoVat(item.vatPercent || 27),
+                vat: ItemVatToBillingoVat(vatPercent || 27),
                 comment: item.note || undefined,
             });
         });

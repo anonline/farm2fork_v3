@@ -118,6 +118,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             unit: item.unit || 'db',
             subtotal: item.subtotal,
             note: item.note || '',
+            vat: item.netPrice ? Math.round((item.grossPrice-item.netPrice)/item.netPrice * 100) : 0 ,
             slug: item.slug || '',
         })),
         history: {

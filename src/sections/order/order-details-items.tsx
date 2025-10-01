@@ -37,7 +37,7 @@ type Props = CardProps & {
     isEditing?: boolean;
     isSurchargeEditable?: boolean;
     editable?: boolean;
-    onItemChange?: (itemId: string, field: 'price' | 'quantity', value: number) => void;
+    onItemChange?: (itemId: string, field: 'netPrice' | 'grossPrice' | 'quantity', value: number) => void;
     onItemDelete?: (itemId: string) => void;
     onItemAdd?: (products: ProductForOrder[]) => void;
     onSurchargeChange?: (value: number) => void;
@@ -74,21 +74,21 @@ export function OrderDetailsItems({
     userType = 'public',
     ...other
 }: Props) {
-    const [editErrors, setEditErrors] = useState<Record<string, { price?: string; quantity?: string }>>({});
+    const [editErrors, setEditErrors] = useState<Record<string, { netPrice?: string; grossPrice?: string; quantity?:string }>>({});
     const [surchargeError, setSurchargeError] = useState<string>('');
     const [shippingError, setShippingError] = useState<string>('');
     const [discountError, setDiscountError] = useState<string>('');
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
-    const handleFieldChange = (itemId: string, field: 'price' | 'quantity', value: string) => {
+    const handleFieldChange = (itemId: string, field: 'netPrice' | 'grossPrice' | 'quantity', value: string) => {
         const numValue = parseFloat(value);
 
         // Validate the input
         const errors = { ...editErrors };
         if (!errors[itemId]) errors[itemId] = {};
 
-        if (isNaN(numValue) || numValue <= 0) {
-            errors[itemId][field] = `${field === 'price' ? 'Ár' : 'Mennyiség'} nem lehet nulla vagy negatív`;
+        if (isNaN(numValue) || numValue < 0) {
+            errors[itemId][field] = `${field === 'netPrice' || field === 'grossPrice' ? 'Ár' : 'Mennyiség'} nem lehet negatív`;
         } else {
             delete errors[itemId][field];
             if (Object.keys(errors[itemId]).length === 0) {
@@ -99,7 +99,7 @@ export function OrderDetailsItems({
         setEditErrors(errors);
 
         // Call the parent handler if the value is valid
-        if (!isNaN(numValue) && numValue > 0 && onItemChange) {
+        if (!isNaN(numValue) && numValue >= 0 && onItemChange) {
             onItemChange(itemId, field, numValue);
         }
     };
@@ -161,6 +161,27 @@ export function OrderDetailsItems({
         }
     };
 
+    const getProperSubtotalByRole = () => {
+        switch (userType) {
+            case 'company':
+            case 'vip':
+                return items.reduce((acc, item) => acc + (item.netPrice * item.quantity), 0);
+            default:
+                return items.reduce((acc, item) => acc + (item.grossPrice * item.quantity), 0);
+        }
+    };
+
+    const getTaxesTotal = () => items.reduce((acc, item) =>  acc + (item.subtotal) / (1+item.vat/100) * item.vat/100, 0) + getShippingTax();
+
+    const getShippingTax = () => {
+        return shipping && userType != 'vip' ? Math.round(shipping - (shipping / 1.27)) : 0;
+    };
+
+    const getGrossTotal = () => {
+        const netGrossTotal = items.reduce((acc, item) => acc + (item.grossPrice * item.quantity), 0);
+        return netGrossTotal + (shipping || 0) + (surcharge || 0) - (discount || 0);
+    };
+
     const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError || !!shippingError || !!discountError;
     const renderTotal = () => (
         <Box
@@ -176,7 +197,7 @@ export function OrderDetailsItems({
         >
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Termék végösszeg</Box>
-                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(getProperSubtotalByRole())}</Box>
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
@@ -228,7 +249,7 @@ export function OrderDetailsItems({
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <Box sx={{ color: 'text.secondary' }}>Adó</Box>
 
-                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{taxes ? fCurrency(taxes) : '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{fCurrency(getTaxesTotal()) || '-'}</Box>
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
@@ -261,7 +282,7 @@ export function OrderDetailsItems({
 
             <Box sx={{ display: 'flex', typography: 'subtitle1', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
                 <div>Br. végösszeg</div>
-                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{fCurrency(totalAmount) || '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{fCurrency(getGrossTotal()) || '-'}</Box>
             </Box>
         </Box>
     );
@@ -370,11 +391,11 @@ export function OrderDetailsItems({
                                             <TextField
                                                 size="small"
                                                 type="number"
-                                                label="Ár"
+                                                label={userType == 'company' || userType == 'vip' ? 'Nettó ár' : 'Bruttó ár'}
                                                 defaultValue={getProperPriceByRole(item)}
-                                                onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
-                                                error={!!editErrors[item.id]?.price}
-                                                helperText={editErrors[item.id]?.price}
+                                                onChange={(e) => handleFieldChange(item.id, (userType == 'company' || userType == 'vip') ? 'netPrice' : 'grossPrice', e.target.value)}
+                                                error={(userType == 'company' || userType == 'vip') ? !!editErrors[item.id]?.netPrice : !!editErrors[item.id]?.grossPrice}
+                                                helperText={userType == 'company' || userType == 'vip' ? editErrors[item.id]?.netPrice : editErrors[item.id]?.grossPrice}
                                                 sx={{ width: '100%' }}
                                                 inputProps={{ min: 0, step: 0.01 }}
                                             />
@@ -412,7 +433,7 @@ export function OrderDetailsItems({
                                     )}
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Typography variant="subtitle2">
-                                            {fCurrency(item.subtotal)}
+                                            {userType === 'company' || userType === 'vip' ? fCurrency(item.netPrice * item.quantity) : fCurrency(item.grossPrice * item.quantity)}
                                         </Typography>
                                         {isEditing && (
                                             <IconButton
@@ -463,11 +484,11 @@ export function OrderDetailsItems({
                                                 <TextField
                                                     size="small"
                                                     type="number"
-                                                    label="Ár"
+                                                    label={userType == 'company' || userType == 'vip' ? 'Nettó ár' : 'Bruttó ár'}
                                                     defaultValue={getProperPriceByRole(item)}
-                                                    onChange={(e) => handleFieldChange(item.id, 'price', e.target.value)}
-                                                    error={!!editErrors[item.id]?.price}
-                                                    helperText={editErrors[item.id]?.price}
+                                                    onBlur={(e) => handleFieldChange(item.id, (userType == 'company' || userType == 'vip') ? 'netPrice' : 'grossPrice', e.target.value)}
+                                                    error={(userType == 'company' || userType == 'vip') ? !!editErrors[item.id]?.netPrice : !!editErrors[item.id]?.grossPrice}
+                                                    helperText={userType == 'company' || userType == 'vip' ? editErrors[item.id]?.netPrice : editErrors[item.id]?.grossPrice}
                                                     sx={{ width: 100 }}
                                                     inputProps={{ min: 0, step: 0.01 }}
                                                 />
@@ -492,7 +513,7 @@ export function OrderDetailsItems({
                                             type="number"
                                             label="Mennyiség"
                                             defaultValue={item.quantity}
-                                            onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
+                                            onBlur={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
                                             error={!!editErrors[item.id]?.quantity}
                                             helperText={editErrors[item.id]?.quantity}
                                             sx={{ width: '100%' }}
@@ -507,7 +528,7 @@ export function OrderDetailsItems({
                                 )}
 
                                 <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                                    {fCurrency(item.subtotal)}
+                                    {userType === 'company' || userType === 'vip' ? fCurrency(item.netPrice * item.quantity) : fCurrency(item.grossPrice * item.quantity)}
                                 </Box>
 
                                 {isEditing && (
@@ -532,6 +553,7 @@ export function OrderDetailsItems({
                 open={isProductModalOpen}
                 onClose={() => setIsProductModalOpen(false)}
                 onAddProducts={handleAddProducts}
+                userType={userType}
             />
         </>
     );

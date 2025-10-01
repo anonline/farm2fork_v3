@@ -140,7 +140,7 @@ export function useSearchProducts(query: string) {
 
 export function useSearchProductsAdmin(query: string) {
     const url = query ? [endpoints.product.adminSearch, { params: { q: query } }] : '';
-
+    console.log('Admin search URL:', url);
     const { data, isLoading, error, isValidating } = useSWR<IProductItem[]>(url, fetcher, {
         ...swrOptions,
         keepPreviousData: true,
