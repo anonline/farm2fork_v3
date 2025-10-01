@@ -173,9 +173,7 @@ export function OrderDetailsItems({
 
     const getTaxesTotal = () => items.reduce((acc, item) =>  acc + (item.subtotal) / (1+item.vat/100) * item.vat/100, 0) + getShippingTax();
 
-    const getShippingTax = () => {
-        return shipping && userType != 'vip' ? Math.round(shipping - (shipping / 1.27)) : 0;
-    };
+    const getShippingTax = () => shipping && userType != 'vip' ? Math.round(shipping - (shipping / 1.27)) : 0;
 
     const getGrossTotal = () => {
         const netGrossTotal = items.reduce((acc, item) => acc + (item.grossPrice * item.quantity), 0);

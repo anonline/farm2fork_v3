@@ -373,7 +373,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                     <TextField
                                         label="Összesen"
                                         type="number"
-                                        variant={'filled'}
+                                        variant="filled"
                                         value={((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)).toFixed(((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)) % 1 === 0 ? 0 : 2)}
                                         disabled
                                         
@@ -540,7 +540,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             label="Nettó egységár"
                                                             type="number"
                                                             size="small"
-                                                            variant={'filled'}
+                                                            variant="filled"
                                                             value={product.netPrice}
                                                             onChange={(e) => handleProductChange(index, 'netPrice', parseFloat(e.target.value) || 0)}
                                                             error={!!errors[`${index}_netPrice`]}
@@ -552,7 +552,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             label="Egység"
                                                             size="small"
                                                             value={product.unit}
-                                                            variant={'filled'}
+                                                            variant="filled"
                                                             onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
                                                             sx={{ width: 80 }}
                                                         />
@@ -561,7 +561,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             type="number"
                                                             size="small"
                                                             value={product.vat}
-                                                            variant={'filled'}
+                                                            variant="filled"
                                                             onChange={(e) => handleProductChange(index, 'vat', parseInt(e.target.value) || 0)}
                                                             error={!!errors[`${index}_vat`]}
                                                             helperText={errors[`${index}_vat`]}
@@ -572,7 +572,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             label="Mennyiség"
                                                             type="number"
                                                             size="small"
-                                                            variant={'filled'}
+                                                            variant="filled"
                                                             value={product.quantity}
                                                             onChange={(e) => handleProductChange(index, 'quantity', parseFloat(e.target.value) || 0)}
                                                             error={!!errors[`${index}_quantity`]}
@@ -584,7 +584,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             label="Összesen"
                                                             type="number"
                                                             size="small"
-                                                            variant={'filled'}
+                                                            variant="filled"
                                                             value={
                                                                 (Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))).toFixed((Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))) % 1 === 0 ? 0 : 2)
                                                             }
