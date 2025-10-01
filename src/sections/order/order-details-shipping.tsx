@@ -365,7 +365,7 @@ export function OrderDetailsShipping({
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
                     >
-                        Kért szállítási nap
+                        Összesítő dátuma
                     </Box>
 
                     <Chip

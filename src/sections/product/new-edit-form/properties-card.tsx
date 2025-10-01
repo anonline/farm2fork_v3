@@ -36,14 +36,14 @@ export default function PropertiesCard({ isOpen, control, producers, UNIT_OPTION
                                 value={field.value || []}
                                 onChange={(event, newValue) => field.onChange(newValue)}
                                 renderTags={renderTagChips}
-                                renderInput={(params) => <TextField label="Címkék" placeholder='A címkéket enter leütésével add hozzá' {...params} />}
+                                renderInput={(params) => <TextField label="Keresési szinonímák" placeholder='Szinonímákat enter leütésével add hozzá' {...params} />}
                             />
                         )}
                     />
 
                     <RHFTextField
                         name="cardText"
-                        label="Kártya szöveg"
+                        label="Info szöveg"
                         placeholder="Rövid leírás a termék kártyáján való megjelenítéshez"
                         helperText="Ez a szöveg egy info ikonra kattintva jelenik meg a termék kártyáján"
                         multiline

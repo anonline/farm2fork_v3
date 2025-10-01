@@ -80,19 +80,6 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             ),
         },
         {
-            field: 'averagePrice',
-            headerName: 'Átlag ár',
-            width: 120,
-            align: 'center',
-            headerAlign: 'center',
-            disableColumnMenu: true,
-            renderCell: (params) => (
-                <Typography variant="body2">
-                    {fCurrency(params.value)}
-                </Typography>
-            ),
-        },
-        {
             field: 'totalValue',
             headerName: 'Összérték',
             width: 140,

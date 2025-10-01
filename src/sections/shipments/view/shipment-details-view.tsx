@@ -29,6 +29,8 @@ import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { ShipmentItemsTable } from '../components';
+import { OrdersTable } from '../new-shipment-orders-table';
+import { OrderStatusEnum } from 'src/types/order';
 
 // ----------------------------------------------------------------------
 
@@ -217,6 +219,10 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
         }
     }, [shipment, refreshCounts, shipmentsMutate]);
 
+    const handleOrderRowClick = useCallback((orderId: string) => {
+        window.open(paths.dashboard.order.details(orderId), '_blank');
+    }, []);
+
     // Show loading state while shipments are being fetched
     if (shipmentsLoading) {
         return (
@@ -296,6 +302,15 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                                 </Typography>
                                 <Typography variant="h4">
                                     {shipment?.productCount}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} sx={{ minWidth: 120 }}>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    Feldolgozottság ({(orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length / (shipment?.orderCount || 1)) * 100 }%)
+                                </Typography>
+                                <Typography variant="h4">
+                                    {orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length}/{shipment?.orderCount ?? 0}
                                 </Typography>
                             </Stack>
 
@@ -394,6 +409,12 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         loading={loading}
                         error={error}
                     />
+
+                    
+                </Card>
+
+                <Card>
+                    <OrdersTable orders={orders} selectedOrders={[]} onOrderToggle={handleOrderRowClick} hideCheckboxes />
                 </Card>
             </Stack>
         </DashboardContent>

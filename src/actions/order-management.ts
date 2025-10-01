@@ -594,7 +594,7 @@ export async function getOrdersByShipmentId(shipmentId: number): Promise<{ order
             simplepayDataJson: row.simplepay_data_json,
             invoiceDataJson: row.invoice_data_json,
             history: row.history || [],
-            shipmentId: row.shipment_id || null,
+            shipmentId: row.shipmentId || null,
         }));
 
         return { orders, error: null };
@@ -1028,7 +1028,7 @@ export async function updateOrderNote(
         const historyEntry: OrderHistoryEntry = {
             timestamp: now,
             status: order.orderStatus,
-            note: 'Admin megjegyzés frissítve',
+            note: 'Üzenet a vásárlónak frissítve',
             userId,
             userName,
         };

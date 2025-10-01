@@ -197,7 +197,7 @@ export function ProductListView() {
         },
         {
             field: 'tags',
-            headerName: 'Címkék',
+            headerName: 'Keresési szinonímák',
             width: 240,
             editable: false,
 
@@ -413,7 +413,6 @@ function CustomToolbar({
                     )}
 
                     <GridToolbarColumnsButton />
-                    <GridToolbarFilterButton ref={setFilterButtonEl} />
                     {/* <GridToolbarExport /> */}
                 </Box>
             </GridToolbarContainer>

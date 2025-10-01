@@ -64,7 +64,7 @@ export function OrderDetailsAdminNotes({ orderId, initialNote = '', onNoteUpdate
                 // Clear from localStorage since it's now saved
                 const storageKey = `order_note_${orderId}`;
                 localStorage.removeItem(storageKey);
-                toast.success('Admin megjegyzés mentve');
+                toast.success('Üzenet a vásárlónak mentve');
                 onNoteUpdate?.();
             } else {
                 toast.error(`Hiba a megjegyzés mentésekor: ${result.error}`);
@@ -90,7 +90,7 @@ export function OrderDetailsAdminNotes({ orderId, initialNote = '', onNoteUpdate
     return (
         <Card sx={{ p: 3 }}>
             <CardHeader
-                title="Admin megjegyzés"
+                title="Üzenet a vásárlónak"
                 subheader={hasUnsavedChanges ? "Mentés a mező elhagyásakor..." : ""}
                 sx={{ p: 0, mb: 2 }}
             />
@@ -102,7 +102,7 @@ export function OrderDetailsAdminNotes({ orderId, initialNote = '', onNoteUpdate
                 value={note}
                 onChange={handleNoteChange}
                 onBlur={handleNoteBlur}
-                placeholder="Írjon itt admin megjegyzést a rendeléshez..."
+                placeholder="Írjon itt üzenetet a vásárlónak a rendeléshez..."
                 disabled={isSaving || !orderId}
                 sx={{
                     '& .MuiInputBase-root': {
