@@ -26,7 +26,6 @@ import {
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarQuickFilter,
-    GridToolbarFilterButton,
     GridToolbarColumnsButton,
 } from '@mui/x-data-grid';
 

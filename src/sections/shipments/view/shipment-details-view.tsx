@@ -30,7 +30,6 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { ShipmentItemsTable } from '../components';
 import { OrdersTable } from '../new-shipment-orders-table';
-import { OrderStatusEnum } from 'src/types/order';
 
 // ----------------------------------------------------------------------
 
