@@ -75,7 +75,7 @@ export const navData: NavMainProps['data'] = [
                     {
                         title: 'Egyéb termékek',
                         path: paths.categories.egyeb,
-                        subtitle: 'Kenyér, baguette, kifli, gofri...',
+                        subtitle: 'Tojás, olajos magok...',
                         icon: `${CONFIG.assetsDir}/assets/illustrations/menu/f2f_ikonok-05.png`,
                     },
                 ],

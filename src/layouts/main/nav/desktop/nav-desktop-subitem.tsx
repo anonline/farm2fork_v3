@@ -59,9 +59,10 @@ export function NavSubItem({
                 <ItemTitle
                     {...ownerState}
                     sx={{
-                        textTransform: 'uppercase',
+                        textTransform: 'none',
                         fontFamily: themeConfig.fontFamily.primary,
                         fontWeight: 600,
+                        color: '#262626',
                         fontSize: '14px',
                         lineHeight: '20px',
                     }}
