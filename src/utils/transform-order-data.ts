@@ -26,9 +26,9 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             case 'processing':
                 return 'processing';
             case 'shipping':
-                return 'processing';
+                return 'shipping';
             case 'delivered':
-                return 'completed';
+                return 'delivered';
             case 'cancelled':
                 return 'cancelled';
             case 'refunded':

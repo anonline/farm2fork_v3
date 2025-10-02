@@ -3,12 +3,12 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const ORDER_STATUS_OPTIONS = [
+    { value: 'cancelled', label: 'Visszamondva' },
+    { value: 'refunded', label: 'Visszatérített' },
     { value: 'pending', label: 'Új rendelés' },
     { value: 'processing', label: 'Folyamatban' },
     { value: 'shipping', label: 'Szállítás alatt' },
-    { value: 'delivered', label: 'Kézbesítve' },
-    { value: 'refunded', label: 'Visszatérített' },
-    { value: 'cancelled', label: 'Visszamondva' },
+    { value: 'delivered', label: 'Kézbesítve' },   
 ];
 
 export const PAYMENT_STATUS_OPTIONS = [

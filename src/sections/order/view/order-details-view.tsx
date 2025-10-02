@@ -88,7 +88,7 @@ export function OrderDetailsView({ orderId }: Props) {
     // Handler for payment method changes
     const handlePaymentMethodChange = useCallback(async (paymentMethodId: number) => {
         if (!orderId || !orderData) return;
-        
+
         try {
             const result = await updateOrderPaymentMethod(
                 orderId,
@@ -96,7 +96,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 'admin', // You might want to get actual user info
                 'Admin User' // You might want to get actual user name
             );
-            
+
             if (result.success) {
                 toast.success('Fizetési mód sikeresen módosítva');
                 // Refresh order data
@@ -121,14 +121,14 @@ export function OrderDetailsView({ orderId }: Props) {
         if (newStatus === 'cancelled') {
             const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
             const isPaid = orderData?.paymentStatus === 'paid';
-            
+
             if (isSimplePayment && isPaid) {
                 // For SimplePay payments that are paid, we can automatically refund
                 try {
                     setStatus(newStatus); // Update UI immediately
-                    
+
                     const cancelResult = await cancelSimplePayTransaction(orderData.id);
-                    
+
                     if (cancelResult.success) {
                         // Update the status
                         const { success, error: statusUpdateError } = await updateOrderStatus(
@@ -158,7 +158,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             await refreshOrderHistory();
 
                             toast.success('Rendelés sikeresen törölve és SimplePay visszatérítés kezdeményezve!');
-                            return; // Exit early, cancellation handled
+                            
                         } else {
                             setStatus(oldStatus); // Revert status change
                             toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
@@ -186,163 +186,251 @@ export function OrderDetailsView({ orderId }: Props) {
 
         setStatus(newStatus);
 
-        try {
-            // Check if we're changing from pending to another status
-            const shouldRemoveSurcharge = oldStatus === 'pending' && newStatus !== 'pending';
+        const shouldRemoveSurcharge = oldStatus === 'pending' && newStatus !== 'pending';
 
-            // If we need to remove surcharge, do it as part of the status update
-            if (shouldRemoveSurcharge && editedSurcharge > 0) {
-                // Update both status and remove surcharge
-                const itemsToSave = editedItems.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    netPrice: item.netPrice,
-                    grossPrice: item.grossPrice,
-                    unit: item.unit,
-                    coverUrl: item.coverUrl,
-                    quantity: item.quantity,
-                    subtotal: item.subtotal,
-                    slug: item.slug,
-                }));
 
-                const { success: itemsSuccess, error: itemsUpdateError } = await updateOrderItems(
+        if (newStatus == 'processing') {
+
+            try {
+                // Check if we're changing from pending to another status
+
+                // If we need to remove surcharge, do it as part of the status update
+                if (shouldRemoveSurcharge && editedSurcharge > 0) {
+                    // Update both status and remove surcharge
+                    const itemsToSave = editedItems.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        netPrice: item.netPrice,
+                        grossPrice: item.grossPrice,
+                        unit: item.unit,
+                        coverUrl: item.coverUrl,
+                        quantity: item.quantity,
+                        subtotal: item.subtotal,
+                        slug: item.slug,
+                    }));
+
+                    const { success: itemsSuccess, error: itemsUpdateError } = await updateOrderItems(
+                        orderData.id,
+                        itemsToSave,
+                        `Státusz változtatás: ${oldStatus} -> ${newStatus}, pótdíj eltávolítva`,
+                        undefined, // userId
+                        undefined, // userName
+                        0, // Remove surcharge
+                        order?.customer.userType
+                    );
+
+                    const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
+                    let newTotal = newSubtotal + (orderData.shippingCost || 0) - (orderData.discountTotal || 0);
+                    if (order?.customer?.userType == 'company') {
+                        newTotal += (orderData.vatTotal || 0);
+                    }
+
+                    if (!itemsSuccess) {
+                        setStatus(oldStatus); // Revert status change
+                        toast.error(itemsUpdateError || 'Hiba történt a pótdíj eltávolítása során');
+                        return;
+                    }
+
+                    // Update local state
+                    setEditedSurcharge(0);
+                    if (orderData) {
+
+                        updateOrderData({
+                            ...orderData,
+                            surchargeAmount: 0,
+                            subtotal: newSubtotal,
+                            total: newTotal,
+                            orderStatus: newStatus as OrderStatus,
+                        });
+                    }
+                }
+
+                if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
+                    try {
+                        const simplePayFinishResult = await finishSimplePayTransaction(orderData.id)
+                        console.log('Partial charge successful:', simplePayFinishResult);
+                        if (simplePayFinishResult.success !== true) {
+                            throw new Error(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');
+                        }
+                    } catch (simplepayError) {
+                        console.error('Partial charge failed:', simplepayError);
+                        setStatus(oldStatus); // Revert status change
+                        toast.warning(simplepayError instanceof Error ? simplepayError.message : 'Hiba történt a SimplePay tranzakció frissítése során');
+                        return;
+                    }
+                }
+
+                // Update the status
+                const { success, error: statusUpdateError } = await updateOrderStatus(
                     orderData.id,
-                    itemsToSave,
-                    `Státusz változtatás: ${oldStatus} -> ${newStatus}, pótdíj eltávolítva`,
-                    undefined, // userId
-                    undefined, // userName
-                    0, // Remove surcharge
-                    order?.customer.userType
+                    newStatus as OrderStatus,
+                    `Státusz változtatás: ${oldStatus} -> ${newStatus}`
                 );
 
-                const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-                let newTotal = newSubtotal + (orderData.shippingCost || 0) - (orderData.discountTotal || 0);
-                if(order?.customer?.userType == 'company') {
-                    newTotal += (orderData.vatTotal || 0);
-                }
-
-                if (!itemsSuccess) {
-                    setStatus(oldStatus); // Revert status change
-                    toast.error(itemsUpdateError || 'Hiba történt a pótdíj eltávolítása során');
-                    return;
-                }
-
-                // Update local state
-                setEditedSurcharge(0);
-                if (orderData) {
-
-                    updateOrderData({
-                        ...orderData,
-                        surchargeAmount: 0,
-                        subtotal: newSubtotal,
-                        total: newTotal,
-                        orderStatus: newStatus as OrderStatus,
-                    });
-                }
-            }
-
-            if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
-                try {
-                    const simplePayFinishResult = await finishSimplePayTransaction(orderData.id)
-                    console.log('Partial charge successful:', simplePayFinishResult);
-                    if (simplePayFinishResult.success !== true) {
-                        throw new Error(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');
+                if (success) {
+                    // Update order context
+                    if (order) {
+                        updateOrder({
+                            ...order,
+                            status: newStatus,
+                        });
                     }
-                } catch (simplepayError) {
-                    console.error('Partial charge failed:', simplepayError);
-                    setStatus(oldStatus); // Revert status change
-                    toast.warning(simplepayError instanceof Error ? simplepayError.message : 'Hiba történt a SimplePay tranzakció frissítése során');
-                    return;
-                }
-            }
 
-            // Update the status
-            const { success, error: statusUpdateError } = await updateOrderStatus(
-                orderData.id,
-                newStatus as OrderStatus,
-                `Státusz változtatás: ${oldStatus} -> ${newStatus}`
-            );
-
-            if (success) {
-                // Update order context
-                if (order) {
-                    updateOrder({
-                        ...order,
-                        status: newStatus,
-                    });
-                }
-
-                if (orderData && !shouldRemoveSurcharge) {
-                    updateOrderData({
-                        ...orderData,
-                        orderStatus: newStatus as OrderStatus,
-                    });
-                }
-                console.log('orderDData', orderData);
-                // Create invoice in Billingo if status changed to 'processing' and deny_invoice is false
-                if (newStatus === 'processing' && orderData && !orderData.denyInvoice) {
-                    if (orderData.invoiceDataJson) {
-                        console.log('Invoice already exists for order:', orderData.id);
-                        toast.info('A számla már létre van hozva ehhez a rendeléshez. Ha módosítani szeretnéd, előbb töröld a meglévő számlát, majd próbáld újra.');
+                    if (orderData && !shouldRemoveSurcharge) {
+                        updateOrderData({
+                            ...orderData,
+                            orderStatus: newStatus as OrderStatus,
+                        });
                     }
-                    else if (orderData.denyInvoice){
-                        toast.info('A számla létrehozása le van tiltva ehhez a rendeléshez.');
-                    }
-                    else {
-                        try {
-                            console.log('Creating Billingo invoice for order status change:', orderData.id);
-                            const invoiceResult = await createBillingoInvoiceSSR(orderData);
+                    console.log('orderDData', orderData);
+                    // Create invoice in Billingo if status changed to 'processing' and deny_invoice is false
+                    if (newStatus === 'processing' && orderData && !orderData.denyInvoice) {
+                        if (orderData.invoiceDataJson) {
+                            console.log('Invoice already exists for order:', orderData.id);
+                            toast.info('A számla már létre van hozva ehhez a rendeléshez. Ha módosítani szeretnéd, előbb töröld a meglévő számlát, majd próbáld újra.');
+                        }
+                        else if (orderData.denyInvoice) {
+                            toast.info('A számla létrehozása le van tiltva ehhez a rendeléshez.');
+                        }
+                        else {
+                            try {
+                                console.log('Creating Billingo invoice for order status change:', orderData.id);
+                                const invoiceResult = await createBillingoInvoiceSSR(orderData);
 
-                            if (invoiceResult.success) {
-                                toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
-                                console.log('Billingo invoice created successfully:', invoiceResult);
+                                if (invoiceResult.success) {
+                                    toast.success(`Számlát sikeresen létrehoztuk a Billingo rendszerben! (Számla ID: ${invoiceResult.invoiceId})`);
+                                    console.log('Billingo invoice created successfully:', invoiceResult);
 
-                                // Save the complete invoice result (including download URL) to the database
-                                try {
-                                    const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
-                                        orderData.id,
-                                        invoiceResult,
-                                        `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}${invoiceResult.downloadUrl ? `, URL: ${invoiceResult.downloadUrl}` : ''}`
-                                    );
+                                    // Save the complete invoice result (including download URL) to the database
+                                    try {
+                                        const { success: saveSuccess, error: saveError } = await updateOrderInvoiceData(
+                                            orderData.id,
+                                            invoiceResult,
+                                            `Billingo számla létrehozva - ID: ${invoiceResult.invoiceId}${invoiceResult.downloadUrl ? `, URL: ${invoiceResult.downloadUrl}` : ''}`
+                                        );
 
-                                    if (saveSuccess) {
-                                        console.log('Invoice data saved to database successfully');
-                                    } else {
-                                        console.error('Failed to save invoice data to database:', saveError);
+                                        if (saveSuccess) {
+                                            console.log('Invoice data saved to database successfully');
+                                        } else {
+                                            console.error('Failed to save invoice data to database:', saveError);
+                                            toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
+                                        }
+                                    } catch (saveErr) {
+                                        console.error('Error saving invoice data:', saveErr);
                                         toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
                                     }
-                                } catch (saveErr) {
-                                    console.error('Error saving invoice data:', saveErr);
-                                    toast.warning('Számla létrehozva, de az adatok mentése sikertelen');
+                                } else {
+                                    console.error('Failed to create Billingo invoice:', invoiceResult.error);
+                                    toast.warning(`Számla létrehozása sikertelen: ${invoiceResult.error}`);
                                 }
-                            } else {
-                                console.error('Failed to create Billingo invoice:', invoiceResult.error);
-                                toast.warning(`Számla létrehozása sikertelen: ${invoiceResult.error}`);
+                            } catch (invoiceError) {
+                                console.error('Error creating Billingo invoice:', invoiceError);
+                                toast.warning('Hiba történt a számla létrehozása során');
                             }
-                        } catch (invoiceError) {
-                            console.error('Error creating Billingo invoice:', invoiceError);
-                            toast.warning('Hiba történt a számla létrehozása során');
                         }
                     }
+
+                    // Refresh order history to show the new entry
+                    await refreshOrderHistory();
+
+                    // Refresh shipment counts if order is cancelled or refunded
+
+
+                    toast.success('Rendelés státusza sikeresen frissítve!');
+                } else {
+                    setStatus(oldStatus); // Revert status change
+                    toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
                 }
-
-                // Refresh order history to show the new entry
-                await refreshOrderHistory();
-
-                // Refresh shipment counts if order is cancelled or refunded
-                if ((newStatus === 'cancelled' || newStatus === 'refunded') && order?.shipmentId) {
-                    await refreshCounts(order.shipmentId);
-                }
-
-                toast.success('Rendelés státusza sikeresen frissítve!');
-            } else {
+            } catch (ex) {
+                console.error('Error updating order status:', ex);
                 setStatus(oldStatus); // Revert status change
-                toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
+                toast.error('Hiba történt a státusz frissítése során');
             }
-        } catch (ex) {
-            console.error('Error updating order status:', ex);
-            setStatus(oldStatus); // Revert status change
-            toast.error('Hiba történt a státusz frissítése során');
+
+        }
+        
+        if (newStatus === 'shipping') {
+            try {
+                // Update the status in the database
+                const { success, error: statusUpdateError } = await updateOrderStatus(
+                    orderData.id,
+                    newStatus as OrderStatus,
+                    `Státusz változtatás: ${oldStatus} -> ${newStatus}`
+                );
+
+                if (success) {
+                    // Update order context
+                    if (order) {
+                        updateOrder({
+                            ...order,
+                            status: newStatus,
+                        });
+                    }
+
+                    if (orderData) {
+                        updateOrderData({
+                            ...orderData,
+                            orderStatus: newStatus as OrderStatus,
+                        });
+                    }
+
+                    // Refresh order history to show the new entry
+                    await refreshOrderHistory();
+
+                    toast.success('Státusz sikeresen frissítve!');
+                } else {
+                    setStatus(oldStatus); // Revert status change
+                    toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
+                }
+            } catch (ex) {
+                console.error('Error updating order status:', ex);
+                setStatus(oldStatus); // Revert status change
+                toast.error('Hiba történt a státusz frissítése során');
+            }
+        }
+        console.log(newStatus);
+        if (newStatus === 'delivered') {
+            try {
+                // Update the status in the database
+                const { success, error: statusUpdateError } = await updateOrderStatus(
+                    orderData.id,
+                    newStatus as OrderStatus,
+                    `Státusz változtatás: ${oldStatus} -> ${newStatus}`
+                );
+
+                if (success) {
+                    // Update order context
+                    if (order) {
+                        updateOrder({
+                            ...order,
+                            status: newStatus,
+                        });
+                    }
+
+                    if (orderData) {
+                        updateOrderData({
+                            ...orderData,
+                            orderStatus: newStatus as OrderStatus,
+                        });
+                    }
+
+                    // Refresh order history to show the new entry
+                    await refreshOrderHistory();
+
+                    toast.success('Státusz sikeresen frissítve!');
+                } else {
+                    setStatus(oldStatus); // Revert status change
+                    toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
+                }
+            } catch (ex) {
+                console.error('Error updating order status:', ex);
+                setStatus(oldStatus); // Revert status change
+                toast.error('Hiba történt a státusz frissítése során');
+            }
+        }
+
+        if ((newStatus === 'cancelled' || newStatus === 'refunded') && order?.shipmentId) {
+            await refreshCounts(order.shipmentId);
         }
     }, [status, orderData, editedItems, editedSurcharge, order, updateOrder, updateOrderData, refreshOrderHistory]);
 
@@ -417,11 +505,11 @@ export function OrderDetailsView({ orderId }: Props) {
 
         // Calculate new total
         const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-        const newTotal = newSubtotal 
-        + editedShipping 
-        + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
-        + editedSurcharge 
-        - editedDiscount;
+        const newTotal = newSubtotal
+            + editedShipping
+            + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0)
+            + editedSurcharge
+            - editedDiscount;
 
         // Check if payment method is 'simple' and if new total exceeds paid amount
         const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
@@ -467,10 +555,10 @@ export function OrderDetailsView({ orderId }: Props) {
             if (success) {
                 // Calculate new totals
                 const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-                const newTotal = newSubtotal 
-                    + editedShipping 
-                    + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
-                    + editedSurcharge 
+                const newTotal = newSubtotal
+                    + editedShipping
+                    + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0)
+                    + editedSurcharge
                     - editedDiscount;
 
                 // Update context with new data
@@ -528,7 +616,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const handleCancellationAlertConfirm = useCallback(async () => {
         // User confirmed manual cancellation
         setShowCancellationAlert(false);
-        
+
         if (!orderData?.id) return;
 
         try {
@@ -589,12 +677,12 @@ export function OrderDetailsView({ orderId }: Props) {
                     console.log('value', value);
 
                     if (['company', 'vip'].includes(order?.customer?.userType || 'public')) {
-                        updatedItem.grossPrice = Math.round(updatedItem.netPrice * (1 + updatedItem.vat/100));
+                        updatedItem.grossPrice = Math.round(updatedItem.netPrice * (1 + updatedItem.vat / 100));
                     }
-                    else{
-                        updatedItem.netPrice = Math.round(updatedItem.grossPrice / (1 + updatedItem.vat/100));
+                    else {
+                        updatedItem.netPrice = Math.round(updatedItem.grossPrice / (1 + updatedItem.vat / 100));
                     }
-                    
+
                     updatedItem.subtotal = updatedItem.grossPrice * updatedItem.quantity;
 
                     return updatedItem;
@@ -656,11 +744,11 @@ export function OrderDetailsView({ orderId }: Props) {
         ? editedItems.reduce((sum, item) => sum + item.subtotal, 0)
         : order?.subtotal || 0;
     const updatedTotalAmount = isEditing
-        ? updatedSubtotal 
-            + editedShipping 
-            + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0) 
-            + editedSurcharge 
-            - editedDiscount
+        ? updatedSubtotal
+        + editedShipping
+        + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0)
+        + editedSurcharge
+        - editedDiscount
         : order?.totalAmount || 0;
 
     if (error) {
@@ -778,8 +866,8 @@ export function OrderDetailsView({ orderId }: Props) {
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsDelivery 
-                            delivery={order?.delivery} 
+                        <OrderDetailsDelivery
+                            delivery={order?.delivery}
                             isEditable={status === 'pending'}
                             orderId={orderData?.id}
                             customerId={orderData?.customerId || undefined}
@@ -810,11 +898,11 @@ export function OrderDetailsView({ orderId }: Props) {
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsPayment 
-                            paymentMethod={orderData?.paymentMethod || null} 
+                        <OrderDetailsPayment
+                            paymentMethod={orderData?.paymentMethod || null}
                             simplepayDataJson={orderData?.simplepayDataJson || null}
                             onPaymentMethodChange={handlePaymentMethodChange}
-                            editable={status === 'pending'} 
+                            editable={status === 'pending'}
                         />
 
                         {orderData && (

@@ -7,8 +7,8 @@ import { usePopover } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -24,6 +24,7 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
+import { StatusSplitButton } from 'src/components/status-split-button';
 
 // ----------------------------------------------------------------------
 
@@ -56,7 +57,6 @@ export function OrderDetailsToolbar({
     onStartEdit,
     isEditing,
 }: Props) {
-    const menuActions = usePopover();
     const paymentMenuActions = usePopover();
     const { locations: pickupLocations } = useGetPickupLocations();
 
@@ -91,30 +91,6 @@ export function OrderDetailsToolbar({
                           orderData.invoiceDataJson.success && 
                           orderData.invoiceDataJson.invoiceNumber;
 
-    const renderMenuActions = () => (
-        <CustomPopover
-            open={menuActions.open}
-            anchorEl={menuActions.anchorEl}
-            onClose={menuActions.onClose}
-            slotProps={{ arrow: { placement: 'top-right' } }}
-        >
-            <MenuList>
-                {statusOptions.map((option) => (
-                    <MenuItem
-                        key={option.value}
-                        selected={option.value === status}
-                        onClick={() => {
-                            menuActions.onClose();
-                            onChangeStatus(option.value);
-                        }}
-                    >
-                        {option.label}
-                    </MenuItem>
-                ))}
-            </MenuList>
-        </CustomPopover>
-    );
-
     const renderPaymentMenuActions = () => (
         <CustomPopover
             open={paymentMenuActions.open}
@@ -142,13 +118,24 @@ export function OrderDetailsToolbar({
     const renderStatusLabel = () => {
         if (status === 'pending') return 'Új';
         if (status === 'inprogress' || status === 'processing') return 'Feldolgozva';
-        if (status === 'completed') return 'Teljesítve';
+        if (status === 'delivered') return 'Teljesítve';
+        if (status === 'shipping') return 'Szállítás alatt';
         if (status === 'cancelled') return 'Törölve';
         return 'Ismeretlen';
     };
 
+    const renderActionStatusLabels = () => {
+        if (status === 'pending') return 'Feldolgozás';
+        if (status === 'inprogress' || status === 'processing') return 'Kiszállítás';
+        if (status === 'shipping') return 'Kézbesítés';
+        if (status === 'delivered') return 'Kézbesítve';
+        if (status === 'cancelled') return 'Újra nyitás';
+        if (status === 'refunded') return 'Újra nyitás';
+        return 'Ismeretlen';
+    };
+
     const renderPaymentStatusLabel = () => {
-        if (orderData?.paymentStatus === 'pending') return 'Nincs fizetve';
+        if (orderData?.paymentStatus === 'pending') return ('Nincs fizetve');
         if (orderData?.paymentStatus === 'paid') return 'Foglalva';
         if (orderData?.paymentStatus === 'failed') return 'Sikertelen';
         if (orderData?.paymentStatus === 'refunded') return 'Visszatérítve';
@@ -174,19 +161,20 @@ export function OrderDetailsToolbar({
                     <Stack spacing={0.5}>
                         <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
                             <Typography variant="h4"> Rendelés {orderNumber} </Typography>
-                            <Label
+                            <Button
+                                size="small"
                                 variant="soft"
                                 color={
                                     (status === 'completed' && 'success') ||
                                     (status === 'pending' && 'warning') ||
-                                    (status === 'inprogress' && 'info') ||
+                                    (status === 'processing' && 'success') ||
                                     (status === 'cancelled' && 'error') ||
-                                    'default'
+                                    'inherit'
                                 }
                                 sx={{display:{xs:'none', sm:'inline-flex'}}}
                             >
                                 {renderStatusLabel()}
-                            </Label>
+                            </Button>
                             {onChangePaymentStatus && paymentStatusOptions ? (
                                 <Button
                                     size="small"
@@ -243,15 +231,14 @@ export function OrderDetailsToolbar({
                         justifyContent: 'flex-end',
                     }}
                 >
-                    <Button
+                    <StatusSplitButton
+                        currentStatus={status || 'pending'}
+                        statusOptions={statusOptions}
+                        onChangeStatus={onChangeStatus}
                         color="inherit"
-                        variant="outlined"
-                        endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-                        onClick={menuActions.onOpen}
-                        sx={{ textTransform: 'capitalize' }}
-                    >
-                        {renderStatusLabel()}
-                    </Button>
+                        variant="contained"
+                        renderLabel={renderActionStatusLabels}
+                    />
 
                     {order?.shipmentId && (
                         <Button
@@ -290,7 +277,6 @@ export function OrderDetailsToolbar({
                 </Box>
             </Box>
 
-            {renderMenuActions()}
             {renderPaymentMenuActions()}
         </>
     );

@@ -87,8 +87,10 @@ const STATUS_OPTIONS = [
     { value: 'all', label: 'Összes' },
     { value: 'pending', label: 'Új rendelés' },
     { value: 'processing', label: 'Feldolgozva' },
-    { value: 'completed', label: 'Teljesítve' },
+    { value: 'shipping', label: 'Szállítás alatt' },
+    { value: 'delivered', label: 'Teljesítve' },
     { value: 'cancelled', label: 'Visszamondva' },
+    { value: 'refunded', label: 'Visszatérítve' },
 ];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
@@ -383,18 +385,20 @@ export function OrderListView() {
                                                 'soft'
                                             }
                                             color={
-                                                (tab.value === 'completed' && 'success') ||
+                                                (tab.value === 'delivered' && 'success') ||
                                                 (tab.value === 'pending' && 'warning') ||
                                                 (tab.value === 'processing' && 'info') ||
                                                 (tab.value === 'cancelled' && 'error') ||
+                                                (tab.value === 'refunded' && 'error') ||
                                                 'default'
                                             }
                                         >
                                             {[
-                                                'completed',
+                                                'delivered',
                                                 'pending',
                                                 'cancelled',
                                                 'refunded',
+                                                'shipping',
                                                 'processing',
                                                 'deleted',
                                             ].includes(tab.value)
