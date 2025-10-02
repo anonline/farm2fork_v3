@@ -20,6 +20,7 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
+import { fCurrency } from 'src/utils/format-number';
 import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
@@ -52,7 +53,6 @@ import {
 import { OrderTableRow } from '../order-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
-import { fCurrency } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 

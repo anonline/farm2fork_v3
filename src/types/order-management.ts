@@ -1,5 +1,5 @@
+import type { InvoiceData } from './order';
 import type { IAddressItem } from './common';
-import { InvoiceData } from './order';
 import type { IPaymentMethod } from './payment-method';
 
 // ----------------------------------------------------------------------

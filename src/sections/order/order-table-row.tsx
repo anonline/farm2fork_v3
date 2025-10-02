@@ -4,18 +4,15 @@ import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import { Tooltip, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import MenuList from '@mui/material/MenuList';
-import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
+import { Tooltip, Typography } from '@mui/material';
 import ListItemText from '@mui/material/ListItemText';
 
 import { RouterLink } from 'src/routes/components';
@@ -23,11 +20,12 @@ import { RouterLink } from 'src/routes/components';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
+import { useGetPickupLocations } from 'src/actions/pickup-location';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
-import { useGetPickupLocations } from 'src/actions/pickup-location';
 
 // ----------------------------------------------------------------------
 
@@ -44,47 +42,47 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
     const menuActions = usePopover();
     const { locations } = useGetPickupLocations();
 
-    const renderStatusLabel = (row: IOrderItem) => (
+    const renderStatusLabel = (orderData: IOrderItem) => (
         <Label
             variant="soft"
             color={
-                (row.status === 'completed' && 'success') ||
-                (row.status === 'pending' && 'warning') ||
-                (row.status === 'processing' && 'info') ||
-                (row.status === 'cancelled' && 'error') ||
+                (orderData.status === 'completed' && 'success') ||
+                (orderData.status === 'pending' && 'warning') ||
+                (orderData.status === 'processing' && 'info') ||
+                (orderData.status === 'cancelled' && 'error') ||
                 'default'
             }
         >
-            {(row.status === 'completed' && 'success') ||
-                (row.status === 'pending' && 'Új rendelés') ||
-                (row.status === 'processing' && 'Feldolgozva') ||
-                (row.status === 'cancelled' && 'Visszamondva') ||
-                (row.status === 'shipping' && 'Szállítás alatt') ||
-                (row.status === 'delivered' && 'Kiszállítva') ||
-                (row.status === 'refunded' && 'Visszatérítve') ||
-                row.status
+            {(orderData.status === 'completed' && 'success') ||
+                (orderData.status === 'pending' && 'Új rendelés') ||
+                (orderData.status === 'processing' && 'Feldolgozva') ||
+                (orderData.status === 'cancelled' && 'Visszamondva') ||
+                (orderData.status === 'shipping' && 'Szállítás alatt') ||
+                (orderData.status === 'delivered' && 'Kiszállítva') ||
+                (orderData.status === 'refunded' && 'Visszatérítve') ||
+                orderData.status
             }
         </Label>
     );
 
-    const renderPaymentStatusLabel = (row: IOrderItem) => (
+    const renderPaymentStatusLabel = (orderData: IOrderItem) => (
         <Label
             variant="soft"
             color={
-                (row.payment.status === 'closed' && 'success') ||
-                (row.payment.status === 'pending' && 'warning') ||
-                (row.payment.status === 'paid' && 'info') ||
-                (row.payment.status === 'failed' && 'error') ||
+                (orderData.payment.status === 'closed' && 'success') ||
+                (orderData.payment.status === 'pending' && 'warning') ||
+                (orderData.payment.status === 'paid' && 'info') ||
+                (orderData.payment.status === 'failed' && 'error') ||
                 'default'
             }
         >
-            {(row.payment.status === 'paid' && 'Foglalva') ||
-                (row.payment.status === 'pending' && 'Nincs fizetve') ||
-                (row.payment.status === 'processing' && 'Feldolgozva') ||
-                (row.payment.status === 'failed' && 'Sikertelen') ||
-                (row.payment.status === 'closed' && 'Zárult') ||
-                (row.payment.status === 'refunded' && 'Visszatérítve') ||
-                row.payment.status
+            {(orderData.payment.status === 'paid' && 'Foglalva') ||
+                (orderData.payment.status === 'pending' && 'Nincs fizetve') ||
+                (orderData.payment.status === 'processing' && 'Feldolgozva') ||
+                (orderData.payment.status === 'failed' && 'Sikertelen') ||
+                (orderData.payment.status === 'closed' && 'Zárult') ||
+                (orderData.payment.status === 'refunded' && 'Visszatérítve') ||
+                orderData.payment.status
             }
         </Label>
     );
@@ -107,7 +105,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
             </TableCell>
 
             <TableCell onClick={onSelectRow} sx={{ cursor: 'pointer' }}>
-                <Stack spacing={1} direction="column" width={'100%'}>
+                <Stack spacing={1} direction="column" width="100%">
                     <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
                         <Tooltip title={row.customer.userType == 'vip' ? 'VIP' : row.customer.userType == 'company' ? 'Cég' : 'Magánszemély'} arrow>
                             <span>
@@ -181,7 +179,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
             <TableCell align="center">
                 {row.invoiceData
                     ? (
-                        <Label variant='soft' color={'default'}>
+                        <Label variant='soft' color="default">
                             <Link component={RouterLink} href={row.invoiceData.downloadUrl} target="_blank" underline="hover">
                                 {row.invoiceData.invoiceNumber}
                             </Link>
@@ -316,7 +314,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
             <TableCell align="center">
                 {row.invoiceData
                     ? (
-                        <Label variant='soft' color={'default'}>
+                        <Label variant='soft' color="default">
                             <Link component={RouterLink} href={row.invoiceData.downloadUrl} target="_blank" underline="hover">
                                 {row.invoiceData.invoiceNumber}
                             </Link>
