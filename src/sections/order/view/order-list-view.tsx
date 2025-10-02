@@ -52,6 +52,7 @@ import {
 import { OrderTableRow } from '../order-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
+import { fCurrency } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
@@ -91,27 +92,39 @@ const STATUS_OPTIONS = [
 
 const TABLE_HEAD: TableHeadCellProps[] = [
     { id: 'orderNumber', label: 'ID', width: 60, sx: { display: { xs: 'none', md: 'table-cell' } } },
-    { id: 'status', label: 'Státusz', sx: { width: { xs: '200px', md: 300 } } },
+    { id: 'status', label: 'Státusz', width: 55 },
     { id: 'name', label: 'Vásárló' },
-    { id: 'totalQuantity', label: '', width: 120, align: 'center' },
-    { id: 'totalnetAmount', label: 'Nettó', width: 140 },
-    { id: 'totalAmount', label: 'Bruttó', width: 140 },
+    { id: 'totalQuantity', label: '', width: 55, align: 'center' },
+    { id: 'totalAmount', label: 'Bruttó (nettó)', width: 140 },
     { id: 'paymentStatus', label: 'Fizetve', width: 110 },
     { id: 'createdAt', label: 'Dátum', width: 140 },
     { id: 'planned_shipping_date_time', label: 'Szállítás', width: 140, align: 'center' },
+    { id: 'delivery', label: 'Szállítási mód', width: 160 },
+    { id: 'payment', label: 'Fizetési mód', width: 160 },
+    { id: 'invoice', label: 'Számla', width: 120 },
+    { id: '', width: 88 },
+];
+
+const TABLE_HEAD_MOBILE: TableHeadCellProps[] = [
+    { id: 'order', label: 'Rendelés', width: 60 },
+    { id: '', width: 0 },
+    { id: 'totalnetAmount', label: 'Nettó', width: 140 },
+    { id: 'totalAmount', label: 'Bruttó', width: 140 },
+    { id: 'planned_shipping_date_time', label: 'Szállítás', width: 140, align: 'center' },
     { id: 'delivery', label: 'Szállítási mód', width: 140 },
     { id: 'payment', label: 'Fizetési mód', width: 160 },
-    { id: '', width: 88 },
+    { id: 'invoice', label: 'Számla', width: 120 },
 ];
 
 // ----------------------------------------------------------------------
 
 export function OrderListView() {
-    const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
+    const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', defaultDense: true });
     const { shipments, shipmentsLoading } = useShipments();
     const { locations: pickupLocations } = useGetPickupLocations();
     const confirmDialog = useBoolean();
     const [pdfGenerating, setPdfGenerating] = useState(false);
+    const [sumOrderGrossValue, setSumOrderGrossValue] = useState(0);
 
     const filters = useSetState<IOrderTableFilters>({
         name: '',
@@ -150,6 +163,8 @@ export function OrderListView() {
         label: fDate(shipment.date),
     }));
 
+    
+
     useEffect(() => {
         const loadTransformedData = async () => {
             if (ordersData) {
@@ -171,6 +186,11 @@ export function OrderListView() {
     });
 
     const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+
+    // Calculate sum for filtered data
+    useEffect(() => {
+        setSumOrderGrossValue(dataFiltered.reduce((sum, order) => sum + order.totalAmount, 0));
+    }, [dataFiltered, setSumOrderGrossValue]);
 
     const canReset =
         !!currentFilters.name ||
@@ -301,6 +321,11 @@ export function OrderListView() {
                         { name: 'Rendelések', href: paths.dashboard.order.root },
                         { name: 'Lista' },
                     ]}
+                    action={
+                        <Label color="default" variant="inverted">
+                            Összesen br. {fCurrency(sumOrderGrossValue)}
+                        </Label>
+                    }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
 
@@ -438,21 +463,42 @@ export function OrderListView() {
                             />
 
                             <Scrollbar sx={{ minHeight: 444 }}>
-                                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                                    <TableHeadCustom
-                                        order={table.order}
-                                        orderBy={table.orderBy}
-                                        headCells={TABLE_HEAD}
-                                        rowCount={dataFiltered.length}
-                                        numSelected={table.selected.length}
-                                        onSort={table.onSort}
-                                        onSelectAllRows={(checked) =>
-                                            table.onSelectAllRows(
-                                                checked,
-                                                dataFiltered.map((row) => row.id)
-                                            )
-                                        }
-                                    />
+                                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: { xs: '100%', md: 960 } }}>
+                                    {/* Desktop table header - only render on md and up */}
+                                    {(() => {
+                                        const isDesktop = window.innerWidth >= 960; // md breakpoint
+                                        return isDesktop ? (
+                                            <TableHeadCustom
+                                                order={table.order}
+                                                orderBy={table.orderBy}
+                                                headCells={TABLE_HEAD}
+                                                rowCount={dataFiltered.length}
+                                                numSelected={table.selected.length}
+                                                onSort={table.onSort}
+                                                onSelectAllRows={(checked) =>
+                                                    table.onSelectAllRows(
+                                                        checked,
+                                                        dataFiltered.map((row) => row.id)
+                                                    )
+                                                }
+                                            />
+                                        ) :  (
+                                            <TableHeadCustom
+                                                order={table.order}
+                                                orderBy={table.orderBy}
+                                                headCells={TABLE_HEAD_MOBILE}
+                                                rowCount={dataFiltered.length}
+                                                numSelected={table.selected.length}
+                                                onSort={table.onSort}
+                                                onSelectAllRows={(checked) =>
+                                                    table.onSelectAllRows(
+                                                        checked,
+                                                        dataFiltered.map((row) => row.id)
+                                                    )
+                                                }
+                                            />
+                                        );
+                                    })()}
 
                                     <TableBody>
                                         {dataFiltered

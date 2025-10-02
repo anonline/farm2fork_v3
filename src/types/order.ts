@@ -48,6 +48,7 @@ export type IOrderPayment = {
 export type IOrderDelivery = {
     shipBy: string;
     address: IAddress | null;
+    locationName: string;
 };
 
 export type IOrderCustomer = {
@@ -95,6 +96,18 @@ export type IOrderItem = {
     planned_shipping_date_time: Date | null;
     shipmentId: number | null;
     shipment_time?: string;
+    invoiceData?: InvoiceData;
+};
+
+export type InvoiceData = {
+    success: boolean;
+    currency: string;
+    createdAt: Date;
+    invoiceId: number;
+    partnerId: number;
+    downloadUrl: string;
+    totalAmounnt: number;
+    invoiceNumber: string;
 };
 
 export enum OrderStatusEnum {

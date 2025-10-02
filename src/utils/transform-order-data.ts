@@ -15,7 +15,7 @@ const userTypeCache = new Map<string, 'public' | 'vip' | 'company'>();
 export async function transformOrderDataToTableItem(orderData: IOrderData): Promise<IOrderItem> {
     // Calculate totals from items
     const totalQuantity = orderData.items.reduce((total, item) => total + item.quantity, 0);
-
+    
     // Map order status to the expected format
     const getStatusLabel = (status: string): string => {
         switch (status) {
@@ -55,6 +55,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
 
     const userType = await getUserType(orderData.customerId);
 
+    
+
     return {
         id: orderData.id,
         orderNumber: orderData.id,
@@ -83,6 +85,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         },
         delivery: {
             shipBy: orderData.shippingMethod?.name || '',
+            locationName: '',
             address: orderData.shippingAddress ? {
                 id: orderData.shippingAddress?.id || '',
                 postcode: orderData.shippingAddress?.postcode || '',
@@ -137,6 +140,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         },
         shipmentId: orderData.shipmentId || null,
         shipment_time: orderData.shipment_time,
+        invoiceData: orderData.invoiceDataJson,
     };
 }
 

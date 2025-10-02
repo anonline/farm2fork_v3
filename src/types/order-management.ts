@@ -1,4 +1,5 @@
 import type { IAddressItem } from './common';
+import { InvoiceData } from './order';
 import type { IPaymentMethod } from './payment-method';
 
 // ----------------------------------------------------------------------
@@ -79,7 +80,7 @@ export type IOrderData = {
     courier: string | null;
     plannedShippingDateTime: Date | null;
     simplepayDataJson: string | null;
-    invoiceDataJson: Record<string, any> | null;
+    invoiceDataJson?: InvoiceData;
     history: OrderHistoryEntry[];
     shipmentId: number | null;
     shipment_time?: string;
