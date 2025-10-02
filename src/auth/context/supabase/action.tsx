@@ -71,7 +71,7 @@ export const signInWithPassword = async ({
 export const signInWithWordpress = async ({
     email,
     password,
-}: SignInParams): Promise<AuthTokenResponsePassword> => {
+}: SignInParams): Promise<Boolean> => {
 
     const { data, error } = await supabase.from('wp_users').select('*').eq('email', email).is('uid', null).single();
 
@@ -80,24 +80,24 @@ export const signInWithWordpress = async ({
         throw error;
     }
     if (!data) {
-        throw new Error('Invalid email or password');
+        return false;
     }
     
     const { valid } = wpHashPassword(password, data.password);
     
     if (!valid) {
-        throw new Error('Invalid email or password');
+        return false;
     }
 
     const { data: dataReg, error: errorReg } = await signUp({email: data.email, password: password, firstName: data.firstname, lastName: data.lastname});
 
     if (errorReg) {
         console.error(errorReg);
-        throw errorReg;
+        return false;
     }
 
     if (!dataReg?.user?.identities?.length) {
-        throw new Error('This user already exists');
+        return false;
     }
     
     const { error: updateError } = await supabase
@@ -107,7 +107,7 @@ export const signInWithWordpress = async ({
 
     if (updateError) {
         console.error('Failed to update wp_users with uid:', updateError);
-        throw updateError;
+        return false;
     }
 
     const wpUser = data as WPTransferUser;
@@ -195,8 +195,8 @@ export const signInWithWordpress = async ({
     } as Partial<ICustomerData>;
 
     await createCustomerDataSSR(customerData);
-
-    return await signInWithPassword({ email: email, password: password });
+    await signInWithPassword({ email: email, password: password });
+    return true;
 };
 
 /** **************************************

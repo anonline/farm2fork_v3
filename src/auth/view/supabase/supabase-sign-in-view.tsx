@@ -89,9 +89,13 @@ export function SupabaseSignInView() {
             router.refresh();
         } catch (error) {
             console.error(error);
+            setErrorMessage('Adatok ellenőrzése folyamatban...');
             const wpLogin = await signInWithWordpress({ email: data.email, password: data.password });
-            if(!wpLogin.error) {
+            console.error(wpLogin);
+            if(wpLogin) {
                 setErrorMessage('');
+                await checkUserSession?.();
+                router.refresh();
             } else {
                 setErrorMessage('Hibás e-mail cím vagy jelszó.');
             }
