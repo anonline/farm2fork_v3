@@ -73,6 +73,26 @@ export async function getUsersAdmin(page: number = 1, perPage: number = 10000) {
     return response.data.users;
 }
 
+export async function getUserByEmailAdmin(email: string) {
+    const users = await getUsersAdmin();
+
+    return users.find((user) => user.email === email);
+}
+
+export async function setUserPassword(id: string, password: string) {
+    const cookieStore = await cookies();
+    const adminClient = await supabaseAdmin(cookieStore);
+
+    const { data, error } = await adminClient.updateUserById(id, {
+        password,
+        email_confirm: true,
+    });
+    if (error) throw error.message;
+
+    return data.user.id;
+}
+        
+
 export async function getUserAdmin(id: string) {
     const cookieStore = await cookies();
     const client = await supabaseAdmin(cookieStore);

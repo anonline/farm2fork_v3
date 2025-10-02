@@ -17,7 +17,7 @@ import wpHashPassword from 'src/utils/wplogin';
 import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { supabase } from 'src/lib/supabase';
-import { createUserRolesSSR, createCustomerDataSSR } from 'src/actions/user-ssr';
+import { createUserRolesSSR, createCustomerDataSSR, getUserByEmailAdmin, setUserPassword } from 'src/actions/user-ssr';
 
 // ----------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ export const signInWithWordpress = async ({
     password,
 }: SignInParams): Promise<boolean> => {
 
-    const { data, error } = await supabase.from('wp_users').select('*').eq('email', email).is('uid', null).single();
+    const { data, error } = await supabase.from('wp_users').select('*').eq('email', email).eq('closed', false).single();
 
     if (error) {
         console.error(error);
@@ -81,14 +81,18 @@ export const signInWithWordpress = async ({
     if (!data) {
         return false;
     }
-    
+
     const { valid } = wpHashPassword(password, data.password);
-    
+
     if (!valid) {
         return false;
     }
 
-    const { data: dataReg, error: errorReg } = await signUp({email: data.email, password, firstName: data.firstname, lastName: data.lastname});
+    await setUserPassword(data.uid, password);
+    await signInWithPassword({ email, password });
+    return true;
+/*
+    const { data: dataReg, error: errorReg } = await signUp({ email: data.email, password, firstName: data.firstname, lastName: data.lastname });
 
     if (errorReg) {
         console.error(errorReg);
@@ -98,10 +102,10 @@ export const signInWithWordpress = async ({
     if (!dataReg?.user?.identities?.length) {
         return false;
     }
-    
+
     const { error: updateError } = await supabase
         .from('wp_users')
-        .update({ uid: dataReg.user.id })
+        .update({ uid: dataReg.user.id, closed: true })
         .eq('id', data.id);
 
     if (updateError) {
@@ -117,23 +121,23 @@ export const signInWithWordpress = async ({
     let isAdmin = false;
     let discountPercent = 0;
 
-    if(wpUser.roles) {
+    if (wpUser.roles) {
         isVIP = wpUser.roles['vsrl_-_vip'] || false;
         isCompany = wpUser.roles.Company_Customer || false;
         isAdmin = wpUser.roles.administrator || false;
-        if(wpUser.roles.minus5percent) discountPercent = 5;
-        if(wpUser.roles.minus10percent) discountPercent = 10;
-        if(wpUser.roles.minus15percent) discountPercent = 15;
-        if(wpUser.roles.minus20percent) discountPercent = 20;
-        if(wpUser.roles.minus25percent) discountPercent = 25;
-        if(wpUser.roles.minus30percent) discountPercent = 30;
-        if(wpUser.roles.minus50percent) discountPercent = 50;
+        if (wpUser.roles.minus5percent) discountPercent = 5;
+        if (wpUser.roles.minus10percent) discountPercent = 10;
+        if (wpUser.roles.minus15percent) discountPercent = 15;
+        if (wpUser.roles.minus20percent) discountPercent = 20;
+        if (wpUser.roles.minus25percent) discountPercent = 25;
+        if (wpUser.roles.minus30percent) discountPercent = 30;
+        if (wpUser.roles.minus50percent) discountPercent = 50;
     }
 
     await createUserRolesSSR({ uid: dataReg.user.id, is_admin: isAdmin, is_vip: isVIP, is_corp: isCompany });
 
     const collectedBillingAddresses: IBillingAddress[] = [];
-    if(wpUser.billingaddresses) {
+    if (wpUser.billingaddresses) {
         wpUser.billingaddresses.forEach((address, index) => {
             const billingAddress: IBillingAddress = {
                 id: '',
@@ -196,6 +200,8 @@ export const signInWithWordpress = async ({
     await createCustomerDataSSR(customerData);
     await signInWithPassword({ email, password });
     return true;
+    */
+
 };
 
 /** **************************************
@@ -307,4 +313,132 @@ export const updatePassword = async ({ password }: UpdatePasswordParams): Promis
     }
 
     return { data, error };
+};
+
+
+const easyPassword = Array.from({ length: 8 }, () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return chars.charAt(Math.floor(Math.random() * chars.length));
+}).join('');
+
+export const initWpUsers = async (): Promise<boolean> => {
+    const { data, error } = await supabase.from('wp_users').select('*').eq('closed', false);
+
+    if (error) {
+        console.error(error);
+        throw error;
+    }
+    if (!data) {
+        return false;
+    }
+
+    data.forEach(async (wpUser : WPTransferUser) => {
+        const { data: dataReg, error: errorReg } = await signUp({ email: wpUser.email, password: easyPassword, firstName: wpUser.firstname || '', lastName: wpUser.lastname || '' });
+
+        if (errorReg) {
+            console.error(errorReg);
+            return false;
+        }
+
+        if (!dataReg?.user?.identities?.length) {
+            return false;
+        }
+
+        const { error: updateError } = await supabase
+            .from('wp_users')
+            .update({ uid: dataReg.user.id, closed: true })
+            .eq('id', wpUser.id);
+
+        if (updateError) {
+            console.error('Failed to update wp_users with uid:', updateError);
+            return false;
+        }
+
+        wpUser.uid = dataReg.user.id;
+
+        let isVIP = false;
+        let isCompany = false;
+        let isAdmin = false;
+        let discountPercent = 0;
+
+        if (wpUser.roles) {
+            isVIP = wpUser.roles['vsrl_-_vip'] || false;
+            isCompany = wpUser.roles.Company_Customer || false;
+            isAdmin = wpUser.roles.administrator || false;
+            if (wpUser.roles.minus5percent) discountPercent = 5;
+            if (wpUser.roles.minus10percent) discountPercent = 10;
+            if (wpUser.roles.minus15percent) discountPercent = 15;
+            if (wpUser.roles.minus20percent) discountPercent = 20;
+            if (wpUser.roles.minus25percent) discountPercent = 25;
+            if (wpUser.roles.minus30percent) discountPercent = 30;
+            if (wpUser.roles.minus50percent) discountPercent = 50;
+        }
+
+        await createUserRolesSSR({ uid: dataReg.user.id, is_admin: isAdmin, is_vip: isVIP, is_corp: isCompany });
+
+        const collectedBillingAddresses: IBillingAddress[] = [];
+        if (wpUser.billingaddresses) {
+            wpUser.billingaddresses.forEach((address, index) => {
+                const billingAddress: IBillingAddress = {
+                    id: '',
+                    city: address.city,
+                    phone: address.phone,
+                    email: wpUser.email,
+                    fullName: [address.last_name, address.first_name].join(' ').trim(),
+                    postcode: address.postcode,
+                    street: address.address_1 + (address.address_2 ? ' ' + address.address_2 : ''),
+                    houseNumber: '',
+                    taxNumber: address.vat,
+                    doorbell: address.ring || '',
+                    isDefault: index == 0,
+                    type: 'billing',
+                }
+
+                collectedBillingAddresses.push(billingAddress);
+            });
+        }
+
+        const collectedShippingAddresses: IDeliveryAddress[] = [];
+        if (wpUser.shippingaddresses) {
+            wpUser.shippingaddresses.forEach((address, index) => {
+                const shippingAddress: IDeliveryAddress = {
+                    id: address.sid,
+                    companyName: address.company || '',
+                    city: address.city,
+                    phone: address.phone,
+                    fullName: [address.last_name, address.first_name].join(' ').trim(),
+                    street: address.address_1 + (address.address_2 ? ' ' + address.address_2 : ''),
+                    houseNumber: address.houseNumber || '',
+                    doorbell: address.doorbell || '',
+                    isDefault: index == 0,
+                    type: 'shipping',
+                    comment: address.note || '',
+                    floor: '',
+                    postcode: address.postcode || '',
+                }
+
+                collectedShippingAddresses.push(shippingAddress);
+            });
+        }
+
+        const customerData = {
+            created_at: new Date().toISOString(),
+            uid: dataReg.user.id,
+            firstname: wpUser.firstname || '',
+            lastname: wpUser.lastname || '',
+            companyName: wpUser.company || '',
+            isCompany,
+            newsletterConsent: !!wpUser.mailchimpid,
+            billingAddress: collectedBillingAddresses,
+            deliveryAddress: collectedShippingAddresses,
+            acquisitionSource: wpUser.from || '',
+            paymentDue: wpUser.invoicedue || 0,
+            discountPercent,
+            mailchimpId: wpUser.mailchimpid || '',
+        } as Partial<ICustomerData>;
+
+        await createCustomerDataSSR(customerData);
+    });
+
+    return true;
 };
