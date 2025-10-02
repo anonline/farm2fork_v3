@@ -119,7 +119,7 @@ export function BillingAddressSelector({
     const addressToFormData = (address: IBillingAddress) => ({
         fullName: address.fullName || '',
         companyName: address.companyName || '',
-        postcode: address.postcode || address.zipCode || '',
+        postcode: address.postcode || '',
         city: address.city || '',
         street: address.street || '',
         houseNumber: address.houseNumber || '',
@@ -136,7 +136,6 @@ export function BillingAddressSelector({
         id: originalId || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         fullName: formData.fullName,
         companyName: formData.companyName,
-        zipCode: formData.postcode,
         postcode: formData.postcode,
         city: formData.city,
         street: formData.street,

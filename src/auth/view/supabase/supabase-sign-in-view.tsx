@@ -24,7 +24,7 @@ import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from '../../hooks';
 import { FormHead } from '../../components/form-head';
-import { signInWithPassword } from '../../context/supabase';
+import { signInWithPassword, signInWithWordpress } from '../../context/supabase';
 
 // ----------------------------------------------------------------------
 
@@ -89,7 +89,12 @@ export function SupabaseSignInView() {
             router.refresh();
         } catch (error) {
             console.error(error);
-            setErrorMessage('Hibás e-mail cím vagy jelszó.');
+            const wpLogin = await signInWithWordpress({ email: data.email, password: data.password });
+            if(!wpLogin.error) {
+                setErrorMessage('');
+            } else {
+                setErrorMessage('Hibás e-mail cím vagy jelszó.');
+            }
         }
     });
 

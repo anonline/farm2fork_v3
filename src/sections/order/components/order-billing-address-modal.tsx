@@ -129,7 +129,7 @@ export function OrderBillingAddressModal({
             name: selectedAddress.fullName || '',
             company: selectedAddress.companyName || '',
             taxNumber: selectedAddress.taxNumber || '',
-            postcode: selectedAddress.postcode || selectedAddress.zipCode || '',
+            postcode: selectedAddress.postcode || '',
             city: selectedAddress.city || '',
             street: selectedAddress.street || '',
             houseNumber: selectedAddress.houseNumber || '',
@@ -174,7 +174,7 @@ export function OrderBillingAddressModal({
     };
 
     const formatAddressDisplay = (address: IBillingAddress): string =>
-        `${address.postcode || address.zipCode} ${address.city}, ${address.street} ${address.houseNumber}${address.floor ? `, ${address.floor}` : ''}${address.doorbell ? `, ${address.doorbell}` : ''}`;
+        `${address.postcode} ${address.city}, ${address.street} ${address.houseNumber}${address.floor ? `, ${address.floor}` : ''}${address.doorbell ? `, ${address.doorbell}` : ''}`;
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>

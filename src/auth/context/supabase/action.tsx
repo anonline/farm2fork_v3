@@ -14,6 +14,11 @@ import { paths } from 'src/routes/paths';
 import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { supabase } from 'src/lib/supabase';
+import wpHashPassword from 'src/utils/wplogin';
+import { createCustomerDataSSR, createUserRolesSSR } from 'src/actions/user-ssr';
+import { WPTransferUser } from 'src/types/woocommerce/user';
+
+import { IBillingAddress, ICustomerData, IDeliveryAddress } from 'src/types/customer';
 
 // ----------------------------------------------------------------------
 
@@ -63,6 +68,137 @@ export const signInWithPassword = async ({
     return { data, error };
 };
 
+export const signInWithWordpress = async ({
+    email,
+    password,
+}: SignInParams): Promise<AuthTokenResponsePassword> => {
+
+    const { data, error } = await supabase.from('wp_users').select('*').eq('email', email).is('uid', null).single();
+
+    if (error) {
+        console.error(error);
+        throw error;
+    }
+    if (!data) {
+        throw new Error('Invalid email or password');
+    }
+    
+    const { valid } = wpHashPassword(password, data.password);
+    
+    if (!valid) {
+        throw new Error('Invalid email or password');
+    }
+
+    const { data: dataReg, error: errorReg } = await signUp({email: data.email, password: password, firstName: data.firstname, lastName: data.lastname});
+
+    if (errorReg) {
+        console.error(errorReg);
+        throw errorReg;
+    }
+
+    if (!dataReg?.user?.identities?.length) {
+        throw new Error('This user already exists');
+    }
+    
+    const { error: updateError } = await supabase
+        .from('wp_users')
+        .update({ uid: dataReg.user.id })
+        .eq('id', data.id);
+
+    if (updateError) {
+        console.error('Failed to update wp_users with uid:', updateError);
+        throw updateError;
+    }
+
+    const wpUser = data as WPTransferUser;
+    wpUser.uid = dataReg.user.id;
+
+    let isVIP = false;
+    let isCompany = false;
+    let isAdmin = false;
+    let discountPercent = 0;
+
+    if(wpUser.roles) {
+        isVIP = wpUser.roles['vsrl_-_vip'] || false;
+        isCompany = wpUser.roles.Company_Customer || false;
+        isAdmin = wpUser.roles.administrator || false;
+        if(wpUser.roles.minus5percent) discountPercent = 5;
+        if(wpUser.roles.minus10percent) discountPercent = 10;
+        if(wpUser.roles.minus15percent) discountPercent = 15;
+        if(wpUser.roles.minus20percent) discountPercent = 20;
+        if(wpUser.roles.minus25percent) discountPercent = 25;
+        if(wpUser.roles.minus30percent) discountPercent = 30;
+        if(wpUser.roles.minus50percent) discountPercent = 50;
+    }
+
+    await createUserRolesSSR({ uid: dataReg.user.id, is_admin: isAdmin, is_vip: isVIP, is_corp: isCompany });
+
+    const collectedBillingAddresses: IBillingAddress[] = [];
+    if(wpUser.billingaddresses) {
+        wpUser.billingaddresses.forEach((address, index) => {
+            const billingAddress: IBillingAddress = {
+                id: '',
+                city: address.city,
+                phone: address.phone,
+                email: wpUser.email,
+                fullName: [address.last_name, address.first_name].join(' ').trim(),
+                postcode: address.postcode,
+                street: address.address_1 + (address.address_2 ? ' ' + address.address_2 : ''),
+                houseNumber: '',
+                taxNumber: address.vat,
+                doorbell: address.ring || '',
+                isDefault: index == 0,
+                type: 'billing',
+            }
+
+            collectedBillingAddresses.push(billingAddress);
+        });
+    }
+
+    const collectedShippingAddresses: IDeliveryAddress[] = [];
+    if (wpUser.shippingaddresses) {
+        wpUser.shippingaddresses.forEach((address, index) => {
+            const shippingAddress: IDeliveryAddress = {
+                id: address.sid,
+                companyName: address.company || '',
+                city: address.city,
+                phone: address.phone,
+                fullName: [address.last_name, address.first_name].join(' ').trim(),
+                street: address.address_1 + (address.address_2 ? ' ' + address.address_2 : ''),
+                houseNumber: address.houseNumber || '',
+                doorbell: address.doorbell || '',
+                isDefault: index == 0,
+                type: 'shipping',
+                comment: address.note || '',
+                floor: '',
+                postcode: address.postcode || '',
+            }
+
+            collectedShippingAddresses.push(shippingAddress);
+        });
+    }
+
+    const customerData = {
+        created_at: new Date().toISOString(),
+        uid: dataReg.user.id,
+        firstname: wpUser.firstname || '',
+        lastname: wpUser.lastname || '',
+        companyName: wpUser.company || '',
+        isCompany: isCompany,
+        newsletterConsent: !!wpUser.mailchimpid,
+        billingAddress: collectedBillingAddresses,
+        deliveryAddress: collectedShippingAddresses,
+        acquisitionSource: wpUser.from || '',
+        paymentDue: wpUser.invoicedue || 0,
+        discountPercent: discountPercent,
+        mailchimpId: wpUser.mailchimpid || '',
+    } as Partial<ICustomerData>;
+
+    await createCustomerDataSSR(customerData);
+
+    return await signInWithPassword({ email: email, password: password });
+};
+
 /** **************************************
  * Sign up
  *************************************** */
@@ -77,7 +213,7 @@ export const signUp = async ({
         password,
         options: {
             emailRedirectTo: `${window.location.origin}${paths.dashboard.root}`,
-            data: { display_name: `${firstName} ${lastName}` },
+            data: { display_name: `${lastName} ${firstName}` },
         },
     });
 
@@ -131,7 +267,7 @@ export const signOut = async (): Promise<{
     } catch (error) {
         // Remove cookies even if there's an error
         removeSupabaseAuthCookies();
-        
+
         // Handle any other errors gracefully
         if (error instanceof Error && error.message?.includes('Auth session missing')) {
             console.warn('No active session to sign out from');

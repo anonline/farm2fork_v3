@@ -127,7 +127,7 @@ export function OrderShippingAddressModal({
                 
                 await Promise.all(
                     deliveryAddresses.map(async (address, index) => {
-                        const postcode = address.postcode || address.zipCode || '';
+                        const postcode = address.postcode || '';
                         if (postcode) {
                             try {
                                 const isAvailable = await checkShippingZoneAvailable(postcode);
@@ -164,7 +164,7 @@ export function OrderShippingAddressModal({
         reset({
             name: selectedAddress.fullName || '',
             company: '', // Company not stored in delivery address
-            postcode: selectedAddress.postcode || selectedAddress.zipCode || '',
+            postcode: selectedAddress.postcode || '',
             city: selectedAddress.city || '',
             street: selectedAddress.street || '',
             houseNumber: selectedAddress.houseNumber || '',
@@ -230,7 +230,7 @@ export function OrderShippingAddressModal({
     };
 
     const formatAddressDisplay = (address: IDeliveryAddress): string => 
-        `${address.postcode || address.zipCode} ${address.city}, ${address.street} ${address.houseNumber}${address.floor ? `, ${address.floor}` : ''}${address.doorbell ? `, ${address.doorbell}` : ''}`;
+        `${address.postcode} ${address.city}, ${address.street} ${address.houseNumber}${address.floor ? `, ${address.floor}` : ''}${address.doorbell ? `, ${address.doorbell}` : ''}`;
 
     // Determine if save should be disabled
     const isSaveDisabled = isSaving || 

@@ -295,7 +295,7 @@ export function DeliveryAddressSelector({
     const addressToFormData = (address: IDeliveryAddress) => ({
         fullName: address.fullName || '',
         companyName: '', // Not available in IDeliveryAddress
-        postcode: address.postcode || address.zipCode || '',
+        postcode: address.postcode || '',
         city: address.city || '',
         street: address.street || '',
         houseNumber: address.houseNumber || '',
@@ -311,7 +311,6 @@ export function DeliveryAddressSelector({
     const formDataToAddress = (formData: any, originalId?: string): IDeliveryAddress => ({
         id: originalId || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Preserve existing ID or generate new one
         fullName: formData.fullName,
-        zipCode: formData.postcode,
         postcode: formData.postcode,
         city: formData.city,
         street: formData.street,

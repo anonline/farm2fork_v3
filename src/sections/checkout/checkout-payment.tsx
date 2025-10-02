@@ -419,7 +419,7 @@ export function CheckoutPayment() {
             const selectedAddress = customerData.deliveryAddress[index];
             const addressItem: IAddressItem = {
                 name: selectedAddress.fullName,
-                fullAddress: `${selectedAddress.zipCode} ${selectedAddress.city}, ${selectedAddress.street}${selectedAddress.floor ? `, ${selectedAddress.floor}` : ''
+                fullAddress: `${selectedAddress.postcode} ${selectedAddress.city}, ${selectedAddress.street}${selectedAddress.floor ? `, ${selectedAddress.floor}` : ''
                     }`,
                 phoneNumber: selectedAddress.phone,
                 addressType: 'delivery',
@@ -840,7 +840,7 @@ export function CheckoutPayment() {
                         id: data.billingAddressIndex.toString(),
                         primary: false,
                         name: addr.fullName || `${customerData.firstname || ''} ${customerData.lastname || ''}`.trim(),
-                        postcode: addr.postcode || addr.zipCode || '',
+                        postcode: addr.postcode || '',
                         city: addr.city,
                         street: addr.street,
                         floor: addr.floor || '',

@@ -1,7 +1,7 @@
 export interface IDeliveryAddress {
     id?: string; // Unique identifier for the address
     fullName: string;
-    zipCode: string;
+    companyName?: string;
     city: string;
     street: string;
     houseNumber: string;
@@ -18,7 +18,6 @@ export interface IBillingAddress {
     id?: string; // Unique identifier for the address
     fullName: string;
     companyName?: string;
-    zipCode: string;
     city: string;
     street: string;
     houseNumber: string;
@@ -46,4 +45,6 @@ export interface ICustomerData {
     acquisitionSource: string | null;
     isCompany: boolean;
     discountPercent: number;
+    paymentDue: number;
+    mailchimpId: string;
 }

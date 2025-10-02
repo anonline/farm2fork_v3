@@ -1,10 +1,11 @@
-'use server'
+'use server';
 
 import type { IRole, IUserItem } from 'src/types/user';
 
 import { cookies } from 'next/headers';
 
 import { supabaseSSR, supabaseAdmin } from 'src/lib/supabase-ssr';
+import { ICustomerData } from 'src/types/customer';
 
 // ----------------------------------------------------------------------
 
@@ -61,19 +62,18 @@ export async function getUserById(id: string): Promise<IUserItem> {
     } as IUserItem;
 }
 
-
 export async function getUsersAdmin(page: number = 1, perPage: number = 10000) {
     const cookieStore = await cookies();
     const client = await supabaseAdmin(cookieStore);
 
-    const response = await client.listUsers({ page, perPage,  });
+    const response = await client.listUsers({ page, perPage });
 
     if (response.error) throw response.error.message;
 
     return response.data.users;
 }
 
-export async function getUserAdmin(id:string) {
+export async function getUserAdmin(id: string) {
     const cookieStore = await cookies();
     const client = await supabaseAdmin(cookieStore);
 
@@ -92,7 +92,7 @@ export async function getUsersRoles() {
     return data as IRole[];
 }
 
-export async function getUserRoles(id:string) {
+export async function getUserRoles(id: string) {
     const cookieStore = await cookies();
     const client = await supabaseSSR(cookieStore);
     const { data, error } = await client.from('roles').select('*').eq('uid', id).single();
@@ -100,7 +100,10 @@ export async function getUserRoles(id:string) {
     return data;
 }
 
-export async function updateUserSSR(userId: string, userUpdates: { email?: string; password?: string, roles: IRole }) {
+export async function updateUserSSR(
+    userId: string,
+    userUpdates: { email?: string; password?: string; roles: IRole }
+) {
     const cookieStore = await cookies();
     const adminClient = await supabaseAdmin(cookieStore);
     const ssrClient = await supabaseSSR(cookieStore);
@@ -116,14 +119,14 @@ export async function updateUserSSR(userId: string, userUpdates: { email?: strin
         uid: data.user.id,
         is_admin: userUpdates.roles.is_admin,
         is_vip: userUpdates.roles.is_vip,
-        is_corp: userUpdates.roles.is_corp
+        is_corp: userUpdates.roles.is_corp,
     });
     if (roleError) throw roleError.message;
 
     return data.user.id;
 }
 
-export async function createUserSSR(userItem: { email: string; password: string, roles: IRole }) {
+export async function createUserSSR(userItem: { email: string; password: string; roles: IRole }) {
     const cookieStore = await cookies();
     const adminClient = await supabaseAdmin(cookieStore);
     const ssrClient = await supabaseSSR(cookieStore);
@@ -139,12 +142,23 @@ export async function createUserSSR(userItem: { email: string; password: string,
         uid: data.user.id,
         is_admin: userItem.roles.is_admin,
         is_vip: userItem.roles.is_vip,
-        is_corp: userItem.roles.is_corp
+        is_corp: userItem.roles.is_corp,
     });
 
     if (roleError) throw roleError.message;
 
     return data.user.id;
+}
+
+export async function createUserRolesSSR(roles: IRole) {
+    const cookieStore = await cookies();
+    const client = await supabaseSSR(cookieStore);
+
+    const { error } = await client.from('roles').insert(roles);
+
+    if (error) throw error.message;
+
+    return true;
 }
 
 // ----------------------------------------------------------------------
@@ -155,8 +169,18 @@ export async function deleteUserSSR(id: string): Promise<boolean> {
 
     // Delete user from auth
     const { error } = await adminClient.deleteUser(id);
-    
+
     if (error) throw error.message;
-    
+
+    return true;
+}
+
+export async function createCustomerDataSSR(customerData: Partial<ICustomerData>) {
+    const cookieStore = await cookies();
+    const supabase = await supabaseSSR(cookieStore);
+
+    const { error: dbError } = await supabase.from('CustomerDatas').insert(customerData);
+    if (dbError) throw dbError.message;
+
     return true;
 }
