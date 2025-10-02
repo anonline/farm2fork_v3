@@ -55,6 +55,32 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
 
+const ROLE_OPTIONS = [
+    { value: 'public', label: 'Publikus' },
+    { value: 'vip', label: 'VIP' },
+    { value: 'company', label: 'Cég' },
+];
+
+const SHIPPING_METHOD_OPTIONS = [
+    { value: 'hazhozszallitas', label: 'Házhozszállítás' },
+    { value: 'szemelyes_atvetel', label: 'Személyes átvétel' },
+];
+
+const PAYMENT_METHOD_OPTIONS = [
+    { value: 'simple', label: 'SimplePay' },
+    { value: 'utalas', label: 'Átutalás' },
+    { value: 'utanvet', label: 'Utánvét' },
+];
+
+const PAYMENT_STATUS_OPTIONS = [
+    { value: 'pending', label: 'Nincs fizetve' },
+    { value: 'paid', label: 'Foglalva' },
+    { value: 'failed', label: 'Sikertelen' },
+    { value: 'refunded', label: 'Visszatérítve' },
+    { value: 'partially_paid', label: 'Részben fizetve' },
+    { value: 'closed', label: 'Lezárva' },
+];
+
 const STATUS_OPTIONS = [
     { value: 'all', label: 'Összes' },
     { value: 'pending', label: 'Új rendelés' },
@@ -64,16 +90,17 @@ const STATUS_OPTIONS = [
 ];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
-    { id: 'orderNumber', label: 'ID', width: 88 },
-    { id: 'status', label: '', width: 110 },
+    { id: 'orderNumber', label: 'ID', width: 60, sx: { display: { xs: 'none', md: 'table-cell' } } },
+    { id: 'status', label: 'Státusz', sx: { width: { xs: '200px', md: 300 } } },
     { id: 'name', label: 'Vásárló' },
     { id: 'totalQuantity', label: '', width: 120, align: 'center' },
-    { id: 'totalnetAmount', label: 'Nettó összeg', width: 140 },
-    { id: 'totalAmount', label: 'Br. összeg', width: 140 },
+    { id: 'totalnetAmount', label: 'Nettó', width: 140 },
+    { id: 'totalAmount', label: 'Bruttó', width: 140 },
+    { id: 'paymentStatus', label: 'Fizetve', width: 110 },
     { id: 'createdAt', label: 'Dátum', width: 140 },
     { id: 'planned_shipping_date_time', label: 'Szállítás', width: 140, align: 'center' },
     { id: 'delivery', label: 'Szállítási mód', width: 140 },
-    { id: 'payment', label: 'Fizetési mód', width: 140 },
+    { id: 'payment', label: 'Fizetési mód', width: 160 },
     { id: '', width: 88 },
 ];
 
@@ -92,6 +119,10 @@ export function OrderListView() {
         startDate: null,
         endDate: null,
         shipments: [],
+        roles: [],
+        shippingMethods: [],
+        paymentMethods: [],
+        paymentStatuses: [],
     });
 
     const { state: currentFilters, setState: updateFilters } = filters;
@@ -105,6 +136,11 @@ export function OrderListView() {
     } = useGetOrders({
         status: currentFilters.status !== 'all' ? currentFilters.status : undefined,
     });
+
+    // Fetch all orders for tab counts (without status filter)
+    const {
+        orders: allOrdersData,
+    } = useGetOrders({});
 
     // Transform orders data to table format
     const [tableData, setTableData] = useState<IOrderItem[]>([]);
@@ -140,7 +176,11 @@ export function OrderListView() {
         !!currentFilters.name ||
         currentFilters.status !== 'all' ||
         (!!currentFilters.startDate && !!currentFilters.endDate) ||
-        !!currentFilters.shipments.length;
+        !!currentFilters.shipments.length ||
+        !!currentFilters.roles.length ||
+        !!currentFilters.shippingMethods.length ||
+        !!currentFilters.paymentMethods.length ||
+        !!currentFilters.paymentStatuses.length;
 
     const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -309,7 +349,7 @@ export function OrderListView() {
                                             color={
                                                 (tab.value === 'completed' && 'success') ||
                                                 (tab.value === 'pending' && 'warning') ||
-                                                (tab.value === 'inprogress' && 'info') ||
+                                                (tab.value === 'processing' && 'info') ||
                                                 (tab.value === 'cancelled' && 'error') ||
                                                 'default'
                                             }
@@ -319,12 +359,12 @@ export function OrderListView() {
                                                 'pending',
                                                 'cancelled',
                                                 'refunded',
-                                                'inprogress',
+                                                'processing',
                                                 'deleted',
                                             ].includes(tab.value)
-                                                ? tableData.filter((user) => user.status === tab.value)
+                                                ? allOrdersData.filter((order) => order.orderStatus === tab.value)
                                                     .length
-                                                : tableData.length}
+                                                : allOrdersData.length}
                                         </Label>
                                     }
                                 />
@@ -336,7 +376,11 @@ export function OrderListView() {
                             onResetPage={table.onResetPage}
                             dateError={dateError}
                             options={{
-                                shipments: transformedShipmentFilterData
+                                shipments: transformedShipmentFilterData,
+                                roles: ROLE_OPTIONS,
+                                shippingMethods: SHIPPING_METHOD_OPTIONS,
+                                paymentMethods: PAYMENT_METHOD_OPTIONS,
+                                paymentStatuses: PAYMENT_STATUS_OPTIONS,
                             }}
                         />
 
@@ -347,6 +391,11 @@ export function OrderListView() {
                                 onResetPage={table.onResetPage}
                                 sx={{ p: 2.5, pt: 0 }}
                                 shipments={transformedShipmentFilterData}
+                                roles={ROLE_OPTIONS}
+                                shippingMethods={SHIPPING_METHOD_OPTIONS}
+                                paymentMethods={PAYMENT_METHOD_OPTIONS}
+                                paymentStatuses={PAYMENT_STATUS_OPTIONS}
+                                statuses={STATUS_OPTIONS}
                             />
                         )}
 
@@ -465,7 +514,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterProps) {
-    const { status, name, startDate, endDate, shipments } = filters;
+    const { status, name, startDate, endDate, shipments, roles, shippingMethods, paymentMethods, paymentStatuses } = filters;
 
     const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -485,11 +534,56 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
         );
     }
 
-    console.log('Filtering with shipments:', shipments);
+    if (roles.length > 0) {
+        inputData = inputData.filter((order) => {
+            if (order.customer.userType) {
+                return roles.includes(order.customer.userType);
+            }
+            return false;
+        });
+    }
+    
     if (shipments.length > 0) {
         inputData = inputData.filter((order) => {
             if (order.shipmentId) {
                 return shipments.includes(order.shipmentId.toString());
+            }
+            return false;
+        });
+    }
+
+    if (shippingMethods.length > 0) {
+        inputData = inputData.filter((order) => {
+            switch(order.delivery.shipBy) {
+                case 'Házhozszállítás':
+                    return shippingMethods.includes('hazhozszallitas');
+                case 'Személyes átvétel':
+                    return shippingMethods.includes('szemelyes_atvetel');
+                default:
+                    return false;
+            }
+        });
+    }
+
+    if (paymentMethods.length > 0) {
+        inputData = inputData.filter((order) => {
+            switch(order.payment.cardType) {
+                case 'SimplePay fizetés':
+                    return paymentMethods.includes('simple');
+                case 'Átutalás':
+                    return paymentMethods.includes('utalas');
+                case 'Utánvét':
+                    return paymentMethods.includes('utanvet');
+                default:
+                    return false;
+            }
+        });
+    }
+
+    if (paymentStatuses.length > 0) {
+        inputData = inputData.filter((order) => {
+            if (order.payment.status) {
+                return paymentStatuses.includes(order.payment.status);
             }
             return false;
         });

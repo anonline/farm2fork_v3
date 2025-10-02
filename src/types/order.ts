@@ -9,6 +9,10 @@ export type IOrderTableFilters = {
     endDate: IDatePickerControl;
     startDate: IDatePickerControl;
     shipments: string[];
+    roles: string[];
+    shippingMethods: string[];
+    paymentMethods: string[];
+    paymentStatuses: string[];
 };
 
 export type IOrderHistory = {
@@ -38,6 +42,7 @@ export type IOrderShippingAddress = {
 export type IOrderPayment = {
     cardType: string;
     cardNumber: string;
+    status?: string;
 };
 
 export type IOrderDelivery = {

@@ -6,6 +6,9 @@ import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
+// Cache for user types to avoid redundant database calls
+const userTypeCache = new Map<string, 'public' | 'vip' | 'company'>();
+
 /**
  * Transform our order management data to the format expected by the dashboard table
  */
@@ -76,6 +79,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         payment: {
             cardType: orderData.paymentMethod?.name || 'Unknown',
             cardNumber: '**** **** **** ****', // Not stored for security
+            status: orderData.paymentStatus,
         },
         delivery: {
             shipBy: orderData.shippingMethod?.name || '',
@@ -139,6 +143,11 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
 async function getUserType(customerId: string | null): Promise<'public' | 'vip' | 'company'> {
     if (!customerId) return 'public';
 
+    // Check cache first
+    if (userTypeCache.has(customerId)) {
+        return userTypeCache.get(customerId)!;
+    }
+
     try {
         // Import Supabase client
         const { createClient } = await import('@supabase/supabase-js');
@@ -161,7 +170,12 @@ async function getUserType(customerId: string | null): Promise<'public' | 'vip' 
         }
 
         // The function returns the user type directly
-        return data as 'public' | 'vip' | 'company' || 'public';
+        const userType = (data as 'public' | 'vip' | 'company') || 'public';
+        
+        // Cache the result
+        userTypeCache.set(customerId, userType);
+        
+        return userType;
     } catch (error) {
         console.error('Error fetching user type from Supabase:', error);
         return 'public';
@@ -179,4 +193,15 @@ export async function transformOrdersDataToTableItems(ordersData: IOrderData[]):
         return dateB - dateA;
     });
     return orders;
+}
+
+/**
+ * Clear the user type cache - useful for testing or when user data changes
+ */
+export function clearUserTypeCache(customerId?: string): void {
+    if (customerId) {
+        userTypeCache.delete(customerId);
+    } else {
+        userTypeCache.clear();
+    }
 }

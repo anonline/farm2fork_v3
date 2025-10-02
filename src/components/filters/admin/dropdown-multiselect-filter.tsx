@@ -15,7 +15,7 @@ type DropdownMultiSelectFilterProps = {
 
 export default function DropdownMultiSelectFilter({ label, options, selectedValues, onChange, onApply }: Readonly<DropdownMultiSelectFilterProps>) {
     return (
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 }, mr: 2 }}>
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 }, mr: 0 }}>
             <InputLabel id={`filter-${label}-select-label`}>{label}</InputLabel>
             <Select
                 multiple
@@ -25,6 +25,13 @@ export default function DropdownMultiSelectFilter({ label, options, selectedValu
                 renderValue={(selected) => selected.map((value) => options.find((option) => option.value === value)?.label).join(', ')}
                 inputProps={{ id: `filter-${label}-select` }}
                 sx={{ textTransform: 'capitalize' }}
+                MenuProps={{
+                    PaperProps: {
+                        sx: {
+                            maxHeight: 500,
+                        },
+                    },
+                }}
             >
                 {options.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
