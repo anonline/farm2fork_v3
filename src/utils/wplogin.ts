@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { createHash } from 'crypto';
 
 export default function wpHashPassword(
     password: string,
@@ -11,6 +11,7 @@ export default function wpHashPassword(
     if (id !== '$P$' && id !== '$H$') return { hash: '', valid: false };
 
     const countLog2 = itoa64.indexOf(hash[3]);
+    // eslint-disable-next-line no-bitwise
     const count = 1 << countLog2;
     const salt = hash.substring(4, 12);
 
@@ -19,11 +20,11 @@ export default function wpHashPassword(
 
     // Generate hash using the same algorithm as WordPress PHPass
     // Initial hash: md5(salt + password)
-    let newHash = crypto.createHash('md5').update(salt, 'utf8').update(passwordBuffer).digest();
+    let newHash = createHash('md5').update(salt, 'utf8').update(passwordBuffer).digest();
 
     // Iterate count times: md5(hash + password)
     for (let i = 0; i < count; i++) {
-        newHash = crypto.createHash('md5').update(newHash).update(passwordBuffer).digest();
+        newHash = createHash('md5').update(newHash).update(passwordBuffer).digest();
     }
 
     // Encode the result using WordPress's base64-like encoding
@@ -37,25 +38,31 @@ function encode64(input: Buffer, count: number, itoa64: string): string {
     let output = '';
     let i = 0;
 
+    // eslint-disable-next-line no-bitwise
     do {
         const value = input[i++];
+        // eslint-disable-next-line no-bitwise
         output += itoa64[value & 0x3f];
 
         if (i < count) {
             const value2 = input[i];
+            // eslint-disable-next-line no-bitwise
             output += itoa64[((value >> 6) & 0x03) | ((value2 & 0x0f) << 2)];
 
             if (i++ >= count) break;
 
             if (i < count) {
                 const value3 = input[i];
+                // eslint-disable-next-line no-bitwise
                 output += itoa64[((value2 >> 4) & 0x0f) | ((value3 & 0x03) << 4)];
 
                 if (i++ >= count) break;
 
+                // eslint-disable-next-line no-bitwise
                 output += itoa64[(value3 >> 2) & 0x3f];
             }
         } else {
+            // eslint-disable-next-line no-bitwise
             output += itoa64[(value >> 6) & 0x03];
         }
     } while (i < count);
