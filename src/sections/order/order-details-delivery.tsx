@@ -167,7 +167,7 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
             }
 
             // Get customer user type - default to 'public' since we don't have direct access to customer type
-            // TODO: Consider fetching customer details if userType is needed from customer table
+            
             const customerUserType: 'public' | 'vip' | 'company' = customer.userType || 'public';
             
             // Find the appropriate shipping method from stored methods
@@ -186,7 +186,9 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
                 .find(method => method.name === newShipBy);
             
             if (!storedMethod) {
-                throw new Error(`Shipping method "${newShipBy}" not found`);
+                toast.error(`Szállítási mód "${newShipBy}" nem alkalmazható. Elértük a minimális rendelési értéket?`);
+
+                throw new Error(`Szállítási mód "${newShipBy}" nem alkalmazható. Elértük a minimális rendelési értéket?`);
             }
 
             // Calculate shipping cost based on customer type

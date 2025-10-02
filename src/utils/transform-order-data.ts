@@ -144,7 +144,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
     };
 }
 
-async function getUserType(customerId: string | null): Promise<'public' | 'vip' | 'company'> {
+export async function getUserType(customerId: string | null): Promise<'public' | 'vip' | 'company'> {
     if (!customerId) return 'public';
 
     // Check cache first

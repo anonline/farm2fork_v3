@@ -19,6 +19,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
@@ -322,9 +323,19 @@ export function OrderListView() {
                         { name: 'Lista' },
                     ]}
                     action={
-                        <Label color="default" variant="inverted">
-                            Összesen br. {fCurrency(sumOrderGrossValue)}
-                        </Label>
+                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                            <Label color="default" variant="inverted">
+                                Összesen br. {fCurrency(sumOrderGrossValue)}
+                            </Label>
+                            <Button
+                                component={RouterLink}
+                                href={paths.dashboard.order.new}
+                                variant="contained"
+                                startIcon={<Iconify icon="mingcute:add-line" />}
+                            >
+                                Új rendelés
+                            </Button>
+                        </Box>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />

@@ -628,11 +628,11 @@ export function OrderDetailsView({ orderId }: Props) {
             sku: product.sku,
             name: product.name,
             netPrice: product.netPrice, // Use net price as the base price
-            grossPrice: product.grossPrice, // Use net price as the base price
+            grossPrice: order?.customer.userType == 'vip' ? product.netPrice : product.grossPrice, // Use net price as the base price
             coverUrl: product.coverUrl,
             quantity: product.quantity,
             unit: product.unit,
-            vat: product.vat,
+            vat: order?.customer.userType == 'vip' ? 0 : product.vat,
             note: product.isCustom ? 'Egyedi termék' : '',
             subtotal: (order?.customer.userType == 'company' || order?.customer.userType == 'vip' ? product.netPrice * product.quantity : product.grossPrice * product.quantity),
             slug: product.isCustom ? '' : product.id, // Use product ID as slug for existing products

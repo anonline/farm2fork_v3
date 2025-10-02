@@ -66,7 +66,7 @@ export async function getUsersAdmin(page: number = 1, perPage: number = 10000) {
     const cookieStore = await cookies();
     const client = await supabaseAdmin(cookieStore);
 
-    const response = await client.listUsers({ page, perPage });
+    const response = await client.listUsers({ page, perPage,  });
 
     if (response.error) throw response.error.message;
 
@@ -89,7 +89,7 @@ export async function getUsersRoles() {
     const client = await supabaseSSR(cookieStore);
     const { data, error } = await client.from('roles').select('*');
     if (error) throw error.message;
-    return data;
+    return data as IRole[];
 }
 
 export async function getUserRoles(id:string) {

@@ -563,7 +563,7 @@ export async function getOrdersByShipmentId(shipmentId: number): Promise<{ order
         }
 
         // Transform database fields to match our interface
-        const orders: IOrderData[] = (data || []).map((row: any) => ({
+        const orders: IOrderData[] = (data || []).filter(order => ['cancelled', 'refunded'].includes(order.order_status) == false).map((row: any) => ({
             id: row.id,
             dateCreated: row.date_created,
             customerId: row.customer_id,

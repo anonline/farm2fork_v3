@@ -1,5 +1,6 @@
 'use client';
 
+import type { IRole } from 'src/types/user';
 import type { IOrderCustomer } from 'src/types/order';
 import type { ICustomerData } from 'src/types/customer';
 
@@ -26,6 +27,7 @@ import {
 } from '@mui/material';
 
 import { supabase } from 'src/lib/supabase';
+import { getUsersRoles } from 'src/actions/user-ssr';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -50,6 +52,7 @@ export function CustomerSelectionModal({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedCustomer, setSelectedCustomer] = useState<ICustomerData | null>(null);
+    const [roles, setRoles] = useState<IRole[]>([]);
 
     const searchCustomers = useCallback(async (search: string) => {
         if (!search || search.length < 2) {
@@ -71,6 +74,8 @@ export function CustomerSelectionModal({
                 throw new Error(searchError.message);
             }
 
+            setRoles(await getUsersRoles());
+
             setCustomers(data || []);
         } catch (err) {
             console.error('Error searching customers:', err);
@@ -80,6 +85,23 @@ export function CustomerSelectionModal({
             setLoading(false);
         }
     }, []);
+
+    const getUserRole = (uid: string) => roles.find(role => role.uid === uid) || { is_admin: false, is_vip: false, is_corp: false, uid }
+
+    const isVip = (customer: ICustomerData) => {
+        const role = getUserRole(customer.uid || customer.id.toString());
+        return role.is_vip;
+    }
+
+    const isCompany = (customer: ICustomerData) => {
+        const role = getUserRole(customer.uid || customer.id.toString());
+        return role.is_corp;
+    }
+
+    const isAdmin = (customer: ICustomerData) => {
+        const role = getUserRole(customer.uid || customer.id.toString());
+        return role.is_admin;
+    }
 
     // Debounced search
     useEffect(() => {
@@ -100,13 +122,12 @@ export function CustomerSelectionModal({
         // Convert ICustomerData to IOrderCustomer format
         const orderCustomer: IOrderCustomer = {
             id: selectedCustomer.uid || selectedCustomer.id.toString(),
-            name: selectedCustomer.companyName || 
-                  `${selectedCustomer.firstname || ''} ${selectedCustomer.lastname || ''}`.trim() || 
+            name: `${selectedCustomer.lastname || ''} ${selectedCustomer.firstname || ''}`.trim() || 
                   'Névtelen vásárló',
             email: selectedCustomer.billingAddress?.[0]?.email || '', // Get email from billing address if available
-            avatarUrl: '', // We don't have avatar URLs in CustomerDatas
-            ipAddress: '', // We don't store IP addresses in CustomerDatas
-            userType: selectedCustomer.isCompany ? 'company' : 'public',
+            avatarUrl: '',
+            ipAddress: '',
+            userType: isCompany(selectedCustomer) && 'company' || isVip(selectedCustomer) && 'vip' || 'public',
         };
 
         onSelectCustomer(orderCustomer);
@@ -122,8 +143,7 @@ export function CustomerSelectionModal({
     }, [onClose]);
 
     const renderCustomerItem = (customer: ICustomerData) => {
-        const customerName = customer.companyName || 
-                           `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 
+        const customerName = `${customer.lastname || ''} ${customer.firstname || ''}`.trim() || 
                            'Névtelen vásárló';
         
         const isCurrentCustomer = customer.uid === currentCustomerId || 
@@ -140,10 +160,17 @@ export function CustomerSelectionModal({
                 >
                     <ListItemAvatar>
                         <Avatar
-                            color={customer.isCompany ? 'primary' : 'default'}
+                            color={
+                                (isCompany(customer) && 'primary' ) ||
+                                (isVip(customer) && 'warning' ) ||
+                                (isAdmin(customer) && 'error') || 'default'
+                            }
                         >
                             <Iconify
-                                icon={customer.isCompany ? 'solar:buildings-3-line-duotone' : 'solar:user-rounded-bold'}
+                                icon={(isCompany(customer) && 'solar:buildings-3-line-duotone') || 
+                                    (isVip(customer) && 'eva:star-fill') || 
+                                    (isAdmin(customer) && 'solar:shield-check-bold') || 
+                                    'solar:user-rounded-bold' }
                                 width={24}
                                 height={24}
                             />
@@ -173,7 +200,10 @@ export function CustomerSelectionModal({
                         }
                         secondary={
                             <Typography variant="body2" color="text.secondary">
-                                {customer.isCompany ? 'Céges vásárló' : 'Magánszemély'}
+                                {isCompany(customer) && 'Céges vásárló'}
+                                {isVip(customer) && 'VIP'}
+                                {isAdmin(customer) && 'Admin'}
+                                {!isCompany(customer) && !isVip(customer) && !isAdmin(customer) && 'Magánszemély'}
                                 {customer.billingAddress?.[0]?.email && ` • ${customer.billingAddress[0].email}`}
                             </Typography>
                         }
