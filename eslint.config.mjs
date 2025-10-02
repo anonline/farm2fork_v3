@@ -16,7 +16,7 @@ import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 const commonRules = () => ({
     ...reactHooksPlugin.configs.recommended.rules,
     'func-names': 1,
-    'no-bitwise': 2,
+    'no-bitwise': 0,
     'no-unused-vars': 0,
     'object-shorthand': 1,
     'no-useless-rename': 1,

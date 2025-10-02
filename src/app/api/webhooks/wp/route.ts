@@ -1,9 +1,10 @@
 import type { NextRequest } from 'next/server';
+import type { WPTransferUser } from 'src/types/woocommerce/user';
 
-import { NextResponse } from 'next/server';
-import { supabaseSSR } from 'src/lib/supabase-ssr';
 import { cookies } from 'next/headers';
-import { WPTransferUser } from 'src/types/woocommerce/user';
+import { NextResponse } from 'next/server';
+
+import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 403 });    

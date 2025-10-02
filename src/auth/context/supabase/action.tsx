@@ -1,5 +1,7 @@
 'use client';
 
+import type { WPTransferUser } from 'src/types/woocommerce/user';
+import type { ICustomerData, IBillingAddress, IDeliveryAddress } from 'src/types/customer';
 import type {
     AuthError,
     AuthResponse,
@@ -11,14 +13,11 @@ import type {
 
 import { paths } from 'src/routes/paths';
 
+import wpHashPassword from 'src/utils/wplogin';
 import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { supabase } from 'src/lib/supabase';
-import wpHashPassword from 'src/utils/wplogin';
-import { createCustomerDataSSR, createUserRolesSSR } from 'src/actions/user-ssr';
-import { WPTransferUser } from 'src/types/woocommerce/user';
-
-import { IBillingAddress, ICustomerData, IDeliveryAddress } from 'src/types/customer';
+import { createUserRolesSSR, createCustomerDataSSR } from 'src/actions/user-ssr';
 
 // ----------------------------------------------------------------------
 
@@ -71,7 +70,7 @@ export const signInWithPassword = async ({
 export const signInWithWordpress = async ({
     email,
     password,
-}: SignInParams): Promise<Boolean> => {
+}: SignInParams): Promise<boolean> => {
 
     const { data, error } = await supabase.from('wp_users').select('*').eq('email', email).is('uid', null).single();
 
@@ -89,7 +88,7 @@ export const signInWithWordpress = async ({
         return false;
     }
 
-    const { data: dataReg, error: errorReg } = await signUp({email: data.email, password: password, firstName: data.firstname, lastName: data.lastname});
+    const { data: dataReg, error: errorReg } = await signUp({email: data.email, password, firstName: data.firstname, lastName: data.lastname});
 
     if (errorReg) {
         console.error(errorReg);
@@ -184,18 +183,18 @@ export const signInWithWordpress = async ({
         firstname: wpUser.firstname || '',
         lastname: wpUser.lastname || '',
         companyName: wpUser.company || '',
-        isCompany: isCompany,
+        isCompany,
         newsletterConsent: !!wpUser.mailchimpid,
         billingAddress: collectedBillingAddresses,
         deliveryAddress: collectedShippingAddresses,
         acquisitionSource: wpUser.from || '',
         paymentDue: wpUser.invoicedue || 0,
-        discountPercent: discountPercent,
+        discountPercent,
         mailchimpId: wpUser.mailchimpid || '',
     } as Partial<ICustomerData>;
 
     await createCustomerDataSSR(customerData);
-    await signInWithPassword({ email: email, password: password });
+    await signInWithPassword({ email, password });
     return true;
 };
 

@@ -1,11 +1,11 @@
 'use server';
 
 import type { IRole, IUserItem } from 'src/types/user';
+import type { ICustomerData } from 'src/types/customer';
 
 import { cookies } from 'next/headers';
 
 import { supabaseSSR, supabaseAdmin } from 'src/lib/supabase-ssr';
-import { ICustomerData } from 'src/types/customer';
 
 // ----------------------------------------------------------------------
 
