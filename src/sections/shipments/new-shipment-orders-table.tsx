@@ -22,6 +22,7 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
+import { Tooltip } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -196,7 +197,11 @@ export function OrdersTable({ orders, selectedOrders, onOrderToggle, loading, hi
                                                 </Typography>
                                                 {order.note && (
                                                     <Typography variant="caption" color="text.secondary" noWrap>
-                                                        {order.note}
+                                                        {order.note.length > 75 ? (
+                                                            <Tooltip title={order.note}>
+                                                                <span>{order.note.substring(0, 75)}...</span>
+                                                            </Tooltip>
+                                                         ) : order.note}
                                                     </Typography>
                                                 )}
                                             </TableCell>

@@ -751,6 +751,8 @@ export function OrderDetailsView({ orderId }: Props) {
         - editedDiscount
         : order?.totalAmount || 0;
 
+
+
     if (error) {
         return (
             <DashboardContent>

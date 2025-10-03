@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
-import { syncProducts, syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
+import { syncOrders, syncProducts, syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -50,9 +50,10 @@ type Props = {
     wooProducers: any[];
     wooProducts: any[];
     wpUsers: any[];
+    wooOrders: any[];
 };
 
-export default function WooCommerceImportStepper({ wooCategories, wooProducers, wooProducts, wpUsers }: Readonly<Props>) {
+export default function WooCommerceImportStepper({ wooCategories, wooProducers, wooProducts, wpUsers, wooOrders }: Readonly<Props>) {
     const [activeStep, setActiveStep] = useState(0);
     const [isImporting, setIsImporting] = useState(false);
     const [importStarted, setImportStarted] = useState(false);
@@ -106,6 +107,18 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             progress: 0,
             processedCount: 0,
             totalCount: wooProducts?.length || 0,
+            details: 'Várakozás az importálás indítására...',
+            enabled: true
+        },
+        {
+            id: 'orders',
+            label: 'Rendelések importálása',
+            description: 'WooCommerce rendelések importálása a rendszerbe',
+            icon: 'solar:cart-large-2-bold',
+            status: 'pending',
+            progress: 0,
+            processedCount: 0,
+            totalCount: wooOrders?.length || 0,
             details: 'Várakozás az importálás indítására...',
             enabled: true
         }
@@ -343,6 +356,57 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
                     currentStep.status = 'completed';
                     currentStep.progress = 100;
                     currentStep.details = `Befejezve! ${result.success} sikeres, ${result.errors} hiba.`;
+                    return newSteps;
+                });
+
+                // Move to next step after a short delay
+                setTimeout(() => {
+                    const nextStep = getNextEnabledStep(stepIndex);
+                    if (nextStep !== -1) {
+                        setActiveStep(nextStep);
+                        processStep(nextStep);
+                    } else {
+                        setIsImporting(false);
+                    }
+                }, 1000);
+
+            } catch (error) {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'error';
+                    currentStep.details = `Hiba történt: ${error}`;
+                    return newSteps;
+                });
+                setIsImporting(false);
+            }
+        } else if (step.id === 'orders') {
+            // Real orders sync implementation
+            try {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    newSteps[stepIndex].status = 'running';
+                    newSteps[stepIndex].details = 'Rendelések szinkronizálása megkezdve...';
+                    return newSteps;
+                });
+                const result = await syncOrders(wooOrders, (processed, total, currentItem) => {
+                    setSteps(prevSteps => {
+                        const newSteps = [...prevSteps];
+                        const currentStep = newSteps[stepIndex];
+                        currentStep.processedCount = processed;
+                        currentStep.progress = (processed / total) * 100;
+                        currentStep.details = `${currentItem} feldolgozása...`;
+                        return newSteps;
+                    });
+                });
+
+                // Update final status
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'completed';
+                    currentStep.progress = 100;
+                    currentStep.details = `Befejezve! ${result.success} sikeres, ${result.errors} hiba, ${result.skipped} kihagyva.`;
                     return newSteps;
                 });
 

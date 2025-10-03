@@ -9,3 +9,4 @@ test_customer_data.sql
 shipping_zones.sql
 database/migrations/001_create_orders_table.sql
 src/app/api/webhooks/wp/orders/orders
+public/orders

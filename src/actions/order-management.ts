@@ -1,21 +1,28 @@
-import type { IOrderData, PaymentStatus, ICreateOrderData, OrderHistoryEntry } from 'src/types/order-management';
+import type {
+    IOrderData,
+    PaymentStatus,
+    ICreateOrderData,
+    OrderHistoryEntry,
+} from 'src/types/order-management';
 
 import { finishTransaction } from 'src/utils/simplepay';
 
 import { supabase } from 'src/lib/supabase';
-
+import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
 /**
  * Create a new order in the database
  */
-export async function createOrder(orderData: ICreateOrderData): Promise<{ orderId: string | null; error: string | null }> {
+export async function createOrder(
+    orderData: ICreateOrderData
+): Promise<{ orderId: string | null; error: string | null }> {
     try {
         const now = new Date().toISOString();
 
         // Generate order ID (you might want to use a different format)
-        const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const randomOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
         // Create initial history entry
         const initialHistory: OrderHistoryEntry = {
@@ -26,7 +33,7 @@ export async function createOrder(orderData: ICreateOrderData): Promise<{ orderI
 
         // Prepare the order object for database insertion
         const dbOrder = {
-            id: orderId,
+            id: orderData.id ?? randomOrderId, // Use provided ID
             date_created: now,
             customer_id: orderData.customerId,
             customer_name: orderData.customerName,
@@ -57,17 +64,12 @@ export async function createOrder(orderData: ICreateOrderData): Promise<{ orderI
             history: [initialHistory],
         };
 
-        const { data, error } = await supabase
-            .from('orders')
-            .insert([dbOrder])
-            .select()
-            .single();
+        const { data, error } = await supabase.from('orders').insert([dbOrder]).select().single();
 
         if (error) {
             console.error('Error creating order:', error);
             return { orderId: null, error: error.message };
         }
-
 
         return { orderId: data.id, error: null };
     } catch (error) {
@@ -76,10 +78,72 @@ export async function createOrder(orderData: ICreateOrderData): Promise<{ orderI
     }
 }
 
+export async function insertOrder(
+    orderData: IOrderData
+): Promise<{ orderId: string | null; error: string | null }> {
+    await supabase.from('Shipments')
+    .upsert({
+        id: orderData.shipmentId,
+        date: fDate(orderData.plannedShippingDateTime)
+    })
+    .eq('id', orderData.shipmentId);
+
+    const dbOrder = {
+            id: orderData.id , // Use provided ID
+            date_created: orderData.dateCreated,
+            customer_id: orderData.customerId,
+            customer_name: orderData.customerName,
+            billing_emails: orderData.billingEmails,
+            notify_emails: orderData.notifyEmails,
+            note: orderData.note,
+            shipping_address: orderData.shippingAddress,
+            billing_address: orderData.billingAddress,
+            deny_invoice: orderData.denyInvoice,
+            need_vat: orderData.needVAT,
+            surcharge_amount: orderData.surchargeAmount,
+            items: orderData.items,
+            subtotal: orderData.subtotal,
+            shipping_cost: orderData.shippingCost,
+            vat_total: orderData.vatTotal,
+            discount_total: orderData.discountTotal,
+            total: orderData.total,
+            payed_amount: orderData.payedAmount,
+            shipping_method: orderData.shippingMethod,
+            payment_method: orderData.paymentMethod,
+            payment_status: orderData.paymentStatus,
+            order_status: orderData.orderStatus,
+            payment_due_days: orderData.paymentDueDays,
+            courier: orderData.courier,
+            planned_shipping_date_time: orderData.plannedShippingDateTime,
+            simplepay_data_json: orderData.simplepayDataJson,
+            invoice_data_json: orderData.invoiceDataJson || null,
+            history: [],
+            history_for_user: orderData.history_for_user || '',
+            shipmentId: orderData.shipmentId || null,
+            shipment_time: orderData.shipment_time || '',
+            wooUserId: orderData.wooUserId || null,
+        };
+
+    return await supabase
+        .from('orders')
+        .insert([dbOrder])
+        .select('id')
+        .single()
+        .then(({ data, error }) => {
+            if (error) {
+                console.error('Error inserting order:', error);
+                return { orderId: null, error: error.message };
+            }
+            return { orderId: data.id, error: null };
+        });
+}
+
 /**
  * Get order by ID
  */
-export async function getOrderById(orderId: string): Promise<{ order: IOrderData | null; error: string | null }> {
+export async function getOrderById(
+    orderId: string
+): Promise<{ order: IOrderData | null; error: string | null }> {
     try {
         const { data, error } = await supabase
             .from('orders')
@@ -123,7 +187,9 @@ export async function getOrderById(orderId: string): Promise<{ order: IOrderData
             orderStatus: data.order_status || 'pending',
             paymentDueDays: data.payment_due_days || 0,
             courier: data.courier,
-            plannedShippingDateTime: data.planned_shipping_date_time ? new Date(data.planned_shipping_date_time) : null,
+            plannedShippingDateTime: data.planned_shipping_date_time
+                ? new Date(data.planned_shipping_date_time)
+                : null,
             shipment_time: data.shipment_time || '',
             simplepayDataJson: data.simplepay_data_json,
             invoiceDataJson: data.invoice_data_json,
@@ -223,10 +289,7 @@ export async function updatePaymentStatus(
         }
 
         // Update order with new payment status and history
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error updating payment status:', error);
@@ -305,7 +368,9 @@ export async function getAllOrders(params?: {
             orderStatus: row.order_status || 'pending',
             paymentDueDays: row.payment_due_days || 0,
             courier: row.courier,
-            plannedShippingDateTime: row.planned_shipping_date_time ? new Date(row.planned_shipping_date_time) : null,
+            plannedShippingDateTime: row.planned_shipping_date_time
+                ? new Date(row.planned_shipping_date_time)
+                : null,
             shipment_time: row.shipment_time || '',
             simplepayDataJson: row.simplepay_data_json,
             invoiceDataJson: row.invoice_data_json,
@@ -323,12 +388,11 @@ export async function getAllOrders(params?: {
 /**
  * Delete an order by ID
  */
-export async function deleteOrder(orderId: string): Promise<{ success: boolean; error: string | null }> {
+export async function deleteOrder(
+    orderId: string
+): Promise<{ success: boolean; error: string | null }> {
     try {
-        const { error } = await supabase
-            .from('orders')
-            .delete()
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').delete().eq('id', orderId);
 
         if (error) {
             console.error('Error deleting order:', error);
@@ -345,12 +409,11 @@ export async function deleteOrder(orderId: string): Promise<{ success: boolean; 
 /**
  * Delete multiple orders by IDs
  */
-export async function deleteOrders(orderIds: string[]): Promise<{ success: boolean; error: string | null }> {
+export async function deleteOrders(
+    orderIds: string[]
+): Promise<{ success: boolean; error: string | null }> {
     try {
-        const { error } = await supabase
-            .from('orders')
-            .delete()
-            .in('id', orderIds);
+        const { error } = await supabase.from('orders').delete().in('id', orderIds);
 
         if (error) {
             console.error('Error deleting orders:', error);
@@ -382,10 +445,7 @@ export async function updateOrderPaymentStatus(
             updateData.payed_amount = payedAmount;
         }
 
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error updating order payment status:', error);
@@ -412,10 +472,7 @@ export async function updateOrderDeliveryGuy(
             updated_at: new Date().toISOString(),
         };
 
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error updating order delivery guy:', error);
@@ -490,11 +547,12 @@ export async function updateOrderItems(
         const newSurchargeAmount = surchargeAmount ?? order.surchargeAmount;
         const newShippingCost = shippingCost ?? order.shippingCost;
         const newDiscountTotal = discountTotal ?? order.discountTotal;
-        const total = subtotal
-            + newShippingCost
-            + (userType == 'company' ? order.vatTotal : 0)
-            + newSurchargeAmount
-            - newDiscountTotal;
+        const total =
+            subtotal +
+            newShippingCost +
+            (userType == 'company' ? order.vatTotal : 0) +
+            newSurchargeAmount -
+            newDiscountTotal;
 
         // Create new history entry
         const historyEntry: OrderHistoryEntry = {
@@ -529,10 +587,7 @@ export async function updateOrderItems(
             updateData.discount_total = newDiscountTotal;
         }
 
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error updating order items:', error);
@@ -549,7 +604,9 @@ export async function updateOrderItems(
 /**
  * Get all orders by shipment ID
  */
-export async function getOrdersByShipmentId(shipmentId: number): Promise<{ orders: IOrderData[]; error: string | null }> {
+export async function getOrdersByShipmentId(
+    shipmentId: number
+): Promise<{ orders: IOrderData[]; error: string | null }> {
     try {
         const { data, error } = await supabase
             .from('orders')
@@ -563,39 +620,43 @@ export async function getOrdersByShipmentId(shipmentId: number): Promise<{ order
         }
 
         // Transform database fields to match our interface
-        const orders: IOrderData[] = (data || []).filter(order => ['cancelled', 'refunded'].includes(order.order_status) == false).map((row: any) => ({
-            id: row.id,
-            dateCreated: row.date_created,
-            customerId: row.customer_id,
-            customerName: row.customer_name,
-            billingEmails: row.billing_emails || [],
-            notifyEmails: row.notify_emails || [],
-            note: row.note || '',
-            shippingAddress: row.shipping_address,
-            billingAddress: row.billing_address,
-            denyInvoice: row.deny_invoice || false,
-            needVAT: row.need_vat || false,
-            surchargeAmount: row.surcharge_amount || 0,
-            items: row.items || [],
-            subtotal: row.subtotal || 0,
-            shippingCost: row.shipping_cost || 0,
-            vatTotal: row.vat_total || 0,
-            discountTotal: row.discount_total || 0,
-            total: row.total || 0,
-            payedAmount: row.payed_amount || 0,
-            shippingMethod: row.shipping_method,
-            paymentMethod: row.payment_method,
-            paymentStatus: row.payment_status || 'pending',
-            orderStatus: row.order_status || 'pending',
-            paymentDueDays: row.payment_due_days || 0,
-            courier: row.courier,
-            plannedShippingDateTime: row.planned_shipping_date_time ? new Date(row.planned_shipping_date_time) : null,
-            shipment_time: row.shipment_time || '',
-            simplepayDataJson: row.simplepay_data_json,
-            invoiceDataJson: row.invoice_data_json,
-            history: row.history || [],
-            shipmentId: row.shipmentId || null,
-        }));
+        const orders: IOrderData[] = (data || [])
+            .filter((order) => ['cancelled', 'refunded'].includes(order.order_status) == false)
+            .map((row: any) => ({
+                id: row.id,
+                dateCreated: row.date_created,
+                customerId: row.customer_id,
+                customerName: row.customer_name,
+                billingEmails: row.billing_emails || [],
+                notifyEmails: row.notify_emails || [],
+                note: row.note || '',
+                shippingAddress: row.shipping_address,
+                billingAddress: row.billing_address,
+                denyInvoice: row.deny_invoice || false,
+                needVAT: row.need_vat || false,
+                surchargeAmount: row.surcharge_amount || 0,
+                items: row.items || [],
+                subtotal: row.subtotal || 0,
+                shippingCost: row.shipping_cost || 0,
+                vatTotal: row.vat_total || 0,
+                discountTotal: row.discount_total || 0,
+                total: row.total || 0,
+                payedAmount: row.payed_amount || 0,
+                shippingMethod: row.shipping_method,
+                paymentMethod: row.payment_method,
+                paymentStatus: row.payment_status || 'pending',
+                orderStatus: row.order_status || 'pending',
+                paymentDueDays: row.payment_due_days || 0,
+                courier: row.courier,
+                plannedShippingDateTime: row.planned_shipping_date_time
+                    ? new Date(row.planned_shipping_date_time)
+                    : null,
+                shipment_time: row.shipment_time || '',
+                simplepayDataJson: row.simplepay_data_json,
+                invoiceDataJson: row.invoice_data_json,
+                history: row.history || [],
+                shipmentId: row.shipmentId || null,
+            }));
 
         return { orders, error: null };
     } catch (error) {
@@ -626,11 +687,16 @@ export async function updateOrderInvoiceSettings(
         const historyEntry: OrderHistoryEntry = {
             timestamp: new Date().toISOString(),
             status: order.orderStatus,
-            note: note || (() => {
-                const statusText = denyInvoice ? 'Számla tiltva' : 'Számla engedélyezve';
-                const paymentText = paymentDueDays !== undefined ? `, Fizetési határidő: ${paymentDueDays} nap` : '';
-                return `Számla beállítások frissítve: ${statusText}${paymentText}`;
-            })(),
+            note:
+                note ||
+                (() => {
+                    const statusText = denyInvoice ? 'Számla tiltva' : 'Számla engedélyezve';
+                    const paymentText =
+                        paymentDueDays !== undefined
+                            ? `, Fizetési határidő: ${paymentDueDays} nap`
+                            : '';
+                    return `Számla beállítások frissítve: ${statusText}${paymentText}`;
+                })(),
             userId,
             userName,
         };
@@ -647,10 +713,7 @@ export async function updateOrderInvoiceSettings(
         }
 
         // Update order
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error updating order invoice settings:', error);
@@ -698,10 +761,7 @@ export async function updateOrderInvoiceData(
         };
 
         // Update order
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error updating order invoice data:', error);
@@ -784,7 +844,7 @@ export async function updateOrderBillingAddress(
         if (order.invoiceDataJson) {
             return {
                 success: false,
-                error: 'A számlázási cím nem módosítható, mert már létrejött a számla.'
+                error: 'A számlázási cím nem módosítható, mert már létrejött a számla.',
             };
         }
 
@@ -819,7 +879,9 @@ export async function updateOrderBillingAddress(
     }
 }
 
-export async function finishSimplePayTransaction(orderId: string): Promise<{ success: boolean; error: string | null }> {
+export async function finishSimplePayTransaction(
+    orderId: string
+): Promise<{ success: boolean; error: string | null }> {
     try {
         const { order, error: fetchError } = await getOrderById(orderId);
         if (fetchError) {
@@ -836,19 +898,18 @@ export async function finishSimplePayTransaction(orderId: string): Promise<{ suc
             const simplePayFinishResult = await finishTransaction({
                 orderRef: order.id,
                 originalTotal: Math.round(order.payedAmount), // originalTotal
-                approveTotal: 0  // approveTotal (charge 1500, release 1000)
+                approveTotal: 0, // approveTotal (charge 1500, release 1000)
             });
 
             console.log('Full cancellation successful:', simplePayFinishResult);
             await updateOrderPaymentStatus(order.id, 'refunded', 0);
 
             return { success: true, error: null };
-        }
-        else {
+        } else {
             const simplePayFinishResult = await finishTransaction({
                 orderRef: order.id,
                 originalTotal: Math.round(order.payedAmount), // originalTotal
-                approveTotal: Math.round(order.total)  // approveTotal (charge 1500, release 1000)
+                approveTotal: Math.round(order.total), // approveTotal (charge 1500, release 1000)
             });
 
             console.log('Partial charge successful:', simplePayFinishResult);
@@ -863,7 +924,9 @@ export async function finishSimplePayTransaction(orderId: string): Promise<{ suc
     }
 }
 
-export async function cancelSimplePayTransaction(orderId: string): Promise<{ success: boolean; error: string | null }> {
+export async function cancelSimplePayTransaction(
+    orderId: string
+): Promise<{ success: boolean; error: string | null }> {
     try {
         const { order, error: fetchError } = await getOrderById(orderId);
         if (fetchError) {
@@ -873,13 +936,16 @@ export async function cancelSimplePayTransaction(orderId: string): Promise<{ suc
             return { success: false, error: 'Order not found' };
         }
         if (order.paymentStatus !== 'paid') {
-            return { success: false, error: 'Cannot cancel transaction - payment status is not paid' };
+            return {
+                success: false,
+                error: 'Cannot cancel transaction - payment status is not paid',
+            };
         }
 
         const simplePayCancelResult = await finishTransaction({
             orderRef: order.id,
             originalTotal: Math.round(order.payedAmount), // originalTotal - must match reserved amount
-            approveTotal: 0  // approveTotal = 0 means full cancellation/refund
+            approveTotal: 0, // approveTotal = 0 means full cancellation/refund
         });
 
         console.log('SimplePay transaction cancelled successfully:', simplePayCancelResult);
@@ -927,10 +993,7 @@ export async function clearOrderInvoiceData(
         };
 
         // Update order
-        const { error } = await supabase
-            .from('orders')
-            .update(updateData)
-            .eq('id', orderId);
+        const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
 
         if (error) {
             console.error('Error clearing order invoice data:', error);
@@ -991,7 +1054,7 @@ export async function updateOrderPaymentMethod(
             .update({
                 payment_method: paymentMethod,
                 history: updatedHistory,
-                updated_at: now
+                updated_at: now,
             })
             .eq('id', orderId);
 
@@ -1042,7 +1105,7 @@ export async function updateOrderNote(
             .update({
                 note,
                 history: updatedHistory,
-                updated_at: now
+                updated_at: now,
             })
             .eq('id', orderId);
 
@@ -1090,12 +1153,15 @@ export async function updateOrderCustomer(
             console.warn('Could not fetch customer data for shipping calculation:', customerError);
         }
 
-        const userType: 'public' | 'vip' | 'company' = customerData?.isCompany ? 'company' : 
-                                                      (customerData?.discountPercent > 0 ? 'vip' : 'public');
-        
+        const userType: 'public' | 'vip' | 'company' = customerData?.isCompany
+            ? 'company'
+            : customerData?.discountPercent > 0
+              ? 'vip'
+              : 'public';
+
         // Get shipping method to recalculate cost
         let newShippingCost = order.shipping_cost; // Default to current cost
-        
+
         if (order.shipping_method && typeof order.shipping_method === 'object') {
             const shippingMethod = order.shipping_method as any;
             if (shippingMethod.id) {
@@ -1153,7 +1219,9 @@ export async function updateOrderCustomer(
             {
                 timestamp: now,
                 status: order.order_status,
-                note: historyNote || `Vásárló módosítva: ${customerName} (${customerId}), szállítási költség újraszámítva: ${newShippingCost} Ft`,
+                note:
+                    historyNote ||
+                    `Vásárló módosítva: ${customerName} (${customerId}), szállítási költség újraszámítva: ${newShippingCost} Ft`,
             },
         ];
 

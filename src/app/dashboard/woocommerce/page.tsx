@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
-import { fetchWpUsers, pingWoocommerce, fetchWooProducts, fetchWooProducers, fetchWooCategories } from 'src/actions/woocommerce-ssr';
+import { fetchWpUsers, pingWoocommerce, fetchWooProducts, fetchWooProducers, fetchWooCategories, fetchWooOrders } from 'src/actions/woocommerce-ssr';
 
 import WoocommerceImportView from 'src/sections/dashboard/woocommerce/view/woocommerce-import-view';
 
@@ -23,6 +23,8 @@ export default async function Page() {
 
     const wpUsers = await fetchWpUsers();
 
+    const orders = await fetchWooOrders();
+
     return (
         <WoocommerceImportView 
             status={status} 
@@ -30,6 +32,7 @@ export default async function Page() {
             categories={categories} 
             producers={producers}
             wpUsers={wpUsers}
+            orders={orders}
         />
     );
 }

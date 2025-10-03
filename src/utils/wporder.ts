@@ -2,13 +2,19 @@ import type { IAddressItem } from 'src/types/common';
 import type { IPaymentMethod } from 'src/types/payment-method';
 import type { WPOrder } from 'src/types/woocommerce/orders/order';
 import type { WPOrderItem } from 'src/types/woocommerce/orders/orderItem';
-import type { IOrderData, IOrderItem, OrderStatus, PaymentStatus, ShippingMethod } from 'src/types/order-management';
+import type {
+    IOrderData,
+    IOrderItem,
+    OrderStatus,
+    PaymentStatus,
+    ShippingMethod,
+} from 'src/types/order-management';
 
 import { getUserByWooId } from 'src/actions/user-ssr';
 
 import { WPOrderStatus } from 'src/types/woocommerce/orders/orderstatus';
 import { WPOrderItemType } from 'src/types/woocommerce/orders/orderitemtype';
-import { WPPaymentMethod } from 'src/types/woocommerce/orders/paymentmethod';
+import { InvoiceData } from 'src/types/order';
 
 export async function wpOrderToSupabaseOrder(order: WPOrder): Promise<IOrderData> {
     const customer = await getUserByWooId(order.customer_id);
@@ -46,6 +52,9 @@ export async function wpOrderToSupabaseOrder(order: WPOrder): Promise<IOrderData
         shipment_time: getShipmentTime(order),
         wooUserId: order.customer_id,
         note: order.customer_note,
+        invoiceDataJson: order.meta_data._innvoice_szamla_url
+            ? getInvoiceDataJson(order)
+            : undefined,
     };
     return output;
 }
@@ -65,22 +74,23 @@ function getOrderNetValue(order: WPOrder): number {
 }
 
 function getShippingCost(order: WPOrder): number {
-    const shippingItem = order.line_items.find((item) => item.type === WPOrderItemType.shipping);
+    const shippingItem = order.line_items.find((item) => item.type === 'shipping');
+    
     if (shippingItem) {
-        const netShipping = parseFloat(shippingItem.meta._line_total?.toString() || '0');
-        const taxShipping = parseFloat(shippingItem.meta._line_tax?.toString() || '0');
+        const netShipping = parseFloat(shippingItem.meta.cost?.toString() || '0');
+        const taxShipping = parseFloat(shippingItem.meta.total_tax?.toString() || '0');
         return netShipping + taxShipping;
     }
     return 0;
 }
 
 function getPayedAmount(order: WPOrder): number {
-    if (order.status == WPOrderStatus.Completed) {
+    if (order.status == 'wc-completed') {
         return order.total_amount;
     }
 
-    if (order.payment_method == WPPaymentMethod.OTPSimplepay) {
-        return parseFloat(order.meta_data.approved?.toString() || '0');
+    if (order.payment_method == 'otp_simple') {
+        return parseFloat(order.meta_data.approved?.toString() ?? '0');
     }
 
     return 0;
@@ -88,29 +98,32 @@ function getPayedAmount(order: WPOrder): number {
 
 function getPaymentMethod(order: WPOrder): IPaymentMethod {
     const method: IPaymentMethod = {
-        slug: '',
-        name: '',
-        id: 0,
+        slug: 'utanvet',
+        name: 'Utánvét',
+        id: 1,
         type: 'cod',
         additionalCost: 0,
-        protected: false,
+        protected: true,
         enablePublic: true,
         enableVIP: true,
         enableCompany: true,
     };
 
     switch (order.payment_method) {
-        case WPPaymentMethod.OTPSimplepay:
+        case 'otp_simple':
+            method.id = 2;
             method.slug = 'simple';
             method.name = 'SimplePay fizetés';
             method.type = 'online';
             break;
-        case WPPaymentMethod.CHEQUQE:
+        case 'cheque':
+            method.id = 3;
             method.slug = 'utalas';
             method.name = 'Átutalás';
             method.type = 'wire';
             break;
         default:
+            method.id = 1;
             method.slug = 'utanvet';
             method.name = 'Utánvét';
             method.type = 'cod';
@@ -120,11 +133,13 @@ function getPaymentMethod(order: WPOrder): IPaymentMethod {
 }
 
 function getShippingMethod(order: WPOrder): ShippingMethod {
-    const method_id = order.line_items.find((item) => item.type === WPOrderItemType.shipping)?.meta.method_id;
+    const method_id = order.line_items.find((item) => item.type === WPOrderItemType.shipping)?.meta
+        .method_id;
     if (method_id) {
         const method: ShippingMethod = {
             id: 0,
-            name: method_id.toString() == 'pickup_location' ? 'Személyes átvétel' : 'Házhozszállítás',
+            name:
+                method_id.toString() == 'pickup_location' ? 'Személyes átvétel' : 'Házhozszállítás',
             cost: getShippingCost(order),
             description: '',
         };
@@ -142,19 +157,20 @@ function getShippingMethod(order: WPOrder): ShippingMethod {
 function getPaymentStatus(order: WPOrder): PaymentStatus {
     switch (order.status) {
         case WPOrderStatus.Pending:
-            return 'pending';
         case WPOrderStatus.NewOrder:
+        case WPOrderStatus.OnHold:
+            if (order.payment_method == 'otp_simple') {
+                return 'paid';
+            }
             return 'pending';
         case WPOrderStatus.Shipping:
         case WPOrderStatus.Processing:
-            if (order.payment_method == WPPaymentMethod.OTPSimplepay) {
-                return 'paid';
+            if (order.payment_method == 'otp_simple') {
+                return 'closed';
             }
             return 'pending';
         case WPOrderStatus.Completed:
             return 'closed';
-        case WPOrderStatus.OnHold:
-            return 'pending';
         case WPOrderStatus.Failed:
             return 'failed';
         case WPOrderStatus.Cancelled:
@@ -193,7 +209,7 @@ function getOrderStatus(order: WPOrder): OrderStatus {
 }
 
 function getSimplePayData(order: WPOrder): string {
-    if (order.payment_method == WPPaymentMethod.OTPSimplepay) {
+    if (order.payment_method == 'otp_simple') {
         const simpleData = {
             r: 0, //válasz kód
             t: order.meta_data.simple_id, // tranzakciós azonosító
@@ -210,12 +226,16 @@ function getSimplePayData(order: WPOrder): string {
 function getPlannedShippingDate(order: WPOrder): Date | null {
     const shipping = order.line_items.find((item) => item.type === WPOrderItemType.shipping);
     if (shipping) {
-        const dateStr = shipping.meta.pickup_time?.toString();
+        let dateStr = shipping.meta.pickup_time?.toString();
         if (dateStr) {
-            const date = new Date(dateStr);
-            if (!isNaN(date.getTime())) {
-                return date;
+            let date = new Date(dateStr);
+            if (dateStr.indexOf(' ') > 0) {
+                dateStr = dateStr.split(' ')[0].replaceAll('.', '-');
+                date = new Date(dateStr + 'T00:00:00Z');
+            } else {
+                date = new Date(dateStr.replaceAll('.', '-') + 'T00:00:00Z');
             }
+
             return date;
         }
     }
@@ -246,7 +266,8 @@ function getShippingAddress(order: WPOrder): IAddressItem {
         houseNumber: order.shipping.address_2 || '',
         doorbell: '',
         floor: '',
-        fullAddress: `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim(),
+        fullAddress:
+            `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim(),
         phone: order.shipping.phone || '',
         email: order.shipping.email || order.billing_email || '',
         note: '',
@@ -256,7 +277,7 @@ function getShippingAddress(order: WPOrder): IAddressItem {
 }
 
 function getBillingAddress(order: WPOrder): IAddressItem {
-const address: IAddressItem = {
+    const address: IAddressItem = {
         id: '0',
         company: order.shipping.company || '',
         name: `${order.shipping.last_name} ${order.shipping.first_name}`.trim(),
@@ -266,7 +287,8 @@ const address: IAddressItem = {
         houseNumber: order.shipping.address_2 || '',
         doorbell: '',
         floor: '',
-        fullAddress: `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim(),
+        fullAddress:
+            `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim(),
         phone: order.shipping.phone || '',
         email: order.shipping.email || order.billing_email || '',
         note: '',
@@ -279,17 +301,45 @@ const address: IAddressItem = {
 function getItems(order: WPOrder): IOrderItem[] {
     const items: IOrderItem[] = order.line_items
         .filter((item) => item.type === WPOrderItemType.line_item)
-        .map((item: WPOrderItem) => ({
-            id: item.id.toString(),
-            productId: item.meta._product_id ? parseInt(item.meta._product_id.toString()) : 0,
-            name: item.name,
-            quantity: item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1,
-            netPrice: parseFloat(item.meta._line_subtotal?.toString() || '0') - (item.meta._line_tax ? parseFloat(item.meta._line_tax.toString()) : 0) / (item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1),
-            grossPrice: parseFloat(item.meta._line_total?.toString() || '0') / (item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1),
-            subtotal: item.meta._line_total ? parseFloat(item.meta._line_total.toString()) : 0,
-            note: (item.meta.note ? item.meta.note.toString() : '') + ' ' + (item.meta.custom_note ? item.meta.custom_note.toString() : ''),
-            taxAmount: item.meta._line_tax ? parseFloat(item.meta._line_tax.toString()) : 0,
-            coverUrl: 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
-        }));
+        .map((item: WPOrderItem) => {
+            const qty = item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1;
+
+            const subtotal = item.meta._line_total
+                ? parseFloat(item.meta._line_total.toString())
+                : 0;
+
+            const taxTotal = item.meta._line_tax ? parseFloat(item.meta._line_tax.toString()) : 0;
+            const grossUnitPrice = (subtotal + taxTotal) / qty;
+
+            const netPrice = subtotal / qty;
+
+            const vatPercent = taxTotal > 0 ? Math.round(Number((taxTotal / subtotal) * 100)) : 0;
+
+            return {
+                id: item.meta._product_id?.toString() ?? item.id.toString(),
+                productId: item.meta._product_id ? parseInt(item.meta._product_id.toString()) : 0,
+                name: item.name,
+                quantity: item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1,
+                netPrice: netPrice,
+                grossPrice: grossUnitPrice,
+                subtotal: qty * grossUnitPrice,
+                note:
+                    (item.meta.note ? item.meta.note.toString() : '') +
+                    ' ' +
+                    (item.meta.custom_note ? item.meta.custom_note.toString() : ''),
+                vatPercent: vatPercent,
+                coverUrl:
+                    'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
+            };
+        });
     return items;
+}
+
+function getInvoiceDataJson(order: WPOrder): Partial<InvoiceData> {
+    return {
+        invoiceId: 0,
+        invoiceNumber:
+            order.meta_data._innvoice_szamla_sorszam?.toString() || 'Számla sorszám hiányzik',
+        downloadUrl: order.meta_data._innvoice_szamla_url?.toString() || '',
+    } as Partial<InvoiceData>;
 }

@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20,
-        borderBottom: '1pt solid #000',
+        marginBottom: 10,
+        //borderBottom: '1pt solid #000',
         paddingBottom: 10,
         alignItems: 'center',
         //alignContent: 'center',
@@ -43,10 +43,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: 'Roboto-Bold',
-        marginBottom: 8,
-        marginTop: 15,
+        marginBottom: 3,
+        marginTop: 5,
     },
     section: {
         margin: 10,
@@ -67,11 +67,11 @@ const styles = StyleSheet.create({
         paddingLeft: 8,
     },
     qty: {
-        width: '10%',
+        width: '20%',
         textAlign: 'center',
     },
     rate: {
-        width: '15%',
+        width: '10%',
         textAlign: 'right',
         paddingRight: 8,
     },
@@ -94,7 +94,9 @@ const styles = StyleSheet.create({
         borderBottomColor: '#bbb',
         borderBottomStyle: 'solid',
         alignItems: 'center',
-        minHeight: 24,
+        minHeight: 12,
+        
+        fontSize: 9,
         paddingVertical: 4,
     },
     infoSection: {
@@ -107,9 +109,11 @@ const styles = StyleSheet.create({
     infoLabel: {
         width: '30%',
         fontFamily: 'Roboto-Bold',
+        fontSize: 9,
     },
     infoValue: {
         width: '70%',
+        fontSize: 9,
     },
     footer: {
         position: 'absolute',
@@ -243,7 +247,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                     <Text style={styles.qty}>Eredeti menny.</Text>
                     <Text style={styles.qty}>Új menny.</Text>
                     <Text style={styles.rate}>Egységár</Text>
-                    <Text style={styles.rate}>Új egységár</Text>
+                    <Text style={styles.rate}>Új e.ár</Text>
                     <Text style={styles.amount}>Összesen</Text>
                 </View>
 
@@ -255,7 +259,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                         </View>
                         <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2) || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />
-                        <Text style={styles.rate}>{fCurrency(item.netPrice || 0)}</Text>
+                        <Text style={styles.rate}>{fCurrency(item.grossPrice || 0)}</Text>
                         <Text style={styles.rate} />
                         <Text style={styles.amount}>{fCurrency(item.subtotal || 0)}</Text>
                     </View>

@@ -13,9 +13,10 @@ type Props = {
     categories: any[];
     producers: any[];
     wpUsers: any[];
+    orders: any[];
 };
 
-export default function WooImportPage({ status, products, categories, producers, wpUsers }: Readonly<Props>) {
+export default function WooImportPage({ status, products, categories, producers, wpUsers, orders }: Readonly<Props>) {
     return (
         <DashboardContent>
             <CustomBreadcrumbs
@@ -34,6 +35,7 @@ export default function WooImportPage({ status, products, categories, producers,
                 wooProducers={producers} 
                 wooProducts={products}
                 wpUsers={wpUsers}
+                wooOrders={orders}
             />
 
         </DashboardContent>

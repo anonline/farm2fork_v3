@@ -7,6 +7,8 @@ import { supabase } from 'src/lib/supabase';
 import { insertCategory, updateCategory } from './category';
 import { insertProducer, updateProducer } from './producer';
 import { createProduct, updateProduct, updateProductCategoryRelations } from './product';
+import { getOrderById, insertOrder } from './order-management';
+import { wpOrderToSupabaseOrder } from 'src/utils/wporder';
 
 // Helper function to upload image from URL to Vercel Blob via API
 export async function uploadImageFromUrl(imageUrl: string, folder: 'category' | 'product' | 'assets' | 'news', filename: string) {
@@ -608,3 +610,89 @@ export async function syncProducts(
 
     return results;
 }
+
+// Synchronize WooCommerce orders with our database
+export async function syncOrders(
+    wooOrders: any[], 
+    onProgress?: SyncProgressCallback
+): Promise<{ success: number; errors: number; skipped: number; details: string[] }> {
+    const results = {
+        success: 0,
+        errors: 0,
+        skipped: 0,
+        details: [] as string[]
+    };
+
+    for (let i = 0; i < wooOrders.length; i++) {
+        const wooOrder = wooOrders[i];
+        const orderId = wooOrder.id?.toString();
+        
+        try {
+            onProgress?.(i + 1, wooOrders.length, `Order #${orderId || 'Unknown'}`);
+            
+            if (!orderId) {
+                results.errors++;
+                results.details.push(`Order missing ID, skipped`);
+                continue;
+            }
+
+            // Check if order already exists
+            const { order: existingOrder } = await getOrderById(orderId);
+            
+            if (existingOrder) {
+                results.skipped++;
+                results.details.push(`Order #${orderId} already exists, skipped`);
+                continue;
+            }
+
+            // Convert WP order to Supabase order format
+            const orderData = await wpOrderToSupabaseOrder(wooOrder);
+
+            const productIds = orderData.items?.map((item: any) => item.product_id).filter((id: number) => !!id) || [];
+            
+            if (productIds.length > 0) {
+                // Fetch product data for the line items
+                const products = await getProductsByIds(productIds);
+                const productMap = new Map<number, {id: number; url: string; featuredImage: string}>();
+                products?.forEach(prod => {
+                    if (prod.id) {
+                        productMap.set(prod.id, prod);
+                    }
+                });
+
+                orderData.items = orderData.items.map((item: any) => {
+                    const product = productMap.get(item.product_id);
+                    if (product) {
+                        item.coverUrl = product.featuredImage || '';
+                        item.slug = product.url || '';
+                    }
+
+                    return item;
+                });
+            }
+            
+            // Create the order
+            const { orderId: createdOrderId, error } = await insertOrder(orderData);
+            
+            if (error || !createdOrderId) {
+                results.errors++;
+                results.details.push(`Failed to create order #${orderId}: ${error}`);
+            } else {
+                results.success++;
+                results.details.push(`Created order #${orderId}`);
+            }
+        } catch (error) {
+            console.error(`Error syncing order #${orderId}:`, error);
+            results.errors++;
+            results.details.push(`Error syncing order #${orderId}: ${error}`);
+        }
+    }
+
+    return results;
+}
+
+async function getProductsByIds(productIds: number[]) : Promise<{id: number; url: string; featuredImage: string}[] | null> {
+    const {data:productsData} = await supabase.from('Products').select('id, url, featuredImage').in('id', productIds);
+    return productsData as {id: number; url: string; featuredImage: string}[] | null;
+}
+

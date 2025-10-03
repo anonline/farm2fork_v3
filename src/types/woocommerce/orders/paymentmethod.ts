@@ -8,7 +8,7 @@ export enum WPPaymentMethod {
     /** Utánvét */
     COD = 'cod',   //utánvétes fizetés
     /** OTP SimplePay */
-    OTPSimplepay = 'otp_simplepay',   //frissebb rendeléseknél ez van
+    OTPSimplepay = 'otp_simple',   //frissebb rendeléseknél ez van
     /** Egyéb */
     Other = 'other'
 }

@@ -71,7 +71,7 @@ export async function fetchWpUsers() {
     const cookieStore = await cookies();
     const client = await supabaseSSR(cookieStore);
     
-    const { data, error } = await client.from('wp_users').select('*').eq('closed', false);
+    const { data, error } = await client.from('wp_users').select('*');
     
     if (error) {
         console.error('Error fetching wp_users:', error);
@@ -80,4 +80,59 @@ export async function fetchWpUsers() {
     
     log(`Fetched ${data?.length || 0} wp_users (${data?.filter(u => u.closed).length || 0} inited, ${data?.filter(u => !u.closed).length || 0} need init)`);
     return data || [];
+}
+
+export async function fetchWooOrders() {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    
+    try {
+
+        const ordersDir = path.join(process.cwd(), 'public/orders');
+        console.log('Orders directory path:', ordersDir);
+        // Check if orders directory exists
+        try {
+            await fs.access(ordersDir);
+        } catch {
+            log('Orders directory does not exist');
+            return [];
+        }
+        
+        // Read all files from orders directory
+        const files = await fs.readdir(ordersDir);
+        
+        // Filter only .json files and extract order IDs
+        const orderFiles = files
+            .filter(file => file.endsWith('.json'))
+            .map(file => {
+                const orderId = parseInt(file.replace('.json', ''), 10);
+                return { file, orderId };
+            })
+            .filter(item => !isNaN(item.orderId))
+            .sort((a, b) => b.orderId - a.orderId); // Sort in descending order
+        
+        // Read all order files
+        const orders = await Promise.all(
+            orderFiles.map(async ({ file, orderId }) => {
+                try {
+                    const filePath = path.join(ordersDir, file);
+                    const content = await fs.readFile(filePath, 'utf-8');
+                    const orderData = JSON.parse(content);
+                    return orderData;
+                } catch (error) {
+                    console.error(`Error reading order file ${file}:`, error);
+                    return null;
+                }
+            })
+        );
+        
+        // Filter out null values (failed reads)
+        const validOrders = orders.filter(order => order !== null);
+        
+        log(`Fetched ${validOrders.length} orders from /orders directory`);
+        return validOrders;
+    } catch (error) {
+        console.error('Error fetching woo orders:', error);
+        return [];
+    }
 }

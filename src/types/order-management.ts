@@ -80,7 +80,7 @@ export type IOrderData = {
     courier: string | null;
     plannedShippingDateTime: Date | null;
     simplepayDataJson: string | null;
-    invoiceDataJson?: InvoiceData;
+    invoiceDataJson?: Partial<InvoiceData>;
     history: OrderHistoryEntry[];
     shipmentId: number | null;
     shipment_time?: string;
@@ -89,6 +89,7 @@ export type IOrderData = {
 };
 
 export type ICreateOrderData = {
+    id?: string; // Optional, can be generated if not provided
     customerId: string | null;
     customerName: string;
     billingEmails: string[];
@@ -108,5 +109,5 @@ export type ICreateOrderData = {
     shippingMethod: ShippingMethod | null;
     paymentMethod: IPaymentMethod | null;
     paymentDueDays: number;
-    plannedShippingDateTime: string | null;
+    plannedShippingDateTime: Date | string | null;
 };
