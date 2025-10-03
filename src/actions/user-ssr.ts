@@ -13,8 +13,8 @@ export async function getUsers() {
     const cookieStore = await cookies();
     const client = await supabaseAdmin(cookieStore);
 
-    const response = await client.listUsers();
-
+    const response = await client.listUsers({ page: 1, perPage: 10000 });
+    
     if (response.error) throw response.error.message;
 
     const users = response.data.users.map((user) => ({
