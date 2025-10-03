@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
-import { fetchWpUsers, pingWoocommerce, fetchWooProducts, fetchWooProducers, fetchWooCategories, fetchWooOrders } from 'src/actions/woocommerce-ssr';
+import { fetchWpUsers, fetchWooOrders, pingWoocommerce, fetchWooProducts, fetchWooProducers, fetchWooCategories } from 'src/actions/woocommerce-ssr';
 
 import WoocommerceImportView from 'src/sections/dashboard/woocommerce/view/woocommerce-import-view';
 

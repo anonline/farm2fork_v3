@@ -5,10 +5,10 @@ import type {
     OrderHistoryEntry,
 } from 'src/types/order-management';
 
+import { fDate } from 'src/utils/format-time';
 import { finishTransaction } from 'src/utils/simplepay';
 
 import { supabase } from 'src/lib/supabase';
-import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 

@@ -1,3 +1,4 @@
+import type { InvoiceData } from 'src/types/order';
 import type { IAddressItem } from 'src/types/common';
 import type { IPaymentMethod } from 'src/types/payment-method';
 import type { WPOrder } from 'src/types/woocommerce/orders/order';
@@ -14,7 +15,6 @@ import { getUserByWooId } from 'src/actions/user-ssr';
 
 import { WPOrderStatus } from 'src/types/woocommerce/orders/orderstatus';
 import { WPOrderItemType } from 'src/types/woocommerce/orders/orderitemtype';
-import { InvoiceData } from 'src/types/order';
 
 export async function wpOrderToSupabaseOrder(order: WPOrder): Promise<IOrderData> {
     const customer = await getUserByWooId(order.customer_id);
@@ -320,14 +320,14 @@ function getItems(order: WPOrder): IOrderItem[] {
                 productId: item.meta._product_id ? parseInt(item.meta._product_id.toString()) : 0,
                 name: item.name,
                 quantity: item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1,
-                netPrice: netPrice,
+                netPrice,
                 grossPrice: grossUnitPrice,
                 subtotal: qty * grossUnitPrice,
                 note:
                     (item.meta.note ? item.meta.note.toString() : '') +
                     ' ' +
                     (item.meta.custom_note ? item.meta.custom_note.toString() : ''),
-                vatPercent: vatPercent,
+                vatPercent,
                 coverUrl:
                     'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
             };
