@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
+import { initWpUsers } from 'src/auth/context/supabase/action';
 import { syncProducts, syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
 
 import { Iconify } from 'src/components/iconify';
@@ -47,14 +48,30 @@ type Props = {
     wooCategories: any[];
     wooProducers: any[];
     wooProducts: any[];
+    wpUsers: any[];
 };
 
-export default function WooCommerceImportStepper({ wooCategories, wooProducers, wooProducts }: Props) {
+export default function WooCommerceImportStepper({ wooCategories, wooProducers, wooProducts, wpUsers }: Readonly<Props>) {
     const [activeStep, setActiveStep] = useState(0);
     const [isImporting, setIsImporting] = useState(false);
     const [importStarted, setImportStarted] = useState(false);
 
+    const wpUsersNeedInit = wpUsers?.filter(u => !u.closed) || [];
+    const wpUsersInited = wpUsers?.filter(u => u.closed) || [];
+
     const [steps, setSteps] = useState<ImportStep[]>([
+        {
+            id: 'users',
+            label: 'Felhasználók inicializálása',
+            description: `WordPress felhasználók migrálása a rendszerbe (${wpUsersNeedInit.length} inicializálandó, ${wpUsersInited.length} már inicializált)`,
+            icon: 'solar:user-check-bold',
+            status: 'pending',
+            progress: 0,
+            processedCount: 0,
+            totalCount: wpUsersNeedInit.length,
+            details: 'Várakozás az importálás indítására...',
+            enabled: true
+        },
         {
             id: 'categories',
             label: 'Termék kategóriák importálása',
@@ -143,7 +160,59 @@ export default function WooCommerceImportStepper({ wooCategories, wooProducers, 
             return;
         }
 
-        if (step.id === 'categories') {
+        if (step.id === 'users') {
+            // Real user initialization
+            try {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    newSteps[stepIndex].status = 'running';
+                    newSteps[stepIndex].details = 'Felhasználók inicializálása megkezdve...';
+                    return newSteps;
+                });
+
+                const result = await initWpUsers((processed, total, currentItem) => {
+                    setSteps(prevSteps => {
+                        const newSteps = [...prevSteps];
+                        const currentStep = newSteps[stepIndex];
+                        currentStep.processedCount = processed;
+                        currentStep.progress = (processed / total) * 100;
+                        currentStep.details = `${currentItem} feldolgozása...`;
+                        return newSteps;
+                    });
+                });
+
+                // Update final status
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'completed';
+                    currentStep.progress = 100;
+                    currentStep.details = `Befejezve! ${result.success} sikeres, ${result.errors} hiba.`;
+                    return newSteps;
+                });
+
+                // Move to next step after a short delay
+                setTimeout(() => {
+                    const nextStep = getNextEnabledStep(stepIndex);
+                    if (nextStep !== -1) {
+                        setActiveStep(nextStep);
+                        processStep(nextStep);
+                    } else {
+                        setIsImporting(false);
+                    }
+                }, 1000);
+
+            } catch (error) {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const currentStep = newSteps[stepIndex];
+                    currentStep.status = 'error';
+                    currentStep.details = `Hiba történt: ${error}`;
+                    return newSteps;
+                });
+                setIsImporting(false);
+            }
+        } else if (step.id === 'categories') {
             // Real category synchronization
             try {
                 setSteps(prevSteps => {

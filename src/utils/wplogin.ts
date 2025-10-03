@@ -69,3 +69,4 @@ function encode64(input: Buffer, count: number, itoa64: string): string {
 
     return output;
 }
+

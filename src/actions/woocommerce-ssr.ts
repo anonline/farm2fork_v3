@@ -63,3 +63,21 @@ export async function fetchWooProducers() {
     log(`Fetched ${response.data.length} producers`);
     return response.data;
 }
+
+export async function fetchWpUsers() {
+    const { cookies } = await import('next/headers');
+    const { supabaseSSR } = await import('src/lib/supabase-ssr');
+    
+    const cookieStore = await cookies();
+    const client = await supabaseSSR(cookieStore);
+    
+    const { data, error } = await client.from('wp_users').select('*').eq('closed', false);
+    
+    if (error) {
+        console.error('Error fetching wp_users:', error);
+        return [];
+    }
+    
+    log(`Fetched ${data?.length || 0} wp_users (${data?.filter(u => u.closed).length || 0} inited, ${data?.filter(u => !u.closed).length || 0} need init)`);
+    return data || [];
+}

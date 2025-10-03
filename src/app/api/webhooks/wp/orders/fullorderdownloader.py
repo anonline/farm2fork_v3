@@ -23,7 +23,7 @@ from datetime import datetime
 # Configuration
 BASE_URL = "https://farm2fork.hu/1002.php"
 PER_PAGE = 100
-INIT_BATCH = 130
+INIT_BATCH = 251
 OUTPUT_DIR = "./orders"
 REQUEST_TIMEOUT = 30  # seconds
 DELAY_BETWEEN_BATCHES = 2  # seconds

@@ -91,7 +91,7 @@ export function SupabaseSignInView() {
             console.error(error);
             setErrorMessage('Adatok ellenőrzése folyamatban...');
             const wpLogin = await signInWithWordpress({ email: data.email, password: data.password });
-            console.error(wpLogin);
+            
             if(wpLogin) {
                 setErrorMessage('');
                 await checkUserSession?.();

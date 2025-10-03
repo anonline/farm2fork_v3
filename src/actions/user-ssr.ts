@@ -104,6 +104,14 @@ export async function getUserAdmin(id: string) {
     return response.data.user;
 }
 
+export async function getUserByWooId(wooId: number) {
+    const cookieStore = await cookies();
+    const client = await supabaseSSR(cookieStore);
+    const { data, error } = await client.from('wp_users').select('uid').eq('id', wooId).single();
+    if (error) throw error.message;
+    return await getUserAdmin(data.uid);
+}
+
 export async function getUsersRoles() {
     const cookieStore = await cookies();
     const client = await supabaseSSR(cookieStore);
@@ -146,7 +154,7 @@ export async function updateUserSSR(
     return data.user.id;
 }
 
-export async function createUserSSR(userItem: { email: string; password: string; roles: IRole }) {
+export async function createUserSSR(userItem: { email: string; password: string; roles: Partial<IRole>; firstname?: string; lastname?: string }) {
     const cookieStore = await cookies();
     const adminClient = await supabaseAdmin(cookieStore);
     const ssrClient = await supabaseSSR(cookieStore);
@@ -155,7 +163,13 @@ export async function createUserSSR(userItem: { email: string; password: string;
         email: userItem.email,
         password: userItem.password,
         email_confirm: true,
+        user_metadata: {
+            display_name: `${userItem.lastname || ''} ${userItem.firstname || ''}`.trim(),
+            firstname: userItem.firstname || '',
+            lastname: userItem.lastname || '',
+        },
     });
+
     if (error) throw error.message;
 
     const { error: roleError } = await ssrClient.from('roles').insert({

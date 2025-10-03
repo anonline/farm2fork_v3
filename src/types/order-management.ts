@@ -84,6 +84,8 @@ export type IOrderData = {
     history: OrderHistoryEntry[];
     shipmentId: number | null;
     shipment_time?: string;
+    history_for_user?: string;
+    wooUserId?: number;
 };
 
 export type ICreateOrderData = {

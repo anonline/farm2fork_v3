@@ -26,6 +26,7 @@ export type IAddressItem = {
     note?: string;
     taxNumber?: string;
     email?: string;
+    phone?: string;
 };
 
 export type IDateValue = string | number | null;
