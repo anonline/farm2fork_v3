@@ -130,15 +130,80 @@ export async function getAllOrdersSSR(params?: {
         }
 
         // Apply pagination
-        if (params?.page && params?.limit) {
+        // Note: Supabase has a default limit of ~1000 rows. To fetch more, we need to handle it specially.
+        let data: any[] = [];
+        let count = 0;
+        let error = null;
+
+        if (params?.page && params?.limit && params.limit < 10000) {
+            // Normal pagination for reasonable page sizes
             const from = (params.page - 1) * params.limit;
             const to = from + params.limit - 1;
             query = query.range(from, to);
+            console.log(`Fetching orders (SSR) - Page: ${params.page}, Limit: ${params.limit}, From: ${from}, To: ${to}`);
+            
+            const result = await query;
+            data = result.data || [];
+            count = result.count || 0;
+            error = result.error;
+        } else if (params?.limit && params.limit >= 10000) {
+            // For very large limits, fetch all records in batches
+            console.log(`Fetching ALL orders in batches (requested limit: ${params.limit})`);
+            const batchSize = 1000;
+            let currentPage = 0;
+            let hasMore = true;
+            
+            while (hasMore) {
+                const from = currentPage * batchSize;
+                const to = from + batchSize - 1;
+                
+                const batchQuery = supabase
+                    .from('orders')
+                    .select('*', { count: currentPage === 0 ? 'exact' : undefined })
+                    .order('date_created', { ascending: false });
+                
+                // Apply same filters
+                if (params?.status && params.status !== 'all') {
+                    batchQuery.eq('order_status', params.status);
+                }
+                if (params?.customerId) {
+                    batchQuery.eq('customer_id', params.customerId);
+                }
+                
+                batchQuery.range(from, to);
+                
+                const result = await batchQuery;
+                
+                if (result.error) {
+                    error = result.error;
+                    break;
+                }
+                
+                if (currentPage === 0) {
+                    count = result.count || 0;
+                    console.log(`Total orders available: ${count}`);
+                }
+                
+                if (result.data && result.data.length > 0) {
+                    data = [...data, ...result.data];
+                    console.log(`Fetched batch ${currentPage + 1}: ${result.data.length} orders (total so far: ${data.length})`);
+                    hasMore = result.data.length === batchSize;
+                    currentPage++;
+                } else {
+                    hasMore = false;
+                }
+            }
+            
+            console.log(`Finished fetching all orders: ${data.length} total`);
+        } else {
+            // No pagination, fetch with default limit
+            const result = await query;
+            data = result.data || [];
+            count = result.count || 0;
+            error = result.error;
         }
 
-        const { data, count, error } = await query;
-
-        if (error) {
+        if (error) { 
             console.error('Error fetching orders (SSR):', error);
             return { orders: [], total: 0, error: error.message };
         }

@@ -21,11 +21,27 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
 
+type OverviewAppViewProps = {
+    totalUsers: number;
+    totalProcessingOrders: number;
+    usersByMonthAtLastYear: number[];
+    newUsersPercent: number;
+    processingOrdersByMonthAtLastYear: {
+        categories: string[],
+        series: number[],
+    };
+
+    processingOrdersPercent: number;
+};
+
 export function OverviewAppView({
     totalUsers,
     usersByMonthAtLastYear,
     newUsersPercent,
-}: Readonly<{ totalUsers: number; usersByMonthAtLastYear: number[]; newUsersPercent: number }>) {
+    totalProcessingOrders,
+    processingOrdersByMonthAtLastYear,
+    processingOrdersPercent
+}: Readonly<OverviewAppViewProps>) {
     const theme = useTheme();
 
     return (
@@ -63,13 +79,14 @@ export function OverviewAppView({
                 <Grid size={{ xs: 12, md: 4 }}>
                     <AppWidgetSummary
                         title="Folyamatban lévő rendelések"
-                        percent={0.2}
-                        total={4876}
-                        chart={{
+                        percent={processingOrdersPercent}
+                        total={totalProcessingOrders}
+                        /*chart={{
                             colors: [theme.palette.info.main],
                             categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
                             series: [20, 41, 63, 33, 28, 35, 50, 46],
-                        }}
+                        }}*/
+                        chart={processingOrdersByMonthAtLastYear}
                     />
                 </Grid>
 
@@ -84,7 +101,7 @@ export function OverviewAppView({
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                     <AppCurrentDownload
                         title="Folyamatban lévő rendelések"
-                        subheader="Szállítási adatai"
+                        subheader="Szállítási eloszlása"
                         chart={{
                             series: [
                                 { label: 'Házhozszállítás', value: 12244 },

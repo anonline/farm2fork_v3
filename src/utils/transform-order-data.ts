@@ -1,4 +1,4 @@
-import type { IOrderItem } from 'src/types/order';
+import type { InvoiceData, IOrderItem } from 'src/types/order';
 import type { IAddress } from 'src/types/address';
 import type { IOrderData } from 'src/types/order-management';
 
@@ -140,7 +140,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         },
         shipmentId: orderData.shipmentId || null,
         shipment_time: orderData.shipment_time,
-        invoiceData: orderData.invoiceDataJson,
+        invoiceData: orderData.invoiceDataJson ? orderData.invoiceDataJson as unknown as InvoiceData : undefined,
     };
 }
 
