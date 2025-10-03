@@ -26,10 +26,11 @@ import {
 } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
-import { initWpUsers } from 'src/auth/context/supabase/action';
 import { syncProducts, syncProducers, syncCategories } from 'src/actions/woocommerce-sync';
 
 import { Iconify } from 'src/components/iconify';
+
+import { initWpUsers } from 'src/auth/context/supabase/action';
 
 type ImportStep = {
     id: string;

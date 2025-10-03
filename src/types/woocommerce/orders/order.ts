@@ -1,8 +1,8 @@
-import { WPOrderAddress } from "./orderaddress";
-import { WPOrderItem } from "./orderItem";
-import { WPOrderMeta } from "./ordermeta";
-import { WPOrderStatus } from "./orderstatus";
-import { WPPaymentMethod } from "./paymentmethod";
+import type { WPOrderItem } from "./orderItem";
+import type { WPOrderMeta } from "./ordermeta";
+import type { WPOrderStatus } from "./orderstatus";
+import type { WPOrderAddress } from "./orderaddress";
+import type { WPPaymentMethod } from "./paymentmethod";
 
 export interface WPOrder {
     id: number;

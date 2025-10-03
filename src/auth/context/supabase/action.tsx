@@ -1,6 +1,5 @@
 'use client';
 
-import type { WPTransferUser } from 'src/types/woocommerce/user';
 import type { ICustomerData, IBillingAddress, IDeliveryAddress } from 'src/types/customer';
 import type {
     AuthError,
@@ -17,7 +16,7 @@ import wpHashPassword from 'src/utils/wplogin';
 import { removeSupabaseAuthCookies } from 'src/utils/cookie-utils';
 
 import { supabase } from 'src/lib/supabase';
-import { createUserRolesSSR, createCustomerDataSSR, getUserByEmailAdmin, setUserPassword, createUserSSR } from 'src/actions/user-ssr';
+import { createUserSSR, setUserPassword, createCustomerDataSSR } from 'src/actions/user-ssr';
 
 // ----------------------------------------------------------------------
 

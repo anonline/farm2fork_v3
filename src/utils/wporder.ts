@@ -1,11 +1,13 @@
+import type { IAddressItem } from 'src/types/common';
+import type { IPaymentMethod } from 'src/types/payment-method';
+import type { WPOrder } from 'src/types/woocommerce/orders/order';
+import type { WPOrderItem } from 'src/types/woocommerce/orders/orderItem';
+import type { IOrderData, IOrderItem, OrderStatus, PaymentStatus, ShippingMethod } from 'src/types/order-management';
+
 import { getUserByWooId } from 'src/actions/user-ssr';
-import { IAddressItem } from 'src/types/common';
-import { IOrderData, IOrderItem, OrderStatus, PaymentStatus, ShippingMethod } from 'src/types/order-management';
-import { IPaymentMethod } from 'src/types/payment-method';
-import { WPOrder } from 'src/types/woocommerce/orders/order';
-import { WPOrderItem } from 'src/types/woocommerce/orders/orderItem';
-import { WPOrderItemType } from 'src/types/woocommerce/orders/orderitemtype';
+
 import { WPOrderStatus } from 'src/types/woocommerce/orders/orderstatus';
+import { WPOrderItemType } from 'src/types/woocommerce/orders/orderitemtype';
 import { WPPaymentMethod } from 'src/types/woocommerce/orders/paymentmethod';
 
 export async function wpOrderToSupabaseOrder(order: WPOrder): Promise<IOrderData> {
@@ -85,7 +87,7 @@ function getPayedAmount(order: WPOrder): number {
 }
 
 function getPaymentMethod(order: WPOrder): IPaymentMethod {
-    let method: IPaymentMethod = {
+    const method: IPaymentMethod = {
         slug: '',
         name: '',
         id: 0,
@@ -120,7 +122,7 @@ function getPaymentMethod(order: WPOrder): IPaymentMethod {
 function getShippingMethod(order: WPOrder): ShippingMethod {
     const method_id = order.line_items.find((item) => item.type === WPOrderItemType.shipping)?.meta.method_id;
     if (method_id) {
-        let method: ShippingMethod = {
+        const method: ShippingMethod = {
             id: 0,
             name: method_id.toString() == 'pickup_location' ? 'Személyes átvétel' : 'Házhozszállítás',
             cost: getShippingCost(order),
@@ -128,7 +130,7 @@ function getShippingMethod(order: WPOrder): ShippingMethod {
         };
         return method;
     }
-    let method: ShippingMethod = {
+    const method: ShippingMethod = {
         id: 0,
         name: 'Nincs kiszállítás',
         cost: 0,

@@ -1,5 +1,5 @@
-import { WPOrderItemMeta } from "./orderitemmeta";
-import { WPOrderItemType } from "./orderitemtype";
+import type { WPOrderItemMeta } from "./orderitemmeta";
+import type { WPOrderItemType } from "./orderitemtype";
 
 export interface WPOrderItem {
     id: number;
