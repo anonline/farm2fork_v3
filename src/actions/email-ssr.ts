@@ -429,7 +429,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
             <tr style="border-top: 1px solid #ddd;">
                 <td>${item.name}${item.note ? `<br/><span style="font-size: 0.8rem; color: #888;">${item.note}</span>` : ''}</td>
                 <td style="text-align: center;border-left: 1px solid #ddd;border-right: 1px solid #ddd;">${item.quantity} ${item.unit || 'db'}</td>
-                <td style="text-align: right;">${formatNumber(item.subtotal)} Ft</td>
+                <td style="text-align: right;">${formatNumber(item.subtotal, 0)} Ft</td>
             </tr>
         `;
     }
@@ -437,20 +437,20 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
     orderDetailsTableHTML += `
         <tr style="border-top: 2px solid #ddd;">
             <td colspan="2">Részösszeg:</td>
-            <td style="text-align: right;">${formatNumber(grossSubtotal)} Ft</td>
+            <td style="text-align: right;">${formatNumber(grossSubtotal, 0)} Ft</td>
         </tr>
         <tr style="border-top: 1px solid #ddd;">
             <td>Szállítás:</td>
             <td style="text-align: center;border-left: 1px solid #ddd;border-right: 1px solid #ddd;">${orderData.shippingMethod?.name}</td>
-            <td style="text-align: right;">${formatNumber(orderData.shippingCost)} Ft</td>
+            <td style="text-align: right;">${formatNumber(orderData.shippingCost, 0)} Ft</td>
         </tr>
         <tr style="border-top: 1px solid #ddd;">
             <td colspan="2">ÁFA:</td>
-            <td style="text-align: right;">${formatNumber(Math.round(orderData.vatTotal))} Ft</td>
+            <td style="text-align: right;">${formatNumber(Math.round(orderData.vatTotal), 0)} Ft</td>
         </tr>
         <tr style="font-weight: 600; border-top: 1px solid #ddd;">
             <td colspan="2">Végösszeg:</td>
-            <td style="text-align: right;">${formatNumber(grossSubtotal + orderData.shippingCost)} Ft</td>
+            <td style="text-align: right;">${formatNumber(grossSubtotal + orderData.shippingCost, 0)} Ft</td>
         </tr>
 
         <tr>
@@ -500,5 +500,10 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
     return body.replaceAll('{{order_details_table}}', orderDetailsTableHTML);
 }
 
-const formatNumber = (num: string | number) =>
-    String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
+const formatNumber = (num: string | number, decimals = -1) =>{
+    let numValue = Number(num);
+    if(isNaN(numValue)) numValue = 0;
+    let stringValue = numValue.toFixed( decimals < 0 ? (Number.isInteger(numValue) ? 0 : 2) : decimals );
+
+    return stringValue.replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
+}

@@ -188,7 +188,11 @@ export function OrderDetailsShipping({
 
                 // Add to history_for_user if the field exists
                 if (currentOrder.history_for_user !== undefined) {
-                    updateData.history_for_user = [...(currentOrder.history_for_user || []), historyEntry];
+                    const userMessage = historyEntry.note;
+                    const currentHistory = currentOrder.history_for_user || '';
+                    updateData.history_for_user = currentHistory 
+                        ? `${currentHistory}\n${userMessage}` 
+                        : userMessage;
                 }
 
                 const { error } = await supabase
@@ -270,7 +274,11 @@ export function OrderDetailsShipping({
 
                 // Add to history_for_user if the field exists
                 if (currentOrder.history_for_user !== undefined) {
-                    updateData.history_for_user = [...(currentOrder.history_for_user || []), historyEntry];
+                    const userMessage = historyEntry.note;
+                    const currentHistory = currentOrder.history_for_user || '';
+                    updateData.history_for_user = currentHistory 
+                        ? `${currentHistory}\n${userMessage}` 
+                        : userMessage;
                 }
 
                 const { error } = await supabase

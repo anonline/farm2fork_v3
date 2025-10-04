@@ -585,7 +585,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 if (originalItem.quantity !== editedItem.quantity) {
                     const oldQuantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 2);
                     const newQuantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 2);
-                    historyEntries.push(`Módosított tétel: ${oldQuantityStr}${editedItem.unit} -> ${newQuantityStr}${editedItem.unit} ${editedItem.name}`);
+                    historyEntries.push(`Módosított tétel: ${oldQuantityStr} ${editedItem.unit} -> ${newQuantityStr} ${editedItem.unit} ${editedItem.name}`);
                 }
 
                 // Check price change (use appropriate price based on user type)
