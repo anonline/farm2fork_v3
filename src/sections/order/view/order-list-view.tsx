@@ -1,5 +1,7 @@
 'use client';
 
+import type { IShipment } from 'src/types/shipments';
+import type { IProductItem } from 'src/types/product';
 import type { TableHeadCellProps } from 'src/components/table';
 import type { IOrderItem, IOrderTableFilters } from 'src/types/order';
 
@@ -23,11 +25,13 @@ import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
+import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
 import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { fetchGetProductsByIds } from 'src/actions/product';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { deleteOrder, deleteOrders } from 'src/actions/order-management';
@@ -56,6 +60,24 @@ import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
+
+type ShipmentItemSummary = {
+    id: string;
+    name: string;
+    size?: string;
+    unit?: string;
+    totalQuantity: number;
+    averagePrice: number;
+    totalValue: number;
+    orderCount: number;
+    customersCount: number;
+    customers: string[];
+    productId?: string;
+    isBio?: boolean;
+    isBundleItem?: boolean;
+    parentQuantity?: number;
+    individualQuantity?: number;
+};
 
 const ROLE_OPTIONS = [
     { value: 'public', label: 'Publikus' },
@@ -287,6 +309,169 @@ export function OrderListView() {
         }
     }, [dataFiltered, table.selected, ordersLoading]);
 
+    const handleExportSummaryPDF = useCallback(async () => {
+        try {
+            setPdfGenerating(true);
+            
+            // Get selected orders
+            const selectedOrders = dataFiltered.filter((order) => table.selected.includes(order.id));
+            
+            if (selectedOrders.length === 0) {
+                toast.error('Nincsenek kiválasztott rendelések');
+                return;
+            }
+
+            // Check if orders are still loading
+            if (ordersLoading) {
+                toast.error('Rendelések betöltése folyamatban, kérjük várjon...');
+                return;
+            }
+
+            // Notify user about the process
+            toast.info(`${selectedOrders.length} rendelés összesítésének generálása...`);
+
+            // Get unique product IDs from all order items
+            const productIds = Array.from(new Set(
+                selectedOrders.flatMap(order => order.items.map(item => item.id).filter(Boolean))
+            ));
+
+            // Fetch product data
+            let products: IProductItem[] = [];
+            if (productIds.length > 0) {
+                const productsResult = await fetchGetProductsByIds(productIds);
+                if (productsResult.error) {
+                    console.warn('Failed to fetch products:', productsResult.error);
+                } else {
+                    products = productsResult.products;
+                }
+            }
+
+            // Generate items summary by aggregating all order items
+            const itemsMap = new Map<string, {
+                totalQuantity: number;
+                prices: number[];
+                customers: Set<string>;
+                orderIds: Set<string>;
+                item: any;
+                productData?: IProductItem;
+            }>();
+
+            selectedOrders.forEach((order) => {
+                order.items.forEach((item) => {
+                    const key = `${item.name || 'Unknown'}-${item.unit || ''}`;
+                    
+                    if (!itemsMap.has(key)) {
+                        const productData = products.find(p => p.id.toString() === item.id.toString());
+                        itemsMap.set(key, {
+                            totalQuantity: 0,
+                            prices: [],
+                            customers: new Set(),
+                            orderIds: new Set(),
+                            item,
+                            productData,
+                        });
+                    }
+
+                    const summary = itemsMap.get(key)!;
+                    summary.totalQuantity += item.quantity;
+                    summary.prices.push(item.grossPrice || 0);
+                    summary.customers.add(order.customer.name);
+                    summary.orderIds.add(order.id);
+                });
+            });
+
+            // Convert map to summary array - first collect parent items with their bundle items
+            const parentItemsWithBundles: Array<{
+                parent: ShipmentItemSummary;
+                bundleItems: ShipmentItemSummary[];
+            }> = [];
+
+            itemsMap.forEach((data, key) => {
+                const averagePrice = data.prices.reduce((sum, price) => sum + price, 0) / data.prices.length;
+                const baseItem: ShipmentItemSummary = {
+                    id: key,
+                    name: data.item.name || 'Unknown',
+                    unit: data.item.unit || 'db',
+                    totalQuantity: data.totalQuantity,
+                    averagePrice,
+                    totalValue: data.totalQuantity * averagePrice,
+                    orderCount: data.orderIds.size,
+                    customersCount: data.customers.size,
+                    customers: Array.from(data.customers),
+                    productId: data.item.id,
+                    isBio: data.productData?.bio || false,
+                };
+
+                const bundleItems: ShipmentItemSummary[] = [];
+                
+                // If it's a bundle product, collect its bundle items
+                if (data.productData?.type === 'bundle' && data.productData?.bundleItems && data.productData.bundleItems.length > 0) {
+                    data.productData.bundleItems.forEach((bundleItem) => {
+                        const totalBundleQuantity = bundleItem.qty * data.totalQuantity;
+                        bundleItems.push({
+                            id: `${key}-bundle-${bundleItem.productId}`,
+                            name: bundleItem.product?.name || 'Unknown',
+                            unit: bundleItem.product?.unit || 'db',
+                            totalQuantity: totalBundleQuantity,
+                            averagePrice: 0,
+                            totalValue: 0,
+                            orderCount: data.orderIds.size,
+                            customersCount: data.customers.size,
+                            customers: Array.from(data.customers),
+                            productId: bundleItem.productId,
+                            isBio: bundleItem.product?.bio || false,
+                            isBundleItem: true,
+                            parentQuantity: data.totalQuantity,
+                            individualQuantity: bundleItem.qty,
+                        });
+                    });
+                }
+
+                parentItemsWithBundles.push({ parent: baseItem, bundleItems });
+            });
+
+            // Sort parent items by total value
+            parentItemsWithBundles.sort((a, b) => b.parent.totalValue - a.parent.totalValue);
+
+            // Flatten the array: parent followed by its bundle items
+            const itemsSummary: ShipmentItemSummary[] = [];
+            parentItemsWithBundles.forEach(({ parent, bundleItems }) => {
+                itemsSummary.push(parent);
+                itemsSummary.push(...bundleItems);
+            });
+
+            // Create a mock shipment object
+            const orderNumbers = selectedOrders
+                .map(order => order.orderNumber)
+                .filter(Boolean)
+                .join(', ');
+
+            const mockShipment: IShipment = {
+                id: 0,
+                date: orderNumbers || 'Rendelések összesítője',
+                orderCount: selectedOrders.length,
+                productCount: itemsSummary.filter(item => !item.isBundleItem).length,
+                productAmount: selectedOrders.reduce((sum, order) => sum + order.totalAmount, 0),
+                updatedAt: new Date(),
+            };
+
+            const summarizedData = {
+                shipment: mockShipment,
+                itemsSummary,
+            };
+
+            await generateMultiShipmentPDF([summarizedData]);
+            toast.success(`${selectedOrders.length} rendelés összesítése sikeresen generálva!`);
+            
+        } catch (error) {
+            console.error('Error generating summary PDF:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Összesítő PDF generálása sikertelen volt';
+            toast.error(errorMessage);
+        } finally {
+            setPdfGenerating(false);
+        }
+    }, [dataFiltered, table.selected, ordersLoading]);
+
     
 
     const renderConfirmDialog = () => (
@@ -452,24 +637,26 @@ export function OrderListView() {
                                 }
                                 action={
                                     <>
-                                        <Tooltip title="Összesítő nyomtatása">
-                                            <IconButton color="secondary" onClick={confirmDialog.onTrue}>
-                                                <Iconify icon="solar:bill-list-bold-duotone" />
+                                        <Tooltip title={pdfGenerating ? "PDF generálása..." : "Összesítő PDF nyomtatása"}>
+                                            <IconButton 
+                                                color="primary"
+                                                onClick={handleExportSummaryPDF}
+                                                disabled={pdfGenerating || table.selected.length === 0}
+                                            >
+                                                <Iconify icon="solar:printer-minimalistic-bold" />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title={pdfGenerating ? "PDF generálása..." : "Szállítólevél nyomtatása"}>
                                             <IconButton 
-                                                color="error" 
+                                                color="primary" 
                                                 onClick={handleGenerateShippingLabels}
                                                 disabled={pdfGenerating || table.selected.length === 0}
                                             >
-                                                <Iconify 
-                                                    icon={pdfGenerating ? "custom:invoice-duotone" : "custom:invoice-duotone"} 
-                                                />
+                                                <Iconify icon="solar:file-text-bold" />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Törlés" sx={{ ml: { md: 3 } }}>
-                                            <IconButton color="primary" onClick={confirmDialog.onTrue}>
+                                            <IconButton color="error" onClick={confirmDialog.onTrue}>
                                                 <Iconify icon="solar:trash-bin-trash-bold" />
                                             </IconButton>
                                         </Tooltip>
