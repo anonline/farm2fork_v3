@@ -409,7 +409,7 @@ export async function getAllOrdersBatched(params?: {
         let currentBatch = 0;
         let totalCount = 0;
         let hasMore = true;
-        let hardPagelimit = 5;
+        const hardPagelimit = 5;
 
         while (hasMore) {
             console.log(currentBatch);

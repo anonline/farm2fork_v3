@@ -11,7 +11,7 @@ import { fDate } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
-import { triggerOrderPlacedAdminEmail, triggerOrderPlacedEmail } from 'src/actions/email-ssr';
+import { triggerOrderPlacedEmail, triggerOrderPlacedAdminEmail } from 'src/actions/email-ssr';
 import { getOrderByIdSSR, addOrderHistorySSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';

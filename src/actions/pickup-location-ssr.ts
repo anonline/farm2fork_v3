@@ -1,6 +1,8 @@
+import type { IPickupLocation } from 'src/types/pickup-location';
+
 import { cookies } from 'next/headers';
+
 import { supabaseSSR } from 'src/lib/supabase-ssr';
-import { IPickupLocation } from 'src/types/pickup-location';
 
 export async function getPickupLocations() {
     const cookieStore = await cookies();

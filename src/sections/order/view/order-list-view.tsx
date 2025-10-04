@@ -26,7 +26,7 @@ import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
-import { useGetAllOrdersBatched, useGetOrders } from 'src/actions/order';
+import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useShipments } from 'src/contexts/shipments/shipments-context';

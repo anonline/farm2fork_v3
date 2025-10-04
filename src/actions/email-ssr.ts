@@ -1,6 +1,7 @@
 'use server';
 
 import type { IUserItem } from 'src/types/user';
+import type { IOrderData } from 'src/types/order-management';
 import type EmailTemplate from 'src/types/emails/email-template';
 
 import { cookies } from 'next/headers';
@@ -11,10 +12,8 @@ import { supabaseSSR } from 'src/lib/supabase-ssr';
 import { EmailTrigger } from 'src/types/emails/email-trigger';
 import EmailBaseTemplate from 'src/types/emails/email-base-template';
 
-import { IOrderData } from 'src/types/order-management';
-import { getOrderByIdSSR } from './order-ssr';
-
 import { getDelivery } from './delivery-ssr';
+import { getOrderByIdSSR } from './order-ssr';
 
 export async function triggerEmail(type: EmailTrigger, to: IUserItem) {
     const template = await getEmailTemplateSSR(type);
@@ -111,7 +110,7 @@ export async function triggerOrderPlacedEmail(
 
     const { order } = await getOrderByIdSSR(orderId);
 
-    let futar = await getDelivery(order?.courier || '');
+    const futar = await getDelivery(order?.courier || '');
 
     if (!template) throw new Error('No email template found for ORDER_PLACED');
     if (!template.enabled) {
@@ -162,7 +161,7 @@ export async function triggerOrderPlacedAdminEmail(
 
     const { order } = await getOrderByIdSSR(orderId);
 
-    let futar = await getDelivery(order?.courier || '');
+    const futar = await getDelivery(order?.courier || '');
 
     if (!template) throw new Error('No email template found for ORDER_PLACED_ADMIN');
     if (!template.enabled) {
@@ -213,7 +212,7 @@ export async function triggerOrderProcessedEmail(
 
     const { order } = await getOrderByIdSSR(orderId);
 
-    let futar = await getDelivery(order?.courier || '');
+    const futar = await getDelivery(order?.courier || '');
 
     if (!template) throw new Error('No email template found for ORDER_PLACED_ADMIN');
     if (!template.enabled) {
@@ -416,7 +415,7 @@ function replaceFutarInfo(body: string, futarInfo: {name:string, phone:string}) 
 
 function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
     let orderDetailsTableHTML = ``;
-    let grossSubtotal = orderData.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const grossSubtotal = orderData.items.reduce((acc, item) => acc + item.subtotal, 0);
 
     orderDetailsTableHTML += `
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">

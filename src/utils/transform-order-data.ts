@@ -1,6 +1,6 @@
-import type { InvoiceData, IOrderItem } from 'src/types/order';
 import type { IAddress } from 'src/types/address';
 import type { IOrderData } from 'src/types/order-management';
+import type { IOrderItem, InvoiceData } from 'src/types/order';
 
 import { CONFIG } from 'src/global-config';
 

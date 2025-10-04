@@ -1,6 +1,8 @@
+import type { IDeliveryPerson } from 'src/types/delivery';
+
 import { cookies } from 'next/headers';
+
 import { supabaseSSR } from 'src/lib/supabase-ssr';
-import { IDeliveryPerson } from 'src/types/delivery';
 
 export async function getDelivery(id: string) : Promise<IDeliveryPerson | null> {
     const cookieStore = await cookies();

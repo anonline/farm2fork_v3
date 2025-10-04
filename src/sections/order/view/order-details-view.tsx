@@ -19,13 +19,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 
+import { fDate } from 'src/utils/format-time';
+
+import { useGetDeliveries } from 'src/actions/delivery';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
+import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, updateOrderUserHistory, updateOrderDeliveryGuy } from 'src/actions/order-management';
-import { useGetDeliveries } from 'src/actions/delivery';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderUserHistory, updateOrderDeliveryGuy, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -41,8 +44,6 @@ import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
 import { OrderDetailsUserHistory } from '../order-details-user-history';
 
 import type { ProductForOrder } from '../product-selection-modal';
-import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
-import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -550,18 +551,18 @@ export function OrderDetailsView({ orderId }: Props) {
     }, [pendingSave]);
 
     const generateHistoryEntries = useCallback((
-        originalItems: IOrderProductItem[],
-        editedItems: IOrderProductItem[],
+        originalItemsParam: IOrderProductItem[],
+        editedItemsParam: IOrderProductItem[],
         userType: 'public' | 'vip' | 'company'
     ): string[] => {
         const historyEntries: string[] = [];
 
         // Create a map of original items by ID for easier lookup
-        const originalItemsMap = new Map(originalItems.map(item => [item.id, item]));
-        const editedItemsMap = new Map(editedItems.map(item => [item.id, item]));
+        const originalItemsMap = new Map(originalItemsParam.map(item => [item.id, item]));
+        const editedItemsMap = new Map(editedItemsParam.map(item => [item.id, item]));
 
         // Check for new items (items in edited but not in original)
-        editedItems.forEach(editedItem => {
+        editedItemsParam.forEach(editedItem => {
             if (!originalItemsMap.has(editedItem.id)) {
                 const quantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 2);
                 historyEntries.push(`Új tétel: ${quantityStr} ${editedItem.unit} ${editedItem.name}`);
@@ -569,7 +570,7 @@ export function OrderDetailsView({ orderId }: Props) {
         });
 
         // Check for deleted items (items in original but not in edited)
-        originalItems.forEach(originalItem => {
+        originalItemsParam.forEach(originalItem => {
             if (!editedItemsMap.has(originalItem.id)) {
                 const quantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 2);
                 historyEntries.push(`Törölt tétel: ${quantityStr} ${originalItem.unit} ${originalItem.name}`);
@@ -577,7 +578,7 @@ export function OrderDetailsView({ orderId }: Props) {
         });
 
         // Check for modified items (quantity or price changes)
-        editedItems.forEach(editedItem => {
+        editedItemsParam.forEach(editedItem => {
             const originalItem = originalItemsMap.get(editedItem.id);
             if (originalItem) {
                 // Check quantity change
@@ -1077,7 +1078,7 @@ export function OrderDetailsView({ orderId }: Props) {
                         <OrderDetailsUserHistory
                             historyForUser={historyForUser}
                             onSave={handleSaveUserHistory}
-                            editable={true}
+                            editable
                         />
 
                         {/* Show history only on desktop */}

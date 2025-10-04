@@ -2,11 +2,10 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import { getUsers } from 'src/actions/user-ssr';
+import { getAllOrdersSSR } from 'src/actions/order-ssr';
+import { getPickupLocations } from 'src/actions/pickup-location-ssr';
 
 import { OverviewAppView } from 'src/sections/overview/app/view';
-import { getAllOrdersSSR } from 'src/actions/order-ssr';
-import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
-import { getPickupLocations } from 'src/actions/pickup-location-ssr';
 
 // ----------------------------------------------------------------------
 
@@ -89,7 +88,7 @@ export default async function Page() {
         }
         else {
             locations.forEach((loc) => {
-                let locAddress = loc.postcode + ' ' + loc.city + ' ' + loc.address;
+                const locAddress = loc.postcode + ' ' + loc.city + ' ' + loc.address;
                 if (order.shippingAddress?.fullAddress == locAddress) {
                     method = loc.name;
                 }
