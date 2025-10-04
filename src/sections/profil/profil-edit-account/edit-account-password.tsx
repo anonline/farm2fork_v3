@@ -8,10 +8,12 @@ export default function EditAccountPassword({
     label,
     value,
     onChange,
+    disabled = false,
 }: Readonly<{
     label: string;
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    disabled?: boolean;
 }>) {
     const [showPassword, setShowPassword] = useState(false);
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -36,12 +38,14 @@ export default function EditAccountPassword({
                 type={showPassword ? 'text' : 'password'}
                 value={value}
                 onChange={onChange}
+                disabled={disabled}
                 endAdornment={
                     <InputAdornment position="end">
                         <IconButton
                             aria-label="jelszó láthatóságának váltása"
                             onClick={handleClickShowPassword}
                             onMouseDown={handleMouseDownPassword}
+                            disabled={disabled}
                         >
                             {showPassword ? (
                                 <F2FIcons name="Hide" width={14} height={14} />

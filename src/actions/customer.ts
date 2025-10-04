@@ -123,3 +123,15 @@ export async function updateCustomerBillingAddress(uid: string, billingAddress: 
     if (error) throw new Error(error.message);
     return data;
 }
+
+export async function updateCustomerData(uid: string, updates: Partial<ICustomerData>) {
+    const { data, error } = await supabase
+        .from('CustomerDatas')
+        .update(updates)
+        .eq('uid', uid)
+        .select()
+        .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+}

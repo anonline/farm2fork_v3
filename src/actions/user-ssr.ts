@@ -146,7 +146,7 @@ export async function updateUserSSR(
     });
     if (error) throw error.message;
 
-    const { error: roleError } = await ssrClient.from('roles').insert({
+    const { error: roleError } = await ssrClient.from('roles').upsert({
         uid: data.user.id,
         is_admin: userUpdates.roles.is_admin,
         is_vip: userUpdates.roles.is_vip,
@@ -218,6 +218,20 @@ export async function createCustomerDataSSR(customerData: Partial<ICustomerData>
 
     const { error: dbError } = await supabase.from('CustomerDatas').insert(customerData);
     if (dbError) throw dbError.message;
+
+    return true;
+}
+
+export async function updateUserEmailSSR(userId: string, email: string): Promise<boolean> {
+    const cookieStore = await cookies();
+    const adminClient = await supabaseAdmin(cookieStore);
+
+    const { error } = await adminClient.updateUserById(userId, {
+        email,
+        email_confirm: true, // This bypasses the email confirmation flow
+    });
+
+    if (error) throw error.message;
 
     return true;
 }

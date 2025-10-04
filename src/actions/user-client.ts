@@ -35,8 +35,7 @@ export async function updateUserRole(id: string, roleUpdates: Partial<IRole>): P
 }
 
 export async function addUser(userItem: Partial<IUserItem>, password: string | undefined): Promise<string> {
-    console.log('Adding/updating user...', userItem);
-    
+   
     if (userItem.id) {
         // Update existing user using SSR admin client
         const userId = await updateUserSSR(userItem.id, {
