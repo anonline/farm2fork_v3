@@ -40,7 +40,7 @@ export async function addUser(userItem: Partial<IUserItem>, password: string | u
         // Update existing user using SSR admin client
         const userId = await updateUserSSR(userItem.id, {
             email: userItem.email,
-            password,
+            password: password && password.trim() !== '' ? password : undefined,
             roles: userItem.role as IRole
         });
         return userId;

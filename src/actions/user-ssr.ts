@@ -139,11 +139,17 @@ export async function updateUserSSR(
     const adminClient = await supabaseAdmin(cookieStore);
     const ssrClient = await supabaseSSR(cookieStore);
 
-    const { data, error } = await adminClient.updateUserById(userId, {
+    const updateData: any = {
         email: userUpdates.email,
-        password: userUpdates.password,
         email_confirm: true,
-    });
+    };
+    
+    // Only include password if it's provided and not empty
+    if (userUpdates.password && userUpdates.password.trim() !== '') {
+        updateData.password = userUpdates.password;
+    }
+
+    const { data, error } = await adminClient.updateUserById(userId, updateData);
     if (error) throw error.message;
 
     const { error: roleError } = await ssrClient.from('roles').upsert({

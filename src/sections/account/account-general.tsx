@@ -144,7 +144,7 @@ export function AccountGeneral({ user, onUserDeleted }: Readonly<AccountGeneralP
                 id: user?.id || undefined,
                 email: data.email,
                 role: data.role || { uid: '', is_admin: false, is_vip: false, is_corp: false } as IRole,
-            } as Partial<IUserItem>, data.password);
+            } as Partial<IUserItem>, data.password && data.password.trim() !== '' ? data.password : undefined);
 
             await upsertUserCustomerData({
                 id: user?.customerData?.id || undefined,
