@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { fDate } from 'src/utils/format-time';
 
 import { supabase } from 'src/lib/supabase';
-import { getNextAnnouncementText, getValidityDates } from 'src/lib/announcement-helpers';
+import { getValidityDates, getNextAnnouncementText } from 'src/lib/announcement-helpers';
 
 /**
  * Get all valid announcements for the current date/time

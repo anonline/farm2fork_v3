@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { fDate } from 'src/utils/format-time';
 
-import { getNextAnnouncementText, getValidityDates } from 'src/lib/announcement-helpers';
+import { getValidityDates, getNextAnnouncementText } from 'src/lib/announcement-helpers';
 
 // Use service role key for admin operations
 const supabase = createClient(

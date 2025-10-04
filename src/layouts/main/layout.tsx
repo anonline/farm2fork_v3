@@ -17,6 +17,7 @@ import { themeConfig } from 'src/theme';
 import { ensureValidAnnouncement } from 'src/actions/announcements';
 
 import { Logo } from 'src/components/logo';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 import { BackToTopButton } from 'src/components/animate';
 import { SideCart, useSideCart, SideCartProvider } from 'src/components/sidecart';
 
@@ -40,7 +41,6 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
-import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 
