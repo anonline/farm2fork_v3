@@ -127,7 +127,7 @@ function generateSheet(shipment: IShipment, itemsSummary: ShipmentItemSummary[])
         }
         
         // Determine BIO status display
-        let bioStatus = item.isBio ? 'IGEN' : 'NEM';
+        const bioStatus = item.isBio ? 'IGEN' : 'NEM';
         
         return [
             productName,
