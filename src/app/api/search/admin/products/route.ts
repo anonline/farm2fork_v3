@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
         // Fetch bundle items for products that are bundles
         const bundleProductIds = products?.filter(p => p.type === 'bundle').map(p => p.id) || [];
         
-        let bundleItemsMap = new Map<string, any[]>();
+        const bundleItemsMap = new Map<string, any[]>();
         
         if (bundleProductIds.length > 0) {
             const { data: bundleData, error: bundleError } = await supabase

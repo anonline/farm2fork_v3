@@ -52,7 +52,8 @@ function BundleItems({ bundleItems, parentQuantity, userType, isMobile }: Readon
             {bundleItems.map((bundleItem, idx) => {
                 const scaledQty = bundleItem.qty * parentQuantity;
                 const price = getProperPrice(bundleItem);
-                
+                const denyMobile = true;
+
                 return (
                     <Box
                         key={`${bundleItem.productId}-${idx}`}
@@ -66,7 +67,7 @@ function BundleItems({ bundleItems, parentQuantity, userType, isMobile }: Readon
                             }),
                         ]}
                     >
-                        {1<0 && isMobile ? (
+                        {!denyMobile && isMobile ? (
                             // Mobile layout for bundle item
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Avatar
