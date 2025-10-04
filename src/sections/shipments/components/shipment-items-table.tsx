@@ -64,7 +64,7 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
                             </Typography>
                         )}
                     </Box>
-                    {params.row.isBio && !params.row.isBundleItem && (
+                    {params.row.isBio && (
                         <BioBadge
                             style={{ flexShrink: 0 }}
                             width={32}
@@ -214,20 +214,18 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
                 return (
                     <Box>
                         <Typography variant="body2" fontWeight="medium">
-                            {params.value.toLocaleString('hu-HU')} {params.row.unit}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                            {fCurrency(params.row.totalValue)}
+                            {params.value.toLocaleString('hu-HU')} {params.row.unit || 'db'}
                         </Typography>
                     </Box>
                 );
             },
         },
-        {
+        /*{
             field: 'orderCount',
             headerName: 'Rendelések',
             align: 'center',
             flex: 1,
+            width: 20,
             headerAlign: 'center',
             disableColumnMenu: true,
             renderCell: (params) => {
@@ -245,7 +243,7 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
                     />
                 );
             },
-        }
+        }*/
     ], []);
 
     if (error) {

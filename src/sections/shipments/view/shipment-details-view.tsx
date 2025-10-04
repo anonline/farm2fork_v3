@@ -187,9 +187,10 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
         summaryItems.forEach((item) => {
             // Add the main product
             expandedItems.push(item);
-            console.log(item);
+
             // If it's a bundle product, add its bundle items
             if (item.productData?.type === 'bundle' && item.productData?.bundleItems && item.productData.bundleItems.length > 0) {
+                console.log('Expanding bundle items for', item.productData.bundleItems);
                 item.productData.bundleItems.forEach((bundleItem) => {
                     const totalBundleQuantity = bundleItem.qty * item.totalQuantity;
                     expandedItems.push({
@@ -204,7 +205,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         customers: item.customers,
                         productId: bundleItem.productId,
                         isBio: bundleItem.product?.bio || false,
-                        productLink: bundleItem.product?.slug ? paths.dashboard.product.edit(bundleItem.product.slug) : null,
+                        productLink: bundleItem.product?.url ? paths.dashboard.product.edit(bundleItem.product.url) : null,
                         productData: bundleItem.product,
                         isBundleItem: true,
                         parentQuantity: item.totalQuantity,

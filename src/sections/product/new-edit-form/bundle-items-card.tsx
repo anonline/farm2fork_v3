@@ -27,6 +27,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { AddBundleItemModal } from './add-bundle-item-modal';
 import { fCurrency } from 'src/utils/format-number';
+import BioBadge from 'src/components/bio-badge/bio-badge';
 
 // ----------------------------------------------------------------------
 
@@ -155,6 +156,11 @@ export function BundleItemsCard({ isOpen, bundleItems, onAddItem, onUpdateItem, 
                                                         <Box>
                                                             <Typography variant="subtitle2">
                                                                 {item.product?.name || 'Ismeretlen termék'}
+                                                                {item.product?.bio && (<BioBadge
+                                                                                            style={{ flexShrink: 0 }}
+                                                                                            width={32}
+                                                                                            height={18}
+                                                                                        />)}
                                                             </Typography>
                                                             <Typography variant="caption" color="text.secondary">
                                                                 SKU: {item.product?.sku || 'N/A'}
