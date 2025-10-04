@@ -22,12 +22,13 @@ import {
     TableContainer,
 } from '@mui/material';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { Iconify } from 'src/components/iconify';
+import BioBadge from 'src/components/bio-badge/bio-badge';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { AddBundleItemModal } from './add-bundle-item-modal';
-import { fCurrency } from 'src/utils/format-number';
-import BioBadge from 'src/components/bio-badge/bio-badge';
 
 // ----------------------------------------------------------------------
 

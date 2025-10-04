@@ -37,6 +37,9 @@ type ShipmentItemSummary = {
   customers: string[];
   productId?: string;
   isBio?: boolean;
+  isBundleItem?: boolean;
+  parentQuantity?: number;
+  individualQuantity?: number;
 };
 
 type Props = {
@@ -117,7 +120,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   productCol: { width: '40%', paddingHorizontal: 4 },
+  productColIndented: { width: '40%', paddingHorizontal: 4, paddingLeft: 16 },
   quantityCol: { width: '30%', paddingHorizontal: 4, textAlign: 'center' },
+  quantityColSecondary: { width: '30%', paddingHorizontal: 4, textAlign: 'center', color: '#666', fontSize: 8 },
   notesCol: { width: '30%', paddingHorizontal: 4, textAlign: 'left' },
   summaryRow: {
     flexDirection: 'row',
@@ -187,23 +192,50 @@ function renderPage({shipment, itemsSummary}: Props) {
         </View>
 
         {/* Table Rows */}
-        {itemsSummary.map((item, index) => (
-          <View key={item.id + '-' + index} style={styles.tableRow}>
-            <Text style={styles.productCol}>
-              {item.isBio && (
-                <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
-                  [BIO]{' '}
-                </Text>
-              )}            
-              {item.name}
-            </Text>
-            <Text style={styles.quantityCol}>
-              {item.totalQuantity.toLocaleString('hu-HU')}
-              {item.unit && ` ${item.unit}`}
-            </Text>
-            <Text style={styles.notesCol} />
-          </View>
-        ))}
+        {itemsSummary.map((item, index) => {
+          const isBundleItem = item.isBundleItem || false;
+          const productColStyle = isBundleItem ? styles.productColIndented : styles.productCol;
+          const quantityColStyle = isBundleItem ? styles.quantityColSecondary : styles.quantityCol;
+          
+          // Format quantity based on whether it's a bundle item
+          let quantityText = '';
+          if (isBundleItem && item.parentQuantity && item.individualQuantity) {
+            // Bundle item format: "0.8 kg (2 x 0.4 kg)"
+            const total = item.totalQuantity;
+            const parent = item.parentQuantity;
+            const individual = item.individualQuantity;
+            const unit = item.unit || 'db';
+            
+            quantityText = `${total.toLocaleString('hu-HU', { 
+              minimumFractionDigits: total % 1 === 0 ? 0 : 1, 
+              maximumFractionDigits: 2 
+            })} ${unit} (${parent} x ${individual.toLocaleString('hu-HU', { 
+              minimumFractionDigits: individual % 1 === 0 ? 0 : 1, 
+              maximumFractionDigits: 2 
+            })} ${unit})`;
+          } else {
+            // Main product format
+            const unit = item.unit || 'db';
+            quantityText = `${item.totalQuantity.toLocaleString('hu-HU')} ${unit}`;
+          }
+          
+          return (
+            <View key={item.id + '-' + index} style={styles.tableRow}>
+              <Text style={productColStyle}>
+                {item.isBio && (
+                  <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
+                    [BIO]{' '}
+                  </Text>
+                )}            
+                {item.name}
+              </Text>
+              <Text style={quantityColStyle}>
+                {quantityText}
+              </Text>
+              <Text style={styles.notesCol} />
+            </View>
+          );
+        })}
       </Page>
   );
 }

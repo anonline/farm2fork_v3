@@ -10,7 +10,6 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import { Box, Grid, Stack, Button, Switch, FormControlLabel } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { useCategories } from 'src/contexts/category-context';
@@ -488,9 +487,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                         />
                     </Box>
                     
-                    {(() => {
-                        return productType === 'bundle' && renderBundleItems();
-                    })()}
+                    {(() => productType === 'bundle' && renderBundleItems())()}
 
                     {renderDetails()}
 

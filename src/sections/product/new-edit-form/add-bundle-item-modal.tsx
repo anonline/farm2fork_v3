@@ -2,8 +2,8 @@
 
 import type { IBundleItem } from 'src/types/product';
 
-import { useMemo, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 
 import {
     Box,
