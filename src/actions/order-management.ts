@@ -194,6 +194,7 @@ export async function getOrderById(
             simplepayDataJson: data.simplepay_data_json,
             invoiceDataJson: data.invoice_data_json,
             history: data.history || [],
+            history_for_user: data.history_for_user || '',
             shipmentId: data.shipmentId || null,
         };
 
@@ -614,7 +615,8 @@ export async function updateOrderItems(
     surchargeAmount?: number,
     userType: 'public' | 'vip' | 'company' = 'public',
     shippingCost?: number,
-    discountTotal?: number
+    discountTotal?: number,
+    historyForUser?: string[]
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         // Get current order to append to history
@@ -644,6 +646,18 @@ export async function updateOrderItems(
             userName,
         };
 
+        // Get current history_for_user or initialize as empty string
+        const currentHistoryForUser = order.history_for_user || '';
+        
+        // Add new history entries to history_for_user if provided
+        let updatedHistoryForUser = currentHistoryForUser;
+        if (historyForUser && historyForUser.length > 0) {
+            const newEntries = historyForUser.join('\n');
+            updatedHistoryForUser = currentHistoryForUser 
+                ? `${currentHistoryForUser}\n${newEntries}` 
+                : newEntries;
+        }
+
         // Update order with new items, totals, and history
         const updateData: any = {
             items,
@@ -652,6 +666,11 @@ export async function updateOrderItems(
             history: [...order.history, historyEntry],
             updated_at: new Date().toISOString(),
         };
+
+        // Only update history_for_user if there are new entries
+        if (historyForUser && historyForUser.length > 0) {
+            updateData.history_for_user = updatedHistoryForUser;
+        }
 
         // Only update surcharge_amount if a new value was provided
         if (surchargeAmount !== undefined) {
@@ -679,6 +698,34 @@ export async function updateOrderItems(
     } catch (error) {
         console.error('Error updating order items:', error);
         return { success: false, error: 'Failed to update order items' };
+    }
+}
+
+/**
+ * Update order history_for_user field
+ */
+export async function updateOrderUserHistory(
+    orderId: string,
+    historyForUser: string
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const { error } = await supabase
+            .from('orders')
+            .update({
+                history_for_user: historyForUser,
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order user history:', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order user history:', error);
+        return { success: false, error: 'Failed to update order user history' };
     }
 }
 

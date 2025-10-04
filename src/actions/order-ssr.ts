@@ -94,6 +94,7 @@ export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderD
             invoiceDataJson: data.invoice_data_json,
             history: data.history || [],
             shipmentId: data.shipment_id || null,
+            history_for_user: data.history_for_user || '',
         };
         
         return { order, error: null };

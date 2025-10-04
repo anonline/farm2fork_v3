@@ -24,7 +24,7 @@ import { useOrderContext } from 'src/contexts/order-context';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, updateOrderUserHistory } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -38,6 +38,7 @@ import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
+import { OrderDetailsUserHistory } from '../order-details-user-history';
 
 import type { ProductForOrder } from '../product-selection-modal';
 import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
@@ -57,9 +58,11 @@ export function OrderDetailsView({ orderId }: Props) {
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItems, setEditedItems] = useState<IOrderProductItem[]>(order?.items || []);
+    const [originalItems, setOriginalItems] = useState<IOrderProductItem[]>(order?.items || []);
     const [editedSurcharge, setEditedSurcharge] = useState(orderData?.surchargeAmount || 0);
     const [editedShipping, setEditedShipping] = useState(orderData?.shippingCost || 0);
     const [editedDiscount, setEditedDiscount] = useState(orderData?.discountTotal || 0);
+    const [historyForUser, setHistoryForUser] = useState(orderData?.history_for_user || '');
     const [showPaymentAlert, setShowPaymentAlert] = useState(false);
     const [showCancellationAlert, setShowCancellationAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
@@ -84,6 +87,7 @@ export function OrderDetailsView({ orderId }: Props) {
             setEditedSurcharge(orderData.surchargeAmount || 0);
             setEditedShipping(orderData.shippingCost || 0);
             setEditedDiscount(orderData.discountTotal || 0);
+            setHistoryForUser(orderData.history_for_user || '');
         }
     }, [orderData]);
 
@@ -544,12 +548,64 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [pendingSave]);
 
+    const generateHistoryEntries = useCallback((
+        originalItems: IOrderProductItem[],
+        editedItems: IOrderProductItem[],
+        userType: 'public' | 'vip' | 'company'
+    ): string[] => {
+        const historyEntries: string[] = [];
+
+        // Create a map of original items by ID for easier lookup
+        const originalItemsMap = new Map(originalItems.map(item => [item.id, item]));
+        const editedItemsMap = new Map(editedItems.map(item => [item.id, item]));
+
+        // Check for new items (items in edited but not in original)
+        editedItems.forEach(editedItem => {
+            if (!originalItemsMap.has(editedItem.id)) {
+                const quantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 2);
+                historyEntries.push(`Új tétel: ${quantityStr} ${editedItem.unit} ${editedItem.name}`);
+            }
+        });
+
+        // Check for deleted items (items in original but not in edited)
+        originalItems.forEach(originalItem => {
+            if (!editedItemsMap.has(originalItem.id)) {
+                const quantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 2);
+                historyEntries.push(`Törölt tétel: ${quantityStr} ${originalItem.unit} ${originalItem.name}`);
+            }
+        });
+
+        // Check for modified items (quantity or price changes)
+        editedItems.forEach(editedItem => {
+            const originalItem = originalItemsMap.get(editedItem.id);
+            if (originalItem) {
+                // Check quantity change
+                if (originalItem.quantity !== editedItem.quantity) {
+                    const oldQuantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 2);
+                    const newQuantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 2);
+                    historyEntries.push(`Módosított tétel: ${oldQuantityStr}${editedItem.unit} -> ${newQuantityStr}${editedItem.unit} ${editedItem.name}`);
+                }
+
+                // Check price change (use appropriate price based on user type)
+                const originalPrice = (userType === 'company' || userType === 'vip') ? originalItem.netPrice : originalItem.grossPrice;
+                const editedPrice = (userType === 'company' || userType === 'vip') ? editedItem.netPrice : editedItem.grossPrice;
+                
+                if (originalPrice !== editedPrice) {
+                    historyEntries.push(`Módosult ár: ${originalPrice} Ft -> ${editedPrice} Ft ${editedItem.name}`);
+                }
+            }
+        });
+
+        return historyEntries;
+    }, []);
+
     const handleStartEdit = useCallback(() => {
         if (order?.status !== 'pending') {
             return;
         }
         setIsEditing(true);
         setEditedItems([...order?.items || []]);
+        setOriginalItems([...order?.items || []]);
     }, [order?.items]);
 
     const handleCancelEdit = useCallback(() => {
@@ -592,6 +648,13 @@ export function OrderDetailsView({ orderId }: Props) {
         if (!orderData?.id) return;
 
         try {
+            // Generate history entries for user-facing changes
+            const historyEntries = generateHistoryEntries(
+                originalItems,
+                editedItems,
+                order?.customer?.userType || 'public'
+            );
+
             // Transform edited items to the format expected by the API
             const itemsToSave = editedItems.map(item => ({
                 id: item.id,
@@ -613,7 +676,8 @@ export function OrderDetailsView({ orderId }: Props) {
                 editedSurcharge,
                 order?.customer.userType,
                 editedShipping,
-                editedDiscount
+                editedDiscount,
+                historyEntries
             );
             if (success) {
                 // Calculate new totals
@@ -636,6 +700,16 @@ export function OrderDetailsView({ orderId }: Props) {
                     });
                 }
 
+                // Update the history_for_user field with new entries if any were generated
+                let updatedHistoryForUser = historyForUser;
+                if (historyEntries.length > 0) {
+                    const newEntries = historyEntries.join('\n');
+                    updatedHistoryForUser = historyForUser 
+                        ? `${historyForUser}\n${newEntries}` 
+                        : newEntries;
+                    setHistoryForUser(updatedHistoryForUser);
+                }
+
                 if (orderData) {
                     updateOrderData({
                         ...orderData,
@@ -645,6 +719,7 @@ export function OrderDetailsView({ orderId }: Props) {
                         surchargeAmount: editedSurcharge,
                         shippingCost: editedShipping,
                         discountTotal: editedDiscount,
+                        history_for_user: updatedHistoryForUser,
                     });
                 }
 
@@ -664,7 +739,7 @@ export function OrderDetailsView({ orderId }: Props) {
             console.error('Error saving order changes:', ex);
             toast.error('Hiba történt a rendelés mentése során');
         }
-    }, [editedItems, orderData, order, updateOrder, updateOrderData, editedSurcharge, editedShipping, editedDiscount, refreshCounts]);
+    }, [editedItems, originalItems, orderData, order, updateOrder, updateOrderData, editedSurcharge, editedShipping, editedDiscount, refreshCounts, generateHistoryEntries, historyForUser]);
 
     const handlePaymentAlertConfirm = useCallback(async () => {
         console.log('User confirmed save despite payment difference');
@@ -801,6 +876,41 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [refreshOrderHistory]);
 
+    const handleSaveUserHistory = useCallback(async (newHistory: string) => {
+        if (!orderData?.id) {
+            toast.error('Hiányzó rendelési azonosító');
+            throw new Error('Missing order ID');
+        }
+
+        try {
+            const { success, error: updateError } = await updateOrderUserHistory(
+                orderData.id,
+                newHistory
+            );
+
+            if (success) {
+                setHistoryForUser(newHistory);
+                
+                // Update orderData context
+                if (orderData) {
+                    updateOrderData({
+                        ...orderData,
+                        history_for_user: newHistory,
+                    });
+                }
+
+                toast.success('Változási előzmények mentve!');
+            } else {
+                toast.error(updateError || 'Hiba történt a mentés során');
+                throw new Error(updateError || 'Failed to save');
+            }
+        } catch (ex) {
+            console.error('Error saving user history:', ex);
+            toast.error('Hiba történt a mentés során');
+            throw ex;
+        }
+    }, [orderData, updateOrderData]);
+
     // Calculate updated totals when in edit mode
     const displayItems = isEditing ? editedItems : order?.items || [];
     const updatedSubtotal = isEditing
@@ -912,6 +1022,13 @@ export function OrderDetailsView({ orderId }: Props) {
                             onCancel={handleCancelEdit}
                             onStartEdit={handleStartEdit}
                             userType={order.customer.userType}
+                        />
+
+                        {/* User history card */}
+                        <OrderDetailsUserHistory
+                            historyForUser={historyForUser}
+                            onSave={handleSaveUserHistory}
+                            editable={true}
                         />
 
                         {/* Show history only on desktop */}

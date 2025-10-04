@@ -400,7 +400,10 @@ function replaceExpectedDelivery(body: string, expectedDelivery: string, expecte
 }
 
 function replaceChangeLog(body: string, changeLog: string) {
-    const text = changeLog.trim() ? `<span style="text-align: center;padding: 12px;background: #cecece;font-weight: 600;border-radius: 8px;width: 100%;display: inline-block;">Pár tételt módosítanunk kellett a rendelésedben:<br />${changeLog}</span>` : '';
+    console.log('Change log:', changeLog);
+    // Replace newlines with <br /> tags for HTML email display
+    changeLog = changeLog.replace(/\n/g, '<br />');
+    const text = changeLog.trim() ? `<p style="padding: 12px;background: #cecece;border-radius: 8px;width: 100%;display: inline-block;"><span style="font-weight: 600;">Pár tételt módosítanunk kellett a rendelésedben:</span><br />${changeLog}</p>` : '';
     return body.replaceAll('{{change_log_section}}', text);
 }
 
