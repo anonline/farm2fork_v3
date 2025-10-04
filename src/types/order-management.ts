@@ -50,6 +50,21 @@ export type IOrderItem = {
     note?: string;
     custom?: boolean;
     slug?: string;
+    type?: 'simple' | 'bundle';
+    bundleItems?: {
+        productId: string;
+        qty: number;
+        product?: {
+            id: string;
+            name: string;
+            sku: string;
+            unit: string;
+            coverUrl?: string;
+            netPrice: number;
+            grossPrice: number;
+            bio?: boolean;
+        };
+    }[];
 };
 
 export type IOrderData = {

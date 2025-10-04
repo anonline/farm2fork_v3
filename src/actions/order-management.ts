@@ -198,6 +198,82 @@ export async function getOrderById(
             shipmentId: data.shipmentId || null,
         };
 
+        // Fetch bundle items for products that are bundles
+        // Since items stored in the database don't have type info, we need to fetch it from Products table
+        const itemIds = order.items.map(item => item.id).filter(Boolean);
+        
+        if (itemIds.length > 0) {
+            // Fetch product types from Products table
+            const { data: productsData, error: productsError } = await supabase
+                .from('Products')
+                .select('id, type')
+                .in('id', itemIds);
+            
+            if (!productsError && productsData) {
+                // Create a map of product IDs to their types
+                const productTypesMap = new Map(
+                    productsData.map(p => [p.id.toString(), p.type])
+                );
+                
+                // Enrich order items with product types
+                order.items = order.items.map(item => ({
+                    ...item,
+                    type: productTypesMap.get(item.id) || 'simple',
+                }));
+            }
+        }
+        
+        const bundleProductIds = order.items
+            .filter(item => item.type === 'bundle' && item.id)
+            .map(item => item.id);
+
+        if (bundleProductIds.length > 0) {
+            const { data: bundleData, error: bundleError } = await supabase
+                .from('ProductsInBoxes')
+                .select('boxId, productId, qty, product:Products!ProductsInBoxes_productId_fkey(*)')
+                .in('boxId', bundleProductIds);
+
+            if (bundleError) {
+                console.error('Error fetching bundle items:', bundleError);
+            } else if (bundleData) {
+                const bundleItemsMap = new Map<string, any[]>();
+
+                bundleData.forEach((item: any) => {
+                    const boxId = item.boxId.toString();
+
+                    if (!bundleItemsMap.has(boxId)) {
+                        bundleItemsMap.set(boxId, []);
+                    }
+
+                    bundleItemsMap.get(boxId)!.push({
+                        productId: item.productId.toString(),
+                        qty: item.qty,
+                        product: {
+                            id: item.product.id.toString(),
+                            name: item.product.name,
+                            sku: item.product.sku,
+                            unit: item.product.unit,
+                            coverUrl: item.product.coverUrl || item.product.featuredImage,
+                            netPrice: item.product.netPrice,
+                            grossPrice: item.product.grossPrice,
+                            bio: item.product.bio,
+                        },
+                    });
+                });
+
+                // Enrich order items with bundle data
+                order.items = order.items.map(item => {
+                    if (item.type === 'bundle' && bundleItemsMap.has(item.id)) {
+                        return {
+                            ...item,
+                            bundleItems: bundleItemsMap.get(item.id),
+                        };
+                    }
+                    return item;
+                });
+            }
+        }
+
         return { order, error: null };
     } catch (error) {
         console.error('Error fetching order:', error);
@@ -1219,7 +1295,7 @@ export async function updateOrderNote(
         const historyEntry: OrderHistoryEntry = {
             timestamp: now,
             status: order.orderStatus,
-            note: 'Üzenet a vásárlónak frissítve',
+            note: 'Megjegyzés frissítve',
             userId,
             userName,
         };

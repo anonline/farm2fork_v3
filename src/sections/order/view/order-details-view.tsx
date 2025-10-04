@@ -850,7 +850,6 @@ export function OrderDetailsView({ orderId }: Props) {
 
     const handleItemAdd = useCallback((products: ProductForOrder[]) => {
         // Transform ProductForOrder[] to IOrderProductItem[] and add to edited items
-        console.log('products to add', products);
         const newOrderItems = products.map(product => ({
             id: !product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             sku: product.sku,
@@ -864,6 +863,21 @@ export function OrderDetailsView({ orderId }: Props) {
             note: product.isCustom ? 'Egyedi termék' : '',
             subtotal: (order?.customer.userType == 'company' || order?.customer.userType == 'vip' ? product.netPrice * product.quantity : product.grossPrice * product.quantity),
             slug: product.isCustom ? '' : product.id, // Use product ID as slug for existing products
+            type: product.type,
+            bundleItems: product.bundleItems ? product.bundleItems.map(item => ({
+                productId: item.productId,
+                qty: item.qty,
+                product: item.product ? {
+                    id: item.product.id.toString(),
+                    name: item.product.name,
+                    sku: item.product.sku,
+                    unit: item.product.unit,
+                    coverUrl: item.product.coverUrl || item.product.featuredImage,
+                    netPrice: item.product.netPrice,
+                    grossPrice: item.product.grossPrice,
+                    bio: item.product.bio,
+                } : undefined,
+            })) : undefined,
         }));
         setEditedItems(prev => [...prev, ...newOrderItems]);
     }, []);

@@ -20,8 +20,118 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import BioBadge from 'src/components/bio-badge/bio-badge';
 
 import { type ProductForOrder, ProductSelectionModal } from './product-selection-modal';
+
+// ----------------------------------------------------------------------
+
+type BundleItemsProps = {
+    bundleItems: NonNullable<IOrderProductItem['bundleItems']>;
+    parentQuantity: number;
+    userType: 'public' | 'vip' | 'company';
+    isMobile?: boolean;
+};
+
+function BundleItems({ bundleItems, parentQuantity, userType, isMobile }: Readonly<BundleItemsProps>) {
+    if (!bundleItems || bundleItems.length === 0) return null;
+
+    const getProperPrice = (item: NonNullable<IOrderProductItem['bundleItems']>[0]) => {
+        if (!item.product) return 0;
+        switch (userType) {
+            case 'company':
+            case 'vip':
+                return item.product.netPrice;
+            default:
+                return item.product.grossPrice;
+        }
+    };
+
+    return (
+        <Box sx={{ ml: isMobile ? 0 : 7, mt: 1, mb: 1 }}>
+            {bundleItems.map((bundleItem, idx) => {
+                const scaledQty = bundleItem.qty * parentQuantity;
+                const price = getProperPrice(bundleItem);
+                
+                return (
+                    <Box
+                        key={`${bundleItem.productId}-${idx}`}
+                        sx={[
+                            (theme) => ({
+                                p: isMobile ? 1.5 : 2,
+                                borderLeft: `3px solid ${theme.vars.palette.divider}`,
+                                backgroundColor: theme.vars.palette.action.hover,
+                                borderRadius: 1,
+                                mb: 1,
+                            }),
+                        ]}
+                    >
+                        {1<0 && isMobile ? (
+                            // Mobile layout for bundle item
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Avatar
+                                    src={bundleItem.product?.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                                    variant="rounded"
+                                    sx={{ width: 28, height: 28, flexShrink: 0 }}
+                                />
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Stack direction="row" alignItems="center" spacing={0.5} flexWrap="wrap">
+                                        <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                                            {bundleItem.product?.name || 'Ismeretlen termék'}
+                                        </Typography>
+                                        {bundleItem.product?.bio && (
+                                            <BioBadge width={20} height={12} />
+                                        )}
+                                    </Stack>
+                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                                        {`${fCurrency(price)} / ${bundleItem.product?.unit || 'db'}`}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                                        {scaledQty.toFixed(scaledQty % 1 === 0 ? 0 : 2)} {bundleItem.product?.unit || 'db'}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        ) : (
+                            // Desktop layout for bundle item
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Avatar
+                                    src={bundleItem.product?.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                                    variant="rounded"
+                                    sx={{ width: 32, height: 32, mr: 2 }}
+                                />
+                                <ListItemText
+                                    primary={
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Typography component="span" variant="caption" sx={{ fontWeight: 500 }}>
+                                                {bundleItem.product?.name || 'Ismeretlen termék'}
+                                            </Typography>
+                                            {bundleItem.product?.bio && (
+                                                <BioBadge width={24} height={14} />
+                                            )}
+                                        </Stack>
+                                    }
+                                    secondary={`${fCurrency(price)} / ${bundleItem.product?.unit || 'db'}`}
+                                    slotProps={{
+                                        primary: { sx: { typography: 'caption' } },
+                                        secondary: {
+                                            sx: { mt: 0.25, color: 'text.disabled', fontSize: '0.75rem' },
+                                        },
+                                    }}
+                                />
+                                <Box sx={{ width: 150, textAlign: 'right', typography: 'caption', fontWeight: 500 }}>
+                                    {scaledQty.toFixed(scaledQty % 1 === 0 ? 0 : 2)} {bundleItem.product?.unit || 'db'} ({parentQuantity} x {bundleItem.qty} {bundleItem.product?.unit || 'db'})
+                                </Box>
+                                
+                            </Box>
+                        )}
+                    </Box>
+                );
+            })}
+        </Box>
+    );
+}
 
 // ----------------------------------------------------------------------
 
@@ -181,11 +291,12 @@ export function OrderDetailsItems({
     };
 
     const hasErrors = Object.keys(editErrors).length > 0 || !!surchargeError || !!shippingError || !!discountError;
+    
     const renderTotal = () => (
         <Box
             sx={{
-                p: 3,
-                gap: 2,
+                p: { xs: 2, md: 3 },
+                gap: { xs: 0, md: 2 },
                 display: 'flex',
                 textAlign: 'right',
                 typography: 'body2',
@@ -194,12 +305,12 @@ export function OrderDetailsItems({
             }}
         >
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
-                <Box sx={{ color: 'text.secondary' }}>Termék végösszeg</Box>
-                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(getProperSubtotalByRole())}</Box>
+                <Box sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>Termék végösszeg</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2', fontSize: { xs: '0.875rem', md: '1rem' } }}>{fCurrency(getProperSubtotalByRole())}</Box>
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
-                <Box sx={{ color: 'text.secondary' }}>Szállítás</Box>
+                <Box sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>Szállítás</Box>
                 
                 {isEditing ? (
                     <Box sx={{ width: { xs: 'auto', md: 160 } }}>
@@ -215,14 +326,14 @@ export function OrderDetailsItems({
                         />
                     </Box>
                 ) : (
-                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
+                    <Box sx={{ width: { xs: 'auto', md: 160 }, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                         {shipping ? fCurrency(shipping) : '-'}
                     </Box>
                 )}
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
-                <Box sx={{ color: 'text.secondary' }}>Kedvezmény</Box>
+                <Box sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>Kedvezmény</Box>
                 
                 {isEditing ? (
                     <Box sx={{ width: { xs: 'auto', md: 160 } }}>
@@ -238,20 +349,20 @@ export function OrderDetailsItems({
                         />
                     </Box>
                 ) : (
-                    <Box sx={{ width: { xs: 'auto', md: 160 }, ...(discount && { color: 'error.main' }) }}>
+                    <Box sx={{ width: { xs: 'auto', md: 160 }, fontSize: { xs: '0.875rem', md: '1rem' }, ...(discount && { color: 'error.main' }) }}>
                         {discount ? `- ${fCurrency(discount)}` : '-'}
                     </Box>
                 )}
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
-                <Box sx={{ color: 'text.secondary' }}>Adó</Box>
+                <Box sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>Adó</Box>
 
-                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{fCurrency(getTaxesTotal()) || '-'}</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, fontSize: { xs: '0.875rem', md: '1rem' } }}>{fCurrency(getTaxesTotal()) || '-'}</Box>
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: { xs: 'flex-start', md: 'center' } }}>
-                <Box sx={{ color: 'text.secondary' }}>Zárolási felár</Box>
+                <Box sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>Zárolási felár</Box>
 
                 {isEditing && isSurchargeEditable ? (
                     <Box sx={{ width: { xs: 'auto', md: 160 } }}>
@@ -267,20 +378,20 @@ export function OrderDetailsItems({
                         />
                     </Box>
                 ) : (
-                    <Box sx={{ width: { xs: 'auto', md: 160 } }}>
+                    <Box sx={{ width: { xs: 'auto', md: 160 }, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                         {surcharge ? fCurrency(surcharge) : '-'}
                     </Box>
                 )}
             </Box>
 
             <Box sx={{ display: 'flex', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
-                <Box sx={{ color: 'text.secondary' }}>Már kifizetett összeg</Box>
-                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2' }}>{fCurrency(payed_amount) || '-'}</Box>
+                <Box sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>Már kifizetett összeg</Box>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, typography: 'subtitle2', fontSize: { xs: '0.875rem', md: '1rem' } }}>{fCurrency(payed_amount) || '-'}</Box>
             </Box>
 
             <Box sx={{ display: 'flex', typography: 'subtitle1', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
-                <div>Br. végösszeg</div>
-                <Box sx={{ width: { xs: 'auto', md: 160 } }}>{fCurrency(getGrossTotal()) || '-'}</Box>
+                <div style={{ fontSize: 'inherit' }}>Br. végösszeg</div>
+                <Box sx={{ width: { xs: 'auto', md: 160 }, fontSize: { xs: '0.9375rem', md: '1rem' } }}>{fCurrency(getGrossTotal()) || '-'}</Box>
             </Box>
         </Box>
     );
@@ -332,13 +443,18 @@ export function OrderDetailsItems({
                     }
                 />
 
+                {/* Mobile: Show total at top */}
+                <Box sx={{ display: { xs: 'block', md: 'none' }, borderBottom: (theme) => `dashed 2px ${theme.vars.palette.background.neutral}` }}>
+                    {renderTotal()}
+                </Box>
+
                 <Scrollbar>
                     {items.map((item) => (
                         <Box
                             key={item.id + '_' + item.name}
                             sx={[
                                 (theme) => ({
-                                    p: 3,
+                                    p: { xs: 1.5, md: 3 },
                                     borderBottom: `dashed 2px ${theme.vars.palette.background.neutral}`,
                                 }),
                             ]}
@@ -348,43 +464,63 @@ export function OrderDetailsItems({
                                 display: { xs: 'block', md: 'none' },
                                 width: '100%'
                             }}>
-                                {/* Row 1: Avatar + Title */}
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                {/* Row 1: Avatar + Title + Quantity + Subtotal */}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                     <Avatar
                                         src={item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                                         variant="rounded"
-                                        sx={{ width: 48, height: 48, mr: 2 }}
+                                        sx={{ width: 36, height: 36, flexShrink: 0 }}
                                     />
-                                    <Box sx={{ flex: 1 }}>
+                                    <Box sx={{ flex: 1, minWidth: 0 }}>
                                         {item.slug.length > 0 ? (
                                             <Link
                                                 target="_blank"
                                                 href={paths.dashboard.product.edit(item.slug)}
                                                 sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
                                             >
-                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8125rem', lineHeight: 1.3 }}>
                                                     {item.name}
                                                 </Typography>
                                             </Link>
                                         ) : (
-                                            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            <Box>
+                                                <Chip label="Egyedi termék" size="small" color='primary' sx={{ height: 16, fontSize: '0.625rem', mb: 0.5 }} />
+                                                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8125rem', lineHeight: 1.3 }}>
                                                     {item.name}
                                                 </Typography>
-                                                <Chip label="Egyedi termék" size="small" color='primary' />
-                                            </Stack>
+                                            </Box>
                                         )}
                                         {!isEditing && (
-                                            <Typography variant="caption" color="text.secondary">
+                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', lineHeight: 1.2 }}>
                                                 {`${fCurrency(getProperPriceByRole(item))} / ${item.unit}`}{item.note && ` | ${item.note}`}
                                             </Typography>
                                         )}
                                     </Box>
+                                    {!isEditing && (
+                                        <Box sx={{ flexShrink: 0, textAlign: 'right' }}>
+                                            <Typography variant="subtitle2" sx={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
+                                                {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                            </Typography>
+                                            <Typography variant="subtitle2" sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                                                {userType === 'company' || userType === 'vip' ? fCurrency(item.netPrice * item.quantity) : fCurrency(item.grossPrice * item.quantity)}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {isEditing && (
+                                        <IconButton
+                                            size="small"
+                                            color="error"
+                                            onClick={() => onItemDelete?.(item.id)}
+                                            sx={{ p: 0.5, flexShrink: 0 }}
+                                        >
+                                            <Iconify icon="solar:trash-bin-trash-bold" width={18} />
+                                        </IconButton>
+                                    )}
                                 </Box>
 
-                                {/* Row 2: Price + Quantity */}
+                                {/* Row 2: Price + Quantity (when editing) */}
                                 {isEditing && (
-                                    <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                                    <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                                         <Box sx={{ flex: 1 }}>
                                             <TextField
                                                 size="small"
@@ -394,10 +530,10 @@ export function OrderDetailsItems({
                                                 onChange={(e) => handleFieldChange(item.id, (userType == 'company' || userType == 'vip') ? 'netPrice' : 'grossPrice', e.target.value)}
                                                 error={(userType == 'company' || userType == 'vip') ? !!editErrors[item.id]?.netPrice : !!editErrors[item.id]?.grossPrice}
                                                 helperText={userType == 'company' || userType == 'vip' ? editErrors[item.id]?.netPrice : editErrors[item.id]?.grossPrice}
-                                                sx={{ width: '100%' }}
+                                                sx={{ width: '100%', '& .MuiInputBase-input': { fontSize: '0.8125rem', py: 0.75 } }}
                                                 inputProps={{ min: 0, step: 0.01 }}
                                             />
-                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: 'block', fontSize: '0.7rem' }}>
                                                 / {item.unit} {item.note && ` | ${item.note}`}
                                             </Typography>
                                         </Box>
@@ -410,40 +546,34 @@ export function OrderDetailsItems({
                                                 onChange={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
                                                 error={!!editErrors[item.id]?.quantity}
                                                 helperText={editErrors[item.id]?.quantity}
-                                                sx={{ width: '100%' }}
+                                                sx={{ width: '100%', '& .MuiInputBase-input': { fontSize: '0.8125rem', py: 0.75 } }}
                                                 inputProps={{ min: 0, step: item.quantity % 1 === 0 ? 1 : 0.01 }}
                                             />
-                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: 'block', fontSize: '0.7rem' }}>
                                                 {item.unit}
                                             </Typography>
                                         </Box>
                                     </Box>
                                 )}
 
-                                {/* Row 3: Quantity + Subtotal (when not editing) or just Subtotal + Delete (when editing) */}
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    {!isEditing ? (
-                                        <Typography variant="subtitle2">
-                                            {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
-                                        </Typography>
-                                    ) : (
-                                        <Box />
-                                    )}
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Typography variant="subtitle2">
+                                {/* Row 3: Subtotal (when editing) */}
+                                {isEditing && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
+                                        <Typography variant="subtitle2" sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
                                             {userType === 'company' || userType === 'vip' ? fCurrency(item.netPrice * item.quantity) : fCurrency(item.grossPrice * item.quantity)}
                                         </Typography>
-                                        {isEditing && (
-                                            <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={() => onItemDelete?.(item.id)}
-                                            >
-                                                <Iconify icon="solar:trash-bin-trash-bold" width={20} />
-                                            </IconButton>
-                                        )}
                                     </Box>
-                                </Box>
+                                )}
+                                
+                                {/* Bundle Items - Mobile 
+                                {item.type === 'bundle' && item.bundleItems && (
+                                    <BundleItems 
+                                        bundleItems={item.bundleItems} 
+                                        parentQuantity={item.quantity} 
+                                        userType={userType}
+                                        isMobile
+                                    />
+                                )}*/}
                             </Box>
 
                             {/* Desktop Layout */}
@@ -538,6 +668,18 @@ export function OrderDetailsItems({
                                     >
                                         <Iconify icon="solar:trash-bin-trash-bold" width={20} />
                                     </IconButton>
+                                )}
+                            </Box>
+                            
+                            {/* Bundle Items - Desktop */}
+                            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                                {item.type === 'bundle' && item.bundleItems && (
+                                    <BundleItems 
+                                        bundleItems={item.bundleItems} 
+                                        parentQuantity={item.quantity} 
+                                        userType={userType}
+                                        isMobile={false}
+                                    />
                                 )}
                             </Box>
                         </Box>

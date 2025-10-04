@@ -42,6 +42,12 @@ export type ProductForOrder = {
     backorder?: boolean;
     isCustom?: boolean;
     uniqueKey?: string;
+    type?: 'simple' | 'bundle';
+    bundleItems?: {
+        productId: string;
+        qty: number;
+        product?: IProductItem;
+    }[];
 };
 
 type Props = {
@@ -93,6 +99,8 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
         backorder: product.backorder,
         isCustom: false,
         uniqueKey: `${product.id}-${index}`, // Add unique key for React
+        type: product.type,
+        bundleItems: product.bundleItems,
     }));
 
     const handleProductSelect = useCallback((product: ProductForOrder | null) => {

@@ -55,9 +55,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
 
     const userType = await getUserType(orderData.customerId);
 
-    
-
-    return {
+    const result: IOrderItem = {
         id: orderData.id,
         orderNumber: orderData.id,
         status: getStatusLabel(orderData.orderStatus),
@@ -127,6 +125,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             note: item.note || '',
             vat: item.netPrice ? Math.round((item.grossPrice-item.netPrice)/item.netPrice * 100) : 0 ,
             slug: item.slug || '',
+            type: item.type,
+            bundleItems: item.bundleItems,
         })),
         history: {
             orderTime: orderData.dateCreated,
@@ -142,6 +142,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         shipment_time: orderData.shipment_time,
         invoiceData: orderData.invoiceDataJson ? orderData.invoiceDataJson as unknown as InvoiceData : undefined,
     };
+    
+    return result;
 }
 
 export async function getUserType(customerId: string | null): Promise<'public' | 'vip' | 'company'> {

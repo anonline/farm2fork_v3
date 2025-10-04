@@ -75,6 +75,34 @@ export async function GET(req: NextRequest) {
             );
         }
 
+        // Fetch bundle items for products that are bundles
+        const bundleProductIds = products?.filter(p => p.type === 'bundle').map(p => p.id) || [];
+        
+        let bundleItemsMap = new Map<string, any[]>();
+        
+        if (bundleProductIds.length > 0) {
+            const { data: bundleData, error: bundleError } = await supabase
+                .from('ProductsInBoxes')
+                .select('boxId, productId, qty, product:Products!ProductsInBoxes_productId_fkey(*)')
+                .in('boxId', bundleProductIds);
+            
+            if (bundleError) {
+                console.error('Error fetching bundle items:', bundleError);
+            } else if (bundleData) {
+                bundleData.forEach((item: any) => {
+                    const boxId = item.boxId.toString();
+                    if (!bundleItemsMap.has(boxId)) {
+                        bundleItemsMap.set(boxId, []);
+                    }
+                    bundleItemsMap.get(boxId)!.push({
+                        productId: item.productId.toString(),
+                        qty: item.qty,
+                        product: item.product,
+                    });
+                });
+            }
+        }
+
         // Transform the data to include proper image URLs and ensure all required fields
         const transformedProducts = products?.map(product => ({
             ...product,
@@ -88,6 +116,8 @@ export async function GET(req: NextRequest) {
             maximumQuantity: Number(product.maximumQuantity) || 999,
             // Add fields needed for order management
             inventoryType: product.stock !== null ? 'track' : 'none', // Infer from stock field
+            // Add bundle items if this is a bundle product
+            bundleItems: product.type === 'bundle' ? bundleItemsMap.get(product.id.toString()) : undefined,
         })) || [];
 
         return NextResponse.json(transformedProducts);
