@@ -40,6 +40,7 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
+import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 
@@ -174,14 +175,18 @@ function MainLayoutContent({
                     width: '100%',
                     bgcolor: '#B4D7FF',
                     color: '#1A5290',
-                    py: 1,
+                    py: 2,
+                    height: 40,
                     textAlign: 'center',
                     fontWeight: 500,
-                    fontSize: { xs: 14, sm: 16 },
+                    fontSize: { xs: 12, sm: 14 },
                     letterSpacing: 0.2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 }}
             >
-                {announcement}
+                <F2FIcons name="Truck" width={30} height={30} style={{marginRight: '8px'}}/>{announcement}
             </Box>
         );
     };
