@@ -14,8 +14,8 @@ import {
 } from '@mui/material';
 
 import { supabase } from 'src/lib/supabase';
-import { useGetCustomerData, updateCustomerData } from 'src/actions/customer';
 import { updateUserEmailSSR } from 'src/actions/user-ssr';
+import { useGetCustomerData, updateCustomerData } from 'src/actions/customer';
 
 import { useAuthContext } from 'src/auth/hooks';
 import { signInWithPassword } from 'src/auth/context/supabase/action';
