@@ -16,6 +16,7 @@ export type IProductTableFilters = {
     stock: string[];
     publish: string[];
     bio: string[];
+    categories: string[];
 };
 
 export type IProductReview = {

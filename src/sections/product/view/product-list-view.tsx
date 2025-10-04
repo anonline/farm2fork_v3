@@ -34,6 +34,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useProducts } from 'src/contexts/products-context';
+import { useCategories } from 'src/contexts/category-context';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -82,12 +83,13 @@ export function ProductListView() {
     const confirmDialog = useBoolean();
 
     const { products, loading: productsLoading } = useProducts();
+    const { allCategories } = useCategories();
 
     const [tableData, setTableData] = useState<IProductItem[]>(products);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
 
-    const filters = useSetState<IProductTableFilters>({ publish: [], stock: [], bio: [] });
+    const filters = useSetState<IProductTableFilters>({ publish: [], stock: [], bio: [], categories: [] });
     const { state: currentFilters } = filters;
 
     const initState = useBoolean(true);
@@ -100,16 +102,17 @@ export function ProductListView() {
             setTableData(products);
             // Set default filter to published products only after data is loaded
             if (initState.value) {
-                filters.setState({ publish: ['true'], stock: [], bio: [] });
+                filters.setState({ publish: ['true'], stock: [], bio: [], categories: [] });
                 initState.onFalse();
             }
         }
-    }, [products, currentFilters.publish.length, currentFilters.stock.length, currentFilters.bio.length, filters]);
+    }, [products, currentFilters.publish.length, currentFilters.stock.length, currentFilters.bio.length, currentFilters.categories.length, filters]);
 
     const canReset =
         currentFilters.publish.length > 0 ||
         currentFilters.stock.length > 0 ||
-        currentFilters.bio.length > 0;
+        currentFilters.bio.length > 0 ||
+        currentFilters.categories.length > 0;
 
     const dataFiltered = applyFilter({
         inputData: tableData,
@@ -135,6 +138,16 @@ export function ProductListView() {
         setTableData(deleteRows);
     }, [selectedRowIds, tableData]);
 
+    const categoryOptions = allCategories
+        .filter((cat) => cat.enabled)
+        .map((cat) => ({ 
+            value: String(cat.id), 
+            label: cat.name,
+            level: cat.level 
+        }));
+    
+    console.log('allCategories:', allCategories.length, 'enabled:', categoryOptions.length);
+
     const CustomToolbarCallback = useCallback(
         () => (
             <CustomToolbar
@@ -144,10 +157,11 @@ export function ProductListView() {
                 setFilterButtonEl={setFilterButtonEl}
                 filteredResults={dataFiltered.length}
                 onOpenConfirmDeleteRows={confirmDialog.onTrue}
+                categoryOptions={categoryOptions}
             />
         ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [currentFilters, selectedRowIds]
+        [currentFilters, selectedRowIds, categoryOptions]
     );
 
     const columns: GridColDef[] = [
@@ -372,7 +386,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     filteredResults: number;
     selectedRowIds: GridRowSelectionModel;
     filters: UseSetStateReturn<IProductTableFilters>;
-
+    categoryOptions: { value: string; label: string; level: number }[];
     onOpenConfirmDeleteRows: () => void;
 };
 
@@ -383,6 +397,7 @@ function CustomToolbar({
     filteredResults,
     setFilterButtonEl,
     onOpenConfirmDeleteRows,
+    categoryOptions,
 }: CustomToolbarProps) {
     return (
         <>
@@ -393,6 +408,7 @@ function CustomToolbar({
                         //stocks: PRODUCT_STOCK_OPTIONS,
                         publishs: PUBLISH_OPTIONS,
                         bios: BIO_OPTIONS,
+                        categories: categoryOptions,
                     }}
                 />
 
@@ -476,7 +492,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, filters }: ApplyFilterProps) {
-    const { stock, publish, bio } = filters;
+    const { stock, publish, bio, categories } = filters;
 
     if (stock.length) {
         inputData = inputData.filter((product) => stock.includes(product.inventoryType));
@@ -490,6 +506,13 @@ function applyFilter({ inputData, filters }: ApplyFilterProps) {
 
     if (bio.length) {
         inputData = inputData.filter((product) => bio.includes(product.bio ? 'true' : 'false'));
+    }
+
+    if (categories.length) {
+        inputData = inputData.filter((product) => {
+            if (!product.category || product.category.length === 0) return false;
+            return product.category.some((cat) => categories.includes(String(cat.id)));
+        });
     }
 
     return inputData;

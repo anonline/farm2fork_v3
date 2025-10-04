@@ -7,6 +7,8 @@ import { upperFirst } from 'es-toolkit';
 
 import Chip from '@mui/material/Chip';
 
+import { useCategories } from 'src/contexts/category-context';
+
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
 // ----------------------------------------------------------------------
@@ -57,6 +59,15 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
         [updateFilters, currentFilters.bio]
     );
 
+    const handleRemoveCategories = useCallback(
+        (inputValue: string) => {
+            const newValue = currentFilters.categories.filter((item) => item !== inputValue);
+
+            updateFilters({ categories: newValue });
+        },
+        [updateFilters, currentFilters.categories]
+    );
+
     return (
         <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
             <FiltersBlock label="Stock:" isShow={!!currentFilters.stock.length}>
@@ -95,6 +106,41 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
                     />
                 ))}
             </FiltersBlock>
+
+            <CategoriesFilterBlock
+                currentFilters={currentFilters}
+                handleRemoveCategories={handleRemoveCategories}
+            />
         </FiltersResult>
+    );
+}
+
+// ----------------------------------------------------------------------
+
+type CategoriesFilterBlockProps = {
+    currentFilters: IProductTableFilters;
+    handleRemoveCategories: (inputValue: string) => void;
+};
+
+function CategoriesFilterBlock({
+    currentFilters,
+    handleRemoveCategories,
+}: Readonly<CategoriesFilterBlockProps>) {
+    const { allCategories } = useCategories();
+
+    return (
+        <FiltersBlock label="Kategória:" isShow={!!currentFilters.categories.length}>
+            {currentFilters.categories.map((item) => {
+                const category = allCategories.find((cat) => String(cat.id) === item);
+                return (
+                    <Chip
+                        {...chipProps}
+                        key={item}
+                        label={category?.name || item}
+                        onDelete={() => handleRemoveCategories(item)}
+                    />
+                );
+            })}
+        </FiltersBlock>
     );
 }

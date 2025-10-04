@@ -22,19 +22,20 @@ import { CustomPopover } from 'src/components/custom-popover';
 type Props = {
     filters: UseSetStateReturn<IProductTableFilters>;
     options: {
-        //stocks: { value: string; label: string }[];
         publishs: { value: string; label: string }[];
         bios: { value: string; label: string }[];
+        categories: { value: string; label: string; level: number }[];
     };
 };
 
-export function ProductTableToolbar({ filters, options }: Props) {
+export function ProductTableToolbar({ filters, options }: Readonly<Props>) {
     const menuActions = usePopover();
 
     const { state: currentFilters, setState: updateFilters } = filters;
 
     const [publish, setPublish] = useState(currentFilters.publish);
     const [bio, setBio] = useState(currentFilters.bio);
+    const [categories, setCategories] = useState(currentFilters.categories);
 
     const handleChangePublish = useCallback((event: SelectChangeEvent<string[]>) => {
         const {
@@ -52,6 +53,13 @@ export function ProductTableToolbar({ filters, options }: Props) {
         setBio(typeof value === 'string' ? value.split(',') : value);
     }, []);
 
+    const handleChangeCategories = useCallback((event: SelectChangeEvent<string[]>) => {
+        const {
+            target: { value },
+        } = event;
+
+        setCategories(typeof value === 'string' ? value.split(',') : value);
+    }, []);
 
     const handleFilterPublish = useCallback(() => {
         updateFilters({ publish });
@@ -60,6 +68,10 @@ export function ProductTableToolbar({ filters, options }: Props) {
     const handleFilterBio = useCallback(() => {
         updateFilters({ bio });
     }, [bio, updateFilters]);
+
+    const handleFilterCategories = useCallback(() => {
+        updateFilters({ categories });
+    }, [categories, updateFilters]);
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -229,6 +241,72 @@ export function ProductTableToolbar({ filters, options }: Props) {
                         disableGutters
                         disableTouchRipple
                         onClick={handleFilterBio}
+                        sx={[
+                            (theme) => ({
+                                justifyContent: 'center',
+                                fontWeight: theme.typography.button,
+                                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                                border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+                            }),
+                        ]}
+                    >
+                        Alkalmaz
+                    </MenuItem>
+                </Select>
+            </FormControl>
+
+            <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+                <InputLabel htmlFor="filter-categories-select">Kategória</InputLabel>
+                <Select
+                    multiple
+                    value={categories}
+                    onChange={handleChangeCategories}
+                    onClose={handleFilterCategories}
+                    input={<OutlinedInput label="Kategória" />}
+                    renderValue={(selected) =>
+                        selected
+                            .map(
+                                (value) =>
+                                    options.categories.find((option) => option.value === value)
+                                        ?.label || value
+                            )
+                            .join(', ')
+                    }
+                    inputProps={{ id: 'filter-categories-select' }}
+                    sx={{ textTransform: 'capitalize' }}
+                    MenuProps={{
+                        PaperProps: {
+                            sx: {
+                                maxHeight: 400,
+                            },
+                        },
+                    }}
+                >
+                    {options.categories.map((option) => (
+                        <MenuItem 
+                            key={option.value} 
+                            value={option.value}
+                            sx={{ pl: 2 + (option.level * 2) }}
+                        >
+                            <Checkbox
+                                disableRipple
+                                size="small"
+                                checked={categories.includes(option.value)}
+                                slotProps={{
+                                    input: {
+                                        id: `${option.value}-checkbox`,
+                                        'aria-label': `${option.label} checkbox`,
+                                    },
+                                }}
+                            />
+                            {option.label}
+                        </MenuItem>
+                    ))}
+
+                    <MenuItem
+                        disableGutters
+                        disableTouchRipple
+                        onClick={handleFilterCategories}
                         sx={[
                             (theme) => ({
                                 justifyContent: 'center',
