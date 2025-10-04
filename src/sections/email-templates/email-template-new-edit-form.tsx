@@ -39,6 +39,7 @@ export type NewEmailTemplateSchemaType = zod.infer<typeof NewEmailTemplateSchema
 export const NewEmailTemplateSchema = zod.object({
     type: zod.nativeEnum(EmailTrigger, { message: 'Email típus megadása kötelező' }),
     subject: zod.string().min(1, { message: 'Tárgy megadása kötelező' }),
+    header: zod.string().optional(),
     body: zod.string().min(1, { message: 'Tartalom megadása kötelező' }),
     enabled: zod.boolean().default(true),
 });
@@ -62,6 +63,7 @@ export function EmailTemplateNewEditForm({
         type: type || currentTemplate?.type || EmailTrigger.WELCOME_EMAIL,
         subject: currentTemplate?.subject || '',
         body: currentTemplate?.body || '',
+        header: currentTemplate?.header || '',
         enabled: currentTemplate?.enabled ?? true,
     };
 
@@ -87,6 +89,7 @@ export function EmailTemplateNewEditForm({
                     type: data.type,
                     subject: data.subject,
                     body: data.body,
+                    header: data.header || '',
                     enabled: data.enabled,
                 });
             } else {
@@ -94,6 +97,7 @@ export function EmailTemplateNewEditForm({
                     type: data.type,
                     subject: data.subject,
                     body: data.body,
+                    header: data.header || '',
                     enabled: data.enabled,
                 });
             }
@@ -162,14 +166,22 @@ export function EmailTemplateNewEditForm({
                             <Field.Text
                                 name="subject"
                                 label="Tárgy"
-                                helperText="You can use {{name}} as a placeholder for user's name"
+                                helperText="Használható helyettesítők: {{name}}, {{order_id}}"
+                            />
+                        </Grid>
+
+                        <Grid size={{ xs: 12 }}>
+                            <Field.Text
+                                name="header"
+                                label="Fejléc"
+                                helperText=""
                             />
                         </Grid>
 
                         <Grid size={{ xs: 12 }}>
                             <Field.Editor
                                 name="body"
-                                helperText="You can use {{name}} as a placeholder for user's name"
+                                helperText="Használható helyettesítők: {{name}}, {{order_id}}, {{order_details_table}}, {{futar_info}}, {{change_log_section}}, {{expected_delivery_section}}."
                                 sx={{ minHeight: 300 }}
                             />
                         </Grid>

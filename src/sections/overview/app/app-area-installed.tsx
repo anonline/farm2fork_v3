@@ -23,6 +23,7 @@ type Props = CardProps & {
             name: string;
             data: {
                 name: string;
+                sum: number;
                 data: number[];
             }[];
         }[];
@@ -33,7 +34,8 @@ type Props = CardProps & {
 export function AppAreaInstalled({ title, subheader, chart, sx, ...other }: Props) {
     const theme = useTheme();
 
-    const [selectedSeries, setSelectedSeries] = useState('2023');
+    const [selectedSeries, setSelectedSeries] = useState('2025');
+    const [selectedSeriesIndex, setSelectedSeriesIndex] = useState(0);
 
     const chartColors = chart.colors ?? [
         theme.palette.primary.dark,
@@ -53,6 +55,7 @@ export function AppAreaInstalled({ title, subheader, chart, sx, ...other }: Prop
 
     const handleChangeSeries = useCallback((newValue: string) => {
         setSelectedSeries(newValue);
+        setSelectedSeriesIndex(chart.series.findIndex((i) => i.name === newValue));
     }, []);
 
     const currentSeries = chart.series.find((i) => i.name === selectedSeries);
@@ -74,8 +77,8 @@ export function AppAreaInstalled({ title, subheader, chart, sx, ...other }: Prop
 
             <ChartLegends
                 colors={chartOptions?.colors}
-                labels={chart.series[0].data.map((item) => item.name)}
-                values={[fShortenNumber(1234), fShortenNumber(6789), fShortenNumber(1012)]}
+                labels={chart.series[selectedSeriesIndex].data.map((item) => item.name)}
+                values={chart.series[selectedSeriesIndex].data.map((item) => fShortenNumber(item.sum))}
                 sx={{ px: 3, gap: 3 }}
             />
 

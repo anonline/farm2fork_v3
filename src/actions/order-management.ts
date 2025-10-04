@@ -150,7 +150,7 @@ export async function getOrderById(
             .select('*')
             .eq('id', orderId)
             .single();
-        console.log('Fetched order data:', orderId); // Debug log to check fetched data
+
         if (error) {
             console.error('Error fetching order:', error);
             return { order: null, error: error.message };
@@ -304,6 +304,47 @@ export async function updatePaymentStatus(
 }
 
 /**
+ * Helper function to transform database row to IOrderData
+ */
+function transformOrderRow(row: any): IOrderData {
+    return {
+        id: row.id,
+        dateCreated: row.date_created,
+        customerId: row.customer_id,
+        customerName: row.customer_name,
+        billingEmails: row.billing_emails || [],
+        notifyEmails: row.notify_emails || [],
+        note: row.note || '',
+        shippingAddress: row.shipping_address,
+        billingAddress: row.billing_address,
+        denyInvoice: row.deny_invoice || false,
+        needVAT: row.need_vat || false,
+        surchargeAmount: row.surcharge_amount || 0,
+        items: row.items || [],
+        subtotal: row.subtotal || 0,
+        shippingCost: row.shipping_cost || 0,
+        vatTotal: row.vat_total || 0,
+        discountTotal: row.discount_total || 0,
+        total: row.total || 0,
+        payedAmount: row.payed_amount || 0,
+        shippingMethod: row.shipping_method,
+        paymentMethod: row.payment_method,
+        paymentStatus: row.payment_status || 'pending',
+        orderStatus: row.order_status || 'pending',
+        paymentDueDays: row.payment_due_days || 0,
+        courier: row.courier,
+        plannedShippingDateTime: row.planned_shipping_date_time
+            ? new Date(row.planned_shipping_date_time)
+            : null,
+        shipment_time: row.shipment_time || '',
+        simplepayDataJson: row.simplepay_data_json,
+        invoiceDataJson: row.invoice_data_json,
+        history: row.history || [],
+        shipmentId: row.shipmentId || null,
+    };
+}
+
+/**
  * Get all orders with pagination and filtering
  */
 export async function getAllOrders(params?: {
@@ -340,48 +381,88 @@ export async function getAllOrders(params?: {
             console.error('Error fetching orders:', error);
             return { orders: [], total: 0, error: error.message };
         }
-        console.log(data);
+        
         // Transform database fields to match our interface
-        const orders: IOrderData[] = (data || []).map((row) => ({
-            id: row.id,
-            dateCreated: row.date_created,
-            customerId: row.customer_id,
-            customerName: row.customer_name,
-            billingEmails: row.billing_emails || [],
-            notifyEmails: row.notify_emails || [],
-            note: row.note || '',
-            shippingAddress: row.shipping_address,
-            billingAddress: row.billing_address,
-            denyInvoice: row.deny_invoice || false,
-            needVAT: row.need_vat || false,
-            surchargeAmount: row.surcharge_amount || 0,
-            items: row.items || [],
-            subtotal: row.subtotal || 0,
-            shippingCost: row.shipping_cost || 0,
-            vatTotal: row.vat_total || 0,
-            discountTotal: row.discount_total || 0,
-            total: row.total || 0,
-            payedAmount: row.payed_amount || 0,
-            shippingMethod: row.shipping_method,
-            paymentMethod: row.payment_method,
-            paymentStatus: row.payment_status || 'pending',
-            orderStatus: row.order_status || 'pending',
-            paymentDueDays: row.payment_due_days || 0,
-            courier: row.courier,
-            plannedShippingDateTime: row.planned_shipping_date_time
-                ? new Date(row.planned_shipping_date_time)
-                : null,
-            shipment_time: row.shipment_time || '',
-            simplepayDataJson: row.simplepay_data_json,
-            invoiceDataJson: row.invoice_data_json,
-            history: row.history || [],
-            shipmentId: row.shipmentId || null,
-        }));
+        const orders: IOrderData[] = (data || []).map(transformOrderRow);
 
         return { orders, total: count || 0, error: null };
     } catch (error) {
         console.error('Error fetching orders:', error);
         return { orders: [], total: 0, error: 'Failed to fetch orders' };
+    }
+}
+
+/**
+ * Get all orders in batches (for large datasets)
+ * This method fetches all orders matching the filter criteria in batches
+ */
+export async function getAllOrdersBatched(params?: {
+    status?: string;
+    customerId?: string;
+    batchSize?: number;
+    onBatchFetched?: (batch: IOrderData[], batchNumber: number, total: number) => void;
+}): Promise<{ orders: IOrderData[]; total: number; error: string | null }> {
+    try {
+        const batchSize = params?.batchSize || 1000;
+        const allOrders: IOrderData[] = [];
+        let currentBatch = 0;
+        let totalCount = 0;
+        let hasMore = true;
+        let hardPagelimit = 5;
+
+        while (hasMore) {
+            console.log(currentBatch);
+            // Build query with filters
+            let query = supabase
+                .from('orders')
+                .select('*', { count: 'exact' })
+                .order('date_created', { ascending: false });
+
+            // Apply filters
+            if (params?.status && params.status !== 'all') {
+                query = query.eq('order_status', params.status);
+            }
+
+            if (params?.customerId) {
+                query = query.eq('customer_id', params.customerId);
+            }
+
+            // Apply batch range
+            const from = currentBatch * batchSize;
+            const to = from + batchSize - 1;
+            query = query.range(from, to);
+
+            const { data, count, error } = await query;
+
+            if (error) {
+                console.error(`Error fetching orders batch ${currentBatch + 1}:`, error);
+                return { orders: allOrders, total: totalCount, error: error.message };
+            }
+
+            // Store total count from first batch
+            if (currentBatch === 0) {
+                totalCount = count || 0;
+            }
+
+            // Transform and add to results
+            const batchOrders = (data || []).map(transformOrderRow);
+            allOrders.push(...batchOrders);
+
+            // Call progress callback if provided
+            if (params?.onBatchFetched) {
+                params.onBatchFetched(batchOrders, currentBatch + 1, totalCount);
+            }
+
+            // Check if there are more batches to fetch
+            hasMore = data && data.length === batchSize;
+            currentBatch++;
+            if(currentBatch > hardPagelimit) break;
+        }
+
+        return { orders: allOrders, total: totalCount, error: null };
+    } catch (error) {
+        console.error('Error fetching orders in batches:', error);
+        return { orders: [], total: 0, error: 'Failed to fetch orders in batches' };
     }
 }
 

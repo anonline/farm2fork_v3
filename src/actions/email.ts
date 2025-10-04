@@ -80,6 +80,7 @@ export async function createEmailTemplate(templateData: {
     type: EmailTrigger;
     subject: string;
     body: string;
+    header: string;
     enabled: boolean;
 }) {
     const { data, error } = await supabase
@@ -88,6 +89,7 @@ export async function createEmailTemplate(templateData: {
             type: templateData.type,
             subject: templateData.subject,
             body: templateData.body,
+            header: templateData.header,
             enabled: templateData.enabled,
         })
         .select()
@@ -101,6 +103,7 @@ export async function updateEmailTemplate(templateData: {
     type: EmailTrigger;
     subject: string;
     body: string;
+    header: string;
     enabled: boolean;
 }) {
     const { data, error } = await supabase
@@ -108,6 +111,7 @@ export async function updateEmailTemplate(templateData: {
         .upsert({
             type: templateData.type,
             subject: templateData.subject,
+            header: templateData.header,
             body: templateData.body,
             enabled: templateData.enabled,
             updated_at: new Date().toISOString()

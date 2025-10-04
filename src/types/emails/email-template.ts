@@ -5,6 +5,7 @@ export default interface EmailTemplate {
     enabled: boolean;
     type: EmailTrigger;
     subject: string;
+    header:string;
     body: string;
     created_at: string;
     updated_at: string;

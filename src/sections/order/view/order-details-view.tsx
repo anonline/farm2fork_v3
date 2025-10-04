@@ -40,6 +40,8 @@ import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
 import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 
 import type { ProductForOrder } from '../product-selection-modal';
+import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
+import { fDate } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 
@@ -110,6 +112,23 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [orderId, orderData, fetchOrder]);
 
+    const sendNotificationEmail = useCallback(async (notifyEmails: string[]) => {
+        if (!orderData) return;
+
+        try {
+            await Promise.all(notifyEmails.map(async email => {
+                if (email?.includes('@')) {
+                    await triggerOrderProcessedEmail(email, orderData.customerName, orderData.id, fDate(orderData.plannedShippingDateTime));
+                }
+            }));
+        } catch (emailError) {
+            console.error('Error sending notification emails:', emailError);
+            toast.error('Hiba történt az értesítő e-mailek küldése során');
+        }
+        toast.success('Értesítő e-mailek sikeresen elküldve!');
+
+    }, [orderData]);
+
     const handleChangeStatus = useCallback(async (newStatus: string) => {
         if (!orderData?.id) {
             toast.error('Hiányzó rendelési azonosító');
@@ -158,7 +177,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             await refreshOrderHistory();
 
                             toast.success('Rendelés sikeresen törölve és SimplePay visszatérítés kezdeményezve!');
-                            
+
                         } else {
                             setStatus(oldStatus); // Revert status change
                             toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
@@ -188,6 +207,45 @@ export function OrderDetailsView({ orderId }: Props) {
 
         const shouldRemoveSurcharge = oldStatus === 'pending' && newStatus !== 'pending';
 
+        if (newStatus == 'pending') {
+            try {
+                // Update the status in the database
+                const { success, error: statusUpdateError } = await updateOrderStatus(
+                    orderData.id,
+                    newStatus as OrderStatus,
+                    `Státusz változtatás: ${oldStatus} -> ${newStatus}`
+                );
+
+                if (success) {
+                    // Update order context
+                    if (order) {
+                        updateOrder({
+                            ...order,
+                            status: newStatus,
+                        });
+                    }
+
+                    if (orderData) {
+                        updateOrderData({
+                            ...orderData,
+                            orderStatus: newStatus as OrderStatus,
+                        });
+                    }
+
+                    // Refresh order history to show the new entry
+                    await refreshOrderHistory();
+
+                    toast.success('Státusz sikeresen frissítve!');
+                } else {
+                    setStatus(oldStatus); // Revert status change
+                    toast.error(statusUpdateError || 'Hiba történt a státusz frissítése során');
+                }
+            } catch (ex) {
+                console.error('Error updating order status:', ex);
+                setStatus(oldStatus); // Revert status change
+                toast.error('Hiba történt a státusz frissítése során');
+            }
+        }
 
         if (newStatus == 'processing') {
 
@@ -231,6 +289,8 @@ export function OrderDetailsView({ orderId }: Props) {
                         return;
                     }
 
+
+
                     // Update local state
                     setEditedSurcharge(0);
                     if (orderData) {
@@ -244,6 +304,9 @@ export function OrderDetailsView({ orderId }: Props) {
                         });
                     }
                 }
+
+                // Send notification email when changing to processing status
+                sendNotificationEmail(orderData.notifyEmails);
 
                 if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
                     try {
@@ -348,7 +411,7 @@ export function OrderDetailsView({ orderId }: Props) {
             }
 
         }
-        
+
         if (newStatus === 'shipping') {
             try {
                 // Update the status in the database
@@ -388,7 +451,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 toast.error('Hiba történt a státusz frissítése során');
             }
         }
-        console.log(newStatus);
+
         if (newStatus === 'delivered') {
             try {
                 // Update the status in the database

@@ -11,7 +11,7 @@ import { fDate } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
-import { triggerOrderPlacedEmail } from 'src/actions/email-ssr';
+import { triggerOrderPlacedAdminEmail, triggerOrderPlacedEmail } from 'src/actions/email-ssr';
 import { getOrderByIdSSR, addOrderHistorySSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
@@ -213,6 +213,13 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
     //TODO: prevent resend on refresh
     await triggerOrderPlacedEmail(currentUser.email, order.customerName, orderId, fDate(order.plannedShippingDateTime));
+
+    const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAIL_FOR_NOTIFICATIONS;
+    if (adminEmails) {
+        adminEmails.split(',').forEach(async (email) => {
+            await triggerOrderPlacedAdminEmail(email.trim(), order.customerName, orderId, fDate(order.plannedShippingDateTime));
+        });
+    }
 
     return (
         <Container sx={{ py: 10, textAlign: 'center' }}>

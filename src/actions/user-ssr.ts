@@ -12,16 +12,19 @@ import { supabaseSSR, supabaseAdmin } from 'src/lib/supabase-ssr';
 export async function getUsers() {
     const cookieStore = await cookies();
     const client = await supabaseAdmin(cookieStore);
+    const supabaseSSRClient = await supabaseSSR(cookieStore);
 
     const response = await client.listUsers({ page: 1, perPage: 10000 });
+        if (response.error) throw response.error.message;
     
-    if (response.error) throw response.error.message;
+    const { data:roles } = await supabaseSSRClient.from('roles').select('*').range(0, 10000);
+
 
     const users = response.data.users.map((user) => ({
         id: user.id,
         name: user.user_metadata?.name ?? '',
         email: user.email ?? '',
-        role: user.user_metadata?.role ?? '',
+        role: roles?.find(r=>r.uid === user.id) || { is_admin: false, is_vip: false, is_corp: false, uid: user.id },
         avatarUrl: user.user_metadata?.avatar_url ?? '',
         city: user.user_metadata?.city ?? '',
         state: user.user_metadata?.state ?? '',

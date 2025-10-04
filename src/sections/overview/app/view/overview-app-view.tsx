@@ -32,6 +32,17 @@ type OverviewAppViewProps = {
     };
 
     processingOrdersPercent: number;
+
+    ordersCountByShippingMethod: { label: string; value: number }[];
+
+    ordersInYear: {
+        name: string;
+        data: {
+            name: string;
+            sum: number;
+            data: number[];
+        }[];
+    }[];
 };
 
 export function OverviewAppView({
@@ -40,7 +51,9 @@ export function OverviewAppView({
     newUsersPercent,
     totalProcessingOrders,
     processingOrdersByMonthAtLastYear,
-    processingOrdersPercent
+    processingOrdersPercent,
+    ordersCountByShippingMethod,
+    ordersInYear
 }: Readonly<OverviewAppViewProps>) {
     const theme = useTheme();
 
@@ -101,90 +114,33 @@ export function OverviewAppView({
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                     <AppCurrentDownload
                         title="Folyamatban lévő rendelések"
-                        subheader="Szállítási eloszlása"
+                        subheader="Átvételi pontokra (elmúlt 30 nap)"
                         chart={{
-                            series: [
-                                { label: 'Házhozszállítás', value: 12244 },
-                                { label: 'Farm2Fork raktár', value: 53345 },
-                                { label: 'BioKert', value: 44313 },
-                                { label: 'Replacc', value: 78343 },
-                            ],
+                            series: ordersCountByShippingMethod
                         }}
                     />
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6, lg: 8 }}>
                     <AppAreaInstalled
-                        title="Area installed"
-                        subheader="(+43%) than last year"
+                        title="Rendelések alakulása"
+                        subheader="szerepkörök szerint"
                         chart={{
                             categories: [
                                 'Jan',
                                 'Feb',
-                                'Mar',
-                                'Apr',
-                                'May',
-                                'Jun',
-                                'Jul',
+                                'Márc',
+                                'Ápr',
+                                'Máj',
+                                'Jún',
+                                'Júl',
                                 'Aug',
-                                'Sep',
-                                'Oct',
+                                'Szept',
+                                'Okt',
                                 'Nov',
                                 'Dec',
                             ],
-                            series: [
-                                {
-                                    name: '2022',
-                                    data: [
-                                        {
-                                            name: 'Asia',
-                                            data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16],
-                                        },
-                                        {
-                                            name: 'Europe',
-                                            data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16],
-                                        },
-                                        {
-                                            name: 'Americas',
-                                            data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16],
-                                        },
-                                    ],
-                                },
-                                {
-                                    name: '2023',
-                                    data: [
-                                        {
-                                            name: 'Asia',
-                                            data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17],
-                                        },
-                                        {
-                                            name: 'Europe',
-                                            data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17],
-                                        },
-                                        {
-                                            name: 'Americas',
-                                            data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17],
-                                        },
-                                    ],
-                                },
-                                {
-                                    name: '2024',
-                                    data: [
-                                        {
-                                            name: 'Asia',
-                                            data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10],
-                                        },
-                                        {
-                                            name: 'Europe',
-                                            data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10],
-                                        },
-                                        {
-                                            name: 'Americas',
-                                            data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10],
-                                        },
-                                    ],
-                                },
-                            ],
+                            series: ordersInYear,
                         }}
                     />
                 </Grid>
