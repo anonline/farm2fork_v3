@@ -52,6 +52,9 @@ export type ShipmentItemSummary = {
     isBio?: boolean;
     productData?: IProductItem;
     productLink?: string | null;
+    isBundleItem?: boolean;
+    parentQuantity?: number;
+    individualQuantity?: number;
 };
 
 export function ShipmentDetailsView({ id }: Readonly<Props>) {
@@ -88,7 +91,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                     new Set(
                         result.orders
                             .flatMap(order => order.items)
-                            .map(item => item.id)
+                            .map(item => item.id.toString())
                             .filter((oid): oid is string => typeof oid === 'string')
                     )
                 );
@@ -102,6 +105,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         setProducts(productsResult.products);
                     }
                 }
+                
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Hiba történt az adatok betöltésekor';
@@ -152,13 +156,14 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                 summary.orderIds.add(order.id);
             });
         });
-        return Array.from(itemsMap.entries()).map(([key, data]) => {
+        
+        const summaryItems = Array.from(itemsMap.entries()).map(([key, data]) => {
             const totalQuantity = data.quantities.reduce((sum, qty) => sum + qty, 0);
             const averagePrice = data.prices.reduce((sum, price) => sum + price, 0) / data.prices.length;
 
             // Find corresponding product data
-            const productData = products.find(product => product.id === data.item.id);
-
+            const productData = products.find(product => product.id.toString() === data.item.id.toString());
+            
             return {
                 id: key,
                 name: data.item.name,
@@ -176,6 +181,40 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                 productData,
             };
         }).sort((a, b) => b.totalValue - a.totalValue);
+
+        // Expand bundle items
+        const expandedItems: ShipmentItemSummary[] = [];
+        summaryItems.forEach((item) => {
+            // Add the main product
+            expandedItems.push(item);
+            console.log(item);
+            // If it's a bundle product, add its bundle items
+            if (item.productData?.type === 'bundle' && item.productData?.bundleItems && item.productData.bundleItems.length > 0) {
+                item.productData.bundleItems.forEach((bundleItem) => {
+                    const totalBundleQuantity = bundleItem.qty * item.totalQuantity;
+                    expandedItems.push({
+                        id: `${item.id}-bundle-${bundleItem.productId}`,
+                        name: bundleItem.product?.name || 'Unknown',
+                        unit: bundleItem.product?.unit || 'db',
+                        totalQuantity: totalBundleQuantity,
+                        averagePrice: 0,
+                        totalValue: 0,
+                        orderCount: item.orderCount,
+                        customersCount: item.customersCount,
+                        customers: item.customers,
+                        productId: bundleItem.productId,
+                        isBio: bundleItem.product?.bio || false,
+                        productLink: bundleItem.product?.slug ? paths.dashboard.product.edit(bundleItem.product.slug) : null,
+                        productData: bundleItem.product,
+                        isBundleItem: true,
+                        parentQuantity: item.totalQuantity,
+                        individualQuantity: bundleItem.qty,
+                    });
+                });
+            }
+        });
+
+        return expandedItems;
     }, [orders, products]);
 
     const handleExportPDF = useCallback(async () => {

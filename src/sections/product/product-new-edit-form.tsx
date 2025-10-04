@@ -1,6 +1,6 @@
 'use client';
 
-import type { MonthKeys, IProductItem } from 'src/types/product';
+import type { MonthKeys, IBundleItem, ProductType, IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
 import { useForm} from 'react-hook-form';
@@ -8,7 +8,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import { Box, Grid, Stack, Button } from '@mui/material';
+import { Box, Grid, Stack, Button, Switch, FormControlLabel } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -16,6 +16,7 @@ import { useRouter } from 'src/routes/hooks';
 import { useCategories } from 'src/contexts/category-context';
 import { useProducers } from 'src/contexts/producers-context';
 import { deleteFile, uploadFile } from 'src/lib/blob/blobClient';
+import { fetchBundleItems, updateBundleItems } from 'src/actions/bundle-items';
 import { useProductCategoryConnection } from 'src/contexts/product-category-connection-context';
 import { createProduct, updateProduct, fetchGetProductBySlug, updateProductCategoryRelations } from 'src/actions/product';
 
@@ -28,6 +29,8 @@ import FeaturedCard from './new-edit-form/featured-card';
 import CategoryCard from './new-edit-form/category-card';
 import PropertiesCard from './new-edit-form/properties-card';
 import SeasonalityCard from './new-edit-form/seasonality-card';
+import { BundleItemsCard } from './new-edit-form/bundle-items-card';
+
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +49,7 @@ const monthValues: [MonthKeys, ...MonthKeys[]] = [
 export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
+    sku: zod.string().optional(),
     shortDescription: zod.string().optional(),
     cardText: zod.string().optional(),
     storingInformation: zod.string().optional(),
@@ -102,6 +106,7 @@ export const NewProductSchema = zod.object({
     isPublic: zod.boolean().default(true),
     isVip: zod.boolean().default(false),
     isCorp: zod.boolean().default(false),
+    type: zod.enum(['simple', 'bundle']).default('simple'),
 })
     .refine((data) => {
         if (!data.backorder && data.stock !== null) {
@@ -124,13 +129,24 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
     const { loading: categoriesLoading, allCategories } = useCategories();
     const { producers } = useProducers();
     const { connection } = useProductCategoryConnection();
-
+    
     const openDetails = useBoolean(true);
     const openProperties = useBoolean(true);
     const openCategories = useBoolean(true);
     const openPricing = useBoolean(true);
     const openFeatured = useBoolean(true);
     const openSeasonality = useBoolean(true);
+    const openBundleItems = useBoolean(true);
+
+    const [bundleItems, setBundleItems] = useState<IBundleItem[]>([]);
+    const [productType, setProductType] = useState<ProductType>(currentProduct?.type || 'simple');
+
+    // Sync productType with currentProduct when it changes
+    useEffect(() => {
+        if (currentProduct?.type) {
+            setProductType(currentProduct.type);
+        }
+    }, [currentProduct?.type]);
 
     const defaultValues = useMemo<NewProductSchemaType>(() => {
         
@@ -181,8 +197,24 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             isPublic: currentProduct?.isPublic ?? true,
             isVip: currentProduct?.isVip ?? false,
             isCorp: currentProduct?.isCorp ?? false,
+            type: currentProduct?.type || 'simple',
         }
     }, [currentProduct, connection]);
+
+    // Load bundle items for existing product
+    useEffect(() => {
+        const loadBundleItems = async () => {
+            if (currentProduct?.id && currentProduct?.type === 'bundle') {
+                try {
+                    const items = await fetchBundleItems(currentProduct.id);
+                    setBundleItems(items);
+                } catch (error) {
+                    console.error('Error loading bundle items:', error);
+                }
+            }
+        };
+        loadBundleItems();
+    }, [currentProduct]);
 
     const methods = useForm<NewProductSchemaType>({
         resolver: zodResolver(NewProductSchema),
@@ -221,6 +253,35 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             const newNet = Math.round(newGross / (1 + vat / 100));
             setValue('netPrice', newNet, { shouldValidate: true });
         }
+    };
+
+    const handleProductTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newType = event.target.checked ? 'bundle' : 'simple';
+        setProductType(newType);
+        setValue('type', newType, { shouldValidate: true });
+        
+        // Clear bundle items if switching to simple
+        if (newType === 'simple') {
+            setBundleItems([]);
+        }
+    };
+
+    const handleAddBundleItem = (item: { productId: string; qty: number; product?: any }) => {
+        setBundleItems((prev) => [...prev, { 
+            productId: item.productId, 
+            qty: item.qty,
+            product: item.product 
+        }]);
+    };
+
+    const handleUpdateBundleItem = (productId: string, qty: number) => {
+        setBundleItems((prev) =>
+            prev.map((item) => (item.productId === productId ? { ...item, qty } : item))
+        );
+    };
+
+    const handleDeleteBundleItem = (productId: string) => {
+        setBundleItems((prev) => prev.filter((item) => item.productId !== productId));
     };
 
     const generateSlug = (name: string) => {
@@ -356,17 +417,25 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
             await updateProductCategoryRelations(productId, data.categoryIds);
 
-            reset();
+            // Handle bundle items if product type is bundle
+            if (data.type === 'bundle') {
+                await updateBundleItems(
+                    productId.toString(),
+                    bundleItems.map((item) => ({
+                        productId: item.productId,
+                        qty: item.qty,
+                    }))
+                );
+            }
+
             toast.success(currentProduct ? 'Sikeres frissítés!' : 'Sikeres létrehozás!');
-            router.push(paths.dashboard.product.root);
+            // Stay on the page after saving - do not redirect
 
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || 'Hiba történt a mentés során.');
         }
     }, (errors) => {
-        // This callback is called when form validation fails
-        console.log('Form validation errors:', errors);
         // Scroll to the first invalid field
         setTimeout(() => {
             scrollToInvalidField();
@@ -387,6 +456,16 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
 
     const renderFeatured = () => <FeaturedCard isOpen={openFeatured} />;
 
+    const renderBundleItems = () => (
+        <BundleItemsCard
+            isOpen={openBundleItems}
+            bundleItems={bundleItems}
+            onAddItem={handleAddBundleItem}
+            onUpdateItem={handleUpdateBundleItem}
+            onDeleteItem={handleDeleteBundleItem}
+        />
+    );
+
     return (
         <Form methods={methods} onSubmit={onSubmit}>
             <Box
@@ -397,6 +476,22 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 }}
             >
                 <Stack spacing={3}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: -1 }}>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={productType === 'bundle'}
+                                    onChange={handleProductTypeChange}
+                                />
+                            }
+                            label="Csomag termék"
+                        />
+                    </Box>
+                    
+                    {(() => {
+                        return productType === 'bundle' && renderBundleItems();
+                    })()}
+
                     {renderDetails()}
 
                     <Grid container spacing={3}>
@@ -409,6 +504,8 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                     </Grid>
 
                     {renderProperties()}
+
+                    
                 </Stack>
                 <Stack spacing={3}>
                     {renderPricingAndStock()}

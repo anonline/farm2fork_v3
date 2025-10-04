@@ -97,7 +97,7 @@ export async function fetchGetProductsByIds(productIds: string[]): Promise<{ pro
             .from('Products')
             .select('*, ProductCategories_Products(ProductCategories(*))')
             .in('id', productIds);
-
+        
         const { data, error: responseError } = response;
 
         if (responseError) {
@@ -105,7 +105,46 @@ export async function fetchGetProductsByIds(productIds: string[]): Promise<{ pro
             return { products: [], error: responseError.message };
         }
 
-        return { products: data as IProductItem[] || [], error: null };
+        let products = data as IProductItem[] || [];
+        // Fetch bundle items for bundle products
+        const bundleProductIds = products
+            .filter(product => product.type === 'bundle')
+            .map(product => product.id.toString());
+        
+        if (bundleProductIds.length > 0) {
+            const { data: bundleData, error: bundleError } = await supabase
+                .from('ProductsInBoxes')
+                .select('boxId, productId, qty, product:Products!ProductsInBoxes_productId_fkey(*)')
+                .in('boxId', bundleProductIds);
+            
+            if (bundleError) {
+                console.error('Error fetching bundle items:', bundleError);
+            } else if (bundleData) {
+                const bundleItemsMap = new Map<string, any[]>();
+
+                bundleData.forEach((item: any) => {
+                    const boxId = item.boxId.toString();
+
+                    if (!bundleItemsMap.has(boxId)) {
+                        bundleItemsMap.set(boxId, []);
+                    }
+
+                    bundleItemsMap.get(boxId)!.push({
+                        productId: item.productId.toString(),
+                        qty: item.qty,
+                        product: item.product,
+                    });
+                });
+                products = products.map(product => {
+                    if (product.type === 'bundle' && bundleItemsMap.has(product.id.toString())) {
+                        product.bundleItems = bundleItemsMap.get(product.id.toString());
+                    }
+                    return product;
+                });
+            }
+        }
+
+        return { products, error: null };
     } catch (error) {
         console.error('Error fetching products by IDs:', error);
         return { products: [], error: 'Failed to fetch products' };

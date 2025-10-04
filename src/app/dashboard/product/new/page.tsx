@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { CategoryProvider } from 'src/contexts/category-context';
+import { ProducersProvider } from 'src/contexts/producers-context';
+import { ProductCategoryConnectionProvider } from 'src/contexts/product-category-connection-context';
 
 import { CONFIG } from 'src/global-config';
 
@@ -11,5 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-    return <ProductCreateView />;
+    return (<ProducersProvider showDisabled>
+        <CategoryProvider>
+            <ProductCategoryConnectionProvider>
+                <ProductCreateView />
+            </ProductCategoryConnectionProvider>
+        </CategoryProvider>
+    </ProducersProvider>);
 }

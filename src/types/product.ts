@@ -46,6 +46,14 @@ export const Months = {
 } as const;
 export type MonthKeys = keyof typeof Months;
 
+export type ProductType = 'simple' | 'bundle';
+
+export type IBundleItem = {
+    productId: string;
+    qty: number;
+    product?: IProductItem;
+};
+
 export type IProductItem = {
     storingInformation: any;
     usageInformation: any;
@@ -113,6 +121,8 @@ export type IProductItem = {
     isVip: boolean;
     isCorp: boolean;
     isPublic: boolean;
+    type?: ProductType;
+    bundleItems?: IBundleItem[];
 };
 
 export type IProductCategory = {

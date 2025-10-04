@@ -42,21 +42,29 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             hideable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <Box sx={{ py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ py: 1, display: 'flex', alignItems: 'center', gap: 1, pl: params.row.isBundleItem ? 4 : 0 }}>
                     <Box sx={{ flex: 1 }}>
                         {params.row.productLink ? (
                             <Link href={params.row.productLink} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <Typography variant="body2" fontWeight="medium">
+                                <Typography 
+                                    variant="body2" 
+                                    fontWeight={params.row.isBundleItem ? "normal" : "medium"}
+                                    sx={{ color: params.row.isBundleItem ? 'text.secondary' : 'text.primary' }}
+                                >
                                     {params.value}
                                 </Typography>
                             </Link>
                         ) : (
-                            <Typography variant="body2" fontWeight="medium">
+                            <Typography 
+                                variant="body2" 
+                                fontWeight={params.row.isBundleItem ? "normal" : "medium"}
+                                sx={{ color: params.row.isBundleItem ? 'text.secondary' : 'text.primary' }}
+                            >
                                 {params.value}
                             </Typography>
                         )}
                     </Box>
-                    {params.row.isBio && (
+                    {params.row.isBio && !params.row.isBundleItem && (
                         <BioBadge
                             style={{ flexShrink: 0 }}
                             width={32}
@@ -69,15 +77,32 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
         {
             field: 'totalQuantity',
             headerName: 'Mennyiség',
-            width: 160,
+            width: 240,
             align: 'center',
             headerAlign: 'center',
             disableColumnMenu: true,
-            renderCell: (params) => (
-                <Typography variant="body2" fontWeight="medium">
-                    {params.value.toLocaleString('hu-HU')} {params.row.unit}
-                </Typography>
-            ),
+            renderCell: (params) => {
+                if (params.row.isBundleItem) {
+                    // Bundle item format: "0.8 kg (2 x 0.4 kg)"
+                    const total = params.value;
+                    const parent = params.row.parentQuantity || 1;
+                    const individual = params.row.individualQuantity || 0;
+                    
+                    return (
+                        <Typography variant="caption" color="text.secondary">
+                            {total.toLocaleString('hu-HU', { minimumFractionDigits: total % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} {params.row.unit}
+                            {` (${parent} x ${individual.toLocaleString('hu-HU', { minimumFractionDigits: individual % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} ${params.row.unit})`}
+                        </Typography>
+                    );
+                }
+                
+                // Main product format: "2 ea"
+                return (
+                    <Typography variant="body2" fontWeight="medium">
+                        {params.value.toLocaleString('hu-HU')} {params.row.unit || 'db'}
+                    </Typography>
+                );
+            },
         },
         {
             field: 'totalValue',
@@ -87,11 +112,16 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             headerAlign: 'center',
 
             disableColumnMenu: true,
-            renderCell: (params) => (
-                <Typography variant="body2" fontWeight="medium">
-                    {fCurrency(params.value)}
-                </Typography>
-            ),
+            renderCell: (params) => {
+                if (params.row.isBundleItem) {
+                    return null;
+                }
+                return (
+                    <Typography variant="body2" fontWeight="medium">
+                        {fCurrency(params.value)}
+                    </Typography>
+                );
+            },
         },
         {
             field: 'orderCount',
@@ -100,19 +130,24 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             align: 'center',
             headerAlign: 'center',
             disableColumnMenu: true,
-            renderCell: (params) => (
-                <Chip
-                    size="small"
-                    label={params.value}
-                    color="primary"
-                    sx={{
+            renderCell: (params) => {
+                if (params.row.isBundleItem) {
+                    return null;
+                }
+                return (
+                    <Chip
+                        size="small"
+                        label={params.value}
+                        color="primary"
+                        sx={{
 
-                        fontWeight: 'medium',
-                    }}
-                />
-            ),
+                            fontWeight: 'medium',
+                        }}
+                    />
+                );
+            },
         }
-    ], [theme]);
+    ], []);
 
     const mobileColumns: GridColDef[] = useMemo(() => [
         {
@@ -123,21 +158,29 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             disableColumnMenu: true,
 
             renderCell: (params) => (
-                <Box sx={{ py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ py: 1, display: 'flex', alignItems: 'center', gap: 1, pl: params.row.isBundleItem ? 2 : 0 }}>
                     <Box sx={{ flex: 1, flexWrap: 'nowrap' }}>
                         {params.row.productLink ? (
                             <Link href={params.row.productLink} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <Typography variant="body2" fontWeight="medium">
+                                <Typography 
+                                    variant="body2" 
+                                    fontWeight={params.row.isBundleItem ? "normal" : "medium"}
+                                    sx={{ color: params.row.isBundleItem ? 'text.secondary' : 'text.primary' }}
+                                >
                                     {params.value}
                                 </Typography>
                             </Link>
                         ) : (
-                            <Typography variant="body2" fontWeight="medium">
+                            <Typography 
+                                variant="body2" 
+                                fontWeight={params.row.isBundleItem ? "normal" : "medium"}
+                                sx={{ color: params.row.isBundleItem ? 'text.secondary' : 'text.primary' }}
+                            >
                                 {params.value}
                             </Typography>
                         )}
                     </Box>
-                    {params.row.isBio && (
+                    {params.row.isBio && !params.row.isBundleItem && (
                         <BioBadge
                             style={{ flexShrink: 0 }}
                             width={32}
@@ -154,11 +197,31 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             flex: 1,
             headerAlign: 'center',
             disableColumnMenu: true,
-            renderCell: (params) => (
-                <Typography variant="body2" fontWeight="medium">
-                    {params.value.toLocaleString('hu-HU')} {params.row.unit}
-                </Typography>
-            ),
+            renderCell: (params) => {
+                if (params.row.isBundleItem) {
+                    const total = params.value;
+                    const parent = params.row.parentQuantity || 1;
+                    const individual = params.row.individualQuantity || 0;
+                    
+                    return (
+                        <Typography variant="caption" color="text.secondary">
+                            {total.toLocaleString('hu-HU', { minimumFractionDigits: total % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} {params.row.unit}
+                            {parent > 1 && ` (${parent} x ${individual.toLocaleString('hu-HU', { minimumFractionDigits: individual % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} ${params.row.unit})`}
+                        </Typography>
+                    );
+                }
+                
+                return (
+                    <Box>
+                        <Typography variant="body2" fontWeight="medium">
+                            {params.value.toLocaleString('hu-HU')} {params.row.unit}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            {fCurrency(params.row.totalValue)}
+                        </Typography>
+                    </Box>
+                );
+            },
         },
         {
             field: 'orderCount',
@@ -167,18 +230,23 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             flex: 1,
             headerAlign: 'center',
             disableColumnMenu: true,
-            renderCell: (params) => (
-                <Chip
-                    size="small"
-                    label={params.value}
-                    color="primary"
-                    sx={{
-                        fontWeight: 'medium',
-                    }}
-                />
-            ),
+            renderCell: (params) => {
+                if (params.row.isBundleItem) {
+                    return null;
+                }
+                return (
+                    <Chip
+                        size="small"
+                        label={params.value}
+                        color="primary"
+                        sx={{
+                            fontWeight: 'medium',
+                        }}
+                    />
+                );
+            },
         }
-    ], [theme]);
+    ], []);
 
     if (error) {
         return (
@@ -203,6 +271,7 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             initialState={{
                 pagination: { paginationModel: { pageSize: 25 } },
             }}
+            getRowClassName={(params) => params.row.isBundleItem ? 'bundle-item-row' : ''}
             sx={{
                 display: { xs: 'block', sm: 'none' },
                 '& .MuiDataGrid-cell': {
@@ -218,6 +287,12 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
                 '& .MuiDataGrid-row': {
                     '&:hover': {
                         bgcolor: alpha(theme.palette.primary.main, 0.04),
+                    },
+                },
+                '& .MuiDataGrid-row.bundle-item-row': {
+                    bgcolor: alpha(theme.palette.grey[500], 0.04),
+                    '&:hover': {
+                        bgcolor: alpha(theme.palette.grey[500], 0.08),
                     },
                 },
                 '& .MuiDataGrid-columnHeader': {
@@ -248,6 +323,7 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             initialState={{
                 pagination: { paginationModel: { pageSize: 25 } },
             }}
+            getRowClassName={(params) => params.row.isBundleItem ? 'bundle-item-row' : ''}
             sx={{
                 display: { xs: 'none', sm: 'block' },
                 '& .MuiDataGrid-cell': {
@@ -263,6 +339,12 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
                 '& .MuiDataGrid-row': {
                     '&:hover': {
                         bgcolor: alpha(theme.palette.primary.main, 0.04),
+                    },
+                },
+                '& .MuiDataGrid-row.bundle-item-row': {
+                    bgcolor: alpha(theme.palette.grey[500], 0.04),
+                    '&:hover': {
+                        bgcolor: alpha(theme.palette.grey[500], 0.08),
                     },
                 },
                 '& .MuiDataGrid-columnHeader': {

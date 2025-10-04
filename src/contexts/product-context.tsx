@@ -40,11 +40,37 @@ export function ProductProvider({ children, slug }: Readonly<ProductProviderProp
             if (error) {
                 setLoaderror(error.message);
                 setProduct(null);
-            } else {
+            } else if (data) {
+                // If product is a bundle, fetch bundle items
+                if (data.type === 'bundle') {
+                    const { data: bundleData, error: bundleError } = await supabase
+                        .from('ProductsInBoxes')
+                        .select('productId, qty, product:Products!ProductsInBoxes_productId_fkey(*)')
+                        .eq('boxId', data.id);
+
+                    if (bundleError) {
+                        console.error('Error fetching bundle items:', bundleError);
+                    } else if (bundleData) {
+                        // Map bundle items to the expected format
+                        const bundleItems = bundleData.map((item: any) => ({
+                            productId: item.productId.toString(),
+                            qty: item.qty,
+                            product: item.product,
+                        }));
+                        setProduct({ ...data, bundleItems });
+                        setLoaderror(null);
+                        console.log('fetching:', { ...data, bundleItems });
+                        setLoading(false);
+                        return;
+                    }
+                }
                 setProduct(data ?? null);
                 setLoaderror(null);
+                console.log('fetching:', data);
+            } else {
+                setProduct(null);
+                setLoaderror(null);
             }
-            console.log('fetching:', data);
             setLoading(false);
         }
         fetchProducts();

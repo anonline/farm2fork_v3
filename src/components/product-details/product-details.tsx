@@ -88,6 +88,47 @@ export default function ProductDetails() {
             </Box>
         );
 
+    const renderBundleItems = () => {
+        if (loading) {
+            return (
+                <Box sx={{ width: '80%' }}>
+                    <Skeleton variant="rectangular" width="100%" height={48} />
+                </Box>
+            );
+        }
+
+        if (product?.type === 'bundle' && product.bundleItems && product.bundleItems.length > 0) {
+            return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                    <Typography
+                        sx={{
+                            fontFamily: themeConfig.fontFamily.primary,
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            lineHeight: '28px',
+                            letterSpacing: '0.32px',
+                            color: themeConfig.textColor.default,
+                            marginBottom: '10px',
+                        }}
+                    >
+                        A {product.unit || 'csomag'} tartalma:
+                    </Typography>
+                    <ul style={{ paddingLeft: '20px', marginTop: 0 }}>
+                        {product.bundleItems.map((item) => (
+                            <li
+                                key={item.productId}
+                            >
+                                {item.qty} {item.product?.unit || 'db?'} - {item.product?.name || 'Ismeretlen termék'}
+                            </li>
+                        ))}
+                    </ul>
+                </Box>
+            );
+        }
+
+        return null;
+    };
+
     const getPrice = () => {
         if (user?.user_metadata?.is_vip) {
             return product?.netPriceVIP;
@@ -206,7 +247,7 @@ export default function ProductDetails() {
             <Box>
                 <Image
                     alt={product?.name ?? ''}
-                    src={product?.featuredImage ?? 'https://placehold.co/608x614'}
+                    src={product?.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                     sx={{
                         borderRadius: '8px',
                         width: { xs: '100%', md: '608px' },
@@ -244,6 +285,8 @@ export default function ProductDetails() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderSeasonality()}
                 </Box>
+                
+                    {renderBundleItems()}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderProducerInfo()}
                 </Box>

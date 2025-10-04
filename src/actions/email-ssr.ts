@@ -503,7 +503,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
 const formatNumber = (num: string | number, decimals = -1) =>{
     let numValue = Number(num);
     if(isNaN(numValue)) numValue = 0;
-    let stringValue = numValue.toFixed( decimals < 0 ? (Number.isInteger(numValue) ? 0 : 2) : decimals );
+    const stringValue = numValue.toFixed( decimals < 0 ? (Number.isInteger(numValue) ? 0 : 2) : decimals );
 
     return stringValue.replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
 }
