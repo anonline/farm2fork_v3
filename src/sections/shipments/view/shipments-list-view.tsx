@@ -80,6 +80,9 @@ type ShipmentItemSummary = {
     customers: string[];
     productId?: string;
     isBio?: boolean;
+    isBundleItem?: boolean;
+    parentQuantity?: number;
+    individualQuantity?: number;
 };
 
 /**
@@ -141,12 +144,12 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
         });
     });
 
-    return Array.from(itemsMap.entries()).map(([key, data]) => {
+    const summaryItems = Array.from(itemsMap.entries()).map(([key, data]) => {
         const totalQuantity = data.quantities.reduce((sum, qty) => sum + qty, 0);
         const averagePrice = data.prices.reduce((sum, price) => sum + price, 0) / data.prices.length;
 
         // Find corresponding product data
-        const productData = products.find(product => product.id === data.item.id);
+        const productData = products.find(product => product.id.toString() === data.item.id.toString());
 
         return {
             id: key,
@@ -161,8 +164,41 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
             customers: Array.from(data.customers),
             productId: data.item.id,
             isBio: productData?.bio || false,
+            productData,
         };
     }).sort((a, b) => b.totalValue - a.totalValue);
+
+    // Expand bundle items
+    const expandedItems: ShipmentItemSummary[] = [];
+    summaryItems.forEach((item) => {
+        // Add the main product
+        expandedItems.push(item);
+
+        // If it's a bundle product, add its bundle items
+        if (item.productData?.type === 'bundle' && item.productData?.bundleItems && item.productData.bundleItems.length > 0) {
+            item.productData.bundleItems.forEach((bundleItem) => {
+                const totalBundleQuantity = bundleItem.qty * item.totalQuantity;
+                expandedItems.push({
+                    id: `${item.id}-bundle-${bundleItem.productId}`,
+                    name: bundleItem.product?.name || 'Unknown',
+                    unit: bundleItem.product?.unit || 'db',
+                    totalQuantity: totalBundleQuantity,
+                    averagePrice: 0,
+                    totalValue: 0,
+                    orderCount: item.orderCount,
+                    customersCount: item.customersCount,
+                    customers: item.customers,
+                    productId: bundleItem.productId,
+                    isBio: bundleItem.product?.bio || false,
+                    isBundleItem: true,
+                    parentQuantity: item.totalQuantity,
+                    individualQuantity: bundleItem.qty,
+                });
+            });
+        }
+    });
+
+    return expandedItems;
 }
 
 // ----------------------------------------------------------------------
@@ -330,6 +366,12 @@ export function ShipmentsListView() {
                     existingItem.orderCount += item.orderCount;
                     existingItem.customersCount += item.customersCount;
                     existingItem.customers = Array.from(new Set([...existingItem.customers, ...item.customers]));
+                    
+                    // Update bundle item quantities
+                    if (item.isBundleItem && item.parentQuantity && item.individualQuantity) {
+                        existingItem.parentQuantity = (existingItem.parentQuantity || 0) + item.parentQuantity;
+                        existingItem.individualQuantity = item.individualQuantity; // Keep the same individual quantity
+                    }
                 } else {
                     // Add new item
                     acc.itemsSummary.push({ ...item });
