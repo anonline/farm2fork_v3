@@ -6,9 +6,10 @@ import React, { useMemo, useState, useEffect } from 'react';
 
 import { Box, Grid, Button, Typography, CircularProgress } from '@mui/material';
 
+import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
+
 import { CONFIG } from 'src/global-config';
 import { useProducts } from 'src/contexts/products-context';
-import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
 
 import ProductCard from 'src/components/product-card/product-card';
 
