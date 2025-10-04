@@ -24,7 +24,8 @@ import { useOrderContext } from 'src/contexts/order-context';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, updateOrderUserHistory } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, updateOrderUserHistory, updateOrderDeliveryGuy } from 'src/actions/order-management';
+import { useGetDeliveries } from 'src/actions/delivery';
 
 import { toast } from 'src/components/snackbar';
 
@@ -37,7 +38,6 @@ import { OrderDetailsCustomer } from '../order-details-customer';
 import { OrderDetailsDelivery } from '../order-details-delivery';
 import { OrderDetailsShipping } from '../order-details-shipping';
 import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
-import { OrderDetailsDeliveryGuy } from '../order-details-delivery-guy';
 import { OrderDetailsUserHistory } from '../order-details-user-history';
 
 import type { ProductForOrder } from '../product-selection-modal';
@@ -54,6 +54,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const { state, updateOrder, updateOrderData, refreshOrderHistory, fetchOrder } = useOrderContext();
     const { refreshCounts } = useShipments();
     const { order, orderData, loading, error } = state;
+    const { deliveries } = useGetDeliveries();
 
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
@@ -911,6 +912,51 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [orderData, updateOrderData]);
 
+    const handleChangeDeliveryGuy = useCallback(async (newDeliveryGuyId: number | null) => {
+        if (!orderId || !orderData) {
+            toast.error('Hiányzó rendelési azonosító');
+            return;
+        }
+
+        // Optimistic update - frissítjük azonnal a UI-t
+        const newCourier = newDeliveryGuyId ? newDeliveryGuyId.toString() : null;
+        updateOrderData({
+            ...orderData,
+            courier: newCourier,
+        });
+
+        // Update localStorage
+        const orderLocalData = localStorage.getItem(`order-${orderId}`);
+        if (orderLocalData) {
+            const parsedData = JSON.parse(orderLocalData);
+            parsedData.courier = newCourier;
+            localStorage.setItem(`order-${orderId}`, JSON.stringify(parsedData));
+        }
+
+        // Show immediate feedback
+        toast.success(
+            newDeliveryGuyId 
+                ? 'Futár sikeresen hozzárendelve!' 
+                : 'Futár eltávolítva!'
+        );
+
+        // Update in background
+        try {
+            const { success, error: updateError } = await updateOrderDeliveryGuy(orderId, newDeliveryGuyId);
+
+            if (!success) {
+                // Revert on error
+                toast.error(updateError || 'Hiba történt a futár frissítése során');
+                await fetchOrder(orderId);
+            }
+        } catch (ex) {
+            console.error('Error updating delivery guy:', ex);
+            toast.error('Hiba történt a futár frissítése során');
+            // Revert on error
+            await fetchOrder(orderId);
+        }
+    }, [orderId, orderData, updateOrderData, fetchOrder]);
+
     // Calculate updated totals when in edit mode
     const displayItems = isEditing ? editedItems : order?.items || [];
     const updatedSubtotal = isEditing
@@ -989,6 +1035,9 @@ export function OrderDetailsView({ orderId }: Props) {
                 orderData={orderData}
                 onStartEdit={handleStartEdit}
                 isEditing={isEditing}
+                deliveryGuys={deliveries.map(d => ({ id: d.id, name: d.name }))}
+                currentDeliveryGuyId={orderData?.courier ? parseInt(orderData.courier, 10) : null}
+                onChangeDeliveryGuy={handleChangeDeliveryGuy}
             />
 
             <Grid container spacing={3}>
@@ -1055,6 +1104,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             customerId={orderData?.customerId || undefined}
                             onRefreshOrder={handleRefreshOrderHistory}
                             customer={order?.customer}
+                            deliveryGuyId={orderData?.courier ? parseInt(orderData.courier, 10) : null}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -1089,15 +1139,6 @@ export function OrderDetailsView({ orderId }: Props) {
 
                         {orderData && (
                             <>
-                                <Divider sx={{ borderStyle: 'dashed' }} />
-                                <OrderDetailsDeliveryGuy
-                                    orderId={orderData.id}
-                                    currentDeliveryGuyId={(() => {
-                                        if (!orderData.courier) return null;
-                                        const parsedId = parseInt(orderData.courier, 10);
-                                        return Number.isNaN(parsedId) ? null : parsedId;
-                                    })()}
-                                />
                             </>
                         )}
                     </Card>

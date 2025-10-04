@@ -25,8 +25,15 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 import { StatusSplitButton } from 'src/components/status-split-button';
+import { DeliveryGuySplitButton } from 'src/components/delivery-guy-split-button';
+import { Tooltip } from '@mui/material';
 
 // ----------------------------------------------------------------------
+
+type DeliveryGuyOption = {
+    id: number;
+    name: string;
+};
 
 type Props = {
     readonly status?: string;
@@ -41,6 +48,9 @@ type Props = {
     readonly paymentStatusOptions?: { value: string; label: string }[];
     readonly onStartEdit?: () => void;
     readonly isEditing?: boolean;
+    readonly deliveryGuys?: DeliveryGuyOption[];
+    readonly currentDeliveryGuyId?: number | null;
+    readonly onChangeDeliveryGuy?: (newDeliveryGuyId: number | null) => void;
 };
 
 export function OrderDetailsToolbar({
@@ -56,6 +66,9 @@ export function OrderDetailsToolbar({
     paymentStatusOptions,
     onStartEdit,
     isEditing,
+    deliveryGuys = [],
+    currentDeliveryGuyId,
+    onChangeDeliveryGuy,
 }: Props) {
     const paymentMenuActions = usePopover();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -87,9 +100,9 @@ export function OrderDetailsToolbar({
     };
 
     // Check if invoice data exists
-    const hasInvoiceData = orderData?.invoiceDataJson && 
-                          orderData.invoiceDataJson.success && 
-                          orderData.invoiceDataJson.invoiceNumber;
+    const hasInvoiceData = orderData?.invoiceDataJson &&
+        orderData.invoiceDataJson.success &&
+        orderData.invoiceDataJson.invoiceNumber;
 
     const renderPaymentMenuActions = () => (
         <CustomPopover
@@ -171,7 +184,7 @@ export function OrderDetailsToolbar({
                                     (status === 'cancelled' && 'error') ||
                                     'inherit'
                                 }
-                                sx={{display:{xs:'none', sm:'inline-flex'}}}
+                                sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
                             >
                                 {renderStatusLabel()}
                             </Button>
@@ -187,7 +200,7 @@ export function OrderDetailsToolbar({
                                         'inherit'
                                     }
                                     sx={{
-                                        display:{xs:'none', sm:'inline-flex'},
+                                        display: { xs: 'none', sm: 'inline-flex' },
                                         minWidth: 'auto',
                                         cursor: 'pointer',
                                         '&:hover': {
@@ -208,7 +221,7 @@ export function OrderDetailsToolbar({
                                         (orderData?.paymentStatus === 'failed' && 'error') ||
                                         'default'
                                     }
-                                    sx={{display:{xs:'none', sm:'inline-flex'}}}
+                                    sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
                                 >
                                     {renderPaymentStatusLabel()}
                                 </Label>
@@ -240,26 +253,38 @@ export function OrderDetailsToolbar({
                         renderLabel={renderActionStatusLabels}
                     />
 
-                    {order?.shipmentId && (
-                        <Button
+
+
+                    {deliveryGuys && onChangeDeliveryGuy && (
+                        <DeliveryGuySplitButton
+                            currentDeliveryGuyId={currentDeliveryGuyId || null}
+                            deliveryGuys={deliveryGuys}
+                            onChangeDeliveryGuy={onChangeDeliveryGuy}
                             color="inherit"
                             variant="outlined"
-                            href={paths.dashboard.shipments.details(order.shipmentId)}
-                            startIcon={<Iconify icon="solar:file-text-bold" />}
-                        >
-                            Összesítő
-                        </Button>
+                        />
                     )}
 
-                    <Button
-                        color="error"
-                        variant="outlined"
-                        startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
-                        onClick={handleGeneratePDF}
-                        disabled={!order}
-                    >
-                        Szállítólevél
-                    </Button>
+                    {order?.shipmentId && (
+                        <Tooltip title="Összesítő">
+                            <IconButton
+                                color="inherit"
+                                href={paths.dashboard.shipments.details(order.shipmentId)}
+                            >
+                                <Iconify icon="solar:file-text-bold" />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+
+                    <Tooltip title="Szállítólevél">
+                        <IconButton
+                            color="error"
+                            onClick={handleGeneratePDF}
+                            disabled={!order}
+                        >
+                            <Iconify icon="solar:printer-minimalistic-bold" />
+                        </IconButton>
+                    </Tooltip>
 
                     {hasInvoiceData && (
                         <Button

@@ -13,11 +13,14 @@ import FormControl from '@mui/material/FormControl';
 
 import { supabase } from 'src/lib/supabase';
 import { useGetAddresses } from 'src/actions/address';
+import { useGetDeliveries } from 'src/actions/delivery';
 import { getOrderById } from 'src/actions/order-management';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
 
 import { toast } from 'src/components/snackbar';
+
+import { formatPhoneNumber } from '../delivery/view/delivery-list-view';
 
 // ----------------------------------------------------------------------
 
@@ -28,11 +31,13 @@ type Props = {
     customerId?: string;
     onRefreshOrder?: () => void;
     customer:IOrderCustomer;
+    deliveryGuyId?: number | null;
 };
 
-export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId, onRefreshOrder, customer }: Readonly<Props>) {
+export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId, onRefreshOrder, customer, deliveryGuyId }: Readonly<Props>) {
     const pickuplocations = useGetPickupLocations();
     const { addresses: addressData } = useGetAddresses(customerId);
+    const { deliveries } = useGetDeliveries();
 
     const {methods:storedShippingMethods } = useGetShippingCostMethods();
 
@@ -326,12 +331,33 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
         }
     }, [isEditable, orderId, isUpdating, pickuplocations?.locations, onRefreshOrder]);
 
+    const selectedDeliveryGuy = deliveries.find((d) => d.id === deliveryGuyId);
+
     return (
         <>
             <CardHeader
                 title="Szállítási mód"
             />
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
+                {selectedDeliveryGuy && (
+                    <>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box
+                                component="span"
+                                sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
+                            >
+                                Futár
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                <Box sx={{ fontWeight: 'medium' }}>{selectedDeliveryGuy.name}</Box>
+                                <Box sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                                    {formatPhoneNumber(selectedDeliveryGuy.phone) || 'N/A'}
+                                </Box>
+                            </Box>
+                        </Box>
+                        <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1.5, mt: 0.5 }} />
+                    </>
+                )}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box
                         component="span"
