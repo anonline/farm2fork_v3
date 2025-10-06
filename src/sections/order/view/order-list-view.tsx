@@ -28,6 +28,7 @@ import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
+import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 
 import { useGetOrders } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -472,6 +473,41 @@ export function OrderListView() {
         }
     }, [dataFiltered, table.selected, ordersLoading]);
 
+    const handleExportAddressList = useCallback(async () => {
+        try {
+            if (table.selected.length === 0) {
+                toast.warning('Kérlek válassz legalább egy rendelést!');
+                return;
+            }
+
+            // Check if orders are still loading
+            if (ordersLoading || !ordersData) {
+                toast.error('Rendelések betöltése folyamatban, kérjük várjon...');
+                return;
+            }
+
+            // Get selected orders from the original ordersData (IOrderData[])
+            const selectedOrders = ordersData.filter((order) => table.selected.includes(order.id));
+            
+            if (selectedOrders.length === 0) {
+                toast.warning('A kiválasztott rendelések nem találhatók!');
+                return;
+            }
+
+            // Generate title/subtitle
+            const title = 'Szállítási címlista';
+            const subtitle = `${selectedOrders.length} rendelés`;
+
+            // Generate address list PDF
+            await generateOrderAddressPDF(selectedOrders, title, subtitle);
+            toast.success('Címlista PDF export sikeresen elkészült!');
+
+        } catch (error) {
+            console.error('Address list export error:', error);
+            toast.error('Hiba a címlista exportálása során!');
+        }
+    }, [ordersData, table.selected, ordersLoading]);
+
     
 
     const renderConfirmDialog = () => (
@@ -637,6 +673,15 @@ export function OrderListView() {
                                 }
                                 action={
                                     <>
+                                        <Tooltip title="Címlista exportálása">
+                                            <IconButton 
+                                                color="primary"
+                                                onClick={handleExportAddressList}
+                                                disabled={table.selected.length === 0}
+                                            >
+                                                <Iconify icon="mingcute:pdf-fill" />
+                                            </IconButton>
+                                        </Tooltip>
                                         <Tooltip title={pdfGenerating ? "PDF generálása..." : "Összesítő PDF nyomtatása"}>
                                             <IconButton 
                                                 color="primary"

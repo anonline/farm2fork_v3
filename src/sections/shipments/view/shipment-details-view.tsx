@@ -19,6 +19,7 @@ import { paths } from 'src/routes/paths';
 
 import { generateShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateShipmentXLS } from 'src/utils/shipment-xls-export';
+import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
@@ -242,6 +243,22 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
         }
     }, [shipment, itemsSummary]);
 
+    const handleExportAddressList = useCallback(async () => {
+        if (!shipment || orders.length === 0) return;
+
+        try {
+            const shipmentDate = shipment.date ? new Date(shipment.date).toLocaleDateString('hu-HU') : `#${shipment.id}`;
+            const title = 'Szállítási címlista';
+            const subtitle = `Szállítás: ${shipmentDate}`;
+
+            await generateOrderAddressPDF(orders, title, subtitle);
+            toast.success('Címlista PDF export sikeresen elkészült!');
+        } catch (err) {
+            console.error('Address list export error:', err);
+            toast.error('Hiba a címlista exportálása során');
+        }
+    }, [shipment, orders]);
+
     const handleRefreshCounts = useCallback(async () => {
         if (!shipment) return;
 
@@ -346,7 +363,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
                             <Stack spacing={1} sx={{ minWidth: 120 }}>
                                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                    Feldolgozottság ({(orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length / (shipment?.orderCount || 1)) * 100 }%)
+                                    Feldolgozottság ({((orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length / (shipment?.orderCount || 1)) * 100).toFixed(2)}%)
                                 </Typography>
                                 <Typography variant="h4">
                                     {orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length}/{shipment?.orderCount ?? 0}
@@ -387,7 +404,24 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                             }
                         }}
                         action={
-                            <Stack direction="row" spacing={2} justifyContent="flex-end">
+                            <Stack direction="row" spacing={2} justifyContent="flex-end" flexWrap="wrap">
+                                <Button
+                                    size="medium"
+                                    variant="outlined"
+                                    startIcon={<Iconify icon="mingcute:pdf-fill" />}
+                                    onClick={handleExportAddressList}
+                                    disabled={!shipment || loading || orders.length === 0}
+                                    sx={{
+                                        bgcolor: alpha(theme.palette.warning.main, 0.08),
+                                        border: `1px solid ${alpha(theme.palette.warning.main, 0.24)}`,
+                                        color: 'warning.main',
+                                        '&:hover': {
+                                            bgcolor: alpha(theme.palette.warning.main, 0.16),
+                                        },
+                                    }}
+                                >
+                                    Címlista
+                                </Button>
                                 <Button
                                     size="medium"
                                     variant="outlined"

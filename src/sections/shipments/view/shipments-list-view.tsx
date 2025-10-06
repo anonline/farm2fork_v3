@@ -36,6 +36,7 @@ import { RouterLink } from 'src/routes/components';
 import { fDate } from 'src/utils/format-time';
 import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateMultiSheetShipmentXLS } from 'src/utils/shipment-xls-export';
+import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
@@ -579,6 +580,50 @@ export function ShipmentsListView() {
         }
     }, [selectedRowIds, tableData]);
 
+    const handleExportAddressList = useCallback(async () => {
+        if (selectedRowIds.length === 0) {
+            toast.warning('Kérlek válassz legalább egy szállítási összesítőt!');
+            return;
+        }
+
+        try {
+            const selectedShipments = tableData.filter(shipment =>
+                selectedRowIds.includes(shipment.id)
+            );
+
+            // Fetch all orders for selected shipments
+            const allOrders: IOrderData[] = [];
+            for (const shipment of selectedShipments) {
+                const ordersResult = await getOrdersByShipmentId(shipment.id);
+                if (!ordersResult.error && ordersResult.orders) {
+                    allOrders.push(...ordersResult.orders);
+                }
+            }
+
+            if (allOrders.length === 0) {
+                toast.warning('Nincsenek rendelések a kiválasztott szállítási összesítőkben!');
+                return;
+            }
+
+            // Generate title/subtitle based on selected shipments
+            const shipmentDates = selectedShipments
+                .map(s => fDate(s.date))
+                .filter(d => d !== 'Invalid date')
+                .join(', ');
+            
+            const title = 'Szállítási címlista';
+            const subtitle = shipmentDates ? `Szállítás: ${shipmentDates}` : undefined;
+
+            // Generate address list PDF
+            await generateOrderAddressPDF(allOrders, title, subtitle);
+            toast.success('Címlista PDF export sikeresen elkészült!');
+
+        } catch (error) {
+            console.error('Address list export error:', error);
+            toast.error('Hiba a címlista exportálása során!');
+        }
+    }, [selectedRowIds, tableData]);
+
     // Helper function to create group summary
     const createGroupSummary = useCallback((orders: IOrderData[], groupName: string, groupType: 'shipment_method' | 'pickup_location') => {
         // Create items summary by aggregating order items
@@ -663,9 +708,10 @@ export function ShipmentsListView() {
                 onSummarizedExportSelectedXLS={handleSummarizedExportXLS}
                 onRecalculate={handleRecalculate}
                 onExportByShipmentMethod={handleExportByShipmentMethod}
+                onExportAddressList={handleExportAddressList}
             />
         ),
-        [selectedRowIds, canReset, dataFiltered.length, handleDeleteRowsClick, handleExportSelectedToPDF, handleSummarizedExportSelectedPdf]
+        [selectedRowIds, canReset, dataFiltered.length, handleDeleteRowsClick, handleExportSelectedToPDF, handleSummarizedExportSelectedPdf, handleExportAddressList]
     );
 
     const columns: GridColDef[] = useMemo(() => [
@@ -963,6 +1009,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     onSummarizedExportSelectedXLS: () => void;
     onRecalculate: () => void;
     onExportByShipmentMethod?: () => void;
+    onExportAddressList?: () => void;
 };
 
 const CustomToolbar = memo(function CustomToolbar({
@@ -977,7 +1024,8 @@ const CustomToolbar = memo(function CustomToolbar({
     onExportSelectedToXLS,
     onSummarizedExportSelectedXLS,
     onRecalculate,
-    onExportByShipmentMethod
+    onExportByShipmentMethod,
+    onExportAddressList
 }: CustomToolbarProps) {
     return (
         <>
@@ -996,6 +1044,22 @@ const CustomToolbar = memo(function CustomToolbar({
                 >
                     {!!selectedRowIds.length && (
                         <>
+                            <Button
+                                size="small"
+                                color="primary"
+                                variant='outlined'
+                                startIcon={<Iconify icon="mingcute:pdf-fill" />}
+                                onClick={onExportAddressList}
+                                sx={{
+                                    '& .MuiButton-startIcon': {
+                                        mx: { xs: 0, sm: 1 }
+                                    }
+                                }}
+                            >
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Címlista
+                                </Box>
+                            </Button>
                             <Button
                                 size="small"
                                 color="primary"
