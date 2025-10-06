@@ -33,7 +33,23 @@ export default function SearchPage() {
             fetch(`/api/search/producers?q=${searchTerm}`).then((res) => res.json()),
         ])
             .then(([productData, producerData]) => {
-                setProducts(productData || []);
+                const orderedByStockProductsData = (productData as IProductItem[]).sort((a, b) => {
+                    const aStock = a.stock ?? 1;
+                    const bStock = b.stock ?? 1;
+
+                    if (aStock === 0 && bStock === 0) {
+                        return 0;
+                    }
+                    if (aStock === 0) {
+                        return 1;
+                    }
+                    if (bStock === 0) {
+                        return -1;
+                    }
+                    return bStock - aStock;
+                });
+
+                setProducts(orderedByStockProductsData || []);
                 setProducers(producerData || []);
             })
             .catch((err) => {
@@ -78,7 +94,7 @@ function SearchPageProductGrid({
     } else if (products.length > 0) {
         content = products.map((product) => (
             <Grid size={{ xs: 6, sm: 4, lg: 2.4 }} key={product.id}>
-                <ProductCard product={product} />
+                <ProductCard product={product}  />
             </Grid>
         ));
     } else {

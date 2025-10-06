@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '3'), 50);
+    const headerSearch = searchParams.get('hs') === 'true';
 
     if (!q || q.trim() === '') {
         return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 });
@@ -34,11 +35,21 @@ export async function GET(req: NextRequest) {
 
     const searchTerm = `%${q}%`;
 
-    const baseQuery = `tags.ilike.${searchTerm},name.ilike.${searchTerm}`;
+    let baseQuery = `tags.ilike.${searchTerm},name.ilike.${searchTerm}`;
+
+    if(q.split(' ').length > 1){
+        baseQuery += `,name.ilike.%${q.replaceAll(' ', '%')}%`;
+        q.split(' ').forEach((word) => {
+            if(word.length > 0){
+                baseQuery += `,name.ilike.%${word}%`;
+            }
+        });
+    }
+    
 
     let query = supabase
         .from('Products')
-        .select('*', { count: 'exact' })
+        .select('*, producer:Producers!left(*)', { count: 'exact' })
         .eq('publish', true)
         .or(baseQuery);
 
@@ -50,13 +61,18 @@ export async function GET(req: NextRequest) {
         query = query.eq('isPublic', true);
     }
 
-    const productsResponse = await query;
+    console.log(headerSearch);
+    let productsResponse = await query;
 
     if (productsResponse.error) {
         return NextResponse.json(
             { error: 'Products: ' + productsResponse.error.message },
             { status: 500 }
         );
+    }
+
+    if(headerSearch){
+        productsResponse.data = productsResponse.data.filter((p) => p.stock === null || (p.stock > 0 || p.backorder));
     }
 
     const { data: matchingProducers, error: producerError } = await supabase
@@ -82,13 +98,16 @@ export async function GET(req: NextRequest) {
             .eq('publish', true)
             .or(producerQuery)
             .order('name', { ascending: true })
-            .limit(limit);
 
         if (producersProductsResponse.error) {
             return NextResponse.json(
                 { error: "Producer's Products: " + producersProductsResponse.error.message },
                 { status: 500 }
             );
+        }
+
+        if(headerSearch){
+            producersProductsResponse.data = producersProductsResponse.data.filter((p) => p.stock === null || (p.stock > 0 || p.backorder));
         }
 
         producersProducts = producersProductsResponse.data ?? [];
@@ -102,7 +121,6 @@ export async function GET(req: NextRequest) {
     const uniqueData = combinedData.filter(
         (item, index, array) => array.findIndex((t) => t.id === item.id) === index
     );
-    const data = uniqueData.slice(0, limit);
-
-    return NextResponse.json(data);
+    
+    return NextResponse.json(uniqueData);
 }

@@ -123,8 +123,8 @@ export default function HeaderSearchMobile() {
 
         setIsLoading(true);
         Promise.all([
-            fetch(`/api/search/products?q=${debouncedQuery}`).then((res) => res.json()),
-            fetch(`/api/search/producers?q=${debouncedQuery}`).then((res) => res.json()),
+            fetch(`/api/search/products?hs=true&q=${debouncedQuery}`).then((res) => res.json()),
+            fetch(`/api/search/producers?hs=true&q=${debouncedQuery}`).then((res) => res.json()),
         ])
             .then(([productData, producerData]) => {
                 setProducts(productData.map(dbProductToSearchResult));
@@ -402,7 +402,7 @@ const HeaderSearchResultArea = forwardRef<HTMLDivElement, HeaderSearchResultArea
                     </Button>
                 </Box>
                 {products !== undefined
-                    ? products.map((result) => (
+                    ? products.slice(0,3).map((result) => (
                           <Link
                               href={`${paths.product.details(result.slug)}`}
                               key={result.id}
@@ -445,7 +445,7 @@ const HeaderSearchResultArea = forwardRef<HTMLDivElement, HeaderSearchResultArea
                     </Button>
                 </Box>
                 {producers !== undefined
-                    ? producers.map((result) => (
+                    ? producers.slice(0,3).map((result) => (
                           <Link
                               href={`${paths.producers.details(result.slug)}`}
                               key={result.id}
@@ -488,7 +488,7 @@ function HeaderSearchResultAreaMobile({ products, producers, link, onItemClick }
                     </Button>
                 </Box>
                 {products && products.length > 0 ? (
-                    products.map((result) => (
+                    products.slice(0, 3).map((result) => (
                         <Link
                             href={`${paths.product.details(result.slug)}`}
                             key={result.id}
@@ -526,7 +526,7 @@ function HeaderSearchResultAreaMobile({ products, producers, link, onItemClick }
                     </Button>
                 </Box>
                 {producers && producers.length > 0 ? (
-                    producers.map((result) => (
+                    producers.slice(0, 3).map((result) => (
                         <Link
                             href={`${paths.producers.details(result.slug)}`}
                             key={result.id}

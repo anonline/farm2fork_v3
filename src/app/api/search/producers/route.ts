@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
-
+    
     if (!q) {
         return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 });
     }
@@ -108,5 +108,6 @@ export async function GET(req: NextRequest) {
             }
         });
     }
+    
     return NextResponse.json(data);
 }

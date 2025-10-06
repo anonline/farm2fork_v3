@@ -25,7 +25,7 @@ import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
 
 export default function ProductDetails() {
-    const { roles, user } = useAuthContext();
+    const { user } = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
 
     const { product, loading } = useProduct();
@@ -252,6 +252,7 @@ export default function ProductDetails() {
                         borderRadius: '8px',
                         width: { xs: '100%', md: '608px' },
                         height: { xs: '100%', md: '614px' },
+                        filter: !loading && product && product?.stock !== null && product?.stock < 1 && product?.backorder === false ? 'grayscale(1) brightness(0.7)' : 'none',
                     }}
                 />
             </Box>

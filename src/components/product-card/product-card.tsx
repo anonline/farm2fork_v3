@@ -34,13 +34,14 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { product } = props;
     const router = useRouter();
 
+    const isOrderDeny = product.stock !== null && product.stock < 1 && product.backorder === false;
+
     const openProductPage = () => {
         router.push(paths.product.details(product.url));
     };
 
     const isVIP = user?.user_metadata.is_vip || false;
     const isCorp = user?.user_metadata.is_corp || false;
-    const isAdmin = user?.user_metadata.is_admin || false;
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
@@ -181,6 +182,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                             cursor: 'pointer',
                             borderTopLeftRadius: '8px',
                             borderTopRightRadius: '8px',
+                            filter: isOrderDeny ? 'grayscale(1) brightness(0.7)' : 'none',
                         }}
                     />
                 </Box>
@@ -234,7 +236,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         </button>
 
                     </div>
-                    {product.producerId && <ProducerAvatar
+                    {product.producerId && product.producer?.featuredImage && <ProducerAvatar
                         avatarUrl={product.producer?.featuredImage ?? 'https://placehold.co/48'}
                         avatarAlt="Termelő"
                         style={{ position: 'absolute', top: -24, left: 16 }}
@@ -362,11 +364,13 @@ export function ProductQuantitySelector({
         lineHeight: '22px',
     };
 
+    const outOfStock = product.stock !== null && product.stock < 1 && product.backorder === false;
+
     const [quantity, setQuantity] = useState<number>();
     const [inputValue, setInputValue] = useState<string>('');
-    const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
-    const [plusButtonEnabled, setPlusButtonEnabled] = useState<boolean>(true);
-    const [minusButtonEnabled, setMinusButtonEnabled] = useState<boolean>(true);
+    const [buttonDisabled, setButtonDisabled] = useState<boolean>(outOfStock);
+    const [plusButtonEnabled, setPlusButtonEnabled] = useState<boolean>(!outOfStock);
+    const [minusButtonEnabled, setMinusButtonEnabled] = useState<boolean>(!outOfStock);
 
     const plusminusButtonBaseStyle: SxProps<Theme> = {
         p: '10px',
@@ -381,6 +385,8 @@ export function ProductQuantitySelector({
             color: themeConfig.palette.common.white,
         },
     };
+
+    const showAddToCartAndOrderAllow = showAddToCart && (product.stock === null || product.stock > 0 || product.backorder === true);
 
     const minusButtonStyle: SxProps<Theme> = {
         ...plusminusButtonBaseStyle,
