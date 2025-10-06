@@ -8,7 +8,7 @@ import EditCardHeader from "./card-header";
 
 type PricingCardProps = {
     isOpen: UseBooleanReturn;
-    handleGrossPriceChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleGrossPriceChange: (event: React.FocusEvent<HTMLInputElement>) => void;
     handleStock: boolean;
     handleStockChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
@@ -26,7 +26,7 @@ export default function PricingCard({ isOpen, handleGrossPriceChange, handleStoc
 
                     <RHFTextField name="netPrice" label="Nettó alapár (Ft)" type="number" />
                     <RHFTextField name="vat" label="ÁFA (%)" type="number" />
-                    <RHFTextField name="grossPrice" label="Bruttó alapár (Ft)" type="number" onChange={handleGrossPriceChange} />
+                    <RHFTextField name="grossPrice" label="Bruttó alapár (Ft)" type="number" onBlur={handleGrossPriceChange} />
                     <RHFTextField name="salegrossPrice" label="Bruttó akciós Ár (Ft)" type="number" />
 
                     <Divider sx={{ my: 2 }} />

@@ -10,8 +10,6 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import { Box, Grid, Stack, Button, Switch, FormControlLabel } from '@mui/material';
 
-import { useRouter } from 'src/routes/hooks';
-
 import { useCategories } from 'src/contexts/category-context';
 import { useProducers } from 'src/contexts/producers-context';
 import { deleteFile, uploadFile } from 'src/lib/blob/blobClient';
@@ -49,6 +47,7 @@ export const NewProductSchema = zod.object({
     name: zod.string().min(1, { message: 'Név megadása kötelező!' }),
     url: zod.string().min(1, { message: 'URL megadása kötelező!' }),
     sku: zod.string().optional(),
+    publish: zod.boolean().default(true),
     shortDescription: zod.string().optional(),
     cardText: zod.string().optional(),
     storingInformation: zod.string().optional(),
@@ -123,8 +122,6 @@ export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 // ----------------------------------------------------------------------
 
 export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct: IProductItem | null }>) {
-    const router = useRouter();
-
     const { loading: categoriesLoading, allCategories } = useCategories();
     const { producers } = useProducers();
     const { connection } = useProductCategoryConnection();
@@ -171,32 +168,33 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             images: currentProduct?.images || [],
             featuredImage: currentProduct?.featuredImage || null,
             categoryIds: assignedCategoryIds,
+            publish: currentProduct?.publish ?? true,
             tags,
-            seasonality: currentProduct?.seasonality || [],
-            unit: currentProduct?.unit || '',
+            seasonality: currentProduct?.seasonality ?? [],
+            unit: currentProduct?.unit ?? '',
             producerId: currentProduct?.producerId ?? null,
-            mininumQuantity: currentProduct?.mininumQuantity || 1,
-            maximumQuantity: currentProduct?.maximumQuantity || 10,
-            stepQuantity: currentProduct?.stepQuantity || 1,
-            netPrice: currentProduct?.netPrice || 0,
-            grossPrice: currentProduct?.grossPrice || 0,
-            vat: currentProduct?.vat || 27,
+            mininumQuantity: currentProduct?.mininumQuantity ?? 1,
+            maximumQuantity: currentProduct?.maximumQuantity ?? 100,
+            stepQuantity: currentProduct?.stepQuantity ?? 1,
+            netPrice: currentProduct?.netPrice ?? 0,
+            grossPrice: currentProduct?.grossPrice ?? 0,
+            vat: currentProduct?.vat ?? 27,
             netPriceVIP: currentProduct?.netPriceVIP ?? 0,
             netPriceCompany: currentProduct?.netPriceCompany ?? 0,
             stock: currentProduct?.stock ?? 0,
-            backorder: currentProduct?.backorder || false,
-            featured: currentProduct?.featured || false,
-            star: currentProduct?.star || false,
-            bio: currentProduct?.bio || false,
-            priceSale: currentProduct?.priceSale || null,
-            saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
-            salegrossPrice: currentProduct?.salegrossPrice || null,
-            storingInformation: currentProduct?.storingInformation || '',
-            usageInformation: currentProduct?.usageInformation || '',
+            backorder: currentProduct?.backorder ?? false,
+            featured: currentProduct?.featured ?? false,
+            star: currentProduct?.star ?? false,
+            bio: currentProduct?.bio ?? false,
+            priceSale: currentProduct?.priceSale ?? null,
+            saleLabel: currentProduct?.saleLabel ?? { enabled: false, content: '' },
+            salegrossPrice: currentProduct?.salegrossPrice ?? null,
+            storingInformation: currentProduct?.storingInformation ?? '',
+            usageInformation: currentProduct?.usageInformation ?? '',
             isPublic: currentProduct?.isPublic ?? true,
-            isVip: currentProduct?.isVip ?? false,
-            isCorp: currentProduct?.isCorp ?? false,
-            type: currentProduct?.type || 'simple',
+            isVip: currentProduct?.isVip ?? true,
+            isCorp: currentProduct?.isCorp ?? true,
+            type: currentProduct?.type ?? 'simple',
         }
     }, [currentProduct, connection]);
 
@@ -220,9 +218,9 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         values: defaultValues,
     });
 
-    const { reset, watch, setValue, handleSubmit, control, formState: { isSubmitting } } = methods;
+    const { watch, setValue, handleSubmit, control, formState: { isSubmitting } } = methods;
 
-    const [netPrice, grossPrice, vat] = watch(['netPrice', 'grossPrice', 'vat']);
+    const [vat] = watch(['vat']);
 
     const [handleStock, setHandleStock] = useState(currentProduct ? currentProduct.stock !== null : false);
     
@@ -235,22 +233,14 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             setValue('stock', 0);
         }
         setHandleStock(!handleStock);
-    }
+    };
 
-    useEffect(() => {
-        if (netPrice && vat) {
-            const newGross = Math.round(netPrice * (1 + vat / 100));
-            if (newGross !== grossPrice) {
-                setValue('grossPrice', newGross, { shouldValidate: true });
-            }
-        }
-    }, [netPrice, vat, grossPrice, setValue]);
-
-    const handleGrossPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleGrossPriceChange = (e: React.FocusEvent<HTMLInputElement>) => {
         const newGross = Number(e.target.value);
+        console.log(newGross);
         if (vat) {
             const newNet = Math.round(newGross / (1 + vat / 100));
-            setValue('netPrice', newNet, { shouldValidate: true });
+            setValue('netPrice', newNet, { shouldValidate: false });
         }
     };
 
