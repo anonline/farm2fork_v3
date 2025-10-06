@@ -25,6 +25,7 @@ import { AuthProvider as Auth0AuthProvider } from 'src/auth/context/auth0';
 import { AuthProvider as AmplifyAuthProvider } from 'src/auth/context/amplify';
 import { AuthProvider as SupabaseAuthProvider } from 'src/auth/context/supabase';
 import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase';
+import Helpdesk from 'src/components/helpdesk/heldesk';
 
 // ----------------------------------------------------------------------
 
@@ -110,6 +111,8 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                                                 <ProgressBar />
                                                 <SettingsDrawer defaultSettings={defaultSettings} />
                                                 {children}
+                                                <Helpdesk />
+
                                             </CheckoutProvider>
                                         </MotionLazy>
                                     </ThemeProvider>
@@ -118,6 +121,7 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                         </SettingsProvider>
                     </AuthProvider>
                 </I18nProvider>
+
             </body>
         </html>
     );
