@@ -46,7 +46,6 @@ export async function GET(req: NextRequest) {
         });
     }
     
-
     let query = supabase
         .from('Products')
         .select('*, producer:Producers!left(*)', { count: 'exact' })
@@ -60,8 +59,7 @@ export async function GET(req: NextRequest) {
     } else {
         query = query.eq('isPublic', true);
     }
-
-    console.log(headerSearch);
+   
     let productsResponse = await query;
 
     if (productsResponse.error) {
@@ -113,14 +111,77 @@ export async function GET(req: NextRequest) {
         producersProducts = producersProductsResponse.data ?? [];
     }
 
+    // Calculate relevance score for each product
+    const calculateRelevance = (product: any, searchQuery: string, isFromProducer: boolean): number => {
+        let score = 0;
+        const query = searchQuery.toLowerCase();
+        const name = (product.name || '').toLowerCase();
+        const tags = (product.tags || '').toLowerCase();
+
+        // Check if product is in stock
+        const isInStock = product.stock === null || product.backorder === true || (product.stock > 0);
+        
+        // Out of stock products get massive negative score to appear last
+        if (!isInStock) {
+            score -= 1000000;
+        }
+
+        // Exact name match (highest priority)
+        if (name === query) {
+            score += 1000;
+        }
+        // Name starts with query
+        else if (name.startsWith(query)) {
+            score += 500;
+        }
+        // Name contains query at word boundary
+        else if (name.includes(` ${query}`) || name.includes(`-${query}`)) {
+            score += 300;
+        }
+        // Name contains query anywhere
+        else if (name.includes(query)) {
+            score += 200;
+        }
+
+        // Multi-word match bonus
+        if (query.includes(' ')) {
+            const queryWords = query.split(' ').filter(w => w.length > 0);
+            const matchedWords = queryWords.filter(word => name.includes(word));
+            score += matchedWords.length * 50;
+        }
+
+        // Tag match (lower priority than name)
+        if (tags.includes(query)) {
+            score += 100;
+        }
+
+        // Producer match (lowest priority)
+        if (isFromProducer) {
+            score += 50;
+        }
+
+        // Shorter names rank higher for same match quality
+        score -= name.length * 0.1;
+
+        return score;
+    };
+
     const combinedData = [
-        ...(productsResponse.data.map((p) => ({ ...p, isFromProducer: false })) ?? []),
-        ...(producersProducts.map((p) => ({ ...p, isFromProducer: true })) ?? []),
+        ...(productsResponse.data.map((p) => ({ 
+            ...p, 
+            isFromProducer: false,
+            relevanceScore: calculateRelevance(p, q, false)
+        })) ?? []),
+        ...(producersProducts.map((p) => ({ 
+            ...p, 
+            isFromProducer: true,
+            relevanceScore: calculateRelevance(p, q, true)
+        })) ?? []),
     ];
 
-    const uniqueData = combinedData.filter(
-        (item, index, array) => array.findIndex((t) => t.id === item.id) === index
-    );
+    const uniqueData = combinedData
+        .filter((item, index, array) => array.findIndex((t) => t.id === item.id) === index)
+        .sort((a, b) => b.relevanceScore - a.relevanceScore);
     
     return NextResponse.json(uniqueData);
 }

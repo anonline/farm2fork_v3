@@ -198,7 +198,7 @@ export default function ProductDetails() {
                         product={product}
                         onAddToCart={onAddToCart}
                         unit={product.unit}
-                        max={product.maximumQuantity}
+                        max={product.stock === null || product.backorder === true ? product.maximumQuantity : product.stock}
                         min={product.mininumQuantity}
                         step={product.stepQuantity}
                         format="row"
@@ -252,7 +252,7 @@ export default function ProductDetails() {
                         borderRadius: '8px',
                         width: { xs: '100%', md: '608px' },
                         height: { xs: '100%', md: '614px' },
-                        filter: !loading && product && product?.stock !== null && product?.stock < 1 && product?.backorder === false ? 'grayscale(1) brightness(0.7)' : 'none',
+                        filter: !loading && product && !(product.stock === null || product.backorder === true || (product.stock > 0)) ? 'grayscale(1) brightness(0.7)' : 'none',
                     }}
                 />
             </Box>

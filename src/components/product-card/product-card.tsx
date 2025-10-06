@@ -34,7 +34,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { product } = props;
     const router = useRouter();
 
-    const isOrderDeny = product.stock !== null && product.stock < 1 && product.backorder === false;
+    const isOrderDeny = !(product.stock === null || product.backorder === true || (product.stock > 0));
 
     const openProductPage = () => {
         router.push(paths.product.details(product.url));
@@ -251,7 +251,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         onAddToCart={onAddToCart}
                         unit={product.unit}
                         min={product.mininumQuantity}
-                        max={product.maximumQuantity}
+                        max={product.stock === null || product.backorder === true ? product.maximumQuantity : product.stock}
                         step={product.stepQuantity}
                     />
                 </div>
@@ -364,7 +364,7 @@ export function ProductQuantitySelector({
         lineHeight: '22px',
     };
 
-    const outOfStock = product.stock !== null && product.stock < 1 && product.backorder === false;
+    const outOfStock = !(product.stock === null || product.stock > 0 || product.backorder === true);
 
     const [quantity, setQuantity] = useState<number>();
     const [inputValue, setInputValue] = useState<string>('');
@@ -385,8 +385,6 @@ export function ProductQuantitySelector({
             color: themeConfig.palette.common.white,
         },
     };
-
-    const showAddToCartAndOrderAllow = showAddToCart && (product.stock === null || product.stock > 0 || product.backorder === true);
 
     const minusButtonStyle: SxProps<Theme> = {
         ...plusminusButtonBaseStyle,
