@@ -32,6 +32,8 @@ import {
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { generateProductsXLS } from 'src/utils/product-xls-export';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useProducts } from 'src/contexts/products-context';
 import { useCategories } from 'src/contexts/category-context';
@@ -41,7 +43,6 @@ import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
 
 import { ProductTableToolbar } from '../product-table-toolbar';
 import { ProductTableFiltersResult } from '../product-table-filters-result';
@@ -55,7 +56,6 @@ import {
     RenderCellCategories,
     RenderCellGrossPrice,
 } from '../product-table-row';
-import { generateProductsXLS } from 'src/utils/product-xls-export';
 
 // ----------------------------------------------------------------------
 
