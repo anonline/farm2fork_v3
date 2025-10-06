@@ -42,6 +42,7 @@ import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+
 import { ProductTableToolbar } from '../product-table-toolbar';
 import { ProductTableFiltersResult } from '../product-table-filters-result';
 import {
@@ -54,6 +55,7 @@ import {
     RenderCellCategories,
     RenderCellGrossPrice,
 } from '../product-table-row';
+import { generateProductsXLS } from 'src/utils/product-xls-export';
 
 // ----------------------------------------------------------------------
 
@@ -138,6 +140,17 @@ export function ProductListView() {
         setTableData(deleteRows);
     }, [selectedRowIds, tableData]);
 
+    const handleExportAllToXLS = useCallback(() => {
+        try {
+            // Export ALL products, not just filtered ones
+            generateProductsXLS(products);
+            toast.success('Excel export sikeresen elkészült!');
+        } catch (err) {
+            console.error('XLS export error:', err);
+            toast.error('Hiba az Excel exportálása során');
+        }
+    }, [products]);
+
     const categoryOptions = allCategories
         .filter((cat) => cat.enabled)
         .map((cat) => ({ 
@@ -158,10 +171,11 @@ export function ProductListView() {
                 filteredResults={dataFiltered.length}
                 onOpenConfirmDeleteRows={confirmDialog.onTrue}
                 categoryOptions={categoryOptions}
+                onExportAllToXLS={handleExportAllToXLS}
             />
         ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [currentFilters, selectedRowIds, categoryOptions]
+        [currentFilters, selectedRowIds, categoryOptions, handleExportAllToXLS]
     );
 
     const columns: GridColDef[] = [
@@ -388,6 +402,7 @@ type CustomToolbarProps = GridSlotProps['toolbar'] & {
     filters: UseSetStateReturn<IProductTableFilters>;
     categoryOptions: { value: string; label: string; level: number }[];
     onOpenConfirmDeleteRows: () => void;
+    onExportAllToXLS: () => void;
 };
 
 function CustomToolbar({
@@ -398,6 +413,7 @@ function CustomToolbar({
     setFilterButtonEl,
     onOpenConfirmDeleteRows,
     categoryOptions,
+    onExportAllToXLS,
 }: CustomToolbarProps) {
     return (
         <>
@@ -433,6 +449,16 @@ function CustomToolbar({
                             Delete ({selectedRowIds.length})
                         </Button>
                     )}
+
+                    <Button
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        startIcon={<Iconify icon="mingcute:table-2-fill" />}
+                        onClick={onExportAllToXLS}
+                    >
+                        Export XLS
+                    </Button>
 
                     <GridToolbarColumnsButton />
                     {/* <GridToolbarExport /> */}
