@@ -3,6 +3,7 @@ import type { IPickupLocation } from 'src/types/pickup-location';
 
 import React from 'react';
 import { pdf, Page, Text, View, Font, Document, StyleSheet } from '@react-pdf/renderer';
+
 import { supabase } from 'src/lib/supabase';
 
 // Register fonts that support Hungarian characters
