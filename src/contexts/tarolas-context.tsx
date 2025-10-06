@@ -11,6 +11,7 @@ export interface IStoragingMethod {
     description: string | null;
     imageUrl: string | null;
     order: number;
+    categoryId: number | null;
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
