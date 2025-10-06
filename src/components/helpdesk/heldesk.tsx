@@ -49,6 +49,8 @@ export default function Helpdesk() {
         script.remove();
       };
     }
+
+    return undefined;
   }, [user, authenticated]);
 
   return null; // This component doesn't render any visible UI

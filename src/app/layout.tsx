@@ -13,6 +13,7 @@ import { themeConfig, ThemeProvider } from 'src/theme';
 import { I18nProvider } from 'src/locales/i18n-provider';
 
 import { Snackbar } from 'src/components/snackbar';
+import Helpdesk from 'src/components/helpdesk/heldesk';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
@@ -25,7 +26,6 @@ import { AuthProvider as Auth0AuthProvider } from 'src/auth/context/auth0';
 import { AuthProvider as AmplifyAuthProvider } from 'src/auth/context/amplify';
 import { AuthProvider as SupabaseAuthProvider } from 'src/auth/context/supabase';
 import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase';
-import Helpdesk from 'src/components/helpdesk/heldesk';
 
 // ----------------------------------------------------------------------
 
