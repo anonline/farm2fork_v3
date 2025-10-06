@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
         query = query.eq('isPublic', true);
     }
    
-    let productsResponse = await query;
+    const productsResponse = await query;
 
     if (productsResponse.error) {
         return NextResponse.json(
@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
     // Calculate relevance score for each product
     const calculateRelevance = (product: any, searchQuery: string, isFromProducer: boolean): number => {
         let score = 0;
-        const query = searchQuery.toLowerCase();
+        const queryLowercase = searchQuery.toLowerCase();
         const name = (product.name || '').toLowerCase();
         const tags = (product.tags || '').toLowerCase();
 
@@ -127,31 +127,31 @@ export async function GET(req: NextRequest) {
         }
 
         // Exact name match (highest priority)
-        if (name === query) {
+        if (name === queryLowercase) {
             score += 1000;
         }
         // Name starts with query
-        else if (name.startsWith(query)) {
+        else if (name.startsWith(queryLowercase)) {
             score += 500;
         }
         // Name contains query at word boundary
-        else if (name.includes(` ${query}`) || name.includes(`-${query}`)) {
+        else if (name.includes(` ${queryLowercase}`) || name.includes(`-${queryLowercase}`)) {
             score += 300;
         }
         // Name contains query anywhere
-        else if (name.includes(query)) {
+        else if (name.includes(queryLowercase)) {
             score += 200;
         }
 
         // Multi-word match bonus
-        if (query.includes(' ')) {
-            const queryWords = query.split(' ').filter(w => w.length > 0);
+        if (queryLowercase.includes(' ')) {
+            const queryWords = queryLowercase.split(' ').filter(w => w.length > 0);
             const matchedWords = queryWords.filter(word => name.includes(word));
             score += matchedWords.length * 50;
         }
 
         // Tag match (lower priority than name)
-        if (tags.includes(query)) {
+        if (tags.includes(queryLowercase)) {
             score += 100;
         }
 

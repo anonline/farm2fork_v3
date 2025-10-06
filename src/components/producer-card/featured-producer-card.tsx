@@ -75,7 +75,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
         >
             <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0 }}>
                 <img
-                    src={producer.featuredImage ?? 'https://placehold.co/600x450'}
+                    src={producer.coverImage ?? producer.featuredImage ?? 'https://placehold.co/600x450'}
                     alt={producer.name}
                     style={{
                         width: '100%',

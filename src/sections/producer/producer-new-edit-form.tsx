@@ -46,6 +46,10 @@ const ProducerSchema = zod.object({
         .union([zod.string(), zod.instanceof(File)])
         .nullable()
         .optional(),
+    coverImage: zod
+        .union([zod.string(), zod.instanceof(File)])
+        .nullable()
+        .optional(),
     productIds: zod.array(zod.string()).optional(),
     enabled: zod.boolean(),
 });
@@ -74,6 +78,7 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
             producingTags: currentProducer?.producingTags || '',
             featuredImage: currentProducer?.featuredImage || null,
             productIds: assignedProductIds,
+            coverImage: currentProducer?.coverImage || null,
             enabled: currentProducer?.enabled || false,
         };
     }, [currentProducer, products]);
@@ -150,6 +155,8 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
     const onSubmit = handleSubmit(async (data) => {
         try {
             let finalImageUrl = data.featuredImage;
+            let coverImageUrl = data.coverImage;
+            
             if (finalImageUrl instanceof File) {
                 const response = await uploadFile(finalImageUrl, 'producers', 0);
                 if (!response.url) {
@@ -159,6 +166,15 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                 toast.success('Kép sikeresen feltöltve!');
             }
 
+            if (coverImageUrl instanceof File) {
+                const response = await uploadFile(coverImageUrl, 'producers', 0);
+                if (!response.url) {
+                    throw new Error('A borítókép feltöltése nem adott vissza URL-t.');
+                }
+                coverImageUrl = response.url;
+                toast.success('Borítókép sikeresen feltöltve!');
+            }
+
             const plainShortDescription = data.shortDescription
                 ? data.shortDescription.replace(/<.*?>/g, '')
                 : null;
@@ -166,6 +182,7 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
             const producerData: Partial<IProducerItem> = {
                 name: data.name,
                 slug: data.slug,
+                coverImage: typeof coverImageUrl === 'string' ? coverImageUrl : undefined,
                 companyName: data.companyName || undefined,
                 location: data.location || undefined,
                 bio: data.bio,
@@ -305,6 +322,16 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                                     name="featuredImage"
                                     onDelete={() =>
                                         setValue('featuredImage', null, { shouldValidate: true })
+                                    }
+                                />
+                                <Typography color="text.secondary" variant="caption">
+                                    Tölts fel egy kiemelt képet a termelőhöz.
+                                </Typography>
+
+                                <RHFUpload
+                                    name="coverImage"
+                                    onDelete={() =>
+                                        setValue('coverImage', null, { shouldValidate: true })
                                     }
                                 />
                                 <Typography color="text.secondary" variant="caption">

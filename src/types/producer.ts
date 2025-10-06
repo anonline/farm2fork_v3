@@ -5,7 +5,7 @@ export type IProducerItem = {
     shortDescription: string;
     producingTags: string;
     featuredImage: string;
-    coverImage: number;
+    coverImage: string;
     galleryIds: number[];
     companyName: string;
     slug: string;
