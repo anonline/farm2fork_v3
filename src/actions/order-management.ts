@@ -19,10 +19,8 @@ export async function createOrder(
     orderData: ICreateOrderData
 ): Promise<{ orderId: string | null; error: string | null }> {
     try {
-        let newOrderId: string;
-
         const now = new Date();
-        newOrderId = `${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}_${now.getMilliseconds()}${Math.floor(Math.random() * 1000)}`;
+        const newOrderId = `${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}_${now.getMilliseconds()}${Math.floor(Math.random() * 1000)}`;
 
 
         // Create initial history entry
