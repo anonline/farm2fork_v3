@@ -80,7 +80,7 @@ function FeaturedProductWrapper() {
                 </>
             )}
             {!loading &&
-                products.map((featuredProduct) => (
+                products.filter((product) => product.publish && (product.stock === null || product.stock > 0 || product.backorder)).map((featuredProduct) => (
                     <Grid key={featuredProduct.id} size={{ xs: 6, md: 4, lg: 2.4 }}>
                         <ProductCard product={featuredProduct} />
                     </Grid>

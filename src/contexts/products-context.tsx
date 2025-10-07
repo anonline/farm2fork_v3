@@ -335,6 +335,7 @@ export function FeaturedProductsProvider({
                 .from('Products')
                 .select('*, producer:Producers(*), category:ProductCategories(*)')
                 .eq('featured', true)
+                .eq('publish', true)
                 .limit(limit);
             if (supabaseError) {
                 setLoadError(supabaseError.message);
