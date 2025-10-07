@@ -1110,6 +1110,13 @@ export function OrderDetailsView({ orderId }: Props) {
                             onOrderUpdate={handleRefreshOrderHistory}
                             isEditable={status === 'pending'}
                         />
+                        <Divider sx={{ borderStyle: 'dashed' }} />
+                        <OrderDetailsPayment
+                            paymentMethod={orderData?.paymentMethod || null}
+                            simplepayDataJson={orderData?.simplepayDataJson || null}
+                            onPaymentMethodChange={handlePaymentMethodChange}
+                            editable={status === 'pending'}
+                        />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
                         <OrderDetailsDelivery
@@ -1144,13 +1151,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             orderData={orderData || undefined}
                         />
 
-                        <Divider sx={{ borderStyle: 'dashed' }} />
-                        <OrderDetailsPayment
-                            paymentMethod={orderData?.paymentMethod || null}
-                            simplepayDataJson={orderData?.simplepayDataJson || null}
-                            onPaymentMethodChange={handlePaymentMethodChange}
-                            editable={status === 'pending'}
-                        />
+                        
 
                         {orderData && (
                             <>

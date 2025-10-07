@@ -21,12 +21,17 @@ export async function createOrder(
     try {
         const now = new Date().toISOString();
 
-        // Generate order ID (you might want to use a different format)
-        const randomOrderId = Math.random().toString(36).substr(2, 9);
-        
+        // Először próbáljuk meg lekérni a legutolsó ID-t
         const latestOrderId = await getLatestOrderId();
-        if (latestOrderId) {
-            orderData.id = (Number(latestOrderId) + 1).toString();
+        let newOrderId: string;
+        
+        if (latestOrderId && latestOrderId.trim() !== '') {
+            // Ha van érvényes ID, inkrementáljuk
+            newOrderId = (parseInt(latestOrderId) + 1).toString();
+        } else {
+            // Ha nincs még order, kezdjük 1-től vagy használjunk timestamp alapú ID-t
+            // Timestamp alapú ID jobb, mert garantáltan egyedi
+            newOrderId = `${Math.floor(Math.random() * 10000)}`;
         }
 
         // Create initial history entry
@@ -38,7 +43,7 @@ export async function createOrder(
 
         // Prepare the order object for database insertion
         const dbOrder = {
-            id: orderData.id ?? randomOrderId, // Use provided ID
+            id: orderData.id ?? newOrderId, // Use provided ID
             date_created: now,
             customer_id: orderData.customerId,
             customer_name: orderData.customerName,
