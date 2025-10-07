@@ -397,6 +397,7 @@ export function StarProductsProvider({
                 .from('Products')
                 .select('*, producer:Producers(*), category:ProductCategories(*)')
                 .eq('star', true)
+                .eq('publish', true)
                 .limit(limit);
             if (supabaseError) {
                 setLoadError(supabaseError.message);
