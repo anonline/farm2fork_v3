@@ -275,7 +275,14 @@ export function ProductsInMonthInCategoryProvider({
             } else {
                 const extractedProducts =
                     (data?.map((category) => category.Products) as unknown as IProductItem[]) ?? [];
-                setProducts(extractedProducts);
+                
+                // Filter out null/undefined products and deduplicate by ID
+                const validProducts = extractedProducts.filter((product) => product != null);
+                const uniqueProducts = Array.from(
+                    new Map(validProducts.map((product) => [product.id, product])).values()
+                );
+                
+                setProducts(uniqueProducts);
                 setError(null);
             }
             setLoading(false);
