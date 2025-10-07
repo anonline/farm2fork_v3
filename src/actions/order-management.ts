@@ -19,24 +19,15 @@ export async function createOrder(
     orderData: ICreateOrderData
 ): Promise<{ orderId: string | null; error: string | null }> {
     try {
-        const now = new Date().toISOString();
-
-        // Először próbáljuk meg lekérni a legutolsó ID-t
-        const latestOrderId = await getLatestOrderId();
         let newOrderId: string;
-        
-        if (latestOrderId && latestOrderId.trim() !== '') {
-            // Ha van érvényes ID, inkrementáljuk
-            newOrderId = (parseInt(latestOrderId) + 1).toString();
-        } else {
-            // Ha nincs még order, kezdjük 1-től vagy használjunk timestamp alapú ID-t
-            // Timestamp alapú ID jobb, mert garantáltan egyedi
-            newOrderId = `${Math.floor(Math.random() * 100000)}`;
-        }
+
+        const now = new Date();
+        newOrderId = `${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}_${now.getMilliseconds()}${Math.floor(Math.random() * 1000)}`;
+
 
         // Create initial history entry
         const initialHistory: OrderHistoryEntry = {
-            timestamp: now,
+            timestamp: now.toISOString(),
             status: 'pending',
             note: 'Rendelés létrehozva',
         };
@@ -44,7 +35,7 @@ export async function createOrder(
         // Prepare the order object for database insertion
         const dbOrder = {
             id: orderData.id ?? newOrderId, // Use provided ID
-            date_created: now,
+            date_created: now.toISOString(),
             customer_id: orderData.customerId,
             customer_name: orderData.customerName,
             billing_emails: orderData.billingEmails,
@@ -92,47 +83,47 @@ export async function insertOrder(
     orderData: IOrderData
 ): Promise<{ orderId: string | null; error: string | null }> {
     await supabase.from('Shipments')
-    .upsert({
-        id: orderData.shipmentId,
-        date: fDate(orderData.plannedShippingDateTime)
-    })
-    .eq('id', orderData.shipmentId);
+        .upsert({
+            id: orderData.shipmentId,
+            date: fDate(orderData.plannedShippingDateTime)
+        })
+        .eq('id', orderData.shipmentId);
 
     const dbOrder = {
-            id: orderData.id , // Use provided ID
-            date_created: orderData.dateCreated,
-            customer_id: orderData.customerId,
-            customer_name: orderData.customerName,
-            billing_emails: orderData.billingEmails,
-            notify_emails: orderData.notifyEmails,
-            note: orderData.note,
-            shipping_address: orderData.shippingAddress,
-            billing_address: orderData.billingAddress,
-            deny_invoice: orderData.denyInvoice,
-            need_vat: orderData.needVAT,
-            surcharge_amount: orderData.surchargeAmount,
-            items: orderData.items,
-            subtotal: orderData.subtotal,
-            shipping_cost: orderData.shippingCost,
-            vat_total: orderData.vatTotal,
-            discount_total: orderData.discountTotal,
-            total: orderData.total,
-            payed_amount: orderData.payedAmount,
-            shipping_method: orderData.shippingMethod,
-            payment_method: orderData.paymentMethod,
-            payment_status: orderData.paymentStatus,
-            order_status: orderData.orderStatus,
-            payment_due_days: orderData.paymentDueDays,
-            courier: orderData.courier,
-            planned_shipping_date_time: orderData.plannedShippingDateTime,
-            simplepay_data_json: orderData.simplepayDataJson,
-            invoice_data_json: orderData.invoiceDataJson || null,
-            history: [],
-            history_for_user: orderData.history_for_user || '',
-            shipmentId: orderData.shipmentId || null,
-            shipment_time: orderData.shipment_time || '',
-            wooUserId: orderData.wooUserId || null,
-        };
+        id: orderData.id, // Use provided ID
+        date_created: orderData.dateCreated,
+        customer_id: orderData.customerId,
+        customer_name: orderData.customerName,
+        billing_emails: orderData.billingEmails,
+        notify_emails: orderData.notifyEmails,
+        note: orderData.note,
+        shipping_address: orderData.shippingAddress,
+        billing_address: orderData.billingAddress,
+        deny_invoice: orderData.denyInvoice,
+        need_vat: orderData.needVAT,
+        surcharge_amount: orderData.surchargeAmount,
+        items: orderData.items,
+        subtotal: orderData.subtotal,
+        shipping_cost: orderData.shippingCost,
+        vat_total: orderData.vatTotal,
+        discount_total: orderData.discountTotal,
+        total: orderData.total,
+        payed_amount: orderData.payedAmount,
+        shipping_method: orderData.shippingMethod,
+        payment_method: orderData.paymentMethod,
+        payment_status: orderData.paymentStatus,
+        order_status: orderData.orderStatus,
+        payment_due_days: orderData.paymentDueDays,
+        courier: orderData.courier,
+        planned_shipping_date_time: orderData.plannedShippingDateTime,
+        simplepay_data_json: orderData.simplepayDataJson,
+        invoice_data_json: orderData.invoiceDataJson || null,
+        history: [],
+        history_for_user: orderData.history_for_user || '',
+        shipmentId: orderData.shipmentId || null,
+        shipment_time: orderData.shipment_time || '',
+        wooUserId: orderData.wooUserId || null,
+    };
 
     return await supabase
         .from('orders')
@@ -211,20 +202,20 @@ export async function getOrderById(
         // Fetch bundle items for products that are bundles
         // Since items stored in the database don't have type info, we need to fetch it from Products table
         const itemIds = order.items.map(item => item.id).filter(Boolean);
-        
+
         if (itemIds.length > 0) {
             // Fetch product types from Products table
             const { data: productsData, error: productsError } = await supabase
                 .from('Products')
                 .select('id, type')
                 .in('id', itemIds);
-            
+
             if (!productsError && productsData) {
                 // Create a map of product IDs to their types
                 const productTypesMap = new Map(
                     productsData.map(p => [p.id.toString(), p.type])
                 );
-                
+
                 // Enrich order items with product types
                 order.items = order.items.map(item => ({
                     ...item,
@@ -232,7 +223,7 @@ export async function getOrderById(
                 }));
             }
         }
-        
+
         const bundleProductIds = order.items
             .filter(item => item.type === 'bundle' && item.id)
             .map(item => item.id);
@@ -468,7 +459,7 @@ export async function getAllOrders(params?: {
             console.error('Error fetching orders:', error);
             return { orders: [], total: 0, error: error.message };
         }
-        
+
         // Transform database fields to match our interface
         const orders: IOrderData[] = (data || []).map(transformOrderRow);
 
@@ -543,7 +534,7 @@ export async function getAllOrdersBatched(params?: {
             // Check if there are more batches to fetch
             hasMore = data && data.length === batchSize;
             currentBatch++;
-            if(currentBatch > hardPagelimit) break;
+            if (currentBatch > hardPagelimit) break;
         }
 
         return { orders: allOrders, total: totalCount, error: null };
@@ -734,13 +725,13 @@ export async function updateOrderItems(
 
         // Get current history_for_user or initialize as empty string
         const currentHistoryForUser = order.history_for_user || '';
-        
+
         // Add new history entries to history_for_user if provided
         let updatedHistoryForUser = currentHistoryForUser;
         if (historyForUser && historyForUser.length > 0) {
             const newEntries = historyForUser.join('\n');
-            updatedHistoryForUser = currentHistoryForUser 
-                ? `${currentHistoryForUser}\n${newEntries}` 
+            updatedHistoryForUser = currentHistoryForUser
+                ? `${currentHistoryForUser}\n${newEntries}`
                 : newEntries;
         }
 
@@ -1370,8 +1361,8 @@ export async function updateOrderCustomer(
         const userType: 'public' | 'vip' | 'company' = customerData?.isCompany
             ? 'company'
             : customerData?.discountPercent > 0
-              ? 'vip'
-              : 'public';
+                ? 'vip'
+                : 'public';
 
         // Get shipping method to recalculate cost
         let newShippingCost = order.shipping_cost; // Default to current cost
