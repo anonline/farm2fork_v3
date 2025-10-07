@@ -24,7 +24,7 @@ export async function createOrder(
         // Generate order ID (you might want to use a different format)
         const randomOrderId = Math.random().toString(36).substr(2, 9);
         
-        let latestOrderId = await getLatestOrderId();
+        const latestOrderId = await getLatestOrderId();
         if (latestOrderId) {
             orderData.id = (Number(latestOrderId) + 1).toString();
         }
