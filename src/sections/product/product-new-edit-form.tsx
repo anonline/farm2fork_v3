@@ -4,11 +4,14 @@ import type { MonthKeys, IBundleItem, ProductType, IProductItem } from 'src/type
 
 import { z as zod } from 'zod';
 import { useForm} from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import { Box, Grid, Stack, Button, Switch, FormControlLabel } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { useCategories } from 'src/contexts/category-context';
 import { useProducers } from 'src/contexts/producers-context';
@@ -122,6 +125,7 @@ export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 // ----------------------------------------------------------------------
 
 export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct: IProductItem | null }>) {
+    const router = useRouter();
     const { loading: categoriesLoading, allCategories } = useCategories();
     const { producers } = useProducers();
     const { connection } = useProductCategoryConnection();
@@ -418,7 +422,11 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             }
 
             toast.success(currentProduct ? 'Sikeres frissítés!' : 'Sikeres létrehozás!');
-            // Stay on the page after saving - do not redirect
+            
+            // Redirect to edit page after successful creation
+            if (!currentProduct && productData.url) {
+                router.push(paths.dashboard.product.edit(productData.url));
+            }
 
         } catch (error: any) {
             console.error(error);
