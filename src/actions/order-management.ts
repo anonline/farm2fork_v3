@@ -22,7 +22,12 @@ export async function createOrder(
         const now = new Date().toISOString();
 
         // Generate order ID (you might want to use a different format)
-        const randomOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const randomOrderId = Math.random().toString(36).substr(2, 9);
+        
+        let latestOrderId = await getLatestOrderId();
+        if (latestOrderId) {
+            orderData.id = (Number(latestOrderId) + 1).toString();
+        }
 
         // Create initial history entry
         const initialHistory: OrderHistoryEntry = {
@@ -1450,5 +1455,27 @@ export async function updateOrderCustomer(
     } catch (error) {
         console.error('Error updating order customer:', error);
         return { success: false, error: 'Failed to update order customer' };
+    }
+}
+
+export async function getLatestOrderId(): Promise<string> {
+    try {
+        const { data: order, error: fetchError } = await supabase
+            .from('orders')
+            .select('id')
+            .order('date_created', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (fetchError) {
+            console.error('Error fetching latest order ID:', fetchError);
+            return '';
+        }
+
+        return order.id.toString();
+
+    } catch (error) {
+        console.error('Error fetching latest order ID:', error);
+        return '';
     }
 }
