@@ -28,7 +28,7 @@ export default function ProfilRendelesek() {
     // Transform the order data to match the component's expected format
     const transformedOrders = orders.map((order, index) => ({
         id: (currentPage - 1) * itemsPerPage + index + 1, // Unique ID across pages
-        orderNumber: `#${order.id.slice(-6).toUpperCase()}`,
+        orderNumber: `#${order.id}`,
         orderDate: new Date(order.dateCreated).toLocaleDateString('hu-HU', {
             year: 'numeric',
             month: '2-digit',
