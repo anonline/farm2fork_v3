@@ -202,6 +202,27 @@ export function OrderListView() {
         loadTransformedData();
     }, [ordersData]);
 
+    // Refresh orders when page regains focus (e.g., returning from detail view)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                refreshOrders();
+            }
+        };
+
+        const handleFocus = () => {
+            refreshOrders();
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [refreshOrders]);
+
     const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
     const dataFiltered = applyFilter({

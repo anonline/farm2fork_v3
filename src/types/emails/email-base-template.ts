@@ -49,7 +49,7 @@ export default class EmailBaseTemplate {
                                                 <!-- Header Image -->
                                                 <div>
                                                     <p style="margin-top:0px">
-                                                        <img src="http://farm2fork.cryptonit.hu/logo/f2f.svg" 
+                                                        <img src="https://farm2fork.hu/logo/f2f.svg" 
                                                              alt="Farm2Fork" 
                                                              style="border: none; display: inline-block; font-size: 14px; font-weight: bold; height: auto; outline: none; text-decoration: none; text-transform: capitalize; vertical-align: middle; max-width: 100%; margin-left: 0px; margin-right: 0px;" 
                                                              border="0">

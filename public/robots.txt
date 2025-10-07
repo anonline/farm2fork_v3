@@ -1,0 +1,28 @@
+# Farm2Fork robots.txt
+# Configured to allow major search engines while limiting bot traffic
+
+# Allow major search engines
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Googlebot-Video
+User-agent: Bingbot
+User-agent: Slurp
+User-agent: DuckDuckBot
+User-agent: Baiduspider
+User-agent: YandexBot
+User-agent: Applebot
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /_next/
+Allow: /
+
+# Restrict all other bots to reduce server load
+User-agent: *
+Disallow: /
+
+# Crawl delay for allowed bots (seconds between requests)
+Crawl-delay: 10
+
+# Sitemap location
+Sitemap: https://farm2fork.hu/sitemap.xml
