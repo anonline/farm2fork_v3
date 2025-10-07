@@ -31,7 +31,7 @@ export async function createOrder(
         } else {
             // Ha nincs még order, kezdjük 1-től vagy használjunk timestamp alapú ID-t
             // Timestamp alapú ID jobb, mert garantáltan egyedi
-            newOrderId = `${Math.floor(Math.random() * 10000)}`;
+            newOrderId = `${Math.floor(Math.random() * 100000)}`;
         }
 
         // Create initial history entry
