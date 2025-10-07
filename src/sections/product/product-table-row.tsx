@@ -99,13 +99,21 @@ export function RenderCellCreatedAt({ params }: Readonly<ParamsProps>) {
 export function RenderCellStock({ params }: Readonly<ParamsProps>) {
     return (
         <Box sx={{ width: 1, typography: 'caption', color: 'text.secondary' }}>
-            {params.row.stock ? (
+            {params.row.stock !== null && params.row.stock > 0 && (
                 <Label variant="soft" color="success">
                     {params.row.stock} {params.row.unit ?? 'db'}
                 </Label>
-            ) : (
+            )}
+
+            {params.row.stock === null && (
                 <Label variant="soft" color="default">
                     Raktáron
+                </Label>
+            )}
+
+            {params.row.stock === 0 && (
+                <Label variant="soft" color="error">
+                    Elfogyott
                 </Label>
             )}
         </Box>

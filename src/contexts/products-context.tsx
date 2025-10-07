@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { IProductItem } from 'src/types/product';
 
 import { createClient } from '@supabase/supabase-js';
-import { useMemo, useState, useEffect, useContext, createContext } from 'react';
+import { useMemo, useState, useEffect, useContext, useCallback, createContext } from 'react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -14,11 +14,13 @@ export type ProductsContextType = {
     products: IProductItem[];
     loading: boolean;
     error: string | null;
+    refreshProducts: () => Promise<void>;
 };
 export const ProductsContext = createContext<ProductsContextType>({
     products: [],
     loading: false,
-    error: null
+    error: null,
+    refreshProducts: async () => {}
 });
 
 export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>) {
@@ -26,32 +28,34 @@ export function ProductsProvider({ children }: Readonly<{ children: ReactNode }>
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
 
-    useEffect(() => {
-        async function fetchProducts() {
-            setLoading(true);
-            const { data, error: supabaseError } = await supabase
-                .from('Products')
-                .select('*, producer:Producers(*), category:ProductCategories(*)')
-                .order('name', { ascending: true });
-            if (supabaseError) {
-                setLoadError(supabaseError.message);
-                setProducts([]);
-            } else {
-                setProducts(data ?? []);
-                setLoadError(null);
-            }
-            setLoading(false);
+    const fetchProducts = useCallback(async () => {
+        setLoading(true);
+        const { data, error: supabaseError } = await supabase
+            .from('Products')
+            .select('*, producer:Producers(*), category:ProductCategories(*)')
+            .order('name', { ascending: true });
+        if (supabaseError) {
+            setLoadError(supabaseError.message);
+            setProducts([]);
+        } else {
+            setProducts(data ?? []);
+            setLoadError(null);
         }
-        fetchProducts();
+        setLoading(false);
     }, []);
+
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
 
     const value = useMemo(
         () => ({
             products,
             loading,
             error: loadError,
+            refreshProducts: fetchProducts,
         }),
-        [products, loading, loadError]
+        [products, loading, loadError, fetchProducts]
     );
 
     return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
@@ -118,6 +122,7 @@ export const ProductsInCategoryContext = createContext<ProductsContextType>({
     products: [],
     loading: false,
     error: null,
+    refreshProducts: async () => {}
 });
 
 export function ProductsInCategoryProvider({
@@ -165,6 +170,7 @@ export function ProductsInCategoryProvider({
             products,
             loading,
             error,
+            refreshProducts: async () => {},
         }),
         [products, loading, error]
     );
@@ -208,6 +214,7 @@ export const ProductsInMonthInCategoryContext = createContext<ProductsContextTyp
     products: [],
     loading: true,
     error: null,
+    refreshProducts: async () => {}
 });
 
 interface ProductsInMonthInCategoryProviderProps {
@@ -282,6 +289,7 @@ export function ProductsInMonthInCategoryProvider({
             products,
             loading,
             error,
+            refreshProducts: async () => {},
         }),
         [products, loading, error]
     );
@@ -309,6 +317,7 @@ export const FeaturedProductsContext = createContext<ProductsContextType>({
     products: [],
     loading: false,
     error: null,
+    refreshProducts: async () => {}
 });
 
 export function FeaturedProductsProvider({
@@ -344,6 +353,7 @@ export function FeaturedProductsProvider({
             products,
             loading,
             error: loadError,
+            refreshProducts: async () => {},
         }),
         [products, loading, loadError]
     );
@@ -368,6 +378,7 @@ export const StarProductsContext = createContext<ProductsContextType>({
     products: [],
     loading: false,
     error: null,
+    refreshProducts: async () => {}
 });
 
 export function StarProductsProvider({
@@ -403,6 +414,7 @@ export function StarProductsProvider({
             products,
             loading,
             error: loadError,
+            refreshProducts: async () => {},
         }),
         [products, loading, loadError]
     );

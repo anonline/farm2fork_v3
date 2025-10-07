@@ -298,3 +298,94 @@ export async function updateProductCategoryRelations(productId: string, category
 
     return { success: true };
 }
+
+// ----------------------------------------------------------------------
+
+export async function deleteProduct(id: string) {
+    // First, get the product to access its featured image
+    const { data: product, error: fetchError } = await supabase
+        .from('Products')
+        .select('featuredImage')
+        .eq('id', id)
+        .single();
+
+    if (fetchError) {
+        console.error('Error fetching product for deletion:', fetchError);
+        throw new Error(`Hiba a termék lekérdezése során: ${fetchError.message}`);
+    }
+
+    // Delete featured image if it exists
+    if (product?.featuredImage) {
+        try {
+            const response = await fetch('/api/img/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: product.featuredImage
+                })
+            });
+
+            if (!response.ok) {
+                console.warn(`Failed to delete image: ${response.statusText}`);
+                // Continue with product deletion even if image deletion fails
+            }
+        } catch (deleteError) {
+            console.warn('Failed to delete featured image:', deleteError);
+            // Continue with product deletion even if image deletion fails
+        }
+    }
+
+    // Delete category relations first (due to foreign key constraints)
+    const { error: relationError } = await supabase
+        .from('ProductCategories_Products')
+        .delete()
+        .eq('productId', id);
+
+    if (relationError) {
+        console.error('Error deleting product category relations:', relationError);
+        throw new Error(`Hiba a kategória kapcsolatok törlése során: ${relationError.message}`);
+    }
+
+    // Delete bundle relations if this is a bundle product
+    const { error: bundleError } = await supabase
+        .from('ProductsInBoxes')
+        .delete()
+        .eq('boxId', id);
+
+    if (bundleError) {
+        console.error('Error deleting bundle relations:', bundleError);
+        // Not throwing here as the product might not be a bundle
+    }
+
+    // Finally, delete the product itself
+    const { error: deleteError } = await supabase
+        .from('Products')
+        .delete()
+        .eq('id', id);
+
+    if (deleteError) {
+        console.error('Error deleting product:', deleteError);
+        throw new Error(`Hiba a termék törlése során: ${deleteError.message}`);
+    }
+
+    return { success: true };
+}
+
+export async function deleteProducts(ids: string[]) {
+    const results = await Promise.allSettled(
+        ids.map(id => deleteProduct(id))
+    );
+
+    const errors = results
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map(result => result.reason);
+
+    if (errors.length > 0) {
+        console.error('Some products failed to delete:', errors);
+        throw new Error(`${errors.length} termék törlése sikertelen volt`);
+    }
+
+    return { success: true, deletedCount: ids.length };
+}

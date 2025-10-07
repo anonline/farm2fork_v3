@@ -37,6 +37,7 @@ import { generateProductsXLS } from 'src/utils/product-xls-export';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useProducts } from 'src/contexts/products-context';
 import { useCategories } from 'src/contexts/category-context';
+import { deleteProduct, deleteProducts } from 'src/actions/product';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -84,7 +85,7 @@ const NoResultsOverlay = () => <EmptyContent title="Nincs találat." />;
 export function ProductListView() {
     const confirmDialog = useBoolean();
 
-    const { products, loading: productsLoading } = useProducts();
+    const { products, loading: productsLoading, refreshProducts } = useProducts();
     const { allCategories } = useCategories();
 
     const [tableData, setTableData] = useState<IProductItem[]>(products);
@@ -122,23 +123,30 @@ export function ProductListView() {
     });
 
     const handleDeleteRow = useCallback(
-        (id: string) => {
-            const deleteRow = tableData.filter((row) => row.id !== id);
-
-            toast.success('Delete success!');
-
-            setTableData(deleteRow);
+        async (id: string) => {
+            try {
+                await deleteProduct(id);
+                await refreshProducts();
+                toast.success('Termék sikeresen törölve!');
+            } catch (error) {
+                console.error('Delete error:', error);
+                toast.error(error instanceof Error ? error.message : 'Hiba a termék törlése során');
+            }
         },
-        [tableData]
+        [refreshProducts]
     );
 
-    const handleDeleteRows = useCallback(() => {
-        const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
-
-        toast.success('Delete success!');
-
-        setTableData(deleteRows);
-    }, [selectedRowIds, tableData]);
+    const handleDeleteRows = useCallback(async () => {
+        try {
+            const idsToDelete = selectedRowIds.map(id => String(id));
+            await deleteProducts(idsToDelete);
+            await refreshProducts();
+            toast.success(`${idsToDelete.length} termék sikeresen törölve!`);
+        } catch (error) {
+            console.error('Delete error:', error);
+            toast.error(error instanceof Error ? error.message : 'Hiba a termékek törlése során');
+        }
+    }, [selectedRowIds, refreshProducts]);
 
     const handleExportAllToXLS = useCallback(() => {
         try {
@@ -276,7 +284,9 @@ export function ProductListView() {
                     key={`delete-${params.row.id}`}
                     icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                     label="Törlés"
-                    onClick={() => handleDeleteRow(params.row.id)}
+                    onClick={() => {
+                        handleDeleteRow(params.row.id);
+                    }}
                     sx={{ color: 'error.main' }}
                 />,
             ],
