@@ -192,7 +192,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             bio: currentProduct?.bio ?? false,
             priceSale: currentProduct?.priceSale ?? null,
             saleLabel: currentProduct?.saleLabel ?? { enabled: false, content: '' },
-            salegrossPrice: currentProduct?.salegrossPrice || null,
+            salegrossPrice: currentProduct?.salegrossPrice && currentProduct?.salegrossPrice > 0 ? currentProduct?.salegrossPrice : null,
             storingInformation: currentProduct?.storingInformation ?? '',
             usageInformation: currentProduct?.usageInformation ?? '',
             isPublic: currentProduct?.isPublic ?? true,
