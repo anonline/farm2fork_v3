@@ -166,7 +166,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
         return {
             name: currentProduct?.name || '',
             url: currentProduct?.url || '',
-            sku: currentProduct?.sku || '',
+            sku: currentProduct?.sku,
             shortDescription: currentProduct?.shortDescription || '',
             cardText: currentProduct?.cardText || '',
             images: currentProduct?.images || [],

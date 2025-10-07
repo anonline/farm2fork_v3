@@ -20,8 +20,6 @@ export async function createOrder(
 ): Promise<{ orderId: string | null; error: string | null }> {
     try {
         const now = new Date();
-        const newOrderId = `${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}_${now.getMilliseconds()}${Math.floor(Math.random() * 1000)}`;
-
 
         // Create initial history entry
         const initialHistory: OrderHistoryEntry = {
@@ -32,7 +30,7 @@ export async function createOrder(
 
         // Prepare the order object for database insertion
         const dbOrder = {
-            id: orderData.id ?? newOrderId, // Use provided ID
+            id: orderData.id ?? undefined, // Use provided ID
             date_created: now.toISOString(),
             customer_id: orderData.customerId,
             customer_name: orderData.customerName,
@@ -63,7 +61,7 @@ export async function createOrder(
             history: [initialHistory],
         };
 
-        const { data, error } = await supabase.from('orders').insert([dbOrder]).select().single();
+        const { data, error } = await supabase.from('orders').insert(dbOrder).select().single();
 
         if (error) {
             console.error('Error creating order:', error);

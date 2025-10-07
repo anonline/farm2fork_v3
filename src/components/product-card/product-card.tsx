@@ -591,7 +591,7 @@ export function ProductQuantitySelector({
                     product={product}
                     label="Kosár"
                     onAddToCart={onAddToCart ?? undefined}
-                    isDisabled={buttonDisabled}
+                    isDisabled={buttonDisabled || quantity === undefined || isNaN(quantity) || outOfStock}
                     sx={{ width: format == 'column' ? '100%' : '50%' }}
                 />
             )}
@@ -617,10 +617,8 @@ function ProductCardButton({
     sx,
 }: Readonly<ProductCardButtonProps>) {
     // if we want to open sidecart on addToCart we should use this: const { openSideCart } = useSideCart();
-    const { roles, user } = useAuthContext();
-    const isVIP = user?.user_metadata?.is_vip || false;
-    const isCORP = user?.user_metadata?.is_corp || false;
-    const isADMIN = user?.user_metadata?.is_admin || false;
+    const { user } = useAuthContext();
+    
     const baseStyle: SxProps = {
         ...sx,
         padding: '10px 16px',

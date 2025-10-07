@@ -104,7 +104,7 @@ export type IOrderData = {
 };
 
 export type ICreateOrderData = {
-    id?: string; // Optional, can be generated if not provided
+    id?: number; // Optional, can be generated if not provided
     customerId: string | null;
     customerName: string;
     billingEmails: string[];

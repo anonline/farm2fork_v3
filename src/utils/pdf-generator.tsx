@@ -246,9 +246,9 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                     <Text style={styles.description}>Termék neve</Text>
                     <Text style={styles.qty}>Eredeti menny.</Text>
                     <Text style={styles.qty}>Új menny.</Text>
-                    <Text style={styles.rate}>Egységár</Text>
+                    <Text style={styles.rate}>E.ár {(order.customer?.userType == 'vip' ? 'Ne.' : 'Br.')}</Text>
                     <Text style={styles.rate}>Új e.ár</Text>
-                    <Text style={styles.amount}>Összesen</Text>
+                    <Text style={styles.amount}>Összesen {(order.customer?.userType == 'vip' ? 'Ne.' : 'Br.')}</Text>
                 </View>
 
                 {/* Table Rows */}
@@ -259,9 +259,9 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                         </View>
                         <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2) || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />
-                        <Text style={styles.rate}>{fCurrency(item.grossPrice || 0)}</Text>
+                        <Text style={styles.rate}>{fCurrency((order.customer?.userType !== 'vip' ? item.grossPrice || 0 : item.netPrice || 0))}</Text>
                         <Text style={styles.rate} />
-                        <Text style={styles.amount}>{fCurrency(item.subtotal || 0)}</Text>
+                        <Text style={styles.amount}>{fCurrency((order.customer?.userType !== 'vip' ? item.subtotal || 0 : (item.netPrice || 0)*(item.quantity || 0)))}</Text>
                     </View>
                 ))}
             </View>
@@ -270,7 +270,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
             <View style={styles.totalSection}>
                 <View style={styles.totalRow}>
                     <Text>Nettó részösszeg:</Text>
-                    <Text>{fCurrency(order.subtotal || 0)}</Text>
+                    <Text>{fCurrency((order.customer.userType !== 'vip' ? order.subtotal || 0 : (order.items?.reduce((acc, item) => acc + (item.netPrice || 0) * (item.quantity || 0), 0))))}</Text>
                 </View>
                 <View style={styles.totalRow}>
                     <Text>Letétdíj:</Text>
@@ -293,7 +293,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                 </View>
                 <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Végösszeg:</Text>
-                    <Text style={styles.totalLabel}>{fCurrency(order.totalAmount)}</Text>
+                    <Text style={styles.totalLabel}>{fCurrency((order.customer.userType !== 'vip' ? order.totalAmount || 0 : (order.items?.reduce((acc, item) => acc + (item.netPrice || 0) * (item.quantity || 0), 0))-order.discount+order.deposit+order.shipping))}</Text>
                 </View>
             </View>
 
