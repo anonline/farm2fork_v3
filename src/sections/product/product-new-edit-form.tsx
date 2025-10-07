@@ -377,6 +377,7 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
                 netPriceVIP: data.netPriceVIP ?? undefined,
                 netPriceCompany: data.netPriceCompany ?? undefined,
                 stock: handleStock ? data.stock ?? 0 : null,
+                salegrossPrice: data.salegrossPrice && data.salegrossPrice > 0 ? data.salegrossPrice : null,
             };
             delete productData.categoryIds;
 
