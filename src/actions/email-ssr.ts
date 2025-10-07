@@ -476,7 +476,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
     orderDetailsTableHTML += `
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
             <tr>
-                <td colspan="2" style="padding-top: 12px; font-size: 0.8rem; color: #888;">
+                <td valign="top" colspan="2" style="padding-top: 12px; font-size: 0.8rem; color: #888;">
                 <span style="font-weight: 600;">Szállítási cím:</span><br/>
                     ${orderData.shippingAddress?.name || 'Ismeretlen'} ${orderData.shippingAddress?.company ? ` - ${orderData.shippingAddress?.company}` : ''}<br/>
                     ${orderData.shippingAddress?.phone || orderData.shippingAddress?.phoneNumber ? `${orderData.shippingAddress?.phone || orderData.shippingAddress?.phoneNumber}<br />` : ''}
@@ -484,7 +484,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
                     ${orderData.shippingAddress?.postcode || ''} ${orderData.shippingAddress?.city || ''} ${orderData.shippingAddress?.street || ''} ${orderData.shippingAddress?.houseNumber || ''} ${orderData.shippingAddress?.floor || ''} ${orderData.shippingAddress?.doorbell || ''}<br/>
                     ${orderData.shippingAddress?.note || ''}
                 </td>
-                <td colspan="2" style="padding-top: 12px; font-size: 0.8rem; color: #888; text-align: right;">
+                <td valign="top" colspan="2" style="padding-top: 12px; font-size: 0.8rem; color: #888; text-align: right;">
                     <span style="font-weight: 600;">Számlázási cím:</span><br/>
                     ${orderData.billingAddress?.name || 'Ismeretlen'} ${orderData.billingAddress?.company ? ` - ${orderData.billingAddress?.company}` : ''}<br/>
                     ${orderData.billingAddress?.taxNumber ? `${orderData.billingAddress?.taxNumber} <br />` : ''}

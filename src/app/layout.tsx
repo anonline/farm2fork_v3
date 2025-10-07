@@ -17,6 +17,7 @@ import Helpdesk from 'src/components/helpdesk/heldesk';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
+import { GoogleAnalytics } from 'src/components/google-analytics';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
 import { CheckoutProvider } from 'src/sections/checkout/context';
@@ -83,6 +84,7 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
     return (
         <html lang={appConfig.lang} dir={appConfig.dir} suppressHydrationWarning>
             <body>
+                <GoogleAnalytics />
                 <InitColorSchemeScript
                     modeStorageKey={themeConfig.modeStorageKey}
                     attribute={themeConfig.cssVariables.colorSchemeSelector}

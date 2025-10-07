@@ -17,6 +17,9 @@ export type ConfigValue = {
         redirectPath: string;
     };
     mapboxApiKey: string;
+    googleAnalytics: {
+        measurementId: string;
+    };
     firebase: {
         appId: string;
         apiKey: string;
@@ -59,6 +62,12 @@ export const CONFIG: ConfigValue = {
      * Mapbox
      */
     mapboxApiKey: process.env.NEXT_PUBLIC_MAPBOX_API_KEY ?? '',
+    /**
+     * Google Analytics
+     */
+    googleAnalytics: {
+        measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? '',
+    },
     /**
      * Firebase
      */

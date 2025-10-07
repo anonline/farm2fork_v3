@@ -46,11 +46,12 @@ function StarProductsWrapper() {
         <>
             {loading && <Skeleton variant="rounded" width="100%" height={505} />}
             {!loading &&
-                products.map((starProduct) => (
-                    <Grid key={starProduct.id} size={12}>
-                        <FeaturedProductCard product={starProduct} />
-                    </Grid>
-                ))}
+                products.filter((product) => (product.stock === null || product.stock > 0 || product.backorder))
+                    .map((starProduct) => (
+                        <Grid key={starProduct.id} size={12}>
+                            <FeaturedProductCard product={starProduct} />
+                        </Grid>
+                    ))}
         </>
     );
 }
