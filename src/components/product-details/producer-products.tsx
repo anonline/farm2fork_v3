@@ -22,7 +22,7 @@ export default function ProducerProducts({ producerId, excludeProductId }: Reado
 
     // Filter products for this producer
     const producerProducts = useMemo(
-        () => products.filter((product) => product.producerId === producerId && product.id !== excludeProductId),
+        () => products.filter((product) => product.producerId === producerId && product.id !== excludeProductId && (product.stock === null || product.stock > 0 || product.backorder)),
         [products, producerId, excludeProductId]
     );
 
