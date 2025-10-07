@@ -26,7 +26,7 @@ import {
 
 // Add Billingo API key
 function addBillingoApiKey() {
-    const apiKey = '8f0a70aa-6deb-11f0-a720-0adb4fd9a356';
+    const apiKey = '1d194930-a333-11f0-ba86-0ac27c983f59';
     if (apiKey) {
         OpenAPI.HEADERS = {
             'X-API-KEY': apiKey,
