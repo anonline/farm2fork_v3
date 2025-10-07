@@ -2,6 +2,9 @@
 
 import { Box, Skeleton, Container, Typography } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+
 import { fCurrency } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
@@ -27,8 +30,14 @@ import FeaturedProducerCard from '../producer-card/featured-producer-card';
 export default function ProductDetails() {
     const { user } = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
-
+    const router = useRouter();
+    
     const { product, loading } = useProduct();
+    
+    if (!loading && !product?.publish) {
+        router.push(paths.product.root);
+    }
+
     const renderTitle = () => (
         <Typography
             variant="h1"
