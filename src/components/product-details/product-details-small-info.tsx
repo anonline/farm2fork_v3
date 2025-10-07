@@ -5,6 +5,7 @@ import type { IProductItem } from 'src/types/product';
 import { useRouter } from 'next/navigation';
 
 import { Box, Grid, Button, Typography } from '@mui/material';
+import { themeConfig } from 'src/theme';
 
 interface ProductDetailsSmallInfoProps {
     product: IProductItem | null;
@@ -22,8 +23,19 @@ export default function ProductDetailsSmallInfo({
     const titleStyle = {
         fontWeight: 700,
         textTransform: 'uppercase',
+        fontSize: { xs: '24px', md: '32px', lg: '40px' },
+        fontFamily: themeConfig.fontFamily.bricolage,
+        lineHeight: '48px',
         mb: 1.5,
     };
+
+    const textStyle = {
+        fontFamilye: themeConfig.fontFamily.primary,
+        fontSize: { xs: '14px', md: '16px' },
+        lineHeight: '28px',
+        fontWeight: 500,
+        whiteSpace: 'pre-line'
+    }
 
     const buttonStyle = {
         mt: 2,
@@ -59,11 +71,11 @@ export default function ProductDetailsSmallInfo({
         }
 
     return (
-        <Grid container spacing={{ xs: 3, md: 5 }} sx={{ my: 4 }}>
+        <Grid container spacing={{ xs: 3, md: 5 }} sx={{ my: 7 }}>
             {usageText && (
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Typography sx={titleStyle}>Felhasználás</Typography>
-                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                    <Typography variant="body1" sx={textStyle}>
                         {usageText}
                     </Typography>
                 </Grid>
@@ -74,7 +86,7 @@ export default function ProductDetailsSmallInfo({
                     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                         <Box sx={{ flexGrow: 1 }}>
                             <Typography sx={titleStyle}>Tárolás</Typography>
-                            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                            <Typography variant="body1" sx={textStyle}>
                                 {storingText}
                             </Typography>
                         </Box>

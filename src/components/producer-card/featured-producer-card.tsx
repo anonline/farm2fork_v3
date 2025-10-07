@@ -67,7 +67,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
                 flexDirection: { xs: 'column', md: 'row' },
                 borderRadius: '12px',
                 overflow: 'hidden',
-                backgroundColor: '#F7F5EF',
+                //backgroundColor: '#F7F5EF',
                 cursor: 'pointer',
                 height: '100%',
             }}

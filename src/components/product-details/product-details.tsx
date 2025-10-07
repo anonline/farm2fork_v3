@@ -70,7 +70,7 @@ export default function ProductDetails() {
     );
 
     const renderSeasonality = () =>
-        product?.seasonality && (
+        product?.seasonality && product?.seasonality.length > 0 && (
             <Box
                 sx={{
                     fontFamily: themeConfig.fontFamily.primary,
