@@ -51,13 +51,13 @@ export const paths = {
         list: (slug: string) => `/termekek/${slug}`,
         root: '/termekek',
         zoldsegek: '/termekek/zoldsegek',
-        gyumolcsok: '/termekek/gyumolcsok',
-        feldolgozottTermekek: '/termekek/feldolgozott-termekek',
+        gyumolcsok: '/termekek/gyümölcsök',
+        feldolgozottTermekek: '/termekek/feldolgozott-termékek',
         szezonBox: '/termekek/szezon-box',
-        gombak: '/termekek/gombak',
+        gombak: '/termekek/gombák',
         pekaru: '/termekek/pekaru',
-        fuszernovenyek: '/termekek/fuszernovenyek',
-        egyeb: '/termekek/egyeb',
+        fuszernovenyek: '/termekek/fűszernövények',
+        egyeb: '/termekek/egyeb-termekek',
     },
     api: {
         search: {

@@ -244,6 +244,7 @@ export function ProductPageFilter({
     activeCategoryId,
     filterChangeAction,
 }: Readonly<ProductPageFilterProps>) {
+    const orderByIds = [42, 52, 50, 61, 57, 62, 60, 58, 51, 54, 55, 59, 53];
     return (
         <Box
             sx={{
@@ -255,6 +256,11 @@ export function ProductPageFilter({
         >
             <Stack direction="row" spacing="16px" flexWrap="wrap" sx={{ width: '100%' }}>
                 {categories
+                    .sort((a, b) => {
+                        const indexA = orderByIds.indexOf(a.id ?? 0);
+                        const indexB = orderByIds.indexOf(b.id ?? 0);
+                        return (indexA === -1 ? Number.MAX_VALUE : indexA) - (indexB === -1 ? Number.MAX_VALUE : indexB);
+                    })
                     .filter((c) => c.level < 2 && c.enabled && c.showProductPage)
                     .map((category) => (
                         <Button
@@ -338,7 +344,7 @@ export function ProductPageTextFilter({
     const [subCategory, setSubCategory] = useState<number[]>([]);
     const handleCategoryChange = (event: SelectChangeEvent<number>) => {
         const value = event.target.value;
-        const categoryId = value === 'default' ? undefined : Number(value);
+        const categoryId = value.toString() === 'default' ? undefined : Number(value);
         setNewSelectedCategory(categoryId);
         setSubCategory([]); // Reset to empty array
         onCategoryChangeAction(categoryId);
