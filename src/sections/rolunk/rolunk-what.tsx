@@ -4,8 +4,12 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { Image } from 'src/components/image';
+import { getRolunkWhat } from 'src/actions/rolunk';
 
-export default function RolunkWhat() {
+export default async function RolunkWhat() {
+    const rolunkWhats = await getRolunkWhat();
+
+
     const categoriesTexts = [
         {
             title: 'SZEZONÁLIS',
@@ -57,11 +61,11 @@ export default function RolunkWhat() {
             }}
         >
             <Grid container spacing={4}>
-                {categoriesTexts.map((categoryText) => (
+                {rolunkWhats.map((categoryText) => (
                     <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4, xl: 4 }} key={categoryText.title}>
                         <Box maxWidth={420} mx="auto">
                             <Image
-                                src={categoryText.image}
+                                src={categoryText.image || 'https://placehold.co/420x125/png'}
                                 alt={categoryText.title}
                                 sx={{ borderRadius: '5px', mb: 2 }}
                             />
