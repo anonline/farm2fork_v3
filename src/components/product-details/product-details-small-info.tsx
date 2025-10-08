@@ -5,6 +5,7 @@ import type { IProductItem } from 'src/types/product';
 import { useRouter } from 'next/navigation';
 
 import { Box, Grid, Button, Typography } from '@mui/material';
+
 import { themeConfig } from 'src/theme';
 
 interface ProductDetailsSmallInfoProps {
