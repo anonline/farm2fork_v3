@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
-import { Box, Paper, Button, Tooltip, InputBase, IconButton } from '@mui/material';
+import { Box, Paper, Button, Tooltip, InputBase, IconButton, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -281,34 +281,37 @@ export function ProductPriceDetails({
     unit = 'db',
     cardText
 }: Readonly<{ grossPrice?: number; unit?: string; cardText?: string }>) {
-    const priceDetailsStyle: React.CSSProperties = {
+    const priceDetailsStyle: SxProps<Theme> = {
         display: 'flex',
         flexDirection: 'row',
-        gap: 4,
-        justifyContent: 'space-between',
+        gap: 1,
+        justifyContent: { xs: 'flex-start', md: 'space-between' },
+        alignItems: 'center',
     };
 
-    const priceStyle: React.CSSProperties = {
+    const priceStyle: SxProps<Theme> = {
         fontFamily: themeConfig.fontFamily.primary,
-        fontSize: '18px',
+        fontSize: { xs: '16px', md: '18px' },
         lineHeight: '18px',
         fontWeight: 700,
         color: themeConfig.textColor.default,
     };
 
-    const unitStyle: React.CSSProperties = {
+    const unitStyle: SxProps<Theme> = {
         fontFamily: themeConfig.fontFamily.primary,
-        fontSize: '16px',
+        fontSize: { xs: '12px', md: '16px' },
         lineHeight: '18px',
         fontWeight: 400,
         color: themeConfig.textColor.muted,
     };
 
     return (
-        <div style={priceDetailsStyle}>
-            <span style={priceStyle}>
-                {fCurrency(grossPrice)} <span style={unitStyle}>/ {unit}</span>
-            </span>
+        <Box sx={priceDetailsStyle}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 0.5 }}>
+                <Typography sx={priceStyle}>{fCurrency(grossPrice)} </Typography>
+                <Typography sx={unitStyle}>/ {unit}</Typography>
+            </Box>
+
             {cardText && (
                 <Tooltip title={cardText} arrow placement="top">
                     <div style={{
@@ -326,7 +329,7 @@ export function ProductPriceDetails({
                     </div>
                 </Tooltip>
             )}
-        </div>
+        </Box>
     );
 }
 
@@ -527,7 +530,7 @@ export function ProductQuantitySelector({
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: format, gap: 2 }}>
+        <Box sx={{ display: 'flex', width: '100%', flexDirection: { xs: 'column', sm: format }, gap: 1 }}>
             <Paper
                 sx={{
                     border: '1px solid #A4A3A1',
@@ -535,7 +538,7 @@ export function ProductQuantitySelector({
                     p: '0px 0px',
                     display: 'flex',
                     alignItems: 'center',
-                    width: format == 'column' ? '100%' : '50%',
+                    width: { xs: '100%', sm: format == 'column' ? '100%' : '50%' },
                 }}
             >
                 <IconButton sx={minusButtonStyle} onClick={handleMinusClick} disabled={!minusButtonEnabled}>
@@ -545,11 +548,12 @@ export function ProductQuantitySelector({
                     sx={{
                         ml: 1,
                         flex: 1,
+                        height: { xs: 40, md: 44 },
                         textAlign: 'center',
                         input: {
                             '::placeholder': {
                                 color: themeConfig.textColor.muted,
-                                fontSize: 16,
+                                fontSize: { xs: 10, md: 16 },
                                 fontWeight: 400,
                                 fontFamily: themeConfig.fontFamily.primary,
                                 letterSpacing: '0.02em',
@@ -592,7 +596,7 @@ export function ProductQuantitySelector({
                     label="Kosár"
                     onAddToCart={onAddToCart ?? undefined}
                     isDisabled={buttonDisabled || quantity === undefined || isNaN(quantity) || outOfStock}
-                    sx={{ width: format == 'column' ? '100%' : '50%' }}
+                    sx={{ width: {xs: '100%', sm: format == 'column' ? '100%' : '50%' }}}
                 />
             )}
         </Box>
@@ -625,9 +629,9 @@ function ProductCardButton({
         borderRadius: '8px',
         textAlign: 'center',
         fontWeight: 600,
-        fontSize: 16,
+        fontSize: { xs: 13, md: 16 },
         fontFamily: themeConfig.fontFamily.primary,
-        height: 44,
+        height: { xs: 40, md: 44 },
     };
 
     const buttonStyle: SxProps = {
