@@ -185,6 +185,11 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                                 icon: ICONS.external,
                             },
                             {
+                                title: 'Rólunk oldal',
+                                path: paths.dashboard.rolunk.root,
+                                icon: ICONS.external,
+                            },
+                            {
                                 title: 'Email sablonok',
                                 path: paths.dashboard.emailtemplates.root,
                                 icon: ICONS.mail,

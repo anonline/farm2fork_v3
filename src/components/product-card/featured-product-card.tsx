@@ -56,23 +56,26 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
 
     return (
         <Paper
-            elevation={2}
+            elevation={0}
+            
             sx={{
                 display: 'flex',
                 flexDirection: { xs: 'column', md: 'row' },
                 borderRadius: '12px',
                 overflow: 'hidden',
                 backgroundColor: '#ffffff',
+
             }}
         >
             <Box
                 onClick={openProductPage}
                 sx={{
-                    width: { xs: '100%', md: '45%' },
+                    width: { xs: '100%', md: '50%' },
                     aspectRatio: '1/1',
                     cursor: 'pointer',
                     flexShrink: 0,
                     overflow: 'hidden',
+                    maxHeight: { xs: 'none', md: 470 },
                     '& img': {
                         transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
                     },
@@ -129,7 +132,7 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                         {product.name}
                     </Typography>
 
-                    <Typography
+                    {product.shortDescription && product.shortDescription.trim().length > 0 &&(<Typography
                         variant="body2"
                         color="text.secondary"
                         sx={{
@@ -145,7 +148,7 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                         }}
                     >
                         {product.shortDescription}
-                    </Typography>
+                    </Typography>)}
 
                     {product.producer && (
                         <ProducerInfo

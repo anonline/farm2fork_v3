@@ -301,6 +301,9 @@ export const paths = {
         woocommerce: {
             root: `${ROOTS.DASHBOARD}/woocommerce`,
         },
+        rolunk:{
+            root: `${ROOTS.DASHBOARD}/aboutus`,
+        },
         emailtemplates:{
             root: `${ROOTS.DASHBOARD}/emailtemplates`,
             newTemplate: `${ROOTS.DASHBOARD}/emailtemplates/new`,
