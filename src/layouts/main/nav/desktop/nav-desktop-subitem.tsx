@@ -72,7 +72,7 @@ export function NavSubItem({
                 {ownerState.variant === 'subItem' && subtitle && (
                     <ItemSubtitle
                         {...ownerState}
-                        sx={{ fontSize: '12px', color: (themeConfig.palette.grey[500], 0.6) }}
+                        sx={{ pt: 0.5, fontSize: '12px', color: (themeConfig.palette.grey[600], 0.6), fontStyle: 'italic' }}
                     >
                         {subtitle}
                     </ItemSubtitle>
