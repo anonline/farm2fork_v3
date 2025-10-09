@@ -8,11 +8,11 @@ import { Box, Grid, Button, Typography, CircularProgress } from '@mui/material';
 
 import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
 
+import { themeConfig } from 'src/theme';
 import { CONFIG } from 'src/global-config';
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
-import { themeConfig } from 'src/theme';
 
 interface ProducerProductsProps {
     producerId: string;

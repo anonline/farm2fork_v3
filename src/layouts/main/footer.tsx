@@ -14,12 +14,12 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { _socials } from 'src/_mock';
+import { themeConfig } from 'src/theme';
 import { CONFIG } from 'src/global-config';
 
 import { Logo } from 'src/components/logo';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
-import { themeConfig } from 'src/theme';
 
 // ----------------------------------------------------------------------
 

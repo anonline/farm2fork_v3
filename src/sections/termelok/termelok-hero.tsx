@@ -2,10 +2,10 @@
 
 import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
 import { useProducers } from 'src/contexts/producers-context';
 
 import F2FIcons from 'src/components/f2ficons/f2ficons';
-import { themeConfig } from 'src/theme';
 
 interface ProducerCardProps {
     producerId: string;

@@ -5,10 +5,10 @@ import { Box, Stack, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
+import { themeConfig } from 'src/theme/theme-config';
 import { useCategories } from 'src/contexts/category-context';
 
 import { Image } from 'src/components/image';
-import { themeConfig } from 'src/theme/theme-config';
 
 interface ITarolasMethod {
     id: number;

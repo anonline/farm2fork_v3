@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Container, Typography } from '@mui/material';
+
 import { themeConfig } from 'src/theme/theme-config';
 
 export default function TarolasHero() {
