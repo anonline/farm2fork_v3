@@ -60,24 +60,52 @@ const NAV_ITEMS = [
 export function AccountLayout({ children, ...other }: DashboardContentProps) {
     const pathname = usePathname();
 
-    // Find the matching tab value, preserving ID if present
+    // Extract user ID from pathname - it comes after /account/ and before any sub-route
+    // Pattern: /dashboard/user/account/[id] or /dashboard/user/account/[id]/billing etc.
+    const extractUserId = () => {
+        const cleanPathname = removeLastSlash(pathname);
+        const accountPath = paths.dashboard.user.account;
+        
+        if (!cleanPathname.startsWith(accountPath)) return null;
+        
+        // Get the part after /account/
+        const afterAccount = cleanPathname.substring(accountPath.length + 1);
+        
+        // Extract UUID (first segment after /account/)
+        const uuidPattern = /^([a-f0-9-]{36})/;
+        const idMatch = uuidPattern.exec(afterAccount);
+        return idMatch ? idMatch[1] : null;
+    };
+
+    const userId = extractUserId();
+
+    // Find the matching tab value
     const getCurrentTabValue = () => {
         const cleanPathname = removeLastSlash(pathname);
         
-        // Check if we have an ID at the end (UUID pattern)
-        const idMatch = cleanPathname.match(/\/([a-f0-9-]{36})$/);
-        const userId = idMatch ? idMatch[1] : null;
-        
-        // Find the base tab that matches (without the ID)
-        const basePathname = userId ? cleanPathname.replace(`/${userId}`, '') : cleanPathname;
-        const matchingTab = NAV_ITEMS.find(tab => tab.href === basePathname);
-        
-        // Return the tab href with ID preserved if it exists
-        if (matchingTab && userId) {
-            return `${matchingTab.href}/${userId}`;
+        if (!userId) {
+            // No user ID, match directly
+            const matchingTab = NAV_ITEMS.find(tab => tab.href === cleanPathname);
+            return matchingTab ? matchingTab.href : NAV_ITEMS[0].href;
         }
         
-        return matchingTab ? matchingTab.href : NAV_ITEMS[0].href;
+        // With user ID, check if pathname ends with a sub-route
+        // Pattern: /dashboard/user/account/[id]/billing
+        const accountPath = `${paths.dashboard.user.account}/${userId}`;
+        
+        if (cleanPathname === accountPath) {
+            // Base account page
+            return accountPath;
+        }
+        
+        // Check for sub-routes
+        const subRoute = cleanPathname.substring(accountPath.length);
+        const matchingTab = NAV_ITEMS.find(tab => {
+            const tabSubRoute = tab.href.substring(paths.dashboard.user.account.length);
+            return tabSubRoute === subRoute;
+        });
+        
+        return matchingTab ? `${accountPath}${subRoute}` : accountPath;
     };
 
     return (
@@ -94,10 +122,15 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
 
             <Tabs value={getCurrentTabValue()} sx={{ mb: { xs: 3, md: 5 } }}>
                 {NAV_ITEMS.map((tab, index) => {
-                    const cleanPathname = removeLastSlash(pathname);
-                    const idMatch = cleanPathname.match(/\/([a-f0-9-]{36})$/);
-                    const userId = idMatch ? idMatch[1] : null;
-                    const tabHref = userId ? `${tab.href}/${userId}` : tab.href;
+                    // Build the correct href based on whether we have a userId
+                    let tabHref = tab.href;
+                    
+                    if (userId) {
+                        // Insert userId between /account and the sub-route
+                        const accountPath = paths.dashboard.user.account;
+                        const subRoute = tab.href.substring(accountPath.length);
+                        tabHref = `${accountPath}/${userId}${subRoute}`;
+                    }
                     
                     return (
                         <Tab

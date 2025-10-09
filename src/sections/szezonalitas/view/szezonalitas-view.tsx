@@ -6,13 +6,13 @@ import { Fragment } from 'react';
 
 import { Box, Grid, Container, Typography } from '@mui/material';
 
+import { themeConfig } from 'src/theme';
 import { ProductsInMonthInCategoryProvider } from 'src/contexts/products-context';
 
 import { getMonthName } from 'src/types/months';
 
 import SzezonalisHonapKapcsolo from '../szezonalitas-honap-kapcsolo';
 import { SzezonalitasTermekekWrapper } from '../szezonalis-termekek-wrapper';
-import { themeConfig } from 'src/theme';
 
 type SzezonalitasViewProps = {
     month: MonthsEnum;

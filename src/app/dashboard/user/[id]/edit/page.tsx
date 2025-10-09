@@ -7,7 +7,7 @@ import { UserEditView } from 'src/sections/user/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `User edit | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Felhasználó szerkesztése | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
     params: Promise<{ id: string }>;
