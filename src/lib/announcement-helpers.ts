@@ -199,10 +199,32 @@ export async function getNextAnnouncementText(supabaseClient: any, formatDate: (
       };
     }
 
-    const formattedDate = formatDate(nextDeliveryDate.toISOString(), 'dddd MM.DD');
-    
+    const formattedDate = formatDate(nextDeliveryDate.toISOString(), 'MM.DD');
+    const dayName = formatDate(nextDeliveryDate.toISOString(), 'dddd');
+
+    const dayHunSuffix = (day:number) => {
+      const anArray = [2,3,6,8,13,16,18,20,23,26,28,30];
+      const enArray = [1,4,5,7,9,10,11,12,14,15,17,19,21,22,24,25,27,29,31];
+      if (anArray.includes(day)) return 'án';
+      if (enArray.includes(day)) return 'én';
+      return 'án';
+    }
+
+    const dayNameSuffix = (dayName: string) => {
+      const suffixes: { [key: string]: string } = {
+        'hétfő': 'n',
+        'kedd': 'en',
+        'szerda': 'án',
+        'csütörtök': 'ön',
+        'péntek': 'en',
+        'szombat': 'on',
+        'vasárnap': '',
+      };
+      return suffixes[dayName] || 'n';
+    }
+
     return {
-      text: `A ma leadott rendeléseket leghamarabb ${formattedDate}-án szállítjuk ki.`,
+      text: `A ma leadott rendeléseket leghamarabb ${dayName + dayNameSuffix(dayName)} ${formattedDate}-${dayHunSuffix(nextDeliveryDate.getDate())} szállítjuk ki.`,
       text_en: `Orders placed today will be delivered earliest on ${formattedDate}.`,
     };
   } catch (error) {
