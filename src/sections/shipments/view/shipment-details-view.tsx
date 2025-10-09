@@ -363,7 +363,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
                             <Stack spacing={1} sx={{ minWidth: 120 }}>
                                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                    Feldolgozottság ({((orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length / (shipment?.orderCount || 1)) * 100).toFixed(2)}%)
+                                    Feldolgozottság ({((orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length / (shipment?.orderCount || 1)) * 100).toFixed(1)}%)
                                 </Typography>
                                 <Typography variant="h4">
                                     {orders.filter(o => o.shipmentId === shipment?.id && o.orderStatus == 'processing').length}/{shipment?.orderCount ?? 0}

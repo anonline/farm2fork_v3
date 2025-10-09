@@ -158,7 +158,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }: InvoiceItemProps) {
     const quantityInput = getValues(fieldNames.quantity);
 
     useEffect(() => {
-        const totalValue = Number((priceInput * quantityInput).toFixed(2));
+        const totalValue = Number((priceInput * quantityInput).toFixed(1));
 
         setValue(fieldNames.total, totalValue);
     }, [fieldNames.total, priceInput, quantityInput, setValue]);

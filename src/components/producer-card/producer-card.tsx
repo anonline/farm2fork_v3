@@ -11,6 +11,7 @@ import { themeConfig } from 'src/theme';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
+import Image from 'next/image';
 
 interface ProducerCardProps {
     producer: IProducerItem;
@@ -43,13 +44,20 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
         cursor: 'pointer',
     };
 
-    const producerImageStyle: React.CSSProperties = {
+    const producerImageStyle: SxProps<Theme> = {
         width: '100%',
-        height: 249,
         objectFit: 'cover',
-        borderTopLeftRadius: 8,
-        borderTopRightRadius: 8,
+        borderTopLeftRadius: 2,
+        borderTopRightRadius: 2,
         cursor: 'pointer',
+        height: {
+            xs: 165,
+            sm: 165,
+            md: 249,
+            lg: 249,
+            xl: 249,
+        },
+        display: 'block',
     };
 
     const producerCardDetailsUpperContainterStyle: React.CSSProperties = {
@@ -93,11 +101,15 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
 
     return (
         <Paper className="product-card" sx={producerCardStyle} onClick={openProductPage}>
-            <img
-                src={producer.featuredImage ?? 'https://placehold.co/429'}
-                alt={producer.name}
-                style={producerImageStyle}
-            />
+            <Box sx={producerImageStyle}>
+                <Image
+                    src={producer.featuredImage ?? 'https://placehold.co/429'}
+                    alt={producer.name}
+                    width={429}
+                    height={249}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+                />
+            </Box>
 
             {producer.bio && <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />}
 

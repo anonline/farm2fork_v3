@@ -90,7 +90,7 @@ function BundleItems({ bundleItems, parentQuantity, userType, isMobile }: Readon
                                 </Box>
                                 <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
                                     <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                                        {scaledQty.toFixed(scaledQty % 1 === 0 ? 0 : 2)} {bundleItem.product?.unit || 'db'}
+                                        {scaledQty.toFixed(scaledQty % 1 === 0 ? 0 : 1)} {bundleItem.product?.unit || 'db'}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -122,7 +122,7 @@ function BundleItems({ bundleItems, parentQuantity, userType, isMobile }: Readon
                                     }}
                                 />
                                 <Box sx={{ width: 150, textAlign: 'right', typography: 'caption', fontWeight: 500 }}>
-                                    {scaledQty.toFixed(scaledQty % 1 === 0 ? 0 : 2)} {bundleItem.product?.unit || 'db'} ({parentQuantity} x {bundleItem.qty} {bundleItem.product?.unit || 'db'})
+                                    {scaledQty.toFixed(scaledQty % 1 === 0 ? 0 : 1)} {bundleItem.product?.unit || 'db'} ({parentQuantity} x {bundleItem.qty} {bundleItem.product?.unit || 'db'})
                                 </Box>
                                 
                             </Box>
@@ -500,7 +500,7 @@ export function OrderDetailsItems({
                                     {!isEditing && (
                                         <Box sx={{ flexShrink: 0, textAlign: 'right' }}>
                                             <Typography variant="subtitle2" sx={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
-                                                {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                                {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 1)} {item.unit}
                                             </Typography>
                                             <Typography variant="subtitle2" sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
                                                 {userType === 'company' || userType === 'vip' ? fCurrency(item.netPrice * item.quantity) : fCurrency(item.grossPrice * item.quantity)}
@@ -652,7 +652,7 @@ export function OrderDetailsItems({
                                     </Box>
                                 ) : (
                                     <Box sx={{ width: 110, textAlign: 'right', typography: 'subtitle2' }}>
-                                        {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2)} {item.unit}
+                                        {item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 1)} {item.unit}
                                     </Box>
                                 )}
 

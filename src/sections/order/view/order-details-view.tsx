@@ -564,7 +564,7 @@ export function OrderDetailsView({ orderId }: Props) {
         // Check for new items (items in edited but not in original)
         editedItemsParam.forEach(editedItem => {
             if (!originalItemsMap.has(editedItem.id)) {
-                const quantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 2);
+                const quantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 1);
                 historyEntries.push(`Új tétel: ${quantityStr} ${editedItem.unit} ${editedItem.name}`);
             }
         });
@@ -572,7 +572,7 @@ export function OrderDetailsView({ orderId }: Props) {
         // Check for deleted items (items in original but not in edited)
         originalItemsParam.forEach(originalItem => {
             if (!editedItemsMap.has(originalItem.id)) {
-                const quantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 2);
+                const quantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 1);
                 historyEntries.push(`Törölt tétel: ${quantityStr} ${originalItem.unit} ${originalItem.name}`);
             }
         });
@@ -583,8 +583,8 @@ export function OrderDetailsView({ orderId }: Props) {
             if (originalItem) {
                 // Check quantity change
                 if (originalItem.quantity !== editedItem.quantity) {
-                    const oldQuantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 2);
-                    const newQuantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 2);
+                    const oldQuantityStr = originalItem.quantity.toFixed(originalItem.quantity % 1 === 0 ? 0 : 1);
+                    const newQuantityStr = editedItem.quantity.toFixed(editedItem.quantity % 1 === 0 ? 0 : 1);
                     historyEntries.push(`Módosított tétel: ${oldQuantityStr} ${editedItem.unit} -> ${newQuantityStr} ${editedItem.unit} ${editedItem.name}`);
                 }
 

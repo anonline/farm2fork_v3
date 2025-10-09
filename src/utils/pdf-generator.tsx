@@ -257,7 +257,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                         <View style={styles.description}>
                             <Text>{item.name || 'N/A'}</Text>
                         </View>
-                        <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 2) || 0} {item.unit || ''}</Text>
+                        <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 1) || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />
                         <Text style={styles.rate}>{fCurrency((order.customer?.userType !== 'vip' ? item.grossPrice || 0 : item.netPrice || 0))}</Text>
                         <Text style={styles.rate} />

@@ -428,7 +428,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
         orderDetailsTableHTML += `
             <tr style="border-top: 1px solid #ddd;">
                 <td>${item.name}${item.note ? `<br/><span style="font-size: 0.8rem; color: #888;">${item.note}</span>` : ''}</td>
-                <td style="text-align: center;border-left: 1px solid #ddd;border-right: 1px solid #ddd;">${item.quantity} ${item.unit || 'db'}</td>
+                <td style="text-align: center;border-left: 1px solid #ddd;border-right: 1px solid #ddd;">${formatNumber(item.quantity)} ${item.unit || 'db'}</td>
                 <td style="text-align: right;">${formatNumber(item.subtotal, 0)} Ft</td>
             </tr>
         `;
@@ -503,7 +503,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
 const formatNumber = (num: string | number, decimals = -1) =>{
     let numValue = Number(num);
     if(isNaN(numValue)) numValue = 0;
-    const stringValue = numValue.toFixed( decimals < 0 ? (Number.isInteger(numValue) ? 0 : 2) : decimals );
+    const stringValue = numValue.toFixed( decimals < 0 ? (Number.isInteger(numValue) ? 0 : 1) : decimals );
 
     return stringValue.replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
 }

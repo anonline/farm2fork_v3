@@ -97,7 +97,7 @@ export function fData(inputValue: InputNumberValue) {
     if (number === null || number === 0) return '0 bytes';
 
     const units = ['bytes', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
-    const decimal = 2;
+    const decimal = 1;
     const baseValue = 1024;
 
     const index = Math.floor(Math.log(number) / Math.log(baseValue));

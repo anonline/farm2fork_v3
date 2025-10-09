@@ -382,7 +382,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                         label="Összesen"
                                         type="number"
                                         variant="filled"
-                                        value={((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)).toFixed(((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)) % 1 === 0 ? 0 : 2)}
+                                        value={((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)).toFixed(((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)) % 1 === 0 ? 0 : 1)}
                                         disabled
                                         
                                         fullWidth
@@ -594,7 +594,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             size="small"
                                                             variant="filled"
                                                             value={
-                                                                (Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))).toFixed((Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))) % 1 === 0 ? 0 : 2)
+                                                                (Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))).toFixed((Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))) % 1 === 0 ? 0 : 1)
                                                             }
                                                             disabled
                                                             

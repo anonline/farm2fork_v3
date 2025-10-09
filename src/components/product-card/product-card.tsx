@@ -704,13 +704,10 @@ function ProductCardButton({
                 slug: product.url
             });
 
-            let decimal = 2;
+            let decimal = 1;
 
             if(qty % 1 === 0){
                 decimal = 0;
-            }
-            else if((qty*10) % 1 === 0){
-                decimal = 1;
             }
 
             toast.success(`${qty.toFixed(decimal)} ${product.unit} ${product.name} kosárhoz adva.`);
