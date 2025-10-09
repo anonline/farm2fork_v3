@@ -39,8 +39,8 @@ const NAV_ITEMS = [
     },
     {
         label: 'Rendelések',
-        icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
-        href: `${paths.dashboard.user.account}/notifications`,
+        icon: <Iconify width={24} icon="solar:cart-3-bold" />,
+        href: `${paths.dashboard.user.account}/orders`,
         disabled: true
     },
     /*{

@@ -14,6 +14,9 @@ import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
@@ -62,7 +65,25 @@ export function AdminUserBillingHistory({ invoices, sx, ...other }: Props) {
                                 }}
                             >
                                 <ListItemText
-                                    primary={invoice.invoiceNumber}
+                                    primary={
+                                        invoice.orderId ? (
+                                            <Box
+                                                component={RouterLink}
+                                                href={paths.dashboard.order.details(invoice.orderId)}
+                                                sx={{
+                                                    color: 'primary.main',
+                                                    textDecoration: 'none',
+                                                    '&:hover': {
+                                                        textDecoration: 'underline',
+                                                    },
+                                                }}
+                                            >
+                                                {invoice.invoiceNumber}
+                                            </Box>
+                                        ) : (
+                                            invoice.invoiceNumber
+                                        )
+                                    }
                                     secondary={fDate(invoice.createdAt)}
                                     slotProps={{
                                         primary: { sx: { typography: 'body2', fontWeight: 600 } },

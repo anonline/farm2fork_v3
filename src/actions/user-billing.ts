@@ -25,6 +25,7 @@ export interface InvoiceHistoryItem {
     downloadUrl: string;
     totalAmount: number;
     invoiceNumber: string;
+    orderId?: string; // Order ID for linking to order details
 }
 
 /**
@@ -64,7 +65,7 @@ export async function getUserInvoiceHistory(
         const supabase = await initSupabase();
         const { data, error } = await supabase
             .from('orders')
-            .select('invoice_data_json')
+            .select('id, invoice_data_json')
             .eq('customer_id', userId)
             .not('invoice_data_json', 'is', null)
             .order('date_created', { ascending: false });
@@ -74,9 +75,12 @@ export async function getUserInvoiceHistory(
             return { invoices: [], error: error.message };
         }
 
-        // Extract and filter valid invoice data
+        // Extract and filter valid invoice data, adding orderId
         const invoices: InvoiceHistoryItem[] = (data || [])
-            .map((order) => order.invoice_data_json)
+            .map((order) => ({
+                ...order.invoice_data_json,
+                orderId: order.id,
+            }))
             .filter((invoice): invoice is InvoiceHistoryItem => 
                 invoice !== null && 
                 invoice !== undefined && 
