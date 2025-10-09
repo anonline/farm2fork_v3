@@ -1,8 +1,10 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { supabaseSSR } from 'src/lib/supabase-ssr';
 import type { IDeliveryAddress } from 'src/types/customer';
+
+import { cookies } from 'next/headers';
+
+import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 const initSupabase = async () => {
     const cookieStore = await cookies();
