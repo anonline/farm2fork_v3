@@ -29,6 +29,7 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { OptionsEnum } from 'src/types/option';
+import { getUser } from 'src/actions/user-management';
 
 // ----------------------------------------------------------------------
 
@@ -77,6 +78,14 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
 
     const isCartEmpty = !checkoutState.items.length;
     const isUnderMinimum = minimumPurchaseAmount && checkoutState.subtotal < minimumPurchaseAmount;
+
+    const getSubtotalToShow = () => {
+        if (userType === 'vip' || userType === 'company') {
+            return checkoutState.items.reduce((total, item) => total + item.netPrice * item.quantity, 0);
+        }
+
+        return checkoutState.subtotal;
+    };
 
     return (
         <Drawer
@@ -153,9 +162,9 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
             </Box>
 
             {/* Cart Items */}
-            <Box 
-                sx={{ 
-                    flex: 1, 
+            <Box
+                sx={{
+                    flex: 1,
                     overflow: 'hidden',
                     // Ensure proper mobile scrolling
                     ...(isMobile && {
@@ -198,8 +207,8 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
                         </Button>
                     </Box>
                 ) : (
-                    <Scrollbar 
-                        sx={{ 
+                    <Scrollbar
+                        sx={{
                             height: '100%',
                             // Mobile-specific scrolling improvements
                             ...(isMobile && {
@@ -214,9 +223,9 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
                             }),
                         }}
                     >
-                        <Stack 
-                            spacing={0} 
-                            sx={{ 
+                        <Stack
+                            spacing={0}
+                            sx={{
                                 p: 2,
                                 // Add extra bottom padding on mobile to ensure content is not hidden
                                 ...(isMobile && {
@@ -269,9 +278,20 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
                                     Részösszeg
                                 </Typography>
                                 <Typography variant="subtitle2">
-                                    {fCurrency(checkoutState.subtotal)}
+                                    {fCurrency(getSubtotalToShow())}
                                 </Typography>
                             </Box>
+
+                            {getUserType() !== 'public' && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        ÁFA
+                                    </Typography>
+                                    <Typography variant="subtitle2">
+                                        {fCurrency(checkoutState.subtotal - getSubtotalToShow())}
+                                    </Typography>
+                                </Box>
+                            )}
 
                             {checkoutState.discount > 0 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -364,6 +384,32 @@ export function SideCartItem({
     onDeleteNote,
     hideControl = false,
 }: Readonly<SideCartItemProps>) {
+    const { user } = useAuthContext();
+
+    const getUserType = () => {
+        if (!user) return 'public';
+        if (user?.user_metadata?.is_admin) return 'public';
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    }
+
+    const getPriceToShow = () => {
+        const userType = getUserType();
+        switch (userType) {
+            case 'vip':
+                return item.netPrice;
+            case 'company':
+                return item.netPrice;
+            default:
+                return item.grossPrice;
+        }
+    }
+
+    const getSubtotalToShow = () => {
+        return getPriceToShow() * item.quantity;
+    }
+
     return (
         <Box sx={{ display: 'flex', gap: 2, p: 1, alignItems: 'center' }}>
             {/* Product Image */}
@@ -401,7 +447,7 @@ export function SideCartItem({
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {fCurrency(item.grossPrice)}/{item.unit || 'db'}
+                    {fCurrency(getPriceToShow())}/{item.unit || 'db'}
                 </Typography>
 
                 {/* Quantity and Delete */}
@@ -420,7 +466,7 @@ export function SideCartItem({
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            {fCurrency(item.subtotal)}
+                            {fCurrency(getSubtotalToShow())}
                         </Typography>
 
                         {!hideControl && (

@@ -17,6 +17,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { Scrollbar } from 'src/components/scrollbar';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
 import { SideCartItem } from 'src/components/sidecart/sidecart';
+import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +34,27 @@ export function CheckoutSummary({
     onApplyDiscount,
     activeStep,
 }: Readonly<Props>) {
+    const { user } = useAuthContext();
     const { shipping, subtotal, discount, surcharge, total } = checkoutState;
+
+    const getUserType = () => {
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    };
+
+    const getSubtotalToShow = () => {
+        const userType = getUserType();
+        switch (userType) {
+            case 'vip':
+            case 'company':
+                return checkoutState.items.reduce((sum, item) => { ;
+                    return sum + item.netPrice * item.quantity;
+                }, 0);
+            default:
+                return subtotal;
+        }
+    }
 
     const displayShipping = shipping !== null ? 'Szállítási módtól függ' : '-';
 
@@ -72,11 +93,26 @@ export function CheckoutSummary({
                         Összeg
                     </Typography>
                     <Typography component="span" variant="subtitle2">
-                        {fCurrency(subtotal)}
+                        {fCurrency(getSubtotalToShow())}
                     </Typography>
                 </Box>
 
-                <Box sx={{ ...rowStyles }}>
+                {getUserType() !== 'public' && (
+                    <Box sx={{ ...rowStyles }}>
+                    <Typography
+                        component="span"
+                        variant="body2"
+                        sx={{ flexGrow: 1, color: 'text.secondary' }}
+                    >
+                        ÁFA
+                    </Typography>
+                    <Typography component="span" variant="subtitle2">
+                        {fCurrency(subtotal-getSubtotalToShow())}
+                    </Typography>
+                </Box>
+                )}
+
+                {discount > 0 && (<Box sx={{ ...rowStyles }}>
                     <Typography
                         component="span"
                         variant="body2"
@@ -87,7 +123,7 @@ export function CheckoutSummary({
                     <Typography component="span" variant="subtitle2">
                         {discount ? fCurrency(-discount) : '-'}
                     </Typography>
-                </Box>
+                </Box>)}
 
                 {surcharge > 0 && (
                     <Box sx={{ ...rowStyles, alignItems: 'center', display: 'flex' }}>

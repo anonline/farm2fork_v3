@@ -25,7 +25,7 @@ interface FeaturedProductCardProps {
 
 export default function FeaturedProductCard({ product }: Readonly<FeaturedProductCardProps>) {
     const { user } = useAuthContext();
-    const { onAddToCart } = useCheckoutContext();
+    const { onAddToCart, state } = useCheckoutContext();
     const router = useRouter();
 
     const openProductPage = () => {
@@ -34,14 +34,14 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
 
     const getNetPrice = () => {
         if (user?.user_metadata.is_vip) {
-            return product.netPriceVIP;
+            return Math.min(product.netPriceVIP, product.netPriceVIP * (1 - (state.discountPercent || 0) / 100));
         }
 
         if (user?.user_metadata.is_corp) {
-            return product.netPriceCompany;
+            return Math.min(product.netPriceCompany, product.netPriceCompany * (1 - (state.discountPercent || 0) / 100));
         }
 
-        return product.netPrice;
+        return Math.min(product.netPrice, product.netPrice * (1 - (state.discountPercent || 0) / 100));
     }
 
     const getVatPercent = () => {
@@ -170,6 +170,7 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                         min={product.mininumQuantity}
                         max={product.maximumQuantity}
                         step={product.stepQuantity}
+                        discountPercent={state.discountPercent || 0}
                         format="row"
                     />
                 </Stack>

@@ -101,12 +101,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     };
 
     const getNetPrice = () => {
-        console.log('product', product.name);
-        console.log('discountPercent', checkoutState.discountPercent);
-        console.log('product.netPriceVIP', product.netPriceVIP);
-        console.log('product.netPriceCompany', product.netPriceCompany);
-        console.log('product.netPrice', product.netPrice);
-
         if (isVIP) {
             return Math.min(product.netPriceVIP, product.netPriceVIP* (1-(checkoutState.discountPercent || 0)/100));
         }
@@ -115,7 +109,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             return Math.min(product.netPriceCompany, product.netPriceCompany*(1-(checkoutState.discountPercent || 0)/100));
         }
 
-        return product.netPrice;
+        return Math.min(product.netPrice, product.netPrice*(1-(checkoutState.discountPercent || 0)/100));
     }
 
     const getVatPercent = () => {
@@ -249,6 +243,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         onAddToCart={onAddToCart}
                         unit={product.unit}
                         min={product.mininumQuantity}
+                        discountPercent={checkoutState.discountPercent || 0}
                         max={product.stock === null || product.backorder === true ? product.maximumQuantity : product.stock}
                         step={product.stepQuantity}
                     />
@@ -342,6 +337,7 @@ type ProductQuantitySelectorProps = {
     unit?: string;
     onQuantityChange?: (quantity: number) => void;
     showUnit?: boolean;
+    discountPercent?: number;
 };
 
 export function ProductQuantitySelector({
@@ -355,6 +351,7 @@ export function ProductQuantitySelector({
     showAddToCart = true,
     onQuantityChange,
     showUnit = true,
+    discountPercent = 0,
 }: Readonly<ProductQuantitySelectorProps>) {
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
@@ -592,6 +589,7 @@ export function ProductQuantitySelector({
                     qty={quantity || 1}
                     product={product}
                     label="Kosár"
+                    discountPercent={discountPercent || 0}
                     onAddToCart={onAddToCart ?? undefined}
                     isDisabled={buttonDisabled || quantity === undefined || isNaN(quantity) || outOfStock}
                     sx={{ width: {xs: '100%', sm: format == 'column' ? '100%' : '50%' }}}
@@ -608,6 +606,7 @@ type ProductCardButtonProps = {
     onAddToCart?: CheckoutContextValue['onAddToCart'];
     isDisabled?: boolean;
     sx?: SxProps;
+    discountPercent?: number;
 };
 
 function ProductCardButton({
@@ -616,6 +615,7 @@ function ProductCardButton({
     label,
     onAddToCart,
     isDisabled = false,
+    discountPercent = 0,
     sx,
 }: Readonly<ProductCardButtonProps>) {
     // if we want to open sidecart on addToCart we should use this: const { openSideCart } = useSideCart();
@@ -647,30 +647,34 @@ function ProductCardButton({
 
     const getGrossPrice = () => {
         if (user?.user_metadata?.is_vip) {
-            return product?.netPriceVIP;
+            return Math.min(product?.netPriceVIP, product?.netPriceVIP * (1 - (discountPercent || 0) / 100)) * (1 + (product?.vat ?? 0) / 100);
         }
 
         if (user?.user_metadata?.is_corp) {
-            return product?.netPriceCompany * (1 + (product?.vat ?? 0) / 100);
+            return Math.min(product?.netPriceCompany, product?.netPriceCompany * (1 - (discountPercent || 0) / 100)) * (1 + (product?.vat ?? 0) / 100);
         }
 
-        return product?.salegrossPrice ?? product?.grossPrice;
+        if(product?.salegrossPrice){
+            return Math.min(product?.salegrossPrice, product?.salegrossPrice * (1 - (discountPercent || 0) / 100));
+        }
+
+        return Math.min(product?.grossPrice, product?.grossPrice * (1 - (discountPercent || 0) / 100));
     }
 
     const getNetPrice = () => {
         if (user?.user_metadata?.is_vip) {
-            return product?.netPriceVIP;
+            return Math.min(product?.netPriceVIP, product?.netPriceVIP * (1 - (discountPercent || 0) / 100));
         }
 
         if (user?.user_metadata?.is_corp) {
-            return product?.netPriceCompany;
+            return Math.min(product?.netPriceCompany, product?.netPriceCompany * (1 - (discountPercent || 0) / 100));
         }
 
         if (product?.salegrossPrice) {
             return product?.salegrossPrice / (1 + (product?.vat ?? 0) / 100);
         }
 
-        return product?.netPrice;
+        return Math.min(product?.netPrice, product?.netPrice * (1 - (discountPercent || 0) / 100));
     }
 
     const getVatPercent = () => {

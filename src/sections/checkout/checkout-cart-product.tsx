@@ -17,6 +17,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
 import { NumberInput } from 'src/components/number-input';
+import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ export function CheckoutCartProduct({
     onAddNote,
     onDeleteNote,
 }: Readonly<Props>) {
+    const { user } = useAuthContext();
     const [showNoteField, setShowNoteField] = useState(false);
     const [noteText, setNoteText] = useState(row.note || '');
 
@@ -64,6 +66,25 @@ export function CheckoutCartProduct({
             setShowNoteField(false);
         }
     };
+
+    const getUserType = () => {
+        if (user?.user_metadata?.is_vip) return 'vip';
+        if (user?.user_metadata?.is_corp) return 'company';
+        return 'public';
+    };
+
+    const getPriceToShow = () => {
+        const userType = getUserType();
+        switch (userType) {
+            case 'vip':
+            case 'company':
+                return row.netPrice;
+            default:
+                return row.grossPrice;
+        }
+    };
+
+    const getSubtotalToShow = () => getPriceToShow() * row.quantity;
 
     return (
         <TableRow>
@@ -101,7 +122,7 @@ export function CheckoutCartProduct({
                                 color: '#7e7e7e',
                             }}
                         >
-                            {fCurrency(row.grossPrice)}/{row.unit ?? 'db'}
+                            {fCurrency(getPriceToShow())}/{row.unit ?? 'db'}
                         </Typography>
 
                         <Box
@@ -154,7 +175,7 @@ export function CheckoutCartProduct({
 
             <TableCell align="right" sx={{ px: 3 }}>
                 <Stack spacing={1}>
-                    <Typography>{fCurrency(row.subtotal)}</Typography>
+                    <Typography>{fCurrency(getSubtotalToShow())}</Typography>
                     <Box>
                         <IconButton onClick={handleToggleNote}>
                             <F2FIcons
