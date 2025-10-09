@@ -41,10 +41,10 @@ export function HomeHero({
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: 'cover',
                 backgroundPosition: { xs: 'center', md: 'center' },
-                height: heroHeight,
+                height: { xs: '600px', md: heroHeight },
                 display: 'flex',
                 position: 'relative',
-                minHeight: { xs: '500px', sm: '600px' },
+                minHeight: { xs: '300px', sm: '600px' },
                 ...sx,
             }}
             {...other}

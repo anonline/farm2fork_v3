@@ -43,17 +43,18 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                         sx: {
                             fontFamily: themeConfig.fontFamily.bricolage,
                             fontWeight: 600,
-                            fontSize: '40px !important'
+                            fontSize: { xs: '28px', md: '40px !important' }
                         }
                     }
                 }}
                 sx={{
-                    textAlign: { xs: 'center', md: 'left' },
-                    fontSize: '40px',
+                    textAlign: { xs: 'left', md: 'left' },
+                    fontSize: { xs: '28px', md: '40px' },
                     fontFamily: themeConfig.fontFamily.bricolage,
                     fontWeight: 600,
                     lineHeight: '48px',
                     mb: {xs: 3, md: '100px'},
+                    pr: { xs: 2, md: 0 },
                 }}
             />
 
@@ -85,7 +86,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                         >
                             <Typography
                                 sx={{
-                                    fontSize: {xs: '28px', md: '32px'},
+                                    fontSize: {xs: '24px', md: '32px'},
                                     cursor: 'pointer',
                                     fontWeight: isHovered ? '600' : '400',
                                     color: isHovered ? themeConfig.palette.common.black : '#a1a1a1',
@@ -156,7 +157,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
             component="section"
             sx={[
                 {
-                    pt: 10,
+                    pt: 6,
                     position: 'relative',
                     pb: { xs: 10, md: 20 },
                 },

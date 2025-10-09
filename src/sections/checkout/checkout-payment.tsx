@@ -26,6 +26,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
+import { themeConfig } from 'src/theme';
 import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
@@ -971,6 +972,18 @@ export function CheckoutPayment() {
             >
                 Vissza
             </Button>
+
+            <Typography
+                sx={{ 
+                    mb: 2,
+                    fontFamily: themeConfig.fontFamily.primary,
+                    fontSize: '32px',
+                    fontWeight: 700,
+                    lineHeight: '40px',
+                }}    
+            >
+                Megrendelés
+            </Typography>
 
             <Grid container spacing={5}>
                 <Grid size={{ xs: 12, md: 7 }}>

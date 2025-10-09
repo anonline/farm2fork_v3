@@ -78,15 +78,15 @@ export function Footer({
                     alignItems: 'start',
                 }}
             >
-                <Box sx={{ width: '60%' }}>
-                    <Typography variant="h3" sx={{ textTransform: 'uppercase', mb: 1, fontFamily: themeConfig.fontFamily.bricolage }}>
+                <Box sx={{ width: { xs: '100%', md: '60%' } }}>
+                    <Typography variant="h3" sx={{ textTransform: 'uppercase', mb: 1, fontFamily: themeConfig.fontFamily.bricolage, fontSize: { xs: '20px', md: '28px' }, fontWeight: 600, lineHeight: { xs: '32px', md: '40px' } }}>
                         Iratkozz fel a hírlevelünkre!
                     </Typography>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ fontSize: { xs: '14px', md: '16px' }, py: { xs: 2, md: 2 } }}>
                         Minden héten értesítünk az újdonságokról
                     </Typography>
                 </Box>
-                <Box>
+                <Box sx={{ width: { xs: '100%', md: '60%' } }}>
                     <Box
                         sx={{
                             gap: { xs: 3, md: 0 },
@@ -101,17 +101,17 @@ export function Footer({
                             label="E-mail cím"
                             placeholder="E-mail cím"
                             sx={{
-                                mr: 2,
+                                mr: { xs: 0, md: 2 },
                                 mb: 2,
                                 backgroundColor: 'white',
                                 borderRadius: '8px',
                                 Height: '25px',
-                                width: '300px',
+                                width: { xs: '100%', md: '300px' },
                             }}
                         />
                         <Button
                             variant="outlined"
-                            sx={{ border: 1, color: 'white', padding: '8px 24px' }}
+                            sx={{ border: 1, color: 'white', padding: '8px 24px', width: { xs: '100%', md: 'auto' } }}
                         >
                             Feliratkozom
                         </Button>
@@ -131,7 +131,7 @@ export function Footer({
                                 }}
                             />
                         }
-                        sx={{ zIndex: 1 }}
+                        sx={{ zIndex: 1, pt: 1 }}
                     />
                 </Box>
             </Container>
@@ -168,18 +168,20 @@ export function Footer({
                 >
                     <Grid
                         size={{ xs: 12, [layoutQuery]: 3 }}
-                        sx={{ placeItems: { sx: 'self-start', md: 'flex-start' } }}
+                        sx={{ placeItems: { sx: 'flex-start', md: 'flex-start' } }}
                     >
-                        <Logo
-                            isSingle
-                            isLight
-                            sx={{
-                                width: { sx: '100%', md: '185px' },
-                                height: '50px',
-                                textAlign: 'left',
-                                pl:1
-                            }}
-                        />
+                        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-start' } }}>
+                            <Logo
+                                isSingle
+                                isLight
+                                sx={{
+                                    width: { sx: '185px', md: '185px' },
+                                    height: '50px',
+                                    textAlign: 'left',
+                                    pl: 1
+                                }}
+                            />
+                        </Box>
 
                         <Typography
                             variant="body2"
@@ -187,8 +189,8 @@ export function Footer({
                                 mx: { sx: 'left', md: 'auto' },
                                 mt: 3,
                                 maxWidth: 280,
-                                ml:0,
-                                pl:1,
+                                ml: 0,
+                                pl: 1,
                                 [theme.breakpoints.up(layoutQuery)]: { mx: 'unset' },
                             })}
                         >
@@ -197,7 +199,7 @@ export function Footer({
 
                         <Box
                             sx={(theme) => ({
-                                mt: 3,
+                                mt: 4,
                                 mb: 5,
                                 color: theme.vars.palette.common.white,
                                 display: 'flex',
@@ -324,6 +326,7 @@ export function Footer({
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         justifyItems: 'center',
+                        gap: 1,
                         flexDirection: { xs: 'column', md: 'row' },
                     }}
                 >

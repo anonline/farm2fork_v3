@@ -15,7 +15,7 @@ export default function HomeHighlight() {
     const router = useRouter();
 
     const h2Style = {
-        fontSize: { xs: '32px', md: '40px' },
+        fontSize: { xs: '28px', md: '40px' },
         lineHeight: { xs: '40px', md: '48px' },
         textTransform: 'uppercase',
         fontWeight: 600,
@@ -90,7 +90,7 @@ export default function HomeHighlight() {
                                 sx={{
                                     textTransform: 'uppercase',
                                     fontWeight: 600,
-                                    fontSize: '24px',
+                                    fontSize: '20px',
                                     pt: 1,
                                     fontFamily: themeConfig.fontFamily.bricolage
                                 }}

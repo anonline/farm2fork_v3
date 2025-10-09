@@ -12,7 +12,7 @@ import HomeMinimalProductsRedirectButton from './home-minimal-products-redirect-
 
 export function HomeMinimal() {
     const h2Style = {
-        fontSize: '40px !important',
+        fontSize: { xs: '28px', md: '40px !important' },
         lineHeight: '48px',
         textTransform: 'uppercase',
         fontWeight: 600,
@@ -22,11 +22,11 @@ export function HomeMinimal() {
 
     return (
         <Box my={4}>
-            <Typography variant="h2" sx={h2Style} >
+            <Typography sx={h2Style} >
                 Új termékek
             </Typography>
 
-            <Grid container spacing={1} sx={{ rowGap: '54px' }}>
+            <Grid container spacing="5px" sx={{ rowGap: { xs: '5px', md: '54px' } }}>
                 <StarProductsWrapper />
 
                 <FeaturedProductWrapper />
