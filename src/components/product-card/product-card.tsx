@@ -709,7 +709,17 @@ function ProductCardButton({
                 stepQuantity: product.stepQuantity,
                 slug: product.url
             });
-            toast.success(`${qty.toFixed((qty % 1 === 0 ? 0 : 2))} ${product.unit} ${product.name} kosárhoz adva.`);
+
+            let decimal = 2;
+
+            if(qty % 1 === 0){
+                decimal = 0;
+            }
+            else if((qty*10) % 1 === 0){
+                decimal = 1;
+            }
+
+            toast.success(`${qty.toFixed(decimal)} ${product.unit} ${product.name} kosárhoz adva.`);
             // if we want to open sidecart on addToCart we should use this: openSideCart();
         }
     };
