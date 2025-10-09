@@ -3,10 +3,10 @@ import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
+import { themeConfig } from 'src/theme';
 import { getRolunkWhat } from 'src/actions/rolunk';
 
 import { Image } from 'src/components/image';
-import { themeConfig } from 'src/theme';
 
 export default async function RolunkWhat() {
     const rolunkWhats = await getRolunkWhat();

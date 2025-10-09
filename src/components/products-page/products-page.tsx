@@ -24,12 +24,12 @@ import {
 import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
 import { useInfiniteProducts } from 'src/hooks/use-infinite-products';
 
+import { themeConfig } from 'src/theme';
 import { CONFIG } from 'src/global-config';
 import { useCategories } from 'src/contexts/category-context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import ProductCard from '../product-card/product-card';
-import { themeConfig } from 'src/theme';
 
 type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 

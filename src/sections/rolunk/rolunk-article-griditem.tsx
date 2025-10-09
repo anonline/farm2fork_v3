@@ -6,8 +6,9 @@ import { useState } from 'react';
 
 import { Box, Grid, Typography } from '@mui/material';
 
-import { Image } from 'src/components/image';
 import { themeConfig } from 'src/theme';
+
+import { Image } from 'src/components/image';
 
 type ArticleGridItem = {
     link: string;
