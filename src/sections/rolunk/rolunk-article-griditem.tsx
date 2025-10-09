@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 
 import { Image } from 'src/components/image';
+import { themeConfig } from 'src/theme';
 
 type ArticleGridItem = {
     link: string;
@@ -58,13 +59,15 @@ export default function RolunkArticleGridItem({ article }: Readonly<ArticleGridI
     };
 
     const mediumTextStyle = {
-        fontSize: { xs: '16px', md: '20px' },
+        fontSize: { xs: '16px', md: '16px' },
         color: 'gray',
+        fontWeight: 600,
         alignSelf: 'start',
     };
-    const yearTextStyle = { fontSize: { xs: '16px', md: '20px' }, color: 'gray', alignSelf: 'end' };
+    const yearTextStyle = { fontSize: { xs: '16px', md: '16px' }, fontWeight: 600, color: 'gray', alignSelf: 'end' };
     const titleTextStyle = {
         display: '-webkit-box',
+        fontFamily: themeConfig.fontFamily.bricolage,
         overflow: 'hidden',
         WebkitBoxOrient: 'vertical',
         WebkitLineClamp: 3,

@@ -29,6 +29,7 @@ import { useCategories } from 'src/contexts/category-context';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import ProductCard from '../product-card/product-card';
+import { themeConfig } from 'src/theme';
 
 type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 
@@ -128,6 +129,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
                     fontSize: { xs: '32px', sm: '64px' },
                     fontWeight: '600',
                     textTransform: 'uppercase',
+                    fontFamily: themeConfig.fontFamily.bricolage,
                     lineHeight: '70px',
                     letterSpacing: '-1px',
                 }}

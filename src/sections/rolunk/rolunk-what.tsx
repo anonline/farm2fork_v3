@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { getRolunkWhat } from 'src/actions/rolunk';
 
 import { Image } from 'src/components/image';
+import { themeConfig } from 'src/theme';
 
 export default async function RolunkWhat() {
     const rolunkWhats = await getRolunkWhat();
@@ -33,7 +34,7 @@ export default async function RolunkWhat() {
                             />
                             <Typography
                                 component="h3"
-                                sx={{ fontWeight: 'bold', fontSize: { xs: '20px', md: '28px' } }}
+                                sx={{ fontWeight: 'bold', fontSize: { xs: '20px', md: '28px' }, fontFamily: themeConfig.fontFamily.bricolage }}
                                 gutterBottom
                             >
                                 {categoryText.title}
