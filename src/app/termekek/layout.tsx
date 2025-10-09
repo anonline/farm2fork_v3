@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 
 import { MainLayout } from 'src/layouts/main';
 

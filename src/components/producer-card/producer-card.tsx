@@ -3,6 +3,7 @@ import type { Theme } from '@mui/material/styles';
 import type { IProducerItem } from 'src/types/producer';
 
 import React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Box, Paper, Typography } from '@mui/material';
@@ -11,7 +12,6 @@ import { themeConfig } from 'src/theme';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
-import Image from 'next/image';
 
 interface ProducerCardProps {
     producer: IProducerItem;

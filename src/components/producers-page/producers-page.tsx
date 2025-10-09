@@ -202,7 +202,7 @@ export default function ProducersPage() {
                     )}
                 </Box>
             ) : (
-                <Grid container spacing={'5px'} justifyContent="start" style={{ marginTop: '20px' }}>
+                <Grid container spacing="5px" justifyContent="start" style={{ marginTop: '20px' }}>
                     {producers.map((producer) => (
                         <Grid size={{ xs: 6, sm: 4, md: 2.4, lg: 2.4 }} key={producer.id}>
                             <ProducerCard producer={producer} />

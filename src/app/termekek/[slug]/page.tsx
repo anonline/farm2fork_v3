@@ -3,15 +3,15 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 
-import { Box, Container } from '@mui/material';
+import { Container } from '@mui/material';
 
 import { CONFIG } from 'src/global-config';
-import { CategoryProvider } from 'src/contexts/category-context';
 import { ProductProvider } from 'src/contexts/product-context';
+import { CategoryProvider } from 'src/contexts/category-context';
 import { ProductsProvider } from 'src/contexts/products-context';
 
-import ProductDetails from 'src/components/product-details/product-details';
 import ProductsPage from 'src/components/products-page/products-page';
+import ProductDetails from 'src/components/product-details/product-details';
 
 // ----------------------------------------------------------------------
 
