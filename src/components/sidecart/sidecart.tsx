@@ -18,6 +18,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 
+import { themeConfig } from 'src/theme';
 import { useGetOption } from 'src/actions/options';
 
 import { Iconify } from 'src/components/iconify';
@@ -29,7 +30,6 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { OptionsEnum } from 'src/types/option';
-import { themeConfig } from 'src/theme';
 
 // ----------------------------------------------------------------------
 
