@@ -194,8 +194,6 @@ export function Logo({
     const farmLogoWhite = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="120"
-            height="43"
             viewBox="0 0 114 31"
             style={{ width: '120', height: '43px' }}
             fill="none"

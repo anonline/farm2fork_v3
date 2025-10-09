@@ -26,7 +26,7 @@ const LINKS = [
     {
         headline: 'Termékek',
         children: [
-            { name: 'Összes termék', href: paths.home },
+            { name: 'Összes termék', href: paths.product.root },
             { name: 'Zöldségek', href: paths.categories.zoldsegek },
             { name: 'Gyümölcsök', href: paths.categories.gyumolcsok },
             { name: 'Gombák', href: paths.categories.gombak },
@@ -167,14 +167,16 @@ export function Footer({
                 >
                     <Grid
                         size={{ xs: 12, [layoutQuery]: 3 }}
-                        sx={{ placeItems: { sx: 'self-start', md: 'center' } }}
+                        sx={{ placeItems: { sx: 'self-start', md: 'flex-start' } }}
                     >
                         <Logo
+                            isSingle
                             isLight
                             sx={{
-                                width: { sx: '100%', md: '250px' },
+                                width: { sx: '100%', md: '185px' },
                                 height: '50px',
                                 textAlign: 'left',
+                                pl:1
                             }}
                         />
 
@@ -184,6 +186,8 @@ export function Footer({
                                 mx: { sx: 'left', md: 'auto' },
                                 mt: 3,
                                 maxWidth: 280,
+                                ml:0,
+                                pl:1,
                                 [theme.breakpoints.up(layoutQuery)]: { mx: 'unset' },
                             })}
                         >
@@ -197,7 +201,8 @@ export function Footer({
                                 color: theme.vars.palette.common.white,
                                 display: 'flex',
                                 gap: 1,
-                                justifyContent: 'start',
+                                width: '100%',
+                                justifyContent: 'flex-start',
                                 flexDirection: 'column',
                                 [theme.breakpoints.up(layoutQuery)]: {
                                     mb: 0,
@@ -234,6 +239,7 @@ export function Footer({
                         <Box
                             sx={{
                                 p: 1,
+                                ml: 1,
                                 background: 'white',
                                 borderRadius: 4,
                                 width: '80%',
