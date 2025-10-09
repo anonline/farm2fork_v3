@@ -34,7 +34,7 @@ export const paths = {
         editProfile: '/profil/edit-account',
     },
     rendelesMenete: '/rendeles-menete',
-    szezonalitas: '/szezonalitas/Jan',
+    szezonalitas: '/szezonalitas',
     tarolas: '/tarolas',
     page403: '/error/403',
     page404: '/error/404',

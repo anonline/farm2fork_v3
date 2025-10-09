@@ -12,7 +12,6 @@ export const metadata: Metadata = { title: `Szezonalitás` };
 
 export default async function Page({ params }: Readonly<Props>) {
     const { month } = await params;
-    console.log(month);
     
     if(!month) {
         const currentMonth = Object.values(MonthsEnum)[new Date().getMonth()] as MonthsEnum;
@@ -29,6 +28,6 @@ export default async function Page({ params }: Readonly<Props>) {
 
 export async function generateStaticParams() {
   return Object.values(MonthsEnum).map((month) => ({
-    month: month.toLowerCase(),
+    month: [month.toLowerCase()],
   }))
 }

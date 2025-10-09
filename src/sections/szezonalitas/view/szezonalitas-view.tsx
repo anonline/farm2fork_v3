@@ -12,6 +12,7 @@ import { getMonthName } from 'src/types/months';
 
 import SzezonalisHonapKapcsolo from '../szezonalitas-honap-kapcsolo';
 import { SzezonalitasTermekekWrapper } from '../szezonalis-termekek-wrapper';
+import { themeConfig } from 'src/theme';
 
 type SzezonalitasViewProps = {
     month: MonthsEnum;
@@ -46,6 +47,7 @@ export default function SzezonalitasView({ month }: Readonly<SzezonalitasViewPro
                         width: '100%',
                         lineHeight: { xs: '48px', md: '70px' },
                         letterSpacing: '-1px',
+                        fontFamily: themeConfig.fontFamily.bricolage
                     }}
                 >
                     Szezonalitás
@@ -58,6 +60,7 @@ export default function SzezonalitasView({ month }: Readonly<SzezonalitasViewPro
                         lineHeight: { xs: '33.4px', md: '48px' },
                         textTransform: 'uppercase',
                         fontWeight: 600,
+                        fontFamily: themeConfig.fontFamily.bricolage
                     }}
                 >
                     {getMonthName(month)}
@@ -71,6 +74,7 @@ export default function SzezonalitasView({ month }: Readonly<SzezonalitasViewPro
                                 lineHeight: '36px',
                                 textTransform: 'uppercase',
                                 fontWeight: 600,
+                                fontFamily: themeConfig.fontFamily.bricolage
                             }}
                         >
                             {category.categoryTitle}
