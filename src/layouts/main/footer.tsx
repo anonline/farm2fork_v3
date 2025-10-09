@@ -19,6 +19,7 @@ import { CONFIG } from 'src/global-config';
 import { Logo } from 'src/components/logo';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
+import { themeConfig } from 'src/theme';
 
 // ----------------------------------------------------------------------
 
@@ -276,7 +277,7 @@ export function Footer({
                                         },
                                     })}
                                 >
-                                    <Typography component="div" variant="overline">
+                                    <Typography component="div" sx={{ fontFamily: themeConfig.fontFamily.primary, fontWeight: '400', fontSize: '14px', color: '#faf8f6' }}>
                                         {list.headline}
                                     </Typography>
 
@@ -286,7 +287,14 @@ export function Footer({
                                             component={RouterLink}
                                             href={link.href}
                                             color="inherit"
-                                            variant="body2"
+                                            sx={{
+                                                color: '#ffffff',
+                                                fontFamily: themeConfig.fontFamily.primary,
+                                                fontWeight: '600',
+                                                fontSize: '16px',
+                                                lineHeight: '24px',
+                                                '&:hover': { color: '#dfdcd1', textDecoration: 'none' },
+                                            }}
                                         >
                                             {link.name}
                                         </Link>
