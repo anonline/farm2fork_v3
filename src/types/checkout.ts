@@ -56,6 +56,7 @@ export type ICheckoutState = {
     deliveryComment: string;
     selectedDeliveryDateTime: string | null;
     selectedPaymentMethod: IPaymentMethod | null;
+    discountPercent: number;
 };
 
 export type CheckoutContextValue = {

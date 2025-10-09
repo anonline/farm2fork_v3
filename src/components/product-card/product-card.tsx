@@ -43,6 +43,8 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     const isVIP = user?.user_metadata.is_vip || false;
     const isCorp = user?.user_metadata.is_corp || false;
 
+    const discountPercent = checkoutState.discountPercent;
+
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
         borderRadius: '8px',
@@ -109,12 +111,18 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
     };
 
     const getNetPrice = () => {
+        console.log('product', product.name);
+        console.log('discountPercent', checkoutState.discountPercent);
+        console.log('product.netPriceVIP', product.netPriceVIP);
+        console.log('product.netPriceCompany', product.netPriceCompany);
+        console.log('product.netPrice', product.netPrice);
+
         if (isVIP) {
-            return product.netPriceVIP;
+            return Math.min(product.netPriceVIP, product.netPriceVIP* (1-(checkoutState.discountPercent || 0)/100));
         }
 
         if (isCorp) {
-            return product.netPriceCompany;
+            return Math.min(product.netPriceCompany, product.netPriceCompany*(1-(checkoutState.discountPercent || 0)/100));
         }
 
         return product.netPrice;
@@ -245,7 +253,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
             </div>
             <div style={productCardPriceContentStyle}>
                 <div className="productCardPriceDetails" style={productCardPriceDetailsStyle}>
-                    <ProductPriceDetails grossPrice={getGrossPrice()} unit={product.unit} cardText={product.cardText} />
+                    <ProductPriceDetails grossPrice={isVIP || isCorp ? getNetPrice() : getGrossPrice()} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}

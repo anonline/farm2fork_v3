@@ -84,8 +84,8 @@ export function CheckoutCart() {
 
     const renderEmpty = () => (
         <EmptyContent
-            title="Cart is empty!"
-            description="Look like you have no items in your shopping cart."
+            title="Üres a kosarad!"
+            description="Úgy tűnik, hogy nincsenek elemek a kosaradban."
             imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-cart.svg`}
             sx={{ height: 340 }}
         />

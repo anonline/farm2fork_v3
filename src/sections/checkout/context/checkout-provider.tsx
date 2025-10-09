@@ -21,6 +21,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import { OptionsEnum } from 'src/types/option';
 
 import { CheckoutContext } from './checkout-context';
+import { useGetCustomerData } from 'src/actions/customer';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,7 @@ const initialState: ICheckoutState = {
     deliveryComment: '',
     selectedDeliveryDateTime: null,
     selectedPaymentMethod: null,
+    discountPercent: 0,
 };
 
 // ----------------------------------------------------------------------
@@ -78,6 +80,8 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         { initializeWithValue: false }
     );
 
+    const { customerData } = useGetCustomerData(state.userId ?? undefined);
+
     // Initialize userId and handle cart persistence logic with proper loading state
     useEffect(() => {
         if (loading) return; // Wait for initial load to complete
@@ -91,10 +95,17 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
             // Clear cart for unauthenticated user with existing cart
             resetState(initialState);
         }
-
     }, [user?.id, state.userId, resetState, setField, loading]);
-    
 
+    // Update discountPercent when customerData loads
+    useEffect(() => {
+        if (loading) return;
+        
+        if (user?.id && customerData?.discountPercent !== undefined) {
+            setField('discountPercent', customerData.discountPercent);
+        }
+    }, [user?.id, customerData?.discountPercent, setField, loading]);
+    
 
     // Get surcharge options based on user type
     const { option: surchargePublic } = useGetOption(OptionsEnum.SurchargePercentPublic);

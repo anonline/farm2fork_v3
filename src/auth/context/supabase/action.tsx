@@ -75,7 +75,7 @@ export const signInWithWordpress = async ({
 
     if (error) {
         console.error(error);
-        throw error;
+        return false;
     }
     if (!data) {
         return false;
