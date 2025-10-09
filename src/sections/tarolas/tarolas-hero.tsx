@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Container, Typography } from '@mui/material';
+import { themeConfig } from 'src/theme/theme-config';
 
 export default function TarolasHero() {
     const heroImageUrl = 'https://farm2fork.hu/wp-content/uploads/2024/07/feher-csiperkegomba_873_2-scaled.jpg';
@@ -45,6 +46,7 @@ export default function TarolasHero() {
                             color: 'rgb(255, 255, 255)',
                             fontSize: { xs: '40px', md: '64px' },
                             fontWeight: 600,
+                            fontFamily: themeConfig.fontFamily.bricolage,
                             letterSpacing: '-1px',
                             lineHeight: { xs: '48px', md: '70px' },
                             textAlign: 'start',

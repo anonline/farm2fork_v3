@@ -79,7 +79,7 @@ export function Footer({
                 }}
             >
                 <Box sx={{ width: '60%' }}>
-                    <Typography variant="h3" sx={{ textTransform: 'uppercase', mb: 1 }}>
+                    <Typography variant="h3" sx={{ textTransform: 'uppercase', mb: 1, fontFamily: themeConfig.fontFamily.bricolage }}>
                         Iratkozz fel a hírlevelünkre!
                     </Typography>
                     <Typography variant="body2">

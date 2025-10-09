@@ -8,6 +8,7 @@ import { paths } from 'src/routes/paths';
 import { useCategories } from 'src/contexts/category-context';
 
 import { Image } from 'src/components/image';
+import { themeConfig } from 'src/theme/theme-config';
 
 interface ITarolasMethod {
     id: number;
@@ -30,6 +31,7 @@ export default function TarolasKartya({ method }: Readonly<TarolasKartyaProps>) 
         textAlign: 'start',
         textTransform: 'uppercase',
         fontWeight: 600,
+        fontFamily: themeConfig.fontFamily.bricolage,
         fontSize: { xs: '20px', sm: '20px', md: '22px', lg: '28px' },
         lineHeight: { xs: '36px', md: '36px', lg: '36px' },
     };
