@@ -26,6 +26,7 @@ export default async function Page({ params }: Readonly<Props>) {
     return <SzezonalitasView month={selectedMonth} />;
 }
 
+
 export async function generateStaticParams() {
   return Object.values(MonthsEnum).map((month) => ({
     month: [month.toLowerCase()],
