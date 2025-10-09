@@ -108,7 +108,8 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                             width: 'fit-content',
                             color: 'rgb(13, 52, 95)',
                             backgroundColor: '#E3F2FD',
-                            fontWeight: '700 !important',
+                            fontWeight: '600 !important',
+                            fontSize: '14px !important',
                             px: 1,
                             py: 2,
                             '&:hover': {

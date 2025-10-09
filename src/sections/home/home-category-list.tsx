@@ -53,7 +53,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                     fontFamily: themeConfig.fontFamily.bricolage,
                     fontWeight: 600,
                     lineHeight: '48px',
-                    mb: 3,
+                    mb: {xs: 3, md: '100px'},
                 }}
             />
 
@@ -85,7 +85,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                         >
                             <Typography
                                 sx={{
-                                    fontSize: '28px',
+                                    fontSize: {xs: '28px', md: '32px'},
                                     cursor: 'pointer',
                                     fontWeight: isHovered ? '600' : '400',
                                     color: isHovered ? themeConfig.palette.common.black : '#a1a1a1',

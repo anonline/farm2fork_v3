@@ -195,7 +195,7 @@ export function Logo({
         <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 114 31"
-            style={{ width: '120', height: '43px' }}
+            style={{ width: '180px', height: '50px' }}
             fill="none"
         >
             <path

@@ -322,24 +322,26 @@ export function Footer({
                     <Typography variant="body2">2025 | Farm2Fork - All rights reserved.</Typography>
                     <Box>
                         <IconButton
-                            href="#"
+                            href="https://www.instagram.com/farm2fork_boldizsar/?hl=hu"
+                            target='_blank'
                             sx={(theme) => ({
                                 color: theme.vars.palette.common.white,
                                 fontSize: theme.typography.fontSize,
                                 justifyContent: 'flex-start',
                             })}
                         >
-                            <Iconify icon="socials:instagram" sx={{ mr: 2 }} />
+                            <Iconify icon="socials:f2finstagram" sx={{ mr: 2 }} />
                         </IconButton>
                         <IconButton
-                            href="#"
+                            href="https://www.facebook.com/farm2fork.hu/"
+                            target='_blank'
                             sx={(theme) => ({
                                 color: theme.vars.palette.common.white,
                                 fontSize: theme.typography.fontSize,
                                 justifyContent: 'flex-start',
                             })}
                         >
-                            <Iconify icon="socials:facebook" sx={{ mr: 2 }} />
+                            <Iconify icon="socials:f2ffacebook" sx={{ mr: 2, color: '#ffffff' }} />
                         </IconButton>
                     </Box>
                 </Container>
@@ -348,28 +350,3 @@ export function Footer({
     );
 }
 
-// ----------------------------------------------------------------------
-
-export function HomeFooter({ sx, ...other }: FooterProps) {
-    return (
-        <FooterRoot
-            sx={[
-                {
-                    py: 5,
-                    textAlign: 'center',
-                },
-                ...(Array.isArray(sx) ? sx : [sx]),
-            ]}
-            {...other}
-        >
-            <Container>
-                <Logo />
-                <Box sx={{ mt: 1, typography: 'caption' }}>
-                    © All rights reserved.
-                    <br /> made by
-                    <Link href="https://minimals.cc/"> minimals.cc </Link>
-                </Box>
-            </Container>
-        </FooterRoot>
-    );
-}
