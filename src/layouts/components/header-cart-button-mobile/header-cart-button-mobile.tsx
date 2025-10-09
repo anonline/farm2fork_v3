@@ -56,7 +56,7 @@ export default function HeaderCartButtonMobile() {
             color={checkoutState.totalItems > 0 ? 'success' : 'primary'}
             sx={{ textTransform: 'none', fontWeight: 500, color: '#262626 !important', backgroundColor: (checkoutState.totalItems > 0 ? '#e4ebc2 !important' : 'transparent') }}
         >
-            {checkoutState.totalItems > 0 ? fCurrency(checkoutState.subtotal + checkoutState.surcharge) : 'Kosár'}
+            {checkoutState.totalItems > 0 ? fCurrency(checkoutState.subtotal + checkoutState.surcharge) : 'KOSÁR'}
         </Button>
     );
 }
