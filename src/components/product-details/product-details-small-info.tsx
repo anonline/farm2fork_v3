@@ -32,7 +32,7 @@ export default function ProductDetailsSmallInfo({
 
     const textStyle = {
         fontFamilye: themeConfig.fontFamily.primary,
-        fontSize: { xs: '14px', md: '16px' },
+        fontSize: { xs: '16px', md: '16px' },
         lineHeight: '28px',
         fontWeight: 500,
         whiteSpace: 'pre-line'

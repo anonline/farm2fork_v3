@@ -31,21 +31,20 @@ export default function ProductDetails() {
     const { user } = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
     const router = useRouter();
-    
+
     const { product, loading } = useProduct();
-    
+
     if (!loading && !product?.publish) {
         router.push(paths.product.root);
     }
 
     const renderTitle = () => (
         <Typography
-            variant="h1"
             sx={{
-                fontSize: { sx: '30px', md: '56px' },
-                fontWeight: 600,
+                fontSize: { xs: '30px', md: '60px' },
+                fontWeight: 700,
                 textTransform: 'uppercase',
-                lineHeight: { sm: '40px', md: '56px' },
+                lineHeight: { sm: '30px', md: '56px' },
                 letterSpacing: '-0.01em',
                 color: themeConfig.textColor.default,
                 fontFamily: themeConfig.fontFamily.bricolage
@@ -63,6 +62,7 @@ export default function ProductDetails() {
                 fontWeight: 400,
                 lineHeight: '24px',
                 letterSpacing: '0.32px',
+                my: 0,
                 color: themeConfig.textColor.default,
             }}
             dangerouslySetInnerHTML={{ __html: product?.shortDescription || '' }}
@@ -153,14 +153,15 @@ export default function ProductDetails() {
     const renderPriceDetails = () => {
         const priceDetailsStyle = {
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: { xs: 1, sm: '20px' },
+            flexDirection: { xs: 'row', sm: 'row' },
+            gap: { xs: 4, sm: 4 },
             alignItems: { sm: 'center' },
             justifyContent: 'start',
+            mt: 2,
         };
         const priceStyle = {
             fontFamily: themeConfig.fontFamily.primary,
-            fontSize: '18px',
+            fontSize: '24px',
             lineHeight: '18px',
             fontWeight: 700,
             color: themeConfig.textColor.default,
@@ -202,7 +203,7 @@ export default function ProductDetails() {
 
         if (isProductAvailable() && product) {
             return (
-                <Box sx={{ width: '80%' }}>
+                <Box sx={{ width: { xs: '100%', md: '80%' } }}>
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}
@@ -237,13 +238,13 @@ export default function ProductDetails() {
     const renderProducerInfo = () =>
         product?.producer && (
             <ProducerInfo
-                name={product.producer.name}
+                name={product.producer.companyName || product.producer.name}
                 location={product.producer.location}
                 img={product.producer.featuredImage}
             />
         );
 
-    const headRightSectionGap = '20px';
+    const headRightSectionGap = '18px';
 
     const renderHead = () => (
         <Box
@@ -253,11 +254,12 @@ export default function ProductDetails() {
                 gap: 5,
             }}
         >
-            <Box>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
                 <Image
                     alt={product?.name ?? ''}
                     src={product?.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
                     sx={{
+
                         borderRadius: '8px',
                         width: { xs: '100%', md: '608px' },
                         height: { xs: '100%', md: '614px' },
@@ -270,7 +272,7 @@ export default function ProductDetails() {
                     width: { xs: '100%', md: '50%' },
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 5,
+                    gap: 3,
                 }}
             >
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
@@ -279,30 +281,54 @@ export default function ProductDetails() {
                             display: 'flex',
                             flexDirection: 'row',
                             width: '100%',
-                            alignItems: 'center',
+                            alignItems: { xs: 'flex-start', md: 'center' },
                             justifyItems: 'space-between',
                             wordBreak: 'break-word',
                         }}
                     >
-                        <Box sx={{ width: '90%' }}>{renderTitle()}</Box>
-                        <Box>
+                        <Box sx={{ width: { xs: '100%', md: '90%' } }}>{renderTitle()}</Box>
+                        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
                             {product?.bio && <F2FIcons name="BioBadge" width={64} height={32} />}
                         </Box>
                     </Box>
 
-                    {renderDescription()}
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
-                    {renderSeasonality()}
+                    <Box sx={{ display: { xs: 'block', md: 'none' }, position: 'relative', m: 0, p: 0 }}>
+
+                        <Image
+                            alt={product?.name ?? ''}
+                            src={product?.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'}
+                            sx={{
+                                borderRadius: '8px',
+                                width: { xs: '100%', md: '608px' },
+                                height: { xs: '100%', md: '614px' },
+                                filter: !loading && product && !(product.stock === null || product.backorder === true || (product.stock > 0)) ? 'grayscale(1) brightness(0.7)' : 'none',
+                            }}
+                        />
+                        <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
+                            {product?.bio && <F2FIcons name="BioBadge" width={64} height={32} />}
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ display: { xs: 'none', md: 'block' }, m: 0, p: 0 }}>
+                        {renderDescription()}
+                    </Box>
                 </Box>
                 
-                    {renderBundleItems()}
+                {product?.seasonality && product?.seasonality.length > 0 && (<Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                    {renderSeasonality()}
+                </Box>)}
+
+                {renderBundleItems()}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderProducerInfo()}
                 </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+                <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderPriceDetails()}
                     {renderQuantitySelector()}
+                </Box>
+
+                <Box sx={{ display: { xs: 'block', md: 'none' }, m: 0, p: 0 }}>
+                    {renderDescription()}
                 </Box>
             </Box>
         </Box>
@@ -356,7 +382,7 @@ export default function ProductDetails() {
                         backgroundColor: '#f5f5f5',
                     }}
                 >
-                    <Container maxWidth="lg" sx={{ padding: '32px' }}>
+                    <Container maxWidth="lg" >
                         <ProducersProvider>
                             <FeaturedProducerCard producerId={product.producerId} />
                         </ProducersProvider>

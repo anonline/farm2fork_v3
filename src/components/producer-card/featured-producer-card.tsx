@@ -63,6 +63,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
     return (
         <Box
             sx={{
+                py:'32px',
                 display: 'flex',
                 flexDirection: { xs: 'column', md: 'row' },
                 borderRadius: '12px',
@@ -73,10 +74,10 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
             }}
             onClick={openProducerPage}
         >
-            <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0 }}>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0, maxHeight: {xs: '400px', md: '480px'} }}>
                 <img
                     src={producer.coverImage ?? producer.featuredImage ?? 'https://placehold.co/600x450'}
-                    alt={producer.name}
+                    alt={producer.companyName || producer.name}
                     style={{
                         width: '100%',
                         height: '100%',
@@ -87,7 +88,8 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
             </Box>
             <Box
                 sx={{
-                    p: { xs: 3, md: 4 },
+                    py: { xs: 3, md: 4 },
+                    px: { xs: 0, md: 6 },
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -107,7 +109,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
                             lineHeight: { xs: '34px', md: '42px' },
                         }}
                     >
-                        {producer.name}
+                        {producer.companyName ||producer.name}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
                         {producer.shortDescription

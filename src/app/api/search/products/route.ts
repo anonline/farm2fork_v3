@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
         baseQuery += `,name.ilike.${term},tags.ilike.${term}`;
     });
 
-    console.log('Search baseQuery:', baseQuery);
+    //console.log('Search baseQuery:', baseQuery);
     let query = supabase
         .from('Products')
         .select('*, producer:Producers!left(*)', { count: 'exact' })

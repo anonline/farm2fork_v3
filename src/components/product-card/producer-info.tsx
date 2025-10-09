@@ -13,7 +13,7 @@ export default function ProducerInfo({ name, location, img }: Readonly<{ name: s
                 style={{ width: 40, height: 40, borderRadius: '50%' }}
             />
             <Box>
-                <Typography variant="subtitle2" fontWeight={700} fontSize={16} lineHeight="24px" fontFamily={themeConfig.fontFamily.bricolage}>
+                <Typography variant="subtitle2" fontWeight={700} fontSize={18} lineHeight="24px" fontFamily={themeConfig.fontFamily.bricolage}>
                     {name}
                 </Typography>
                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ alignItems: 'center' }}>

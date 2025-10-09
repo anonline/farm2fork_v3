@@ -69,7 +69,7 @@ export default function ProductGallery({ images, loading, productName }: Readonl
                 }}
             />
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }} sx={{ height: `${heights.two.two}px` }}>
+            <Grid size={{ xs: 12, md: 4 }} sx={{ height: `${heights.two.two}px`, display: { xs: 'none', md: 'block' } }}>
             <Image
                 alt={`${productName ?? 'Product'} image 2`}
                 src={images[1]}
@@ -103,7 +103,7 @@ export default function ProductGallery({ images, loading, productName }: Readonl
                     }}
                 />
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }} sx={{ height: `${heights.three.one}px` }}>
+            <Grid size={{ xs: 12, md: 4 }} sx={{ height: `${heights.three.one}px`, display: { xs: 'none', md: 'block' } }}>
                 <Stack spacing={2}>
                     <Image
                         alt={`${productName ?? 'Product'}`}
