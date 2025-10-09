@@ -5,6 +5,7 @@ import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 import { useProducers } from 'src/contexts/producers-context';
 
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+import { themeConfig } from 'src/theme';
 
 interface ProducerCardProps {
     producerId: string;
@@ -91,6 +92,7 @@ export default function TermelokHero({ producerId }: Readonly<ProducerCardProps>
                         sx={{
                             textTransform: 'uppercase',
                             textAlign: 'start',
+                            fontFamily: themeConfig.fontFamily.bricolage,
                             fontWeight: 600,
                             letterSpacing: '-1px',
                             fontSize: { xs: '40px', sm: '48px', md: '64px' },

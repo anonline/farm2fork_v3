@@ -12,6 +12,7 @@ import { CONFIG } from 'src/global-config';
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
+import { themeConfig } from 'src/theme';
 
 interface ProducerProductsProps {
     producerId: string;
@@ -78,12 +79,14 @@ export default function TermelokTermekek({ producerId }: Readonly<ProducerProduc
                 sx={{
                     textTransform: 'uppercase',
                     fontWeight: 600,
+                    fontFamily: themeConfig.fontFamily.bricolage,
                     mb: 3,
+                    mt: 3,
                     fontSize: { xs: '28px', md: '40px' },
                     lineHeight: { xs: '33.6px', md: '48px' },
                 }}
             >
-                Termékek ({producerProducts.length})
+                Termékek ({producerProducts.length} db)
             </Typography>
             <Grid container spacing={2}>
                 {displayedProducts.map((product) => (
