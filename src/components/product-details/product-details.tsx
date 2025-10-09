@@ -313,8 +313,8 @@ export default function ProductDetails() {
                         {renderDescription()}
                     </Box>
                 </Box>
-                
-                {product?.seasonality && product?.seasonality.length > 0 && (<Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
+
+                {product?.seasonality && product?.seasonality.length > 0 && (<Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderSeasonality()}
                 </Box>)}
 
@@ -330,6 +330,10 @@ export default function ProductDetails() {
                 <Box sx={{ display: { xs: 'block', md: 'none' }, m: 0, p: 0 }}>
                     {renderDescription()}
                 </Box>
+
+                {product?.seasonality && product?.seasonality.length > 0 && (<Box sx={{ display: { xs: 'flex', md: 'none' }, flexDirection: 'column', gap: headRightSectionGap }}>
+                    {renderSeasonality()}
+                </Box>)}
             </Box>
         </Box>
     );
