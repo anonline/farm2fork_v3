@@ -317,12 +317,12 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
 
                             <Divider />
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                                     Összesen
                                 </Typography>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                                    {fCurrency(checkoutState.subtotal + checkoutState.surcharge)}
+                                <Typography sx={{ fontWeight: 600, fontSize: '28px' }}>
+                                    kb. {fCurrency(checkoutState.subtotal + checkoutState.surcharge)}
                                 </Typography>
                             </Box>
                         </Stack>
@@ -354,8 +354,9 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
                                 component={RouterLink}
                                 href={paths.product.checkout}
                                 onClick={onClose}
+                                color='primary'
                             >
-                                Kosár megtekintése
+                                Tovább a megrendeléshez
                             </Button>
                         </Stack>
                     </Stack>
