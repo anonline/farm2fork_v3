@@ -210,7 +210,7 @@ export async function getNextAnnouncementText(supabaseClient: any, formatDate: (
       return 'án';
     }
 
-    const dayNameSuffix = (dayName: string) => {
+    const dayNameSuffix = (dayOfWeek: string) => {
       const suffixes: { [key: string]: string } = {
         'hétfő': 'n',
         'kedd': 'en',
@@ -220,7 +220,7 @@ export async function getNextAnnouncementText(supabaseClient: any, formatDate: (
         'szombat': 'on',
         'vasárnap': '',
       };
-      return suffixes[dayName] || 'n';
+      return suffixes[dayOfWeek] || 'n';
     }
 
     return {
