@@ -156,7 +156,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
             {/* Results summary */}
             {!loading && (
                 <Typography variant="body2" color="text.secondary">
-                    {filteredProducts.length} termék található{totalCount > filteredProducts.length && ` (${totalCount} összesen)`}
+                    {filteredProducts.length} termék betöltve{totalCount > filteredProducts.length && ` (${totalCount} összesen)`}
                     {searchText && ` "${searchText}" keresésre`}
                 </Typography>
             )}
