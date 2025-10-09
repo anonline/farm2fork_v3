@@ -29,7 +29,6 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { OptionsEnum } from 'src/types/option';
-import { getUser } from 'src/actions/user-management';
 
 // ----------------------------------------------------------------------
 
@@ -406,9 +405,7 @@ export function SideCartItem({
         }
     }
 
-    const getSubtotalToShow = () => {
-        return getPriceToShow() * item.quantity;
-    }
+    const getSubtotalToShow = () => getPriceToShow() * item.quantity
 
     return (
         <Box sx={{ display: 'flex', gap: 2, p: 1, alignItems: 'center' }}>

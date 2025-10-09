@@ -17,6 +17,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { Scrollbar } from 'src/components/scrollbar';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
 import { SideCartItem } from 'src/components/sidecart/sidecart';
+
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 // ----------------------------------------------------------------------
