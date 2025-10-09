@@ -13,6 +13,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter, usePathname, useSearchParams } from 'src/routes/hooks';
 
 import { useGetOption } from 'src/actions/options';
+import { useGetCustomerData } from 'src/actions/customer';
 
 import { SplashScreen } from 'src/components/loading-screen';
 
@@ -21,7 +22,6 @@ import { useAuthContext } from 'src/auth/hooks';
 import { OptionsEnum } from 'src/types/option';
 
 import { CheckoutContext } from './checkout-context';
-import { useGetCustomerData } from 'src/actions/customer';
 
 // ----------------------------------------------------------------------
 
