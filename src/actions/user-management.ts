@@ -25,6 +25,7 @@ export async function getUsers(page: number = 1, limit: number = 25): Promise<IU
             id: user.id,
             name:
                 `${selectedCustomerData?.lastname || ''} ${selectedCustomerData?.firstname || ''}`.trim() ||
+                selectedCustomerData?.companyName ||
                 user.email,
             email: user.email,
             role: roleData,

@@ -153,7 +153,7 @@ export function UserTableRow({
                 </TableCell>
 
                 <TableCell align="center">
-                    {row.customerData?.discountPercent && row.customerData?.discountPercent > 0 ? (
+                    {row.customerData?.discountPercent && Number(row.customerData?.discountPercent) > 0 ? (
                         <Label
                             variant="soft"
                             color='default'
@@ -202,7 +202,11 @@ export function UserTableRow({
                     }
                 </TableCell>
 
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.customerData?.acquisitionSource}</TableCell>
+                <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: '100px', width: '100px', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    <Tooltip title={row.customerData?.acquisitionSource || ''}>
+                        <span>{row.customerData?.acquisitionSource}</span>
+                    </Tooltip>
+                </TableCell>
 
                 <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
