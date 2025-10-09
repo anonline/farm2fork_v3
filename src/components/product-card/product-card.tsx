@@ -30,7 +30,7 @@ interface ProductCardProps {
 
 export default function ProductCard(props: Readonly<ProductCardProps>) {
     const { onAddToCart, state: checkoutState } = useCheckoutContext();
-    const { roles, user } = useAuthContext();
+    const { user } = useAuthContext();
     const { product } = props;
     const router = useRouter();
 
@@ -42,8 +42,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
 
     const isVIP = user?.user_metadata.is_vip || false;
     const isCorp = user?.user_metadata.is_corp || false;
-
-    const discountPercent = checkoutState.discountPercent;
 
     const productCardStyle: SxProps<Theme> = {
         border: '1px solid #0000001A',
@@ -61,14 +59,6 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-    };
-
-    const productImageStyle: React.CSSProperties = {
-        width: '100%',
-        objectFit: 'cover',
-        borderTopLeftRadius: 8,
-        borderTopRightRadius: 8,
-        cursor: 'pointer',
     };
 
     const productCardDetailsUpperContainterStyle: React.CSSProperties = {
@@ -419,7 +409,7 @@ export function ProductQuantitySelector({
             }
 
             if (quantity >= max) {
-                setPlusButtonEnabled(true);
+                setPlusButtonEnabled(false);
             }
             else {
                 setPlusButtonEnabled(true);
