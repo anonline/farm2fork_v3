@@ -55,7 +55,7 @@ export const paths = {
         feldolgozottTermekek: '/termekek/feldolgozott-termékek',
         szezonBox: '/termekek/szezon-box',
         gombak: '/termekek/gombák',
-        pekaru: '/termekek/pekaru',
+        pekaru: '/termekek/pékáru',
         fuszernovenyek: '/termekek/fűszernövények',
         egyeb: '/termekek/egyeb-termekek',
     },
@@ -113,8 +113,8 @@ export const paths = {
     product: {
         root: `/termekek`,
         checkout: `/product/checkout`,
-        details: (slug: string) => `/termek/${slug}`,
-        demo: { details: `/termek/${MOCK_ID}` },
+        details: (slug: string) => `/termekek/${slug}`,
+        demo: { details: `/termekek/${MOCK_ID}` },
     },
     producers: {
         root: `/termelok`,

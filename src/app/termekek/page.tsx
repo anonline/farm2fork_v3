@@ -5,21 +5,20 @@ import { ProductsProvider } from 'src/contexts/products-context';
 import { CategoryProvider } from 'src/contexts/category-context';
 
 import ProductsPage from 'src/components/products-page/products-page';
+import Container from 'node_modules/@mui/material/esm/Container/Container';
 
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = { title: `Termékek - ${CONFIG.appName}` };
 
-type Props = {
-    params: Promise<{ slug?: string }>;
-};
-export default async function Page({ params }: Readonly<Props>) {
-    const { slug } = await params;
+export default async function Page() {
     return (
-        <ProductsProvider>
-            <CategoryProvider>
-                <ProductsPage urlSlug={decodeURIComponent(slug?.[0] ?? '')} />
-            </CategoryProvider>
-        </ProductsProvider>
+        <Container sx={{ margin: '0 auto', padding: '20px' }}>
+            <ProductsProvider>
+                <CategoryProvider>
+                    <ProductsPage urlSlug="" />
+                </CategoryProvider>
+            </ProductsProvider>
+        </Container>
     );
 }
