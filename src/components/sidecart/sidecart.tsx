@@ -29,6 +29,7 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { OptionsEnum } from 'src/types/option';
+import { themeConfig } from 'src/theme';
 
 // ----------------------------------------------------------------------
 
@@ -124,7 +125,7 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
                     bgcolor: 'background.paper',
                 }}
             >
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography sx={{ fontWeight: 700, fontFamily: themeConfig.fontFamily.bricolage, fontSize: '18px', textTransform: 'uppercase' }}>
                     Kosár{' '}
                     {checkoutState.items.length > 0
                         ? '(' + checkoutState.items.length + ' db)'
