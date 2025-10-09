@@ -95,6 +95,7 @@ export default function ProducersPage() {
                         sx={{
                             fontSize: { xs: '32px', sm: '48px', md: '64px' },
                             fontWeight: '600',
+                            fontFamily: themeConfig.fontFamily.bricolage,
                             letterSpacing: '-1px',
                             textTransform: 'uppercase',
                         }}
@@ -144,7 +145,7 @@ export default function ProducersPage() {
                         variant="h3"
                         sx={{
                             textTransform: 'uppercase',
-                            fontFamily: themeConfig.fontFamily.primary,
+                            fontFamily: themeConfig.fontFamily.bricolage,
                             fontSize: '28px',
                             fontWeight: 600,
                             lineHeight: '36px',
@@ -176,7 +177,7 @@ export default function ProducersPage() {
             {/* Results summary */}
             {!loading && (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                    {producers.length} termelő található{totalCount > producers.length && ` (${totalCount} összesen)`}
+                    {producers.length} termelő betöltve{totalCount > producers.length && ` (${totalCount} összesen)`}
                     {keyword && ` "${keyword}" keresésre`}
                 </Typography>
             )}

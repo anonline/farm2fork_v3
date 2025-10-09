@@ -108,11 +108,11 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
             </div>
             <div style={producerCardPriceContentStyle}>
                 <div style={producerCardPriceDetailsStyle}>
-                    <Typography display="flex" flexDirection="row" alignItems="center" gap="8px">
+                    <Typography display="flex" flexDirection="row" alignItems="center" gap="8px" sx={{color: '#7e7e7e', fontWeight: 500}}>
                         <F2FIcons name="Map" width={20} height={20} /> {producer.location}
                     </Typography>
                     <Typography
-                        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '14px', fontWeight: 400 }}
                     >
                         {producer.producingTags}
                     </Typography>
