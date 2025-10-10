@@ -119,7 +119,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                             <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>
                                 <Typography variant='caption'>{fDate(row.createdAt)} {fTime(row.createdAt)}</Typography>
                             </Box>
-                            <Box component="span" sx={{ fontWeight: '600' }}>{row.customer.name}</Box>
+                            <Box component="span" sx={{ fontWeight: '600' }}>{row.customer.companyName || row.customer.name}</Box>
 
                             <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>
                                 <Typography variant='caption'>{row.orderNumber}</Typography>

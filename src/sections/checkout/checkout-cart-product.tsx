@@ -138,7 +138,8 @@ export function CheckoutCartProduct({
                         >
                             <NumberInput
                                 hideDivider
-                                value={Math.round(row.quantity*100)/100}
+                                digits={1}
+                                value={Number(row.quantity.toFixed(1))}
                                 onChange={(event, quantity: number) =>
                                     onChangeItemQuantity(row.id, quantity)
                                 }
@@ -150,6 +151,7 @@ export function CheckoutCartProduct({
                             <IconButton onClick={() => onDeleteCartItem(row.id)}>
                                 <Iconify icon="solar:trash-bin-trash-bold" />
                             </IconButton>
+                            
                         </Box>
 
                         <Collapse in={showNoteField}>

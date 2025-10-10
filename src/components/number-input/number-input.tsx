@@ -75,7 +75,7 @@ export function NumberInput({
     const isDecrementDisabled = currentValue <= min || disabled;
     const isIncrementDisabled = currentValue >= max || disabled;
 
-    const stepDigits = step % 1 == 0 ? 0 : step % 0.1 == 0 ? 1 : 2;
+    const stepDigits = step % 1 == 0 ? 0 : step % 0.1 == 0 ? 1 : 1;
 
     const round = (num: number, decimals = 2) =>
         Number(Math.round(Number(num + 'e' + decimals)) + 'e-' + decimals);

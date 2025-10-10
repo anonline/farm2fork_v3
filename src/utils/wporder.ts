@@ -255,42 +255,144 @@ function getShipmentTime(order: WPOrder): string {
     return '';
 }
 
+function splitAddressToStreetAndNumber(address: string): { 
+    street: string; 
+    houseNumber: string;
+    floor: string;
+    doorbell: string;
+} {
+    const trimmedAddress = address.trim();
+    
+    // Hungarian street type patterns (full and abbreviated forms)
+    const streetTypePattern = /\b(utca|út|sétány|körút|köz|tér|park|fasor|sugárút|dűlő|sor|liget|u\.|ú\.|ut|stny|krt|kz|tr|prk|fsr|sgú|dl|sr|lgt)\.?\b/i;
+    
+    // Find the last occurrence of a street type
+    const match = trimmedAddress.match(new RegExp(streetTypePattern.source + '\\s+(.+)$', 'i'));
+    
+    if (match) {
+        // Extract street name (everything up to and including the street type)
+        const streetEndIndex = match.index! + match[0].length - match[2].length;
+        const street = trimmedAddress.substring(0, streetEndIndex).trim();
+        
+        // Extract house number and additional info (everything after street type)
+        const remaining = match[2].trim();
+        
+        // Parse house number with potential suffixes like /A, .a, /B, etc.
+        // and additional info like floor, doorbell
+        const houseNumberMatch = remaining.match(/^(\d+(?:[\/\.][A-Za-z0-9]+)?)\s*(.*)$/);
+        
+        if (houseNumberMatch) {
+            const houseNumber = houseNumberMatch[1];
+            const additionalInfo = houseNumberMatch[2].trim();
+            
+            // Try to extract floor and doorbell from additional info
+            // Common patterns: "2. em. 5", "3/5", "em. 2 ajtó 5", etc.
+            let floor = '';
+            let doorbell = '';
+            
+            if (additionalInfo) {
+                // Pattern: "2. em. 5" or "em. 2 ajtó 5" or "3/5" or "3. emelet 5"
+                const floorDoorbellMatch = additionalInfo.match(/(?:(\d+)\.?\s*(?:em|emelet|floor)\.?\s*)?(?:ajtó|ajto|door)?\s*(\d+)/i);
+                if (floorDoorbellMatch) {
+                    floor = floorDoorbellMatch[1] || '';
+                    doorbell = floorDoorbellMatch[2] || '';
+                } else {
+                    // Try simple slash pattern: "3/5" (floor/door)
+                    const slashMatch = additionalInfo.match(/^(\d+)\s*\/\s*(\d+)$/);
+                    if (slashMatch) {
+                        floor = slashMatch[1];
+                        doorbell = slashMatch[2];
+                    } else {
+                        // If we can't parse it, put everything in floor
+                        floor = additionalInfo;
+                    }
+                }
+            }
+            
+            return { street, houseNumber, floor, doorbell };
+        }
+        
+        return { street, houseNumber: remaining, floor: '', doorbell: '' };
+    }
+    
+    // Fallback: try to find first number as house number start
+    const numberMatch = trimmedAddress.match(/^(.+?)\s+(\d+(?:[\/\.][A-Za-z0-9]+)?)\s*(.*)$/);
+    if (numberMatch) {
+        const street = numberMatch[1].trim();
+        const houseNumber = numberMatch[2].trim();
+        const additionalInfo = numberMatch[3].trim();
+        
+        let floor = '';
+        let doorbell = '';
+        
+        if (additionalInfo) {
+            const floorDoorbellMatch = additionalInfo.match(/(?:(\d+)\.?\s*(?:em|emelet|floor)\.?\s*)?(?:ajtó|ajto|door)?\s*(\d+)/i);
+            if (floorDoorbellMatch) {
+                floor = floorDoorbellMatch[1] || '';
+                doorbell = floorDoorbellMatch[2] || '';
+            } else {
+                const slashMatch = additionalInfo.match(/^(\d+)\s*\/\s*(\d+)$/);
+                if (slashMatch) {
+                    floor = slashMatch[1];
+                    doorbell = slashMatch[2];
+                } else {
+                    floor = additionalInfo;
+                }
+            }
+        }
+        
+        return { street, houseNumber, floor, doorbell };
+    }
+    
+    // If no pattern matches, return the whole address as street
+    return { street: trimmedAddress, houseNumber: '', floor: '', doorbell: '' };
+}
+
 function getShippingAddress(order: WPOrder): IAddressItem {
+    // Combine address_1 and address_2 for parsing
+    const fullAddressString = `${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim();
+    const parsedAddress = splitAddressToStreetAndNumber(fullAddressString);
+    const shippingMethod = getShippingMethod(order);
+
     const address: IAddressItem = {
-        id: '0',
+        id: Math.random().toString(36).substring(2, 15), // Generate a random id
         company: order.shipping.company || '',
         name: `${order.shipping.last_name} ${order.shipping.first_name}`.trim(),
         city: order.shipping.city || '',
         postcode: order.shipping.postcode || '',
-        street: order.shipping.address_1 || '',
-        houseNumber: order.shipping.address_2 || '',
-        doorbell: '',
-        floor: '',
+        street: parsedAddress.street,
+        houseNumber: parsedAddress.houseNumber,
+        doorbell: parsedAddress.doorbell,
+        floor: parsedAddress.floor,
         fullAddress:
-            `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim(),
-        phone: order.shipping.phone || '',
+            `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${parsedAddress.street} ${parsedAddress.houseNumber} ${parsedAddress.floor} ${parsedAddress.doorbell}`.trim(),
+        phoneNumber: order.shipping.phone || '',
         email: order.shipping.email || order.billing_email || '',
         note: '',
-        addressType: 'shipping',
+        addressType: shippingMethod.name == 'Személyes átvétel' ? 'pickup' : 'delivery',
     };
     return address;
 }
 
 function getBillingAddress(order: WPOrder): IAddressItem {
+    // Combine billing address_1 and address_2 for parsing
+    const fullAddressString = `${order.billing.address_1 || ''} ${order.billing.address_2 || ''}`.trim();
+    const parsedAddress = splitAddressToStreetAndNumber(fullAddressString);
+    
     const address: IAddressItem = {
-        id: '0',
-        company: order.shipping.company || '',
-        name: `${order.shipping.last_name} ${order.shipping.first_name}`.trim(),
-        city: order.shipping.city || '',
-        postcode: order.shipping.postcode || '',
-        street: order.shipping.address_1 || '',
-        houseNumber: order.shipping.address_2 || '',
-        doorbell: '',
-        floor: '',
+        id: Math.random().toString(36).substring(2, 15), // Generate a random id
+        company: order.billing.company || '',
+        name: `${order.billing.last_name} ${order.billing.first_name}`.trim(),
+        city: order.billing.city || '',
+        postcode: order.billing.postcode || '',
+        street: parsedAddress.street,
+        houseNumber: parsedAddress.houseNumber,
+        doorbell: parsedAddress.doorbell,
+        floor: parsedAddress.floor,
         fullAddress:
-            `${order.shipping.postcode || ''} ${order.shipping.city || ''} ${order.shipping.address_1 || ''} ${order.shipping.address_2 || ''}`.trim(),
-        phone: order.shipping.phone || '',
-        email: order.shipping.email || order.billing_email || '',
+            `${order.billing.postcode || ''} ${order.billing.city || ''} ${parsedAddress.street} ${parsedAddress.houseNumber} ${parsedAddress.floor} ${parsedAddress.doorbell}`.trim(),
+        phoneNumber: order.billing.phone || '',
+        email: order.billing.email || order.billing_email || '',
         note: '',
         taxNumber: order.meta_data._billing_tax_number?.toString() || '',
         addressType: 'billing',
@@ -321,6 +423,7 @@ function getItems(order: WPOrder): IOrderItem[] {
                 name: item.name,
                 quantity: item.meta._qty ? parseFloat(item.meta._qty.toString()) : 1,
                 netPrice,
+                unit: item.meta._unit ? item.meta._unit.toString() : 'db',
                 grossPrice: grossUnitPrice,
                 subtotal: qty * grossUnitPrice,
                 note:

@@ -57,6 +57,9 @@ export type IOrderCustomer = {
     email: string;
     avatarUrl: string;
     ipAddress: string;
+    companyName?: string;
+    taxNumber?: string;
+    phoneNumber?: string;
     userType: 'public' | 'vip' | 'company';
 };
 

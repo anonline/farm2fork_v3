@@ -75,6 +75,9 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             avatarUrl: generateAvatarUrl(customerName),
             ipAddress: '192.168.1.1', // Not tracked in our system
             userType,
+            companyName: orderData.billingAddress?.company || '',
+            taxNumber: orderData.billingAddress?.taxNumber || '',
+            phoneNumber: orderData.billingAddress?.phoneNumber || '',
         },
         payment: {
             cardType: orderData.paymentMethod?.name || 'Unknown',
