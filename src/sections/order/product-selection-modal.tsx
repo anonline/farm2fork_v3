@@ -23,6 +23,7 @@ import { useSearchProductsAdmin } from 'src/actions/product';
 
 import { Iconify } from 'src/components/iconify';
 import BioBadge from 'src/components/bio-badge/bio-badge';
+import { Label } from 'src/components/label';
 
 // ----------------------------------------------------------------------
 
@@ -57,9 +58,10 @@ type Props = {
     onClose: () => void;
     onAddProducts: (products: ProductForOrder[]) => void;
     userType: 'public' | 'vip' | 'company';
+    discountPercent?: number;
 };
 
-export function ProductSelectionModal({ open, onClose, onAddProducts, userType = 'public' }: Readonly<Props>) {
+export function ProductSelectionModal({ open, onClose, onAddProducts, userType = 'public', discountPercent = 0 }: Readonly<Props>) {
     const [selectedProducts, setSelectedProducts] = useState<ProductForOrder[]>([]);
     const [searchValue, setSearchValue] = useState('');
     const [showCustomProduct, setShowCustomProduct] = useState(false);
@@ -87,10 +89,10 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
         name: product.name,
         sku: product.sku,
         slug: product.slug || '',
-        netPrice: product.netPrice,
-        grossPrice: product.grossPrice,
-        netPriceVIP: product.netPriceVIP,
-        netPriceCompany: product.netPriceCompany,
+        netPrice: product.netPrice * (1 - (discountPercent / 100)),
+        grossPrice: product.grossPrice * (1 - (discountPercent / 100)),
+        netPriceVIP: product.netPriceVIP * (1 - (discountPercent / 100)),
+        netPriceCompany: product.netPriceCompany * (1 - (discountPercent / 100)),
         vat: product.vat,
         unit: product.unit,
         quantity: 1,
@@ -255,7 +257,12 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
         >
             <DialogTitle>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Typography variant="h6">Termék hozzáadása</Typography>
+                    <Box display="flex" flexDirection={'row'} alignItems="center" justifyContent={'flex-start'} gap={1}>
+                        <Typography variant="h6">Termék hozzáadása</Typography>
+                        {discountPercent > 0 && (
+                            <Label color="info">{-discountPercent}%</Label>
+                        )}
+                    </Box>
                     <FormControlLabel
                         control={
                             <Switch
@@ -309,6 +316,8 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                             noOptionsText={searchValue.length < 3 ? "Írja be legalább 3 karaktert" : "Nincs találat"}
                             renderOption={(props, option) => {
                                 const { key, ...otherProps } = props;
+                                const priceToShow = userType === 'company' ? option.netPriceCompany : userType === 'vip' ? option.netPriceVIP : option.grossPrice;
+                                const originalPrice = priceToShow / (1 - (discountPercent / 100));
                                 return (
                                     <Box component="li" key={option.uniqueKey || option.id} {...otherProps}>
                                         <Stack direction="row" spacing={2} alignItems="center" sx={{ width: '100%' }}>
@@ -327,7 +336,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                     )}
                                                 </Stack>
                                                 <Typography variant="caption" color="text.secondary">
-                                                    {fCurrency(userType === 'company' ? option.netPriceCompany : userType === 'vip' ? option.netPriceVIP : option.grossPrice)} / {option.unit}
+                                                    {fCurrency(priceToShow)} / {option.unit}{discountPercent > 0 && (" • Eredeti ár: " + fCurrency(originalPrice))}
                                                     {option.manageStock && option.stock !== null && (
                                                         <span> • Készlet: {option.stock}</span>
                                                     )}

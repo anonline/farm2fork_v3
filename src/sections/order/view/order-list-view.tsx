@@ -177,9 +177,7 @@ export function OrderListView() {
     });
 
     // Fetch all orders for tab counts (without status filter)
-    const {
-        orders: allOrdersData,
-    } = useGetOrders({});
+    const { orders: allOrdersData } = useGetOrders({});
 
     // Transform orders data to table format
     const [tableData, setTableData] = useState<IOrderItem[]>([]);

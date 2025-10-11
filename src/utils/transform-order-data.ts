@@ -3,6 +3,7 @@ import type { IOrderData } from 'src/types/order-management';
 import type { IOrderItem, InvoiceData } from 'src/types/order';
 
 import { CONFIG } from 'src/global-config';
+import { getCustomerData, getCustomersWithDiscount } from 'src/actions/customer';
 
 // ----------------------------------------------------------------------
 
@@ -62,6 +63,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         totalAmount: orderData.total,
         totalQuantity,
         subtotal: orderData.subtotal,
+        vatTotal: orderData.vatTotal,
         taxes: orderData.vatTotal,
         shipping: orderData.shippingCost,
         discount: orderData.discountTotal,
@@ -171,7 +173,6 @@ export async function getUserType(customerId: string | null): Promise<'public' |
             user_id: customerId
         });
 
-        console.log('User type fetched from Supabase function for user:', customerId, 'result:', data);
 
         if (error) {
             console.error('Error fetching user type from Supabase:', error);
@@ -196,6 +197,24 @@ export async function getUserType(customerId: string | null): Promise<'public' |
  */
 export async function transformOrdersDataToTableItems(ordersData: IOrderData[]): Promise<IOrderItem[]> {
     let orders = await Promise.all(ordersData.map(transformOrderDataToTableItem));
+
+    const discountCustomers = await getCustomersWithDiscount();
+    const discountMap = new Map(discountCustomers.map(c => [c.uid, c]));
+
+    // Apply discountPercent from customer data if available
+    orders = orders.map(order => {
+        const customer = discountMap.get(order.customer.id);
+        if (customer) {
+            if(customer.discountPercent){
+                order.customer.discountPercent = customer?.discountPercent;
+            }
+            if(customer?.companyName){
+                order.customer.companyName = customer?.companyName;
+            }
+        }
+        return order;
+    });
+
     orders = orders.sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;

@@ -16,6 +16,7 @@ import { updateOrderCustomer, updateOrderInvoiceSettings } from 'src/actions/ord
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { CustomerSelectionModal } from 'src/components/customer-selection-modal';
+import { Label } from 'src/components/label';
 
 // ----------------------------------------------------------------------
 
@@ -182,7 +183,10 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                 </Avatar>
 
                 <Stack spacing={0.5} sx={{ typography: 'body2', alignItems: 'flex-start' }}>
-                    <Typography variant="subtitle2">{customer?.name}</Typography>
+                    <Box display="flex" alignItems="center" gap={1} flexDirection={'row'}>
+                        <Typography variant="subtitle2">{customer?.name}</Typography>
+                        {!!customer?.discountPercent && customer?.discountPercent > 0 && <Label color={"info"}>- {customer?.discountPercent} %</Label>}
+                    </Box>
 
                     <Box sx={{ color: 'text.secondary' }}>{customer?.email}</Box>
 

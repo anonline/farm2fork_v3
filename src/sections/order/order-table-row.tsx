@@ -127,6 +127,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                                 <Link component={RouterLink} href={detailsHref} color="inherit" underline="hover" >
                                     {row.customer.companyName || row.customer.name}
                                 </Link>
+                                {!!row.customer.discountPercent && <Label color='info'>-{row.customer.discountPercent} %</Label>}
                             </Box>
 
                             <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>
@@ -230,13 +231,14 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                     {/*<Avatar alt={row.customer.name} src={row.customer.avatarUrl} />*/}
 
                     <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
-                        <Box component="span">
+                        <Box component="span" display={'flex'} alignItems="center" gap={1} flexDirection={'row'}>
                             <Link component={RouterLink} href={detailsHref} color="inherit" underline="hover" >
                                 {row.customer.name}
                             </Link>
+                            {!!row.customer.discountPercent && <Label  color='info'>-{row.customer.discountPercent} %</Label>}
                         </Box>
 
-                        <Box component="span" sx={{ color: 'text.disabled' }}>
+                        <Box component="span" sx={{ color: 'text.disabled' }} display={'flex'} alignItems="center" gap={1} flexDirection={'row'}>
                             {row.customer.email}
                         </Box>
                         <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>

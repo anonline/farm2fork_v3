@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import type { IOrderItem } from 'src/types/order';
 import type { IOrderData } from 'src/types/order-management';
 
@@ -9,6 +9,7 @@ import { useMemo, useContext, useReducer, useCallback, createContext } from 'rea
 import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
 
 import { getOrderById } from 'src/actions/order-management';
+import { getCustomerData } from 'src/actions/customer';
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +20,7 @@ type OrderState = {
   error: string | null;
 };
 
-type OrderAction = 
+type OrderAction =
   | { type: 'FETCH_START' }
   | { type: 'FETCH_SUCCESS'; payload: { order: IOrderItem; orderData: IOrderData } }
   | { type: 'FETCH_ERROR'; payload: string }
@@ -113,16 +114,30 @@ export function OrderProvider({ children }: Readonly<OrderProviderProps>) {
       }
 
       if (result.order) {
-        // Transform IOrderData to IOrderItem using the utility function
-        const transformedOrder = await transformOrderDataToTableItem(result.order);
-        
-        dispatch({
-          type: 'FETCH_SUCCESS',
-          payload: {
-            order: transformedOrder,
-            orderData: result.order,
-          },
-        });
+
+        if (result.order.customerId) {
+          const customerData = await getCustomerData(result.order.customerId);
+
+          // Transform IOrderData to IOrderItem using the utility function
+          const transformedOrder = await transformOrderDataToTableItem(result.order);
+
+          if (customerData) {
+            transformedOrder.customer = {
+              ...transformedOrder.customer,
+              discountPercent: customerData.discountPercent || 0,
+            };
+          }
+
+          dispatch({
+            type: 'FETCH_SUCCESS',
+            payload: {
+              order: transformedOrder,
+              orderData: result.order,
+            },
+          });
+        } else {
+          dispatch({ type: 'FETCH_ERROR', payload: 'Nincs ügyfél adat a rendeléshez' });
+        }
       } else {
         dispatch({ type: 'FETCH_ERROR', payload: 'Rendelés nem található' });
       }
@@ -156,7 +171,7 @@ export function OrderProvider({ children }: Readonly<OrderProviderProps>) {
       if (result.order) {
         // Transform IOrderData to IOrderItem using the utility function
         const transformedOrder = await transformOrderDataToTableItem(result.order);
-        
+
         dispatch({
           type: 'FETCH_SUCCESS',
           payload: {

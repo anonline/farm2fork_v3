@@ -698,17 +698,24 @@ export async function updateOrderItems(
             return { success: false, error: 'Order not found' };
         }
 
-        // Calculate new totals
-        const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
         const newSurchargeAmount = surchargeAmount ?? order.surchargeAmount;
         const newShippingCost = shippingCost ?? order.shippingCost;
         const newDiscountTotal = discountTotal ?? order.discountTotal;
+
+        let newVatTotal = items.reduce((sum, item) => sum + (item.grossPrice - item.netPrice) * item.quantity, 0);
+        if (userType === 'company' || userType === 'public') {
+            newVatTotal += (newShippingCost / 1.27 * 0.27) || 0;
+        }
+
+        // Calculate new totals
+        const subtotal = items.reduce((sum, item) => sum + (userType === 'company' ? item.netPrice * item.quantity : item.subtotal), 0);
+        
         const total =
             subtotal +
             newShippingCost +
-            (userType == 'company' ? order.vatTotal : 0) +
+            (userType == 'company' ? newVatTotal : 0) +
             newSurchargeAmount -
-            newDiscountTotal;
+            newDiscountTotal;        
 
         // Create new history entry
         const historyEntry: OrderHistoryEntry = {
@@ -734,8 +741,9 @@ export async function updateOrderItems(
         // Update order with new items, totals, and history
         const updateData: any = {
             items,
-            subtotal,
+            subtotal: subtotal + (userType === 'company' ? newVatTotal : 0),
             total,
+            vat_total: newVatTotal,
             history: [...order.history, historyEntry],
             updated_at: new Date().toISOString(),
         };

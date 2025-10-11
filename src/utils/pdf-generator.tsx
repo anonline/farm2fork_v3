@@ -165,6 +165,10 @@ const F2FSVG = () => (
 const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps) => {
     const pickupLocation = pickupLocations?.find(loc => loc.id.toString() === order.delivery?.address?.id || '');
 
+    const netSubTotal = order.items?.reduce((sum, item) => sum + (item.netPrice || 0) * (item.quantity || 0), 0) || 0;
+    const taxTotal = order.items?.reduce((acc, item) => acc + (item.grossPrice - item.netPrice) * (item.quantity || 0), 0) + (order.shipping && order.customer.userType !== 'vip' ? (order.shipping / 1.27 * 0.27) : 0) || 0;
+
+    const grossTotal = netSubTotal + taxTotal + order.deposit + (order.shipping || 0) - (order.discount || 0);
     return (
         <Page size="A4" style={styles.page}>
             {/* Header */}
@@ -270,7 +274,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
             <View style={styles.totalSection}>
                 <View style={styles.totalRow}>
                     <Text>Nettó részösszeg:</Text>
-                    <Text>{fCurrency((order.customer.userType !== 'vip' ? order.subtotal || 0 : (order.items?.reduce((acc, item) => acc + (item.netPrice || 0) * (item.quantity || 0), 0))))}</Text>
+                    <Text>{fCurrency(netSubTotal)}</Text>
                 </View>
                 <View style={styles.totalRow}>
                     <Text>Letétdíj:</Text>
@@ -285,7 +289,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
 
                 <View style={styles.totalRow}>
                     <Text>ÁFA:</Text>
-                    <Text>{fCurrency(order.taxes || 0)}</Text>
+                    <Text>{fCurrency(taxTotal)}</Text>
                 </View>
                 <View style={[styles.totalRow, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 5 }]}>
                     <Text>Szállítási díj:</Text>
@@ -293,7 +297,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                 </View>
                 <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Végösszeg:</Text>
-                    <Text style={styles.totalLabel}>{fCurrency((order.customer.userType !== 'vip' ? order.totalAmount || 0 : (order.items?.reduce((acc, item) => acc + (item.netPrice || 0) * (item.quantity || 0), 0))-order.discount+order.deposit+order.shipping))}</Text>
+                    <Text style={styles.totalLabel}>{fCurrency(grossTotal)}</Text>
                 </View>
             </View>
 

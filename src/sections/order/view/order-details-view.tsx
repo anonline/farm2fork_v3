@@ -612,6 +612,18 @@ export function OrderDetailsView({ orderId }: Props) {
         setOriginalItems([...order?.items || []]);
     }, [order?.items]);
 
+    const calculateNewTotalsForFrontend = (items: IOrderProductItem[]) => {
+        const isCustomerCompany = order?.customer.userType == 'company';
+        const newSubtotal = items.reduce((sum, item) => sum + (isCustomerCompany ? item.netPrice * item.quantity : item.subtotal), 0);
+        const newTotal = newSubtotal
+            + editedShipping
+            + (isCustomerCompany ? orderData?.vatTotal || 0 : 0)
+            + editedSurcharge
+            - editedDiscount;
+
+        return { newSubtotal, newTotal };
+    };
+
     const handleCancelEdit = useCallback(() => {
         setIsEditing(false);
         setEditedItems(order?.items || []);
@@ -627,12 +639,7 @@ export function OrderDetailsView({ orderId }: Props) {
         }
 
         // Calculate new total
-        const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-        const newTotal = newSubtotal
-            + editedShipping
-            + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0)
-            + editedSurcharge
-            - editedDiscount;
+        const { newSubtotal, newTotal } = calculateNewTotalsForFrontend(editedItems);
 
         // Check if payment method is 'simple' and if new total exceeds paid amount
         const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
@@ -685,13 +692,23 @@ export function OrderDetailsView({ orderId }: Props) {
             );
             if (success) {
                 // Calculate new totals
-                const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
+                const { newSubtotal, newTotal } = calculateNewTotalsForFrontend(editedItems);
+                /*
+                const newSubtotal = editedItems.reduce((sum, item) => sum + (order?.customer.userType === 'company' ? item.netPrice * item.quantity : item.subtotal), 0);
                 const newTotal = newSubtotal
                     + editedShipping
                     + (order?.customer.userType == 'company' ? orderData?.vatTotal || 0 : 0)
                     + editedSurcharge
-                    - editedDiscount;
+                    - editedDiscount;*/
 
+                // termék áfatartalom
+                let newVatTotal = editedItems.reduce((sum, item) => sum + (item.grossPrice - item.netPrice) * item.quantity, 0);
+                
+                if(order?.customer.userType === 'company' || order?.customer.userType === 'public') {
+                    newVatTotal += (order?.shipping / 1.27 * 0.27) || 0;
+                }
+                
+                
                 // Update context with new data
                 if (order) {
                     updateOrder({
@@ -701,6 +718,7 @@ export function OrderDetailsView({ orderId }: Props) {
                         totalAmount: newTotal,
                         shipping: editedShipping,
                         discount: editedDiscount,
+                        vatTotal: newVatTotal,
                     });
                 }
 
@@ -720,6 +738,7 @@ export function OrderDetailsView({ orderId }: Props) {
                         items: itemsToSave,
                         subtotal: newSubtotal,
                         total: newTotal,
+                        vatTotal: newVatTotal,
                         surchargeAmount: editedSurcharge,
                         shippingCost: editedShipping,
                         discountTotal: editedDiscount,
@@ -1089,6 +1108,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             onCancel={handleCancelEdit}
                             onStartEdit={handleStartEdit}
                             userType={order.customer.userType}
+                            userDiscountPercent={order.customer.discountPercent}
                         />
 
                         {/* User history card */}

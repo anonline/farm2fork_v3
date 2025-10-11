@@ -158,6 +158,7 @@ type Props = CardProps & {
     onCancel?: () => void;
     onStartEdit?: () => void;
     userType?: 'public' | 'vip' | 'company';
+    userDiscountPercent?: number;
 };
 
 export function OrderDetailsItems({
@@ -183,6 +184,7 @@ export function OrderDetailsItems({
     onCancel,
     onStartEdit,
     userType = 'public',
+    userDiscountPercent = 0,
     ...other
 }: Props) {
     const [editErrors, setEditErrors] = useState<Record<string, { netPrice?: string; grossPrice?: string; quantity?:string }>>({});
@@ -282,7 +284,7 @@ export function OrderDetailsItems({
         }
     };
 
-    const getTaxesTotal = () => items.reduce((acc, item) =>  acc + (item.subtotal) / (1+item.vat/100) * item.vat/100, 0) + getShippingTax();
+    const getTaxesTotal = () => items.reduce((acc, item) =>  acc + (item.grossPrice - item.netPrice) * item.quantity, 0) + getShippingTax();
 
     const getShippingTax = () => shipping && userType != 'vip' ? Math.round(shipping - (shipping / 1.27)) : 0;
 
@@ -695,6 +697,7 @@ export function OrderDetailsItems({
                 onClose={() => setIsProductModalOpen(false)}
                 onAddProducts={handleAddProducts}
                 userType={userType}
+                discountPercent={userDiscountPercent}
             />
         </>
     );

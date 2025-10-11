@@ -61,6 +61,7 @@ export type IOrderCustomer = {
     taxNumber?: string;
     phoneNumber?: string;
     userType: 'public' | 'vip' | 'company';
+    discountPercent?: number;
 };
 
 export type IOrderProductItem = {
@@ -99,6 +100,7 @@ export type IOrderItem = {
     status: string;
     shipping: number;
     discount: number;
+    vatTotal: number;
     subtotal: number;
     deposit: number;
     orderNumber: string;
