@@ -146,10 +146,12 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
+                            '& p': {
+                                margin: 0,
+                            },
                         }}
-                    >
-                        {product.shortDescription}
-                    </Typography>)}
+                        dangerouslySetInnerHTML={{ __html: product.shortDescription }}
+                    />)}
 
                     {product.producer && (
                         <ProducerInfo
