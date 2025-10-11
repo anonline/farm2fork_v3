@@ -302,7 +302,7 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/woocommerce`,
         },
         rolunk:{
-            root: `${ROOTS.DASHBOARD}/aboutus`,
+            root: `${ROOTS.DASHBOARD}/settings/aboutus`,
         },
         emailtemplates:{
             root: `${ROOTS.DASHBOARD}/emailtemplates`,

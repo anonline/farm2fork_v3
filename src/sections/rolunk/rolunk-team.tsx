@@ -1,5 +1,7 @@
 import { Box, Container, Typography } from '@mui/material';
 
+import { CONFIG } from 'src/global-config';
+
 export default function RolunkTeam() {
     return (
         <Container
@@ -35,7 +37,7 @@ export default function RolunkTeam() {
                         }}
                     >
                         <img
-                            src="https://farm2fork.hu/wp-content/uploads/2024/11/Rectangle-7.jpg"
+                            src={`${CONFIG.assetsDir}/Rectangle-7.jpg`}
                             alt="Horváth Boldizsár"
                             style={{
                                 borderRadius: '8px',
