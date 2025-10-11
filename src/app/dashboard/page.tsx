@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { CONFIG } from 'src/global-config';
 import { getUsers } from 'src/actions/user-ssr';
 import { getAllOrdersSSR } from 'src/actions/order-ssr';
-import { getPickupLocations } from 'src/actions/pickup-location-ssr';
 
 import { OverviewAppView } from 'src/sections/overview/app/view';
 
@@ -42,7 +41,7 @@ export default async function Page() {
 
     //---------------------------------------
 
-    const { orders: allOrders } = await getAllOrdersSSR({ page: 1, limit: 100000});
+    const { orders: allOrders } = await getAllOrdersSSR({ page: 1, limit: 1000});
     const processingOrders = allOrders.filter(o=>o.orderStatus == 'processing');
 
     const totalProcessingOrders = processingOrders.length;
@@ -80,8 +79,9 @@ export default async function Page() {
 
     //---------------------------------------
 
-    const locations = await getPickupLocations();
-    const ordersCountByShippingMethod = processingOrderInTimeRange.reduce((acc: Record<string, number>, order) => {
+    //const locations = await getPickupLocations();
+    
+    /*const ordersCountByShippingMethod = processingOrderInTimeRange.reduce((acc: Record<string, number>, order) => {
         let method = 'Ismeretlen';
         if (order.shippingMethod?.name == "Házhozszállítás") {
             method = "Házhozszállítás";
@@ -97,25 +97,25 @@ export default async function Page() {
         }
         
         return acc;
-    }, {});
+    }, {});*/
 
-    const ordersCountByShippingMethodsArray = Object.keys(ordersCountByShippingMethod).map((key) => ({
+    /*const ordersCountByShippingMethodsArray = Object.keys(ordersCountByShippingMethod).map((key) => ({
         label: key,
         value: ordersCountByShippingMethod[key],
-    }));
+    }));*/
 
     //---------------------------------------
     
-    const yearOrders = allOrders.filter((order) => {
+    /*const yearOrders = allOrders.filter((order) => {
         if (!order.dateCreated) return false;
         const createdAt = new Date(order.dateCreated);
         const now = new Date();
         return createdAt.getFullYear() === now.getFullYear();
-    });
+    });*/
 
     // Create a map of customer IDs to their roles
-    const customerRoleMap = new Map<string, 'VIP' | 'Magánszemély' | 'Céges'>();
-    totalUser.forEach((user) => {
+    //const customerRoleMap = new Map<string, 'VIP' | 'Magánszemély' | 'Céges'>();
+    /*totalUser.forEach((user) => {
             let role: 'VIP' | 'Magánszemély' | 'Céges' = 'Magánszemély';
             if (user.role.is_vip) {
                 role = 'VIP';
@@ -124,11 +124,12 @@ export default async function Page() {
             }
             customerRoleMap.set(user.id, role);
 
-    });
+    });*/
 
     // Group orders by user role and calculate monthly data
-    const userTypes: ('VIP' | 'Magánszemély' | 'Céges')[] = ['Magánszemély', 'VIP', 'Céges'];
-    const ordersInYear = [{
+    //const userTypes: ('VIP' | 'Magánszemély' | 'Céges')[] = ['Magánszemély', 'VIP', 'Céges'];
+    
+    /*const ordersInYear = [{
         name: new Date().getFullYear().toString(),
         data: userTypes.map((userType) => {
             const monthlyData = Array.from({ length: 12 }, (_, monthIndex) => {
@@ -155,7 +156,7 @@ export default async function Page() {
                 data: monthlyData,
             };
         }),
-    }];
+    }];*/
 
     return (
         <OverviewAppView
@@ -165,8 +166,8 @@ export default async function Page() {
             totalProcessingOrders={processingOrderInTimeRange.length}
             processingOrdersByMonthAtLastYear={processingOrdersByMonthAtLastYear}
             processingOrdersPercent={processingOrdersPercentInTheLast90Days}
-            ordersCountByShippingMethod={ordersCountByShippingMethodsArray}
-            ordersInYear={ordersInYear}
+            //ordersCountByShippingMethod={ordersCountByShippingMethodsArray}
+            //ordersInYear={ordersInYear}
         />
     );
 }

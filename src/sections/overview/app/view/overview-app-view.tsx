@@ -14,9 +14,7 @@ import AllUserWidget from '../alluser-widget';
 import { AppNewInvoice } from '../app-new-invoice';
 import { AppTopAuthors } from '../app-top-authors';
 import { AppTopRelated } from '../app-top-related';
-import { AppAreaInstalled } from '../app-area-installed';
 import { AppWidgetSummary } from '../app-widget-summary';
-import { AppCurrentDownload } from '../app-current-download';
 import { AppTopInstalledCountries } from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
@@ -33,16 +31,16 @@ type OverviewAppViewProps = {
 
     processingOrdersPercent: number;
 
-    ordersCountByShippingMethod: { label: string; value: number }[];
+    //ordersCountByShippingMethod: { label: string; value: number }[];
 
-    ordersInYear: {
+    /*ordersInYear: {
         name: string;
         data: {
             name: string;
             sum: number;
             data: number[];
         }[];
-    }[];
+    }[];*/
 };
 
 export function OverviewAppView({
@@ -52,8 +50,8 @@ export function OverviewAppView({
     totalProcessingOrders,
     processingOrdersByMonthAtLastYear,
     processingOrdersPercent,
-    ordersCountByShippingMethod,
-    ordersInYear
+    //ordersCountByShippingMethod,
+    //ordersInYear
 }: Readonly<OverviewAppViewProps>) {
     const theme = useTheme();
 
@@ -112,17 +110,17 @@ export function OverviewAppView({
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                    <AppCurrentDownload
+                    {/*<AppCurrentDownload
                         title="Folyamatban lévő rendelések"
                         subheader="Átvételi pontokra (elmúlt 30 nap)"
                         chart={{
                             series: ordersCountByShippingMethod
                         }}
-                    />
+                    />*/}
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-                    <AppAreaInstalled
+                    {/*<AppAreaInstalled
                         title="Rendelések alakulása"
                         subheader="szerepkörök szerint"
                         chart={{
@@ -142,7 +140,7 @@ export function OverviewAppView({
                             ],
                             series: ordersInYear,
                         }}
-                    />
+                    />*/}
                 </Grid>
 
                 <Grid size={{ xs: 12, lg: 8 }}>
