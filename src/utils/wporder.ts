@@ -279,7 +279,7 @@ function splitAddressToStreetAndNumber(address: string): {
         
         // Parse house number with potential suffixes like /A, .a, /B, etc.
         // and additional info like floor, doorbell
-        const houseNumberMatch = remaining.match(/^(\d+(?:[\/\.][A-Za-z0-9]+)?)\s*(.*)$/);
+        const houseNumberMatch = remaining.match(/^(\d+(?:[/.][A-Za-z0-9]+)?)\s*(.*)$/);
         
         if (houseNumberMatch) {
             const houseNumber = houseNumberMatch[1];
@@ -316,7 +316,7 @@ function splitAddressToStreetAndNumber(address: string): {
     }
     
     // Fallback: try to find first number as house number start
-    const numberMatch = trimmedAddress.match(/^(.+?)\s+(\d+(?:[\/\.][A-Za-z0-9]+)?)\s*(.*)$/);
+    const numberMatch = trimmedAddress.match(/^(.+?)\s+(\d+(?:[/.][A-Za-z0-9]+)?)\s*(.*)$/);
     if (numberMatch) {
         const street = numberMatch[1].trim();
         const houseNumber = numberMatch[2].trim();

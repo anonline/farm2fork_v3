@@ -15,6 +15,7 @@ import { I18nProvider } from 'src/locales/i18n-provider';
 import { Snackbar } from 'src/components/snackbar';
 import Helpdesk from 'src/components/helpdesk/heldesk';
 import { ProgressBar } from 'src/components/progress-bar';
+import { WelcomePopup } from 'src/components/welcome-popup';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
 import { GoogleAnalytics } from 'src/components/google-analytics';
@@ -112,6 +113,7 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                                                 <Snackbar />
                                                 <ProgressBar />
                                                 <SettingsDrawer defaultSettings={defaultSettings} />
+                                                <WelcomePopup />
                                                 {children}
                                                 <Helpdesk />
 
