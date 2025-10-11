@@ -14,12 +14,12 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { themeConfig } from 'src/theme';
+import { CONFIG } from 'src/global-config';
 import { useCategories } from 'src/contexts/category-context';
 
 import { varFade, MotionViewport } from 'src/components/animate';
 
 import { SectionTitle } from './components/section-title';
-import { CONFIG } from 'src/global-config';
 
 export function HomeCategoryList({ sx, ...other }: BoxProps) {
     const categories = useCategories();
@@ -73,7 +73,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
                             color="inherit"
                             underline="none"
                             onMouseEnter={() => {
-                                setHovered(category.coverUrl || 'https://farm2fork.hu/wp-content/uploads/2025/05/DSC4379_FIN-1-scaled.jpg');
+                                setHovered(category.coverUrl || CONFIG.assetsDir + '/basecategory.jpg');
                                 setHoveredId(category?.id || -1);
                             }}
                             sx={{
