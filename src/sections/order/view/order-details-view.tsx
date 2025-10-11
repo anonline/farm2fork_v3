@@ -69,6 +69,8 @@ export function OrderDetailsView({ orderId }: Props) {
     const [showCancellationAlert, setShowCancellationAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
 
+    const userType = order?.customer?.userType || 'public';
+
     // Fetch order data when component mounts or orderId changes
     useEffect(() => {
         if (orderId) {
@@ -553,7 +555,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const generateHistoryEntries = useCallback((
         originalItemsParam: IOrderProductItem[],
         editedItemsParam: IOrderProductItem[],
-        userType: 'public' | 'vip' | 'company'
+        userTypeParam: 'public' | 'vip' | 'company'
     ): string[] => {
         const historyEntries: string[] = [];
 
@@ -589,8 +591,8 @@ export function OrderDetailsView({ orderId }: Props) {
                 }
 
                 // Check price change (use appropriate price based on user type)
-                const originalPrice = (userType === 'company' || userType === 'vip') ? originalItem.netPrice : originalItem.grossPrice;
-                const editedPrice = (userType === 'company' || userType === 'vip') ? editedItem.netPrice : editedItem.grossPrice;
+                const originalPrice = (userTypeParam === 'company' || userTypeParam === 'vip') ? originalItem.netPrice : originalItem.grossPrice;
+                const editedPrice = (userTypeParam === 'company' || userTypeParam === 'vip') ? editedItem.netPrice : editedItem.grossPrice;
                 
                 if (originalPrice !== editedPrice) {
                     historyEntries.push(`Módosult ár: ${originalPrice} Ft -> ${editedPrice} Ft ${editedItem.name}`);
@@ -815,7 +817,8 @@ export function OrderDetailsView({ orderId }: Props) {
                     console.log('updatedItem', updatedItem);
                     console.log('field', field);
                     console.log('value', value);
-
+                    console.log('userType', userType);
+                    console.log('userType', order?.customer?.userType);
                     if (['company', 'vip'].includes(order?.customer?.userType || 'public')) {
                         updatedItem.grossPrice = Math.round(updatedItem.netPrice * (1 + updatedItem.vat / 100));
                     }
@@ -830,7 +833,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 return item;
             })
         );
-    }, []);
+    }, [userType]);
 
     const handleSurchargeChange = useCallback((newSurcharge: number) => {
         setEditedSurcharge(newSurcharge);
@@ -880,7 +883,7 @@ export function OrderDetailsView({ orderId }: Props) {
             })) : undefined,
         }));
         setEditedItems(prev => [...prev, ...newOrderItems]);
-    }, []);
+    }, [userType]);
 
     const handleRefreshOrderHistory = useCallback(async () => {
         try {

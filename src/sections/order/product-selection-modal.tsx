@@ -116,7 +116,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
         {
             ...product,
             netPrice: userType === 'company' ? product.netPriceCompany : userType === 'vip' ? product.netPriceVIP : product.netPrice,
-            grossPrice: userType === 'vip' ? product.netPriceVIP : (userType === 'company' ? product.netPriceCompany * product.quantity : product.grossPrice),
+            grossPrice: userType === 'vip' ? product.netPriceVIP : (userType === 'company' ? product.netPriceCompany * (1 + (product.vat / 100)) : product.grossPrice),
         }]);
 
 
