@@ -8,8 +8,8 @@ import { useMemo, useContext, useReducer, useCallback, createContext } from 'rea
 
 import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
 
-import { getOrderById } from 'src/actions/order-management';
 import { getCustomerData } from 'src/actions/customer';
+import { getOrderById } from 'src/actions/order-management';
 
 // ----------------------------------------------------------------------
 

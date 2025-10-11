@@ -3,7 +3,7 @@ import type { IOrderData } from 'src/types/order-management';
 import type { IOrderItem, InvoiceData } from 'src/types/order';
 
 import { CONFIG } from 'src/global-config';
-import { getCustomerData, getCustomersWithDiscount } from 'src/actions/customer';
+import { getCustomersWithDiscount } from 'src/actions/customer';
 
 // ----------------------------------------------------------------------
 

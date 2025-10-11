@@ -21,9 +21,9 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { useSearchProductsAdmin } from 'src/actions/product';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import BioBadge from 'src/components/bio-badge/bio-badge';
-import { Label } from 'src/components/label';
 
 // ----------------------------------------------------------------------
 
@@ -257,7 +257,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
         >
             <DialogTitle>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Box display="flex" flexDirection={'row'} alignItems="center" justifyContent={'flex-start'} gap={1}>
+                    <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={1}>
                         <Typography variant="h6">Termék hozzáadása</Typography>
                         {discountPercent > 0 && (
                             <Label color="info">{-discountPercent}%</Label>
