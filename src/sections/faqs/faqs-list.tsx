@@ -97,7 +97,14 @@ export function F2FFaqsList({ data, sx, ...other }: F2FFaqsListProps & BoxProps)
                         </AccordionSummary>
 
                         <AccordionDetails sx={{ ml: 7 }}>
-                            <Typography>{accordion.answer}</Typography>
+                            <Typography 
+                                sx={{
+                                    '& p': {
+                                        margin: 0,
+                                    },
+                                }}
+                                dangerouslySetInnerHTML={{ __html: accordion.answer }}
+                            />
                         </AccordionDetails>
                     </Accordion>
                 ))
