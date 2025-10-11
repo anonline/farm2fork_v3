@@ -225,7 +225,6 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
                 dateForQuery = date.toDateString(); // 'sv-SE' gives YYYY-MM-DD
             }
         }
-
         const { data: existingShipment, error: shipmentFetchError } = await supabase
             .from('Shipments')
             .select('*')

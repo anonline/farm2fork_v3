@@ -8,12 +8,24 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ?? '' // Using service key for admin access
 );
 
+// CORS headers helper
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*', // or specify 'https://www.farm2fork.hu, https://farm2fork.hu'
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle preflight OPTIONS request
+export async function OPTIONS() {
+    return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
 
     if (!q || q.trim() === '') {
-        return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400 });
+        return NextResponse.json({ error: 'Hiányzik a keresési kifejezés' }, { status: 400, headers: corsHeaders });
     }
 
     const searchTerm = `%${q}%`;
@@ -71,7 +83,7 @@ export async function GET(req: NextRequest) {
             console.error('Supabase error:', error);
             return NextResponse.json(
                 { error: 'Adatbázis hiba: ' + error.message },
-                { status: 500 }
+                { status: 500, headers: corsHeaders }
             );
         }
 
@@ -120,13 +132,13 @@ export async function GET(req: NextRequest) {
             bundleItems: product.type === 'bundle' ? bundleItemsMap.get(product.id.toString()) : undefined,
         })) || [];
 
-        return NextResponse.json(transformedProducts);
+        return NextResponse.json(transformedProducts, { headers: corsHeaders });
 
     } catch (error) {
         console.error('Unexpected error:', error);
         return NextResponse.json(
             { error: 'Váratlan hiba történt' },
-            { status: 500 }
+            { status: 500, headers: corsHeaders }
         );
     }
 }

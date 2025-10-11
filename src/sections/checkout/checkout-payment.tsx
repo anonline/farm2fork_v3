@@ -924,7 +924,7 @@ export function CheckoutPayment() {
 
             if (orderId) {
                 if (orderData.plannedShippingDateTime) {
-                    setOrderToShipmentByDate(orderId, new Date(orderData.plannedShippingDateTime));
+                    setOrderToShipmentByDate(orderId, orderData.plannedShippingDateTime);
                 }
 
                 console.info('Order created successfully:', orderId);
