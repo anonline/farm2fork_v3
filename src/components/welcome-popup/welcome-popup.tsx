@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
@@ -17,14 +18,43 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-const STORAGE_KEY = 'farm2fork_welcome_shown';
+const COOKIE_NAME = 'farm2fork_welcome_shown';
+
+// Helper function to get cookie value
+function getCookie(name: string): string | null {
+    if (typeof document === 'undefined') return null;
+    
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    
+    if (parts.length === 2) {
+        return parts.pop()?.split(';').shift() || null;
+    }
+    return null;
+}
+
+// Helper function to set cookie
+function setCookie(name: string, value: string, days: number = 365) {
+    if (typeof document === 'undefined') return;
+    
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value};${expires};path=/`;
+}
 
 export function WelcomePopup() {
     const [open, setOpen] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
-        // Check if the popup has been shown in this session
-        const hasBeenShown = sessionStorage.getItem(STORAGE_KEY);
+        // Don't show on dashboard pages
+        if (pathname?.startsWith('/dashboard')) {
+            return undefined;
+        }
+
+        // Check if the popup has been shown before (using cookie)
+        const hasBeenShown = getCookie(COOKIE_NAME);
         
         if (!hasBeenShown) {
             // Delay popup by 1 second for better UX
@@ -35,12 +65,12 @@ export function WelcomePopup() {
             return () => clearTimeout(timer);
         }
         return undefined;
-    }, []);
+    }, [pathname]);
 
     const handleClose = () => {
         setOpen(false);
-        // Mark as shown in session storage (persists only for current session)
-        sessionStorage.setItem(STORAGE_KEY, 'true');
+        // Mark as shown in cookie (persists for 1 year)
+        setCookie(COOKIE_NAME, 'true', 365);
     };
 
     return (

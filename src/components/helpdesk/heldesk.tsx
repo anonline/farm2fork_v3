@@ -1,13 +1,20 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { useAuthContext } from 'src/auth/hooks';
 
 export default function Helpdesk() {
   const { user, authenticated } = useAuthContext();
+  const pathname = usePathname();
 
   useEffect(() => {
+    // Don't load helpdesk on dashboard pages
+    if (pathname?.startsWith('/dashboard')) {
+      return undefined;
+    }
+
     // Initialize Tawk_API
     if (typeof window !== 'undefined') {
       (window as any).Tawk_API = (window as any).Tawk_API || {};
@@ -51,7 +58,7 @@ export default function Helpdesk() {
     }
 
     return undefined;
-  }, [user, authenticated]);
+  }, [user, authenticated, pathname]);
 
   return null; // This component doesn't render any visible UI
 }
