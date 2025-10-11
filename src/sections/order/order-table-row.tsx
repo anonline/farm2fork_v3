@@ -87,7 +87,11 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
         </Label>
     );
 
-    const locationName = locations.find(loc => loc.postcode === row.shippingAddress?.postcode && loc.city === row.shippingAddress?.city && loc.address === (row.shippingAddress?.street))?.name || '';
+    let locationName = locations.find(loc => loc.postcode === row.shippingAddress?.postcode && loc.city === row.shippingAddress?.city && loc.address === (row.shippingAddress?.street))?.name || '';
+
+    if (locationName === '') {
+        locationName = locations.find(loc => loc.postcode === row.shippingAddress?.postcode && loc.city === row.shippingAddress?.city && loc.address === (row.shippingAddress?.street + ' ' + (row.shippingAddress?.houseNumber && row.shippingAddress?.houseNumber[row.shippingAddress?.houseNumber.length - 1] == '.' ? row.shippingAddress.houseNumber : row.shippingAddress.houseNumber + '.')))?.name || ''
+    }
 
     const renderMobileRows = () => (
         <TableRow hover selected={selected} >
