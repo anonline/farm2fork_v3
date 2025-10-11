@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid';
 import Alert from '@mui/material/Alert';
 import Skeleton from '@mui/material/Skeleton';
 
-import { getUserInvoiceHistory, getUserBillingAddresses } from 'src/actions/user-billing';
+import { getUserInvoiceHistory, getUserBillingAddresses, fixUserBillingAddressIds } from 'src/actions/user-billing';
 
 import { AdminUserBillingAddress } from '../admin-user-billing-address';
 import { AdminUserBillingHistory } from '../admin-user-billing-history';
@@ -31,6 +31,12 @@ export function AdminUserBillingView({ userId }: Props) {
         setError(null);
 
         try {
+            // First, fix any addresses with missing IDs
+            const fixResult = await fixUserBillingAddressIds(userId);
+            if (fixResult.fixed > 0) {
+                console.log(`Fixed ${fixResult.fixed} addresses with missing IDs`);
+            }
+
             const [addressResult, invoiceResult] = await Promise.all([
                 getUserBillingAddresses(userId),
                 getUserInvoiceHistory(userId),

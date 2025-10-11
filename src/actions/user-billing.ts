@@ -230,3 +230,40 @@ export async function deleteUserBillingAddress(
         return { success: false, error: 'Failed to delete billing address' };
     }
 }
+
+/**
+ * Fix addresses with missing or empty IDs
+ */
+export async function fixUserBillingAddressIds(
+    userId: string
+): Promise<{ success: boolean; fixed: number; error: string | null }> {
+    try {
+        const { addresses, error: fetchError } = await getUserBillingAddresses(userId);
+        
+        if (fetchError) {
+            return { success: false, fixed: 0, error: fetchError };
+        }
+
+        let fixedCount = 0;
+        const fixedAddresses = addresses.map((addr) => {
+            if (!addr.id || addr.id.trim() === '') {
+                fixedCount++;
+                return {
+                    ...addr,
+                    id: `addr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                };
+            }
+            return addr;
+        });
+
+        if (fixedCount > 0) {
+            const result = await updateUserBillingAddresses(userId, fixedAddresses);
+            return { ...result, fixed: fixedCount };
+        }
+
+        return { success: true, fixed: 0, error: null };
+    } catch (error) {
+        console.error('Error fixing billing address IDs:', error);
+        return { success: false, fixed: 0, error: 'Failed to fix billing address IDs' };
+    }
+}

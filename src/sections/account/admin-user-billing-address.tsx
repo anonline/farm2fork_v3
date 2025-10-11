@@ -4,7 +4,7 @@ import type { IBillingAddress } from 'src/types/customer';
 
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
@@ -63,6 +63,7 @@ export function AdminUserBillingAddress({ userId, addressBook, onUpdate }: Props
     const addressForm = useBoolean();
     const confirmDelete = useBoolean();
     const [selectedAddress, setSelectedAddress] = useState<IBillingAddress | null>(null);
+    const addressToDeleteRef = useRef<IBillingAddress | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const defaultValues: BillingAddressFormData = {
@@ -132,20 +133,27 @@ export function AdminUserBillingAddress({ userId, addressBook, onUpdate }: Props
     }, [menuActions]);
 
     const handleOpenDeleteDialog = useCallback(() => {
+        addressToDeleteRef.current = selectedAddress;
+        console.log('Opening delete dialog for address:', selectedAddress);
         menuActions.onClose();
         confirmDelete.onTrue();
-    }, [menuActions, confirmDelete]);
+    }, [menuActions, confirmDelete, selectedAddress]);
 
     const handleConfirmDelete = useCallback(async () => {
-        if (!selectedAddress?.id) {
-            console.error('No address selected for deletion');
+        const addressToDelete = addressToDeleteRef.current;
+        
+        console.log('handleConfirmDelete called, addressToDelete:', addressToDelete);
+        
+        if (!addressToDelete || !addressToDelete.id || addressToDelete.id.trim() === '') {
+            console.error('No address selected for deletion or address has no valid ID', addressToDelete);
+            toast.error('Ez a cím érvénytelen azonosítóval rendelkezik. Kérjük, törölje az összes címet és hozza létre újra.');
             return;
         }
 
-        console.log('Deleting address:', selectedAddress.id, 'for user:', userId);
+        console.log('Deleting address:', addressToDelete.id, 'for user:', userId);
 
         try {
-            const { success, error } = await deleteUserBillingAddress(userId, selectedAddress.id);
+            const { success, error } = await deleteUserBillingAddress(userId, addressToDelete.id);
             
             console.log('Delete result:', { success, error });
             
@@ -161,9 +169,10 @@ export function AdminUserBillingAddress({ userId, addressBook, onUpdate }: Props
             toast.error('Hiba történt a cím törlése során.');
         } finally {
             confirmDelete.onFalse();
+            addressToDeleteRef.current = null;
             setSelectedAddress(null);
         }
-    }, [selectedAddress, userId, onUpdate, confirmDelete]);
+    }, [userId, onUpdate, confirmDelete]);
 
     const handleSetDefault = useCallback(async () => {
         if (!selectedAddress?.id) return;
@@ -460,22 +469,22 @@ export function AdminUserBillingAddress({ userId, addressBook, onUpdate }: Props
                 open={confirmDelete.value}
                 onClose={() => {
                     confirmDelete.onFalse();
-                    setSelectedAddress(null);
+                    addressToDeleteRef.current = null;
                 }}
                 title="Számlázási cím törlése"
                 content={
                     <>
                         Biztosan törölni szeretnéd ezt a számlázási címet?
-                        {selectedAddress && (
+                        {addressToDeleteRef.current && (
                             <Box sx={{ mt: 2, p: 2, bgcolor: 'background.neutral', borderRadius: 1 }}>
-                                <Typography variant="subtitle2">{selectedAddress.fullName}</Typography>
-                                {selectedAddress.companyName && (
+                                <Typography variant="subtitle2">{addressToDeleteRef.current.fullName}</Typography>
+                                {addressToDeleteRef.current.companyName && (
                                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                        {selectedAddress.companyName}
+                                        {addressToDeleteRef.current.companyName}
                                     </Typography>
                                 )}
                                 <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                                    {selectedAddress.postcode} {selectedAddress.city}, {selectedAddress.street} {selectedAddress.houseNumber}
+                                    {addressToDeleteRef.current.postcode} {addressToDeleteRef.current.city}, {addressToDeleteRef.current.street} {addressToDeleteRef.current.houseNumber}
                                 </Typography>
                             </Box>
                         )}
