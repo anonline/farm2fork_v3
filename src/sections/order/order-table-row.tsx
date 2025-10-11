@@ -123,7 +123,11 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                             <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>
                                 <Typography variant='caption'>{fDate(row.createdAt)} {fTime(row.createdAt)}</Typography>
                             </Box>
-                            <Box component="span" sx={{ fontWeight: '600' }}>{row.customer.companyName || row.customer.name}</Box>
+                            <Box component="span" sx={{ fontWeight: '600' }}>
+                                <Link component={RouterLink} href={detailsHref} color="inherit" underline="hover" >
+                                    {row.customer.companyName || row.customer.name}
+                                </Link>
+                            </Box>
 
                             <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>
                                 <Typography variant='caption'>{row.orderNumber}</Typography>
@@ -226,7 +230,11 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                     {/*<Avatar alt={row.customer.name} src={row.customer.avatarUrl} />*/}
 
                     <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
-                        <Box component="span">{row.customer.name}</Box>
+                        <Box component="span">
+                            <Link component={RouterLink} href={detailsHref} color="inherit" underline="hover" >
+                                {row.customer.name}
+                            </Link>
+                        </Box>
 
                         <Box component="span" sx={{ color: 'text.disabled' }}>
                             {row.customer.email}

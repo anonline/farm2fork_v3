@@ -2,10 +2,11 @@
 
 import { Box, Container, Typography } from '@mui/material';
 
+import { CONFIG } from 'src/global-config';
 import { themeConfig } from 'src/theme/theme-config';
 
 export default function TarolasHero() {
-    const heroImageUrl = 'https://farm2fork.hu/wp-content/uploads/2024/07/feher-csiperkegomba_873_2-scaled.jpg';
+    const heroImageUrl = `${CONFIG.assetsDir}/feher-csiperkegomba_873_2-scaled.jpg`;
 
     return (
         <Box sx={{ width: '100%', mb: 4 }}>
