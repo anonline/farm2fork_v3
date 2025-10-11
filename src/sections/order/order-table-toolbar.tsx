@@ -232,13 +232,13 @@ export function OrderTableToolbar({ filters, onResetPage, dateError, options }: 
                         md: 'block' 
                     } 
                 }}>
-                    <Stack spacing={2} sx={{ width: '100%' }} direction={{ xs: 'column', md: 'row' }}>
+                    <Stack spacing={2} sx={{ width: '100%' }} direction={{ xs: 'column', md: 'row' }} flexWrap="wrap">
                         <DatePicker
                             label="Kezdő dátum"
                             value={currentFilters.startDate}
                             onChange={handleFilterStartDate}
                             slotProps={{ textField: { fullWidth: true } }}
-                            sx={{ maxWidth: { md: 200 } }}
+                            sx={{ minWidth: { sm: 200, md: 200 }, maxWidth: { md: 200 } }}
                         />
 
                         <DatePicker
@@ -255,6 +255,7 @@ export function OrderTableToolbar({ filters, onResetPage, dateError, options }: 
                                 },
                             }}
                             sx={{
+                                minWidth: { sm: 200, md: 200 },
                                 maxWidth: { md: 200 },
                                 [`& .${formHelperTextClasses.root}`]: {
                                     position: { md: 'absolute' },
