@@ -307,6 +307,13 @@ export function BillingAddressSelector({
                                         {address.phone}
                                     </Typography>
                                 )}
+
+                                {((!address.taxNumber || address.taxNumber.trim() === '') && address.companyName && address.companyName.trim() !== '') || 
+                                 ((!address.companyName || address.companyName.trim() === '') && address.taxNumber && address.taxNumber.trim() !== '') ? (
+                                    <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+                                        Hiányos céges adatokat adtál meg! Kérlek ellenőrizd.
+                                    </Typography>
+                                ) : null}
                             </Box>
                         </Box>
                     </CardActionArea>
