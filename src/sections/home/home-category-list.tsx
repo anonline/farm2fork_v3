@@ -19,6 +19,7 @@ import { useCategories } from 'src/contexts/category-context';
 import { varFade, MotionViewport } from 'src/components/animate';
 
 import { SectionTitle } from './components/section-title';
+import { CONFIG } from 'src/global-config';
 
 export function HomeCategoryList({ sx, ...other }: BoxProps) {
     const categories = useCategories();
@@ -28,7 +29,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
     const [hovered, setHovered] = useState(
         categories.categories.length > 0
             ? categories.categories[0].coverUrl
-            : 'https://farm2fork.hu/wp-content/uploads/2025/05/DSC4379_FIN-1-scaled.jpg'
+            : CONFIG.assetsDir + '/basecategory.jpg'
     );
 
     const renderDescription = () => (
