@@ -854,7 +854,7 @@ export function OrderDetailsView({ orderId }: Props) {
             id: !product.isCustom ? product.id : `order_item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             sku: product.sku,
             name: product.name,
-            netPrice: product.netPrice, // Use net price as the base price
+            netPrice: order?.customer.userType == 'company' ? product.netPriceCompany : order?.customer.userType == 'vip' ? product.netPriceVIP : product.netPrice,
             grossPrice: order?.customer.userType == 'vip' ? product.netPrice : product.grossPrice, // Use net price as the base price
             coverUrl: product.coverUrl,
             quantity: product.quantity,

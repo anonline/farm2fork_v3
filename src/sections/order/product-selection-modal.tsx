@@ -31,6 +31,8 @@ export type ProductForOrder = {
     name: string;
     sku: string;
     netPrice: number;
+    netPriceVIP: number;
+    netPriceCompany: number;
     grossPrice: number;
     vat: number;
     unit: string;
@@ -110,7 +112,14 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
         const isAlreadySelected = selectedProducts.some(p => p.id === product.id && !p.isCustom);
         if (isAlreadySelected) return;
 
-        setSelectedProducts(prev => [...prev, { ...product }]);
+        setSelectedProducts(prev => [...prev,
+        {
+            ...product,
+            netPrice: userType === 'company' ? product.netPriceCompany : userType === 'vip' ? product.netPriceVIP : product.netPrice,
+            grossPrice: userType === 'vip' ? product.netPriceVIP : (userType === 'company' ? product.netPriceCompany * product.quantity : product.grossPrice),
+        }]);
+
+
         setSearchValue('');
     }, [selectedProducts]);
 
@@ -145,6 +154,8 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
             sku: `CUSTOM_${Date.now()}`,
             netPrice: customProduct?.netPrice || 0,
             grossPrice: customProduct.netPrice ? Math.round(customProduct.netPrice * (1 + (customProduct.vat || 27) / 100)) : 0,
+            netPriceVIP: customProduct?.netPrice || 0,
+            netPriceCompany: customProduct?.netPrice || 0,
             vat: customProduct.vat || 27,
             unit: customProduct.unit || 'db',
             quantity: customProduct.quantity || 1,
@@ -384,7 +395,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                         variant="filled"
                                         value={((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)).toFixed(((customProduct.quantity || 0) * (customProduct.netPrice || 0) * (1 + (customProduct.vat || 0) / 100)) % 1 === 0 ? 0 : 1)}
                                         disabled
-                                        
+
                                         fullWidth
                                     />
                                 </Stack>
@@ -508,7 +519,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                     <TextField
                                                         label="Összesen"
                                                         type="number"
-                                                        value={(product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100)}
+                                                        value={(product.quantity || 0) * (userType === 'company' ? product.netPriceCompany : userType === 'vip' ? product.netPriceVIP : product.netPrice) * (1 + (product.vat || 0) / 100)}
                                                         disabled
                                                         inputProps={{ min: 0.01, step: 0.01 }}
 
@@ -589,7 +600,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                             sx={{ width: 100 }}
                                                         />
                                                         <TextField
-                                                            label="Összesen"
+                                                            label="Összesen Br."
                                                             type="number"
                                                             size="small"
                                                             variant="filled"
@@ -597,7 +608,7 @@ export function ProductSelectionModal({ open, onClose, onAddProducts, userType =
                                                                 (Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))).toFixed((Number((product.quantity || 0) * (product.netPrice || 0) * (1 + (product.vat || 0) / 100))) % 1 === 0 ? 0 : 1)
                                                             }
                                                             disabled
-                                                            
+
                                                             sx={{ width: 100 }}
                                                         />
                                                     </Stack>
