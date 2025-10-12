@@ -908,7 +908,7 @@ export function CheckoutPayment() {
                     cost: checkoutState.shipping // Use the calculated shipping cost from checkout state
                 } : null,
                 paymentMethod: selectedPaymentMethodData,
-                paymentDueDays: 30,
+                paymentDueDays: 8,
                 plannedShippingDateTime: checkoutState.selectedDeliveryDateTime,
             };
 

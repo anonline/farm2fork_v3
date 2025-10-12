@@ -261,7 +261,7 @@ export function OrderCreateView() {
                 cost: 0, // Will be calculated
             },
             paymentMethod: selectedPaymentMethodData,
-            paymentDueDays: 30,
+            paymentDueDays: 8,
             plannedShippingDateTime: fDate(selectedShipmentData.date)
         };
 

@@ -815,7 +815,7 @@ export function OrderListView() {
                             dense={table.dense}
                             count={dataFiltered.length}
                             rowsPerPage={table.rowsPerPage}
-                            rowsPerPageOptions={[25]}
+                            rowsPerPageOptions={[25, 50, 100, 200]}
                             onPageChange={table.onChangePage}
                             onChangeDense={table.onChangeDense}
                             onRowsPerPageChange={table.onChangeRowsPerPage}
