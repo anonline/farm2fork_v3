@@ -169,9 +169,13 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     const completed = activeStep === CHECKOUT_STEPS.length;
 
     const updateTotals = useCallback(() => {
+        const userType = getUserType();
+        const isVIP = userType === 'vip';
+
         const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
+
         const subtotal = state.items.reduce(
-            (total, item) => total + (item.custom === true ? 1 : item.quantity) * item.grossPrice,
+            (total, item) => total + (item.custom === true ? 1 : item.quantity) * (isVIP ? item.netPrice : item.grossPrice),
             0
         );
 

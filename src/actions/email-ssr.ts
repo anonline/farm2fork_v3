@@ -1,6 +1,6 @@
 'use server';
 
-import type { IUserItem } from 'src/types/user';
+import type { IRole, IUserItem } from 'src/types/user';
 import type { IOrderData } from 'src/types/order-management';
 import type EmailTemplate from 'src/types/emails/email-template';
 
@@ -14,6 +14,7 @@ import EmailBaseTemplate from 'src/types/emails/email-base-template';
 
 import { getDelivery } from './delivery-ssr';
 import { getOrderByIdSSR } from './order-ssr';
+import { getUserRoles } from './user-ssr';
 
 export async function triggerEmail(type: EmailTrigger, to: IUserItem) {
     const template = await getEmailTemplateSSR(type);
@@ -111,6 +112,11 @@ export async function triggerOrderPlacedEmail(
     const { order } = await getOrderByIdSSR(orderId);
 
     const futar = await getDelivery(order?.courier || '');
+    const userRole: IRole = await getUserRoles(order?.customerId || '');
+
+    let userType = 'public';
+    if (userRole?.is_vip) userType = 'vip';
+    else if (userRole?.is_corp) userType = 'company';
 
     if (!template) throw new Error('No email template found for ORDER_PLACED');
     if (!template.enabled) {
@@ -129,7 +135,7 @@ export async function triggerOrderPlacedEmail(
     template.body = replaceName(template.body, name || to);
     template.body = replaceOrderId(template.body, orderId);
     template.body = replaceExpectedDelivery(template.body, expectedDeliveryDate ?? '', order?.shipment_time);
-    template.body = replaceOrderDetailsTable(template.body, order!);
+    template.body = replaceOrderDetailsTable(template.body, order!, userType);
     template.body = replaceChangeLog(template.body, order?.history_for_user || '');
     template.body = replaceFutarInfo(template.body, {name: futar?.name || '', phone: futar?.phone || ''});
 
@@ -162,7 +168,11 @@ export async function triggerOrderPlacedAdminEmail(
     const { order } = await getOrderByIdSSR(orderId);
 
     const futar = await getDelivery(order?.courier || '');
+    const userRole: IRole = await getUserRoles(order?.customerId || '');
 
+    let userType = 'public';
+    if (userRole?.is_vip) userType = 'vip';
+    else if (userRole?.is_corp) userType = 'company';
     if (!template) throw new Error('No email template found for ORDER_PLACED_ADMIN');
     if (!template.enabled) {
         console.log('ORDER_PLACED_ADMIN email template is disabled, skipping send');
@@ -180,7 +190,7 @@ export async function triggerOrderPlacedAdminEmail(
     template.body = replaceName(template.body, name || to);
     template.body = replaceOrderId(template.body, orderId);
     template.body = replaceExpectedDelivery(template.body, expectedDeliveryDate ?? '', order?.shipment_time);
-    template.body = replaceOrderDetailsTable(template.body, order!);
+    template.body = replaceOrderDetailsTable(template.body, order!, userType);
     template.body = replaceChangeLog(template.body, order?.history_for_user || '');
     template.body = replaceFutarInfo(template.body, {name: futar?.name || '', phone: futar?.phone || ''});
 
@@ -213,6 +223,11 @@ export async function triggerOrderProcessedEmail(
     const { order } = await getOrderByIdSSR(orderId);
 
     const futar = await getDelivery(order?.courier || '');
+    const userRole: IRole = await getUserRoles(order?.customerId || '');
+
+    let userType = 'public';
+    if (userRole?.is_vip) userType = 'vip';
+    else if (userRole?.is_corp) userType = 'company';
 
     if (!template) throw new Error('No email template found for ORDER_PLACED_ADMIN');
     if (!template.enabled) {
@@ -227,11 +242,11 @@ export async function triggerOrderProcessedEmail(
     email.setSubject(template.subject);
 
     email.setHeader(template.header || '');
-
+  
     template.body = replaceName(template.body, name || to);
     template.body = replaceOrderId(template.body, orderId);
     template.body = replaceExpectedDelivery(template.body, expectedDeliveryDate ?? '', order?.shipment_time);
-    template.body = replaceOrderDetailsTable(template.body, order!);
+    template.body = replaceOrderDetailsTable(template.body, order!, userType);
     template.body = replaceChangeLog(template.body, order?.history_for_user || '');
     template.body = replaceFutarInfo(template.body, {name: futar?.name || '', phone: futar?.phone || ''});
 
@@ -412,7 +427,7 @@ function replaceFutarInfo(body: string, futarInfo: {name:string, phone:string}) 
     return body.replaceAll('{{futar_info}}', text);
 }
 
-function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
+function replaceOrderDetailsTable(body: string, orderData: IOrderData, userType: string = 'public') {
     let orderDetailsTableHTML = ``;
     
     const grossSubtotal = orderData.items.reduce((acc, item) => acc + item.netPrice * item.quantity, 0);
@@ -429,7 +444,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
             <tr style="border-top: 1px solid #ddd;">
                 <td>${item.name}${item.note ? `<br/><span style="font-size: 0.8rem; color: #888;">${item.note}</span>` : ''}</td>
                 <td style="text-align: center;border-left: 1px solid #ddd;border-right: 1px solid #ddd;">${formatNumber(item.quantity)} ${item.unit || 'db'}</td>
-                <td style="text-align: right;">${formatNumber(item.subtotal, 0)} Ft</td>
+                <td style="text-align: right;">${formatNumber(userType === 'vip' ? item.netPrice * item.quantity : item.subtotal, 0)} Ft</td>
             </tr>
         `;
     }

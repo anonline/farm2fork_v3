@@ -98,7 +98,7 @@ export function CheckoutSummary({
                     </Typography>
                 </Box>
 
-                {getUserType() !== 'public' && (
+                {getUserType() !== 'public' && getUserType() !== 'vip' && (
                     <Box sx={{ ...rowStyles }}>
                     <Typography
                         component="span"
