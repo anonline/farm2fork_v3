@@ -4,16 +4,20 @@ import type { IAddressItem } from 'src/types/common';
 import type { IPaymentMethod } from 'src/types/payment-method';
 import type { ICheckoutItem, ICheckoutState } from 'src/types/checkout';
 
+import { toast } from 'sonner';
 import { isEqual } from 'es-toolkit';
 import { getStorage } from 'minimal-shared/utils';
 import { useLocalStorage } from 'minimal-shared/hooks';
-import { useMemo, useState, Suspense, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useState, Suspense, useEffect, useCallback } from 'react';
 
 import { paths } from 'src/routes/paths';
 import { useRouter, usePathname, useSearchParams } from 'src/routes/hooks';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { useGetOption } from 'src/actions/options';
 import { useGetCustomerData } from 'src/actions/customer';
+import { useGetStockDataForCart } from 'src/actions/product';
 
 import { SplashScreen } from 'src/components/loading-screen';
 
@@ -73,6 +77,7 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     const { user, authenticated } = useAuthContext();
 
     const [loading, setLoading] = useState(true);
+    const previousStockDataRef = useRef<Map<string, number>>(new Map());
 
     const { state, setState, setField, resetState } = useLocalStorage<ICheckoutState>(
         CHECKOUT_STORAGE_KEY,
@@ -85,13 +90,13 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     // Initialize userId and handle cart persistence logic with proper loading state
     useEffect(() => {
         if (loading) return; // Wait for initial load to complete
-        
+
         if (user?.id && !state.userId) {
             // Set userId for authenticated user with existing cart
             setField('userId', user.id);
         }
 
-        if(user?.id && state.userId && user?.id != state.userId) {
+        if (user?.id && state.userId && user?.id != state.userId) {
             // Clear cart for unauthenticated user with existing cart
             resetState(initialState);
         }
@@ -100,17 +105,22 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
     // Update discountPercent when customerData loads
     useEffect(() => {
         if (loading) return;
-        
+
         if (user?.id && customerData?.discountPercent !== undefined) {
             setField('discountPercent', customerData.discountPercent);
         }
     }, [user?.id, customerData?.discountPercent, setField, loading]);
-    
+
 
     // Get surcharge options based on user type
     const { option: surchargePublic } = useGetOption(OptionsEnum.SurchargePercentPublic);
     const { option: surchargeVIP } = useGetOption(OptionsEnum.SurchargePercentVIP);
     const { option: surchargeCompany } = useGetOption(OptionsEnum.SurchargePercentCompany);
+
+    // Get minimum purchase options based on user type
+    const { option: minimumPurchasePublic } = useGetOption(OptionsEnum.MinimumPurchaseForPublic);
+    const { option: minimumPurchaseVIP } = useGetOption(OptionsEnum.MinimumPurchaseForVIP);
+    const { option: minimumPurchaseCompany } = useGetOption(OptionsEnum.MinimumPurchaseForCompany);
 
     // Determine user type for surcharge calculation
     const getUserType = useCallback(() => {
@@ -141,6 +151,19 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
                 return surchargePublic ?? 0;
         }
     }, [surchargeVIP, surchargeCompany, surchargePublic, state.selectedPaymentMethod, getUserType]);
+
+    // Get the minimum purchase amount based on user type
+    const getMinimumPurchase = useCallback(() => {
+        const userType = getUserType();
+        switch (userType) {
+            case 'vip':
+                return minimumPurchaseVIP ?? 0;
+            case 'company':
+                return minimumPurchaseCompany ?? 0;
+            default:
+                return minimumPurchasePublic ?? 0;
+        }
+    }, [minimumPurchaseVIP, minimumPurchaseCompany, minimumPurchasePublic, getUserType]);
 
     const canReset = !isEqual(state, initialState);
     const completed = activeStep === CHECKOUT_STEPS.length;
@@ -209,6 +232,77 @@ function CheckoutContainer({ children }: Readonly<CheckoutProviderProps>) {
         updateTotals,
         loading,
     ]);
+
+    const { stockData, stockLoading } = useGetStockDataForCart(
+        state.items.map((item) => item.id)
+    );
+
+    // Check stock and remove out-of-stock items with toast notifications
+    useEffect(() => {
+        if (!loading && !stockLoading && stockData && stockData.length > 0) {
+            // Filter items where stock is tracked (not null) and out of stock
+            const outOfStockItems = stockData.filter(
+                (item) => item.stock !== null && item.stock <= 0 && !item.backorder
+            );
+            
+            if (outOfStockItems.length > 0) {
+                // Find the actual items that need to be removed
+                const itemsToRemove = state.items.filter((item) =>
+                    outOfStockItems.some((stockItem) => stockItem.id === item.id)
+                );
+
+                // Check if these items weren't already processed
+                const newOutOfStockItems = itemsToRemove.filter((item) => {
+                    const previousStock = previousStockDataRef.current.get(item.id);
+                    return previousStock === undefined || previousStock > 0;
+                });
+
+                if (newOutOfStockItems.length > 0) {
+                    // Show toast notification for removed items
+                    newOutOfStockItems.forEach((item) => {
+                        toast.error(`"${item.name}" eltávolítva a kosárból`, {
+                            description: 'A termék sajnos időközben elfogyott.',
+                            duration: 5000,
+                        });
+                    });
+
+                    // Remove out-of-stock items
+                    const updatedItems = state.items.filter(
+                        (item) => !outOfStockItems.some((stockItem) => stockItem.id === item.id)
+                    );
+                    setField('items', updatedItems);
+                }
+            }
+
+            // Update the reference with current stock data (store null as -1 for tracking)
+            const newStockMap = new Map<string, number>();
+            stockData.forEach((item) => {
+                newStockMap.set(item.id, item.stock ?? -1);
+            });
+            previousStockDataRef.current = newStockMap;
+        }
+    }, [stockData, stockLoading, state.items, setField, loading]);
+
+    // Check minimum purchase requirement on step 1 and redirect to step 0 if not met
+    useEffect(() => {
+        if (!loading && activeStep === 1) {
+            const minimumPurchase = getMinimumPurchase();
+            
+            if (minimumPurchase > 0 && state.subtotal < minimumPurchase) {
+                // Format the minimum purchase amount
+                const formattedAmount = fCurrency(minimumPurchase);
+
+                // Show friendly toast notification
+                toast.warning('Minimum rendelési érték', {
+                    description: `A fizetéshez legalább ${formattedAmount} értékű rendelés szükséges. Kérjük, adjon hozzá több terméket a kosárhoz!`,
+                    duration: 6000,
+                });
+
+                // Redirect to step 0 (cart)
+                router.push(paths.product.checkout);
+            }
+        }
+    }, [loading, activeStep, state.subtotal, getMinimumPurchase, router]);
 
     const onChangeStep = useCallback(
         (type: 'back' | 'next' | 'go', step?: number) => {

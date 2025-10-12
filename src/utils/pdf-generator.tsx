@@ -164,9 +164,9 @@ const F2FSVG = () => (
 
 const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps) => {
     const pickupLocation = pickupLocations?.find(loc => loc.id.toString() === order.delivery?.address?.id || '');
-
+    const isVIP = order.customer?.userType === 'vip';
     const netSubTotal = order.items?.reduce((sum, item) => sum + (item.netPrice || 0) * (item.quantity || 0), 0) || 0;
-    const taxTotal = order.items?.reduce((acc, item) => acc + (item.grossPrice - item.netPrice) * (item.quantity || 0), 0) + (order.shipping && order.customer.userType !== 'vip' ? (order.shipping / 1.27 * 0.27) : 0) || 0;
+    const taxTotal = isVIP ? 0 : order.items?.reduce((acc, item) => acc + (item.grossPrice - item.netPrice) * (item.quantity || 0), 0) + (order.shipping && order.customer.userType !== 'vip' ? (order.shipping / 1.27 * 0.27) : 0) || 0;
 
     const grossTotal = netSubTotal + taxTotal + order.deposit + (order.shipping || 0) - (order.discount || 0);
     return (

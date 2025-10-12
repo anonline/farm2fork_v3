@@ -389,3 +389,54 @@ export async function deleteProducts(ids: string[]) {
 
     return { success: true, deletedCount: ids.length };
 }
+
+// ----------------------------------------------------------------------
+
+type StockData = Array<{
+    id: string;
+    stock: number;
+    backorder: boolean;
+}>;
+
+/**
+ * Hook to fetch stock data for cart items with automatic polling
+ */
+export function useGetStockDataForCart(productIds: string[]) {
+    const shouldFetch = productIds.length > 0;
+    
+    const { data, error, isLoading, isValidating, mutate } = useSWR<StockData>(
+        shouldFetch ? ['cart-stock', ...productIds] : null,
+        async () => {
+            const { data: stockData, error: stockError } = await supabase
+                .from('Products')
+                .select('id, stock, backorder')
+                .in('id', productIds);
+
+            if (stockError) {
+                console.error('Error fetching stock data:', stockError);
+                throw new Error(`Hiba a készletadatok lekérdezése során: ${stockError.message}`);
+            }
+
+            return stockData as StockData;
+        },
+        {
+            refreshInterval: 7000, // Poll every 7 seconds
+            revalidateOnFocus: false,
+            revalidateOnReconnect: true,
+            dedupingInterval: 2000, // Prevent duplicate requests within 2 seconds
+        }
+    );
+
+    const memoizedValue = useMemo(
+        () => ({
+            stockData: data || [],
+            stockLoading: isLoading,
+            stockError: error,
+            stockValidating: isValidating,
+            refetch: mutate,
+        }),
+        [data, error, isLoading, isValidating, mutate]
+    );
+
+    return memoizedValue;
+}

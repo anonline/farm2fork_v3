@@ -12,7 +12,7 @@ import { fDate } from 'src/utils/format-time';
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
 import { triggerOrderPlacedEmail, triggerOrderPlacedAdminEmail } from 'src/actions/email-ssr';
-import { getOrderByIdSSR, addOrderHistorySSR, updateOrderPaymentStatusSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
+import { getOrderByIdSSR, addOrderHistorySSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -72,6 +72,8 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
         redirect('/error/403');
     }
 
+
+
     let isPaymentSuccess = false;
     let failMessage = '';
     let transactionId = 0;
@@ -102,7 +104,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                 };
             }
             else {
-                switch (simplePayResponse.e){
+                switch (simplePayResponse.e) {
                     case 'FAIL':
                         failMessageForUser = 'Kérjük, ellenőrizze a tranzakció során megadott adatok helyességét. Amennyiben minden adatot helyesen adott meg, a visszautasítás okának kivizsgálása érdekében kérjük, szíveskedjen kapcsolatba lépni a kártyakibocsátó bankjával.';
                         break;
@@ -118,7 +120,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
                 failMessage = getSimplePayErrorMessage(simplePayResponse.r as any);
                 console.error('SimplePay indicates payment failure:', { orderId, simplePayResponse });
-                
+
                 historyEntry = {
                     timestamp: new Date().toISOString(),
                     status: 'pending',
@@ -127,7 +129,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
             }
 
             await updateOrderPaymentSimpleStatusSSR(orderId, JSON.stringify(simplePayResponse));
-            
+
 
         } catch (parseError) {
             failMessage = 'Kommunikáció a SimplePay rendszerrel sikertelen';
@@ -150,6 +152,8 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     // Update payment status if successful
     if (isPaymentSuccess && order.paymentStatus == 'pending' && order.paymentMethod?.slug === 'simple') {
         await updateOrderPaymentStatusSSR(orderId, 'paid', order.total);
+
+
     }
 
     if (!isPaymentSuccess) {
@@ -208,6 +212,22 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
         );
     }
 
+    if (isPaymentSuccess) {
+        //ensure it is in shipment
+        try {
+            await ensureOrderInShipmentSSR(orderId);
+        } catch (shipmentAssignSSRError) {
+            console.error('Error ensuring order is in shipment:', shipmentAssignSSRError);
+        }
+
+        //handling stock reduction
+        try {
+            await handleStockReductionForOrderSSR(orderId);
+        } catch (stockReductionError) {
+            console.error('Error handling stock reduction for order:', stockReductionError);
+        }
+    }
+
     // Here you could update the order payment status based on the payment gateway response
     // For now, we'll assume successful payment
 
@@ -231,7 +251,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                 />
 
                 <Typography variant="h3" sx={{ mb: 2 }}>
-                    Sikeres {order.paymentMethod?.slug == 'simple'? 'fizetés és ': ''}rendelés!
+                    Sikeres {order.paymentMethod?.slug == 'simple' ? 'fizetés és ' : ''}rendelés!
                 </Typography>
 
                 <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>

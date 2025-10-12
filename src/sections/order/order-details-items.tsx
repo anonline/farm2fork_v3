@@ -284,7 +284,7 @@ export function OrderDetailsItems({
         }
     };
 
-    const getTaxesTotal = () => items.reduce((acc, item) =>  acc + (item.grossPrice - item.netPrice) * item.quantity, 0) + getShippingTax();
+    const getTaxesTotal = () => userType == 'vip' ? 0 : items.reduce((acc, item) =>  acc + (item.grossPrice - item.netPrice) * item.quantity, 0) + getShippingTax();
 
     const getShippingTax = () => shipping && userType != 'vip' ? Math.round(shipping - (shipping / 1.27)) : 0;
 
@@ -457,7 +457,8 @@ export function OrderDetailsItems({
                             key={item.id + '_' + item.name}
                             sx={[
                                 (theme) => ({
-                                    p: { xs: 1.5, md: 3 },
+                                    px: { xs: 1.5, md: 3 },
+                                    py: { xs: 1.5, md: 2 },
                                     borderBottom: `dashed 2px ${theme.vars.palette.background.neutral}`,
                                 }),
                             ]}

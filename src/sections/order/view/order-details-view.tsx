@@ -28,7 +28,7 @@ import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
-import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderUserHistory, updateOrderDeliveryGuy, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction } from 'src/actions/order-management';
+import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderUserHistory, updateOrderDeliveryGuy, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, handlingOrderItemQtyChangesStockReduction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
 
@@ -142,12 +142,19 @@ export function OrderDetailsView({ orderId }: Props) {
             toast.error('Hiányzó rendelési azonosító');
             return;
         }
+
+        if (newStatus === status) {
+            return;
+        }
+
         const oldStatus = status;
 
         // Handle cancellation with payment refund logic
         if (newStatus === 'cancelled') {
             const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';
             const isPaid = orderData?.paymentStatus === 'paid';
+
+
 
             if (isSimplePayment && isPaid) {
                 // For SimplePay payments that are paid, we can automatically refund
@@ -205,7 +212,11 @@ export function OrderDetailsView({ orderId }: Props) {
             } else {
                 // For other payment methods that are paid, show manual alert
                 setShowCancellationAlert(true);
-                setStatus(oldStatus); // Revert status change until user confirms
+                setStatus(oldStatus);
+
+
+
+                // Revert status change until user confirms
                 return;
             }
             // For unpaid orders, continue with normal cancellation flow below
@@ -239,6 +250,14 @@ export function OrderDetailsView({ orderId }: Props) {
                             orderStatus: newStatus as OrderStatus,
                         });
                     }
+
+                    //revert stocks
+                    const changedQuantities: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }> = [];
+                    order?.items.forEach(item => {
+                        changedQuantities.push({ id: item.id, before: 0, after: item.quantity, type: 'added' });
+                    });
+
+                    await handlingOrderItemQtyChangesStockReduction(orderId, changedQuantities);
 
                     // Refresh order history to show the new entry
                     await refreshOrderHistory();
@@ -593,7 +612,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 // Check price change (use appropriate price based on user type)
                 const originalPrice = (userTypeParam === 'company' || userTypeParam === 'vip') ? originalItem.netPrice : originalItem.grossPrice;
                 const editedPrice = (userTypeParam === 'company' || userTypeParam === 'vip') ? editedItem.netPrice : editedItem.grossPrice;
-                
+
                 if (originalPrice !== editedPrice) {
                     historyEntries.push(`Módosult ár: ${originalPrice} Ft -> ${editedPrice} Ft ${editedItem.name}`);
                 }
@@ -655,6 +674,7 @@ export function OrderDetailsView({ orderId }: Props) {
         await performSave();
     }, [editedItems, orderData, editedSurcharge, editedShipping, editedDiscount]);
 
+
     const performSave = useCallback(async () => {
         if (!orderData?.id) return;
 
@@ -691,6 +711,39 @@ export function OrderDetailsView({ orderId }: Props) {
                 historyEntries
             );
             if (success) {
+                //get changed qtys
+                // Track quantity changes, additions, and deletions
+                const changedQuantities: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }> = [];
+
+                // Create maps for efficient lookup
+                const originalItemsMap = new Map(originalItems.map(item => [item.id, item]));
+                const editedItemsMap = new Map(editedItems.map(item => [item.id, item]));
+
+                // Check for new items (added)
+                editedItems.forEach(item => {
+                    if (!originalItemsMap.has(item.id)) {
+                        changedQuantities.push({ id: item.id, before: 0, after: item.quantity, type: 'added' });
+                    }
+                });
+
+                // Check for deleted items
+                originalItems.forEach(item => {
+                    if (!editedItemsMap.has(item.id)) {
+                        changedQuantities.push({ id: item.id, before: item.quantity, after: 0, type: 'deleted' });
+                    }
+                });
+
+                // Check for modified quantities
+                editedItems.forEach(item => {
+                    const originalItem = originalItemsMap.get(item.id);
+                    if (originalItem && originalItem.quantity !== item.quantity) {
+                        changedQuantities.push({ id: item.id, before: originalItem.quantity, after: item.quantity, type: 'modified' });
+                    }
+                });
+
+                await handlingOrderItemQtyChangesStockReduction(orderId, changedQuantities);
+
+
                 // Calculate new totals
                 const { newSubtotal, newTotal } = calculateNewTotalsForFrontend(editedItems);
                 /*
@@ -703,12 +756,12 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // termék áfatartalom
                 let newVatTotal = editedItems.reduce((sum, item) => sum + (item.grossPrice - item.netPrice) * item.quantity, 0);
-                
-                if(order?.customer.userType === 'company' || order?.customer.userType === 'public') {
+
+                if (order?.customer.userType === 'company' || order?.customer.userType === 'public') {
                     newVatTotal += (order?.shipping / 1.27 * 0.27) || 0;
                 }
-                
-                
+
+
                 // Update context with new data
                 if (order) {
                     updateOrder({
@@ -726,8 +779,8 @@ export function OrderDetailsView({ orderId }: Props) {
                 let updatedHistoryForUser = historyForUser;
                 if (historyEntries.length > 0) {
                     const newEntries = historyEntries.join('\n');
-                    updatedHistoryForUser = historyForUser 
-                        ? `${historyForUser}\n${newEntries}` 
+                    updatedHistoryForUser = historyForUser
+                        ? `${historyForUser}\n${newEntries}`
                         : newEntries;
                     setHistoryForUser(updatedHistoryForUser);
                 }
@@ -806,6 +859,15 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Refresh order history to show the new entry
                 await refreshOrderHistory();
+
+                //revert stocks
+                const changedQuantities: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }> = [];
+
+                order?.items.forEach(item => {
+                    changedQuantities.push({ id: item.id, before: item.quantity, after: 0, type: 'deleted' });
+                });
+
+                await handlingOrderItemQtyChangesStockReduction(orderId, changedQuantities);
 
                 // Refresh shipment counts for cancelled order
                 if (order?.shipmentId) {
@@ -928,7 +990,7 @@ export function OrderDetailsView({ orderId }: Props) {
 
             if (success) {
                 setHistoryForUser(newHistory);
-                
+
                 // Update orderData context
                 if (orderData) {
                     updateOrderData({
@@ -972,8 +1034,8 @@ export function OrderDetailsView({ orderId }: Props) {
 
         // Show immediate feedback
         toast.success(
-            newDeliveryGuyId 
-                ? 'Futár sikeresen hozzárendelve!' 
+            newDeliveryGuyId
+                ? 'Futár sikeresen hozzárendelve!'
                 : 'Futár eltávolítva!'
         );
 
@@ -1174,7 +1236,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             orderData={orderData || undefined}
                         />
 
-                        
+
 
                         {orderData && (
                             <>

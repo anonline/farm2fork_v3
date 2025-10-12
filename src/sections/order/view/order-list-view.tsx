@@ -119,13 +119,13 @@ const STATUS_OPTIONS = [
 const TABLE_HEAD: TableHeadCellProps[] = [
     { id: 'orderNumber', label: 'ID', width: 60, sx: { display: { xs: 'none', md: 'table-cell' } } },
     { id: 'status', label: 'Státusz', width: 55 },
-    { id: 'name', label: 'Vásárló' },
+    { id: 'name', label: 'Vásárló', width: 280 },
     { id: 'totalQuantity', label: '', width: 55, align: 'center' },
-    { id: 'totalAmount', label: 'Bruttó (nettó)', width: 140 },
+    { id: 'totalAmount', label: 'Összeg', width: 140 },
     { id: 'paymentStatus', label: 'Fizetve', width: 110 },
     { id: 'createdAt', label: 'Dátum', width: 140 },
     { id: 'planned_shipping_date_time', label: 'Szállítás', width: 140, align: 'center' },
-    { id: 'delivery', label: 'Szállítási mód', width: 160 },
+    { id: 'delivery', label: 'Szállítási mód', width: 160, align: 'center' },
     { id: 'payment', label: 'Fizetési mód', width: 160 },
     { id: 'invoice', label: 'Számla', width: 120 },
     { id: '', width: 88 },
@@ -187,7 +187,7 @@ export function OrderListView() {
         label: fDate(shipment.date),
     }));
 
-    
+
 
     useEffect(() => {
         const loadTransformedData = async () => {
@@ -299,10 +299,10 @@ export function OrderListView() {
     const handleGenerateShippingLabels = useCallback(async () => {
         try {
             setPdfGenerating(true);
-            
+
             // Get selected orders
             const selectedOrders = dataFiltered.filter((order) => table.selected.includes(order.id));
-            
+
             if (selectedOrders.length === 0) {
                 toast.error('Nincsenek kiválasztott rendelések');
                 return;
@@ -319,7 +319,7 @@ export function OrderListView() {
 
             await generateMultipleShippingLabelsPDF(selectedOrders, pickupLocations);
             toast.success(`${selectedOrders.length} rendelés szállítólevele sikeresen generálva és letöltve!`);
-            
+
         } catch (error) {
             console.error('Error generating shipping labels:', error);
             const errorMessage = error instanceof Error ? error.message : 'Szállítólevelek generálása sikertelen volt';
@@ -332,10 +332,10 @@ export function OrderListView() {
     const handleExportSummaryPDF = useCallback(async () => {
         try {
             setPdfGenerating(true);
-            
+
             // Get selected orders
             const selectedOrders = dataFiltered.filter((order) => table.selected.includes(order.id));
-            
+
             if (selectedOrders.length === 0) {
                 toast.error('Nincsenek kiválasztott rendelések');
                 return;
@@ -379,7 +379,7 @@ export function OrderListView() {
             selectedOrders.forEach((order) => {
                 order.items.forEach((item) => {
                     const key = `${item.name || 'Unknown'}-${item.unit || ''}`;
-                    
+
                     if (!itemsMap.has(key)) {
                         const productData = products.find(p => p.id.toString() === item.id.toString());
                         itemsMap.set(key, {
@@ -423,7 +423,7 @@ export function OrderListView() {
                 };
 
                 const bundleItems: ShipmentItemSummary[] = [];
-                
+
                 // If it's a bundle product, collect its bundle items
                 if (data.productData?.type === 'bundle' && data.productData?.bundleItems && data.productData.bundleItems.length > 0) {
                     data.productData.bundleItems.forEach((bundleItem) => {
@@ -482,7 +482,7 @@ export function OrderListView() {
 
             await generateMultiShipmentPDF([summarizedData]);
             toast.success(`${selectedOrders.length} rendelés összesítése sikeresen generálva!`);
-            
+
         } catch (error) {
             console.error('Error generating summary PDF:', error);
             const errorMessage = error instanceof Error ? error.message : 'Összesítő PDF generálása sikertelen volt';
@@ -507,7 +507,7 @@ export function OrderListView() {
 
             // Get selected orders from the original ordersData (IOrderData[])
             const selectedOrders = ordersData.filter((order) => table.selected.includes(order.id));
-            
+
             if (selectedOrders.length === 0) {
                 toast.warning('A kiválasztott rendelések nem találhatók!');
                 return;
@@ -527,7 +527,7 @@ export function OrderListView() {
         }
     }, [ordersData, table.selected, ordersLoading]);
 
-    
+
 
     const renderConfirmDialog = () => (
         <ConfirmDialog
@@ -692,8 +692,20 @@ export function OrderListView() {
                                 }
                                 action={
                                     <>
+                                        <Label color="default" variant="filled" sx={{ mr: 2 }}>
+                                            Nettó: {fCurrency(dataFiltered
+                                                .filter((order) => table.selected.includes(order.id))
+                                                .reduce((sum, order) => sum + (order.totalAmount - order.taxes), 0)
+                                            )}
+                                        </Label>
+                                        <Label color="info" variant="filled" sx={{ mr: 2 }}>
+                                            Bruttó: {fCurrency(dataFiltered
+                                                .filter((order) => table.selected.includes(order.id))
+                                                .reduce((sum, order) => sum + order.totalAmount, 0)
+                                            )}
+                                        </Label>
                                         <Tooltip title="Címlista exportálása">
-                                            <IconButton 
+                                            <IconButton
                                                 color="primary"
                                                 onClick={handleExportAddressList}
                                                 disabled={table.selected.length === 0}
@@ -702,7 +714,7 @@ export function OrderListView() {
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title={pdfGenerating ? "PDF generálása..." : "Összesítő PDF nyomtatása"}>
-                                            <IconButton 
+                                            <IconButton
                                                 color="primary"
                                                 onClick={handleExportSummaryPDF}
                                                 disabled={pdfGenerating || table.selected.length === 0}
@@ -711,8 +723,8 @@ export function OrderListView() {
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title={pdfGenerating ? "PDF generálása..." : "Szállítólevél nyomtatása"}>
-                                            <IconButton 
-                                                color="primary" 
+                                            <IconButton
+                                                color="primary"
                                                 onClick={handleGenerateShippingLabels}
                                                 disabled={pdfGenerating || table.selected.length === 0}
                                             >
@@ -748,7 +760,7 @@ export function OrderListView() {
                                                     )
                                                 }
                                             />
-                                        ) :  (
+                                        ) : (
                                             <TableHeadCustom
                                                 order={table.order}
                                                 orderBy={table.orderBy}
@@ -855,7 +867,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
             return false;
         });
     }
-    
+
     if (shipments.length > 0) {
         inputData = inputData.filter((order) => {
             if (order.shipmentId) {
@@ -867,7 +879,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
 
     if (shippingMethods.length > 0) {
         inputData = inputData.filter((order) => {
-            switch(order.delivery.shipBy) {
+            switch (order.delivery.shipBy) {
                 case 'Házhozszállítás':
                     return shippingMethods.includes('hazhozszallitas');
                 case 'Személyes átvétel':
@@ -880,7 +892,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
 
     if (paymentMethods.length > 0) {
         inputData = inputData.filter((order) => {
-            switch(order.payment.cardType) {
+            switch (order.payment.cardType) {
                 case 'SimplePay fizetés':
                     return paymentMethods.includes('simple');
                 case 'Átutalás':

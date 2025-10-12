@@ -233,13 +233,13 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                     <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
                         <Box component="span" display="flex" alignItems="center" gap={1} flexDirection="row">
                             <Link component={RouterLink} href={detailsHref} color="inherit" underline="hover" >
-                                {row.customer.name}
+                                {row.customer.companyName || row.customer.name}
                             </Link>
                             {!!row.customer.discountPercent && <Label  color='info'>-{row.customer.discountPercent} %</Label>}
                         </Box>
 
                         <Box component="span" sx={{ color: 'text.disabled' }} display="flex" alignItems="center" gap={1} flexDirection="row">
-                            {row.customer.email}
+                            {row.customer.companyName ? row.customer.name : row.customer.email}
                         </Box>
                         <Box component="span" sx={{ color: 'text.disabled', display: { xs: 'inline-block', md: 'none' } }}>
                             <Typography variant='caption'>{row.orderNumber}</Typography>

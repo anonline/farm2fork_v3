@@ -663,6 +663,58 @@ export async function getPendingOrdersCount(): Promise<{ count: number; error: s
     }
 }
 
+export async function handlingOrderItemQtyChangesStockReduction(orderId: string, items: Array<{ id: string; before:number; after: number; type: 'modified' | 'added' | 'deleted' }>): Promise<boolean> {
+    try {
+        // Loop through each item and adjust stock levels accordingly
+        for (const item of items) {
+            if (item.type === 'deleted') {
+                // If the item is deleted, increase the stock
+                await adjustStockLevel(item.id, item.before);
+            } else if (item.type === 'modified') {
+                // If the item is modified, adjust the stock based on the new quantity
+                await adjustStockLevel(item.id, item.after - item.before);
+            } else if (item.type === 'added') {
+                // If the item is added, decrease the stock
+                await adjustStockLevel(item.id, -item.after);
+            }
+        }
+        return true;
+    } catch (error) {
+        console.error('Error handling order item quantity changes:', error);
+        return false;
+    }
+}
+
+async function adjustStockLevel(productId: string, quantityChange: number): Promise<void> {
+    try {
+        // Fetch current stock level
+        const { data: product, error } = await supabase.from('Products').select('stock, backorder').eq('id', productId).single();
+        if (error) {
+            console.error('Error fetching product for stock adjustment:', error);
+            return;
+        }
+        if (!product) {
+            console.error('Product not found for stock adjustment:', productId);
+            return;
+        }
+
+        if(product.stock === null){
+            return; // Stock is not managed for this product
+        }
+
+        let newStock = product.stock + quantityChange;
+
+        if(!product.backorder && newStock < 0){
+            console.warn(`Cannot reduce stock for product ${productId} below zero as backorders are not allowed.`);
+            newStock = 0; // Prevent stock from going negative
+        }
+
+        await supabase.from('Products').update({ stock: newStock }).eq('id', productId);
+    }catch (error) {
+        console.error('Error adjusting stock level:', error);
+    }
+}
+
 /**
  * Update order items and recalculate totals
  */

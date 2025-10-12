@@ -1,4 +1,5 @@
-import type { IOrderData, PaymentStatus, OrderHistoryEntry } from 'src/types/order-management';
+import type { IShipment } from 'src/types/shipments';
+import type { IOrderData, IOrderItem, PaymentStatus, OrderHistoryEntry } from 'src/types/order-management';
 
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
@@ -12,7 +13,7 @@ import { CONFIG } from 'src/global-config';
  */
 async function createAdminClient() {
     const cookieStore = await cookies();
-    
+
     return createServerClient(CONFIG.supabase.url, CONFIG.supabase.service_key, {
         cookies: {
             getAll() {
@@ -45,7 +46,7 @@ async function createAdminClient() {
 export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderData | null; error: string | null }> {
     try {
         const supabase = await createAdminClient();
-        
+
         const { data, error } = await supabase
             .from('orders')
             .select('*')
@@ -96,7 +97,7 @@ export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderD
             shipmentId: data.shipment_id || null,
             history_for_user: data.history_for_user || '',
         };
-        
+
         return { order, error: null };
     } catch (error) {
         console.error('Error fetching order (SSR):', error);
@@ -115,7 +116,7 @@ export async function getAllOrdersSSR(params?: {
 }): Promise<{ orders: IOrderData[]; total: number; error: string | null }> {
     try {
         const supabase = await createAdminClient();
-        
+
         let query = supabase
             .from('orders')
             .select('*', { count: 'exact' })
@@ -142,7 +143,7 @@ export async function getAllOrdersSSR(params?: {
             const to = from + params.limit - 1;
             query = query.range(from, to);
             console.log(`Fetching orders (SSR) - Page: ${params.page}, Limit: ${params.limit}, From: ${from}, To: ${to}`);
-            
+
             const result = await query;
             data = result.data || [];
             count = result.count || 0;
@@ -153,16 +154,16 @@ export async function getAllOrdersSSR(params?: {
             const batchSize = 1000;
             let currentPage = 0;
             let hasMore = true;
-            
+
             while (hasMore) {
                 const from = currentPage * batchSize;
                 const to = from + batchSize - 1;
-                
+
                 const batchQuery = supabase
                     .from('orders')
                     .select('*', { count: currentPage === 0 ? 'exact' : undefined })
                     .order('date_created', { ascending: false });
-                
+
                 // Apply same filters
                 if (params?.status && params.status !== 'all') {
                     batchQuery.eq('order_status', params.status);
@@ -170,21 +171,21 @@ export async function getAllOrdersSSR(params?: {
                 if (params?.customerId) {
                     batchQuery.eq('customer_id', params.customerId);
                 }
-                
+
                 batchQuery.range(from, to);
-                
+
                 const result = await batchQuery;
-                
+
                 if (result.error) {
                     error = result.error;
                     break;
                 }
-                
+
                 if (currentPage === 0) {
                     count = result.count || 0;
                     console.log(`Total orders available: ${count}`);
                 }
-                
+
                 if (result.data && result.data.length > 0) {
                     data = [...data, ...result.data];
                     console.log(`Fetched batch ${currentPage + 1}: ${result.data.length} orders (total so far: ${data.length})`);
@@ -194,7 +195,7 @@ export async function getAllOrdersSSR(params?: {
                     hasMore = false;
                 }
             }
-            
+
             console.log(`Finished fetching all orders: ${data.length} total`);
         } else {
             // No pagination, fetch with default limit
@@ -204,7 +205,7 @@ export async function getAllOrdersSSR(params?: {
             error = result.error;
         }
 
-        if (error) { 
+        if (error) {
             console.error('Error fetching orders (SSR):', error);
             return { orders: [], total: 0, error: error.message };
         }
@@ -255,13 +256,13 @@ export async function getAllOrdersSSR(params?: {
  * Update order payment status - Server-side version
  */
 export async function updateOrderPaymentStatusSSR(
-    orderId: string, 
+    orderId: string,
     paymentStatus: PaymentStatus,
     payedAmount?: number
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         const supabase = await createAdminClient();
-        
+
         const updateData: any = {
             payment_status: paymentStatus,
             updated_at: new Date().toISOString(),
@@ -288,17 +289,228 @@ export async function updateOrderPaymentStatusSSR(
     }
 }
 
+export async function handleStockReductionForOrderSSR(orderId: string): Promise<{ success: boolean; error: string | null }> {
+    const supabase = await createAdminClient();
+
+    const { data: orderData, error: fetchError } = await supabase
+        .from('orders')
+        .select('id, items')
+        .eq('id', orderId)
+        .single();
+
+    if (fetchError) {
+        console.error('Error fetching order for stock reduction (SSR):', fetchError);
+        return { success: false, error: 'Failed to fetch order for stock reduction' };
+    }
+
+    if (!orderData) {
+        return { success: false, error: 'Order not found' };
+    }
+
+    // Reduce stock for each item in the order
+    // Collect all product IDs first
+    const productIds = orderData.items.map((item:IOrderItem) => item.id);
+    
+    // Fetch all products in a single query
+    const { data: productsData, error: productsFetchError } = await supabase
+        .from('Products')
+        .select('id, stock, backorder')
+        .in('id', productIds);
+
+    if (productsFetchError) {
+        console.error('Error fetching products for stock reduction (SSR):', productsFetchError);
+        return { success: false, error: 'Failed to fetch products for stock reduction' };
+    }
+
+    // Create a map of product ID to product data for quick lookup
+    const productsMap = new Map(productsData?.map(p => [p.id, p]) || []);
+
+    // Prepare bulk updates
+    const updates: Array<{ id: string; stock: number }> = [];
+
+    for (const item of orderData.items) {
+        const productData = productsMap.get(item.id);
+
+        if (!productData) {
+            continue; // Product not found, skip
+        }
+
+        if (productData.stock === null) {
+            continue; // Stock is null, skip
+        }
+
+        if (!productData.backorder && productData.stock === 0) {
+            continue; // No stock and no backorder allowed, skip
+        }
+
+        const newStock = productData.stock - item.quantity;
+        updates.push({ id: item.id, stock: newStock });
+    }
+
+    // Perform bulk update if there are any updates
+    if (updates.length > 0) {
+        for (const update of updates) {
+            const { error: stockUpdateError } = await supabase
+                .from('Products')
+                .update({ stock: update.stock })
+                .eq('id', update.id);
+
+            if (stockUpdateError) {
+                console.error('Error updating product stock (SSR):', stockUpdateError);
+                return { success: false, error: 'Failed to update product stock' };
+            }
+        }
+    }
+
+    return { success: true, error: null };
+}
+
+export async function ensureOrderInShipmentSSR(orderId: string): Promise<{ success: boolean; error: string | null }> {
+    const supabase = await createAdminClient();
+
+    const { data: orderData, error: fetchError } = await supabase
+        .from('orders')
+        .select('id, planned_shipping_date_time, shipmentId')
+        .eq('id', orderId)
+        .single();
+
+    if (fetchError) {
+        console.error('Error fetching order for shipment (SSR):', fetchError);
+        return { success: false, error: fetchError.message };
+    }
+    if (!orderData) {
+        return { success: false, error: 'Order not found' };
+    }
+
+    if (orderData.shipmentId) {
+        // Already in shipment
+        return { success: true, error: null };
+    }
+
+    const date = orderData.planned_shipping_date_time ? orderData.planned_shipping_date_time : null;
+    if (!date) {
+        // No planned date, cannot assign to shipment
+        return { success: false, error: 'Order has no planned shipping date' };
+    }
+
+    //get shipment by date
+    let shipmentId = null;
+
+    // Handle both Date objects and date strings
+    let dateForQuery: string | null = null;
+
+    if (date) {
+        if (typeof date === 'string') {
+            // If it's already a string, use it directly (assume YYYY-MM-DD format)
+            dateForQuery = date;
+        } else {
+            // If it's a Date object, convert to ISO string
+            // Convert to local date string (YYYY-MM-DD) to avoid timezone issues
+            dateForQuery = date.toISOString().split('T')[0]; // 'sv-SE' gives YYYY-MM-DD
+        }
+    }
+
+    const { data: existingShipment, error: shipmentFetchError } = await supabase
+        .from('Shipments')
+        .select('*')
+        .eq('date', dateForQuery)
+        .single();
+
+    if (shipmentFetchError) { // PGRST116 = No rows found
+        //create new shipment
+        const { data: newShipment, error: shipmentError } = await supabase
+            .from('Shipments')
+            .insert([{ date: dateForQuery, productCount: 0, productAmount: 0, orderCount: 0 } as IShipment])
+            .select()
+            .single();
+
+        if (shipmentError) {
+            console.error('Error creating new shipment:', shipmentError);
+            return { success: false, error: shipmentError.message };
+        }
+
+        shipmentId = newShipment.id;
+    } else if (existingShipment) {
+        shipmentId = existingShipment.id;
+    }
+
+    if (shipmentId) {
+        //if it has a shipmentId already, remove it from that shipment first
+        const { error: updateError } = await supabase
+            .from('orders')
+            .update({ shipmentId })
+            .eq('id', orderId);
+
+        if (updateError) {
+            console.error('Error updating order with shipmentId:', updateError);
+            return { success: false, error: updateError.message };
+        }
+
+        //recalculate
+        const { data: orders, error: ordersError } = await supabase
+            .from('orders')
+            .select('*')
+            .neq('order_status', 'cancelled')
+            .neq('order_status', 'refunded')
+            .eq('shipmentId', shipmentId);
+
+        if (ordersError) {
+            console.error('Error fetching orders:', ordersError);
+            return { success: false, error: ordersError.message };
+        }
+
+        let productCount = 0;
+        let productAmount = 0;
+        let orderCount = 0;
+
+        const uniqueProductIds = new Set<string>();
+
+        orders.forEach((order: IOrderData) => {
+            // Count unique product IDs across all orders
+            order.items.forEach(item => {
+                uniqueProductIds.add(item.id.toString());
+            });
+
+            if (order.items.length > 0) {
+                order.items.forEach(item => {
+                    productAmount += item.subtotal;
+                });
+            };
+            orderCount += 1;
+        });
+
+        productCount = uniqueProductIds.size;
+
+        // Update the shipment with the new counts
+        const { error: shipmentUpdateError } = await supabase
+            .from('Shipments')
+            .update({
+                productCount,
+                productAmount,
+                orderCount
+            })
+            .eq('id', shipmentId);
+
+        if (shipmentUpdateError) {
+            console.error('Error updating shipment counts:', shipmentUpdateError);
+        }
+
+        return { success: true, error: null };
+    }
+
+    return { success: false, error: 'No shipment found or created for date' };
+}
 /**
  * Update order payment status - Server-side version
  */
 export async function updateOrderPaymentSimpleStatusSSR(
-    orderId: string, 
+    orderId: string,
     simplepay_data_json: string,
 
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         const supabase = await createAdminClient();
-        
+
         const updateData: any = {
             simplepay_data_json,
             updated_at: new Date().toISOString(),
@@ -326,7 +538,7 @@ export async function addOrderHistorySSR(orderId: string, newHistory: OrderHisto
 
     try {
         const supabase = await createAdminClient();
-        
+
         const { data, error } = await supabase
             .from('orders')
             .select('history')
