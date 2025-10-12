@@ -8,6 +8,7 @@ import {
     Drawer,
     Button,
     Divider,
+    Tooltip,
     Typography,
     IconButton,
     useMediaQuery,
@@ -30,6 +31,8 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 import { useAuthContext } from 'src/auth/hooks';
 
 import { OptionsEnum } from 'src/types/option';
+
+import F2FIcons from '../f2ficons/f2ficons';
 
 // ----------------------------------------------------------------------
 
@@ -306,9 +309,16 @@ export function SideCart({ open, onClose }: Readonly<SideCartProps>) {
 
                             {checkoutState.surcharge > 0 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Zárolási felár
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'flex-start' }}>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Zárolási felár
+                                        </Typography>
+                                        <Tooltip title="A végleges árat a rendelés feldolgozása után tudjuk pontosítani.">
+                                            <span style={{ display: 'inline-block', marginLeft: '4px', paddingTop: '4px' }}>
+                                                <F2FIcons name="InfoCircle" width={18} height={18} />
+                                            </span>
+                                        </Tooltip>
+                                    </Box>
                                     <Typography variant="subtitle2">
                                         {fCurrency(checkoutState.surcharge)}
                                     </Typography>
