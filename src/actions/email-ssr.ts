@@ -12,9 +12,9 @@ import { supabaseSSR } from 'src/lib/supabase-ssr';
 import { EmailTrigger } from 'src/types/emails/email-trigger';
 import EmailBaseTemplate from 'src/types/emails/email-base-template';
 
+import { getUserRoles } from './user-ssr';
 import { getDelivery } from './delivery-ssr';
 import { getOrderByIdSSR } from './order-ssr';
-import { getUserRoles } from './user-ssr';
 
 export async function triggerEmail(type: EmailTrigger, to: IUserItem) {
     const template = await getEmailTemplateSSR(type);
