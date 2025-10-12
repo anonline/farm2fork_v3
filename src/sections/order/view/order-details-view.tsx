@@ -632,11 +632,11 @@ export function OrderDetailsView({ orderId }: Props) {
     }, [order?.items]);
 
     const calculateNewTotalsForFrontend = (items: IOrderProductItem[]) => {
-        const isCustomerCompany = order?.customer.userType == 'company';
-        const newSubtotal = items.reduce((sum, item) => sum + (isCustomerCompany ? item.netPrice * item.quantity : item.subtotal), 0);
+        const isCustomerCompanyOrVip = order?.customer.userType == 'company' || order?.customer.userType == 'vip';
+        const newSubtotal = items.reduce((sum, item) => sum + (isCustomerCompanyOrVip ? item.netPrice * item.quantity : item.subtotal), 0);
         const newTotal = newSubtotal
             + editedShipping
-            + (isCustomerCompany ? orderData?.vatTotal || 0 : 0)
+            + (isCustomerCompanyOrVip ? orderData?.vatTotal || 0 : 0)
             + editedSurcharge
             - editedDiscount;
 

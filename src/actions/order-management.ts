@@ -759,8 +759,12 @@ export async function updateOrderItems(
             newVatTotal += (newShippingCost / 1.27 * 0.27) || 0;
         }
 
+        if (userType === 'vip') {
+            newVatTotal = 0; // VIP customers do not pay VAT
+        }
+
         // Calculate new totals
-        const subtotal = items.reduce((sum, item) => sum + (userType === 'company' ? item.netPrice * item.quantity : item.subtotal), 0);
+        const subtotal = items.reduce((sum, item) => sum + (userType === 'company' || userType === 'vip' ? item.netPrice * item.quantity : item.subtotal), 0);
         
         const total =
             subtotal +

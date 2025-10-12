@@ -399,7 +399,6 @@ function replaceExpectedDelivery(body: string, expectedDelivery: string, expecte
 }
 
 function replaceChangeLog(body: string, changeLog: string) {
-    console.log('Change log:', changeLog);
     // Replace newlines with <br /> tags for HTML email display
     changeLog = changeLog.replace(/\n/g, '<br />');
     const text = changeLog.trim() ? `<p style="padding: 12px;background: #cecece;border-radius: 8px;width: 100%;display: inline-block;"><span style="font-weight: 600;">Pár tételt módosítanunk kellett a rendelésedben:</span><br />${changeLog}</p>` : '';
@@ -415,7 +414,8 @@ function replaceFutarInfo(body: string, futarInfo: {name:string, phone:string}) 
 
 function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
     let orderDetailsTableHTML = ``;
-    const grossSubtotal = orderData.items.reduce((acc, item) => acc + item.subtotal, 0);
+    
+    const grossSubtotal = orderData.items.reduce((acc, item) => acc + item.netPrice * item.quantity, 0);
 
     orderDetailsTableHTML += `
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
@@ -436,7 +436,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
 
     orderDetailsTableHTML += `
         <tr style="border-top: 2px solid #ddd;">
-            <td colspan="2">Részösszeg:</td>
+            <td colspan="2">Részösszeg (nettó):</td>
             <td style="text-align: right;">${formatNumber(grossSubtotal, 0)} Ft</td>
         </tr>
         <tr style="border-top: 1px solid #ddd;">
@@ -450,7 +450,7 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData) {
         </tr>
         <tr style="font-weight: 600; border-top: 1px solid #ddd;">
             <td colspan="2">Végösszeg:</td>
-            <td style="text-align: right;">${formatNumber(grossSubtotal + orderData.shippingCost, 0)} Ft</td>
+            <td style="text-align: right;">${formatNumber(grossSubtotal + Math.round(orderData.vatTotal) + orderData.shippingCost, 0)} Ft</td>
         </tr>
 
         <tr>

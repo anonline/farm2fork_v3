@@ -289,7 +289,8 @@ export function OrderDetailsItems({
     const getShippingTax = () => shipping && userType != 'vip' ? Math.round(shipping - (shipping / 1.27)) : 0;
 
     const getGrossTotal = () => {
-        const netGrossTotal = items.reduce((acc, item) => acc + (item.grossPrice * item.quantity), 0);
+        const isVIP = userType === 'vip';
+        const netGrossTotal = items.reduce((acc, item) => acc + (isVIP ? item.netPrice : item.grossPrice) * item.quantity, 0);
         return netGrossTotal + (shipping || 0) + (surcharge || 0) - (discount || 0);
     };
 

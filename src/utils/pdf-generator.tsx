@@ -167,7 +167,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
     const isVIP = order.customer?.userType === 'vip';
     const netSubTotal = order.items?.reduce((sum, item) => sum + (item.netPrice || 0) * (item.quantity || 0), 0) || 0;
 
-    const netShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping / 1.27 : 0;
+    const netShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping / 1.27 : order.shipping || 0;
     const vatShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping - netShipping : 0;
 
     const netDiscount = order.discount && order.customer.userType !== 'vip' ? order.discount / 1.27 : 0;
