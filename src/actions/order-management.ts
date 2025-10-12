@@ -1145,7 +1145,8 @@ export async function updateOrderBillingAddress(
 }
 
 export async function finishSimplePayTransaction(
-    orderId: string
+    orderId: string,
+    orderRef?: string
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         const { order, error: fetchError } = await getOrderById(orderId);
@@ -1161,7 +1162,7 @@ export async function finishSimplePayTransaction(
 
         if (order.paymentMethod?.slug !== 'simple') {
             const simplePayFinishResult = await finishTransaction({
-                orderRef: order.id,
+                orderRef: orderRef || order.id,
                 originalTotal: Math.round(order.payedAmount), // originalTotal
                 approveTotal: 0, // approveTotal (charge 1500, release 1000)
             });
@@ -1172,7 +1173,7 @@ export async function finishSimplePayTransaction(
             return { success: true, error: null };
         } else {
             const simplePayFinishResult = await finishTransaction({
-                orderRef: order.id,
+                orderRef: orderRef || order.id,
                 originalTotal: Math.round(order.payedAmount), // originalTotal
                 approveTotal: Math.round(order.total), // approveTotal (charge 1500, release 1000)
             });
@@ -1190,7 +1191,8 @@ export async function finishSimplePayTransaction(
 }
 
 export async function cancelSimplePayTransaction(
-    orderId: string
+    orderId: string,
+    orderRef?: string
 ): Promise<{ success: boolean; error: string | null }> {
     try {
         const { order, error: fetchError } = await getOrderById(orderId);
@@ -1208,7 +1210,7 @@ export async function cancelSimplePayTransaction(
         }
 
         const simplePayCancelResult = await finishTransaction({
-            orderRef: order.id,
+            orderRef: orderRef || order.id,
             originalTotal: Math.round(order.payedAmount), // originalTotal - must match reserved amount
             approveTotal: 0, // approveTotal = 0 means full cancellation/refund
         });

@@ -228,6 +228,7 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
             comment: `Rendelés szám: #${orderData.id}`,
         };
 
+        console.log('Creating invoice with data:', invoiceData);
         // Create the invoice
         const invoice = await DocumentService.createDocument(invoiceData);
 
@@ -261,8 +262,8 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
 
         return response;
 
-    } catch (error) {
-        console.error('Error creating Billingo invoice:', error);
+    } catch (error: any) {
+        console.error('Error creating Billingo invoice:', error?.body || error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Unknown error occurred'

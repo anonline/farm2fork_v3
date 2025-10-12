@@ -161,7 +161,15 @@ export function OrderDetailsView({ orderId }: Props) {
                 try {
                     setStatus(newStatus); // Update UI immediately
 
-                    const cancelResult = await cancelSimplePayTransaction(orderData.id);
+                    let orderRef = undefined;
+                    if(orderData.simplepayDataJson){
+                        const simpleJSON = JSON.parse(orderData.simplepayDataJson);
+                        if(simpleJSON.o){
+                            orderRef = simpleJSON.o;
+                        }
+                    }
+
+                    const cancelResult = await cancelSimplePayTransaction(orderData.id, orderRef);
 
                     if (cancelResult.success) {
                         // Update the status
@@ -334,10 +342,17 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Send notification email when changing to processing status
                 sendNotificationEmail(orderData.notifyEmails);
-
+                
                 if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
                     try {
-                        const simplePayFinishResult = await finishSimplePayTransaction(orderData.id)
+                        let orderRef = undefined;
+                        if(orderData.simplepayDataJson){
+                            const simpleJSON = JSON.parse(orderData.simplepayDataJson);
+                            if(simpleJSON.o){
+                                orderRef = simpleJSON.o;
+                            }
+                        }
+                        const simplePayFinishResult = await finishSimplePayTransaction(orderData.id, orderRef);
                         console.log('Partial charge successful:', simplePayFinishResult);
                         if (simplePayFinishResult.success !== true) {
                             throw new Error(simplePayFinishResult.error || 'A SimplePay tranzakció frissítése sikertelen.');

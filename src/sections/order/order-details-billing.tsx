@@ -303,7 +303,7 @@ export function OrderDetailsBilling({
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
                     >
-                        E-mail
+                        Szám. e-mail
                     </Box>
                     {billingAddress?.email || '-'}
                 </Box>
