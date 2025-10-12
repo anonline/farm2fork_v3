@@ -181,7 +181,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                 productLink: data.item.slug ? paths.dashboard.product.edit(data.item.slug) : null,
                 productData,
             };
-        }).sort((a, b) => b.totalValue - a.totalValue);
+        }).sort((a, b) => a.name.localeCompare(b.name));
 
         // Expand bundle items
         const expandedItems: ShipmentItemSummary[] = [];
