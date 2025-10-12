@@ -324,7 +324,7 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
 
 
             //Collect open days
-            let pickupLocationOpenDays = [
+            const pickupLocationOpenDays = [
                 selectedLocation?.monday || 'zárva',
                 selectedLocation?.tuesday || 'zárva',
                 selectedLocation?.wednesday || 'zárva',

@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import { Chip, Tooltip } from '@mui/material';
+import { Chip } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
 import Popover from '@mui/material/Popover';
@@ -26,7 +26,6 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { OrderShippingAddressModal } from './components/order-shipping-address-modal';
-import { IconifyIcon } from '@iconify/react/dist/iconify.js';
 
 // ----------------------------------------------------------------------
 

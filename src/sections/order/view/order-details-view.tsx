@@ -22,10 +22,10 @@ import { paths } from 'src/routes/paths';
 import { fDate } from 'src/utils/format-time';
 
 import { useGetDeliveries } from 'src/actions/delivery';
-import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
 import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
