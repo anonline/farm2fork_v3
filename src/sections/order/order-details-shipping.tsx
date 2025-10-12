@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import { Chip } from '@mui/material';
+import { Chip, Tooltip } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
 import Popover from '@mui/material/Popover';
@@ -26,6 +26,7 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { OrderShippingAddressModal } from './components/order-shipping-address-modal';
+import { IconifyIcon } from '@iconify/react/dist/iconify.js';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,7 @@ type Props = {
     onRefreshOrder?: () => void; // Add callback to refresh order data
     shipmentTime?: string; // Add shipment time range prop
     isEditable: boolean;
+    additionalPickUpTimes?: string[]; // Additional pickup times for select options
 };
 
 export function OrderDetailsShipping({
@@ -53,11 +55,13 @@ export function OrderDetailsShipping({
     onRefreshOrder,
     shipmentTime = '',
     isEditable = true,
+    additionalPickUpTimes = [],
 }: Readonly<Props>) {
     const { shipments, shipmentsLoading, setOrderToShipmentByDate } = useShipments();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+
     const [selectedShipmentTime, setSelectedShipmentTime] = useState(shipmentTime || '');
     const [selectedDate, setSelectedDate] = useState<IDatePickerControl>(() => {
         if (!requestedShippingDate) return null;
@@ -361,9 +365,9 @@ export function OrderDetailsShipping({
                 title="Szállítási adatok"
                 action={
                     isEditable && (
-                    <IconButton onClick={handleEditAddressClick}>
-                        <Iconify icon="solar:pen-bold" />
-                    </IconButton>
+                        <IconButton onClick={handleEditAddressClick}>
+                            <Iconify icon="solar:pen-bold" />
+                        </IconButton>
                     )
                 }
             />
@@ -407,6 +411,27 @@ export function OrderDetailsShipping({
                             opacity: isUpdating ? 0.6 : 1
                         }}
                     >
+                        {(() => {
+                            // Only render pickup location time if we have the data and a selected date
+                            if (additionalPickUpTimes && additionalPickUpTimes.length > 0 && selectedDate) {
+                                // selectedDate.day() returns 0-6 where 0=Sunday, 6=Saturday
+                                // additionalPickUpTimes array is indexed 0-6 where 0=Monday, 6=Sunday
+                                // Convert selectedDate.day() to match the array index
+                                const dayJsDay = selectedDate.day(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+                                const arrayIndex = dayJsDay === 0 ? 6 : dayJsDay - 1; // Convert to 0=Monday, 6=Sunday
+                                const timeForDay = additionalPickUpTimes[arrayIndex];
+
+                                // Only show if not closed and not empty
+                                if (timeForDay && timeForDay !== 'zárva') {
+                                    return (
+                                        <MenuItem key={timeForDay} value={timeForDay}>
+                                            {timeForDay}
+                                        </MenuItem>
+                                    );
+                                }
+                            }
+                            return null;
+                        })()}
                         <MenuItem value="">?</MenuItem>
                         <MenuItem value="9:00-12:00">9:00-12:00</MenuItem>
                         <MenuItem value="12:00-15:00">12:00-15:00</MenuItem>

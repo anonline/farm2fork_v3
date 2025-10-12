@@ -22,6 +22,7 @@ import { paths } from 'src/routes/paths';
 import { fDate } from 'src/utils/format-time';
 
 import { useGetDeliveries } from 'src/actions/delivery';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
 import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
@@ -56,6 +57,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const { refreshCounts } = useShipments();
     const { order, orderData, loading, error } = state;
     const { deliveries } = useGetDeliveries();
+    const pickupLocations = useGetPickupLocations();
 
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
@@ -68,6 +70,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const [showPaymentAlert, setShowPaymentAlert] = useState(false);
     const [showCancellationAlert, setShowCancellationAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
+    const [pickupLocationOpenDays, setPickupLocationOpenDays] = useState<(string)[]>([]);
 
     const userType = order?.customer?.userType || 'public';
 
@@ -94,6 +97,27 @@ export function OrderDetailsView({ orderId }: Props) {
             setHistoryForUser(orderData.history_for_user || '');
         }
     }, [orderData]);
+
+    // Load pickup location times when order loads with a pickup location
+    useEffect(() => {
+        if (order?.delivery?.shipBy === 'Személyes átvétel' && order?.delivery?.address?.id && pickupLocations?.locations) {
+            const pickupLocationId = order.delivery.address.id.toString();
+            const selectedLocation = pickupLocations.locations.find(loc => loc.id.toString() === pickupLocationId);
+            
+            if (selectedLocation) {
+                const openDays = [
+                    selectedLocation.monday || 'zárva',
+                    selectedLocation.tuesday || 'zárva',
+                    selectedLocation.wednesday || 'zárva',
+                    selectedLocation.thursday || 'zárva',
+                    selectedLocation.friday || 'zárva',
+                    selectedLocation.saturday || 'zárva',
+                    selectedLocation.sunday || 'zárva',
+                ];
+                setPickupLocationOpenDays(openDays);
+            }
+        }
+    }, [order?.delivery?.shipBy, order?.delivery?.address?.id, pickupLocations?.locations]);
 
     // Handler for payment method changes
     const handlePaymentMethodChange = useCallback(async (paymentMethodId: number) => {
@@ -1071,6 +1095,10 @@ export function OrderDetailsView({ orderId }: Props) {
         }
     }, [orderId, orderData, updateOrderData, fetchOrder]);
 
+    const handleRefreshPickupLocationTimes = useCallback(async (openDays: (string | null)[]) => {
+        setPickupLocationOpenDays(openDays.map(day => day ? day : 'zárva'));
+    }, [orderId, orderData, setPickupLocationOpenDays]);
+
     // Calculate updated totals when in edit mode
     const displayItems = isEditing ? editedItems : order?.items || [];
     const updatedSubtotal = isEditing
@@ -1227,6 +1255,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             onRefreshOrder={handleRefreshOrderHistory}
                             customer={order?.customer}
                             deliveryGuyId={orderData?.courier ? parseInt(orderData.courier, 10) : null}
+                            onRefreshPickupLocationTimes={handleRefreshPickupLocationTimes}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -1238,6 +1267,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             onRefreshOrder={handleRefreshOrderHistory}
                             shipmentTime={orderData?.shipment_time}
                             isEditable={status === 'pending'}
+                            additionalPickUpTimes={pickupLocationOpenDays}
                         />
 
                         <Divider sx={{ borderStyle: 'dashed' }} />

@@ -111,9 +111,38 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto-Bold',
         fontSize: 9,
     },
+    infoLabelShort: {
+        width: '20%',
+        fontFamily: 'Roboto-Bold',
+        fontSize: 9,
+    },
+    infoLabelFeatured: {
+        width: '30%',
+        fontFamily: 'Roboto-Bold',
+        fontSize: 11,
+    },
+    infoLabelFeaturedShort: {
+        width: '20%',
+        fontFamily: 'Roboto-Bold',
+        fontSize: 11,
+    },
     infoValue: {
         width: '70%',
         fontSize: 9,
+    },
+    infoValueLong: {
+        width: '80%',
+        fontSize: 9,
+    },
+    infoValueFeatured: {
+        width: '70%',
+        fontFamily: 'Roboto-Bold',
+        fontSize: 11,
+    },
+    infoValueFeaturedLong: {
+        width: '80%',
+        fontFamily: 'Roboto-Bold',
+        fontSize: 11,
     },
     footer: {
         position: 'absolute',
@@ -176,6 +205,62 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
     const taxTotal = isVIP ? 0 : order.items?.reduce((acc, item) => acc + (item.grossPrice - item.netPrice) * (item.quantity || 0), 0) + vatShipping - vatDiscount || 0;
 
     const grossTotal = netSubTotal + taxTotal + order.deposit + (netShipping) - (netDiscount || 0);
+
+    const renderPaymentStatusLabel = () => {
+        const labelConf = {
+            title: '',
+        }
+
+        switch (order.payment?.status) {
+            case 'pending':
+                labelConf.title = 'Nincs fizetve';
+                break;
+            case 'paid':
+                labelConf.title = 'Zárolva';
+                break;
+            case 'closed':
+                labelConf.title = 'Fizetve';
+                break;
+            case 'failed':
+                labelConf.title = 'Sikertelen';
+                break;
+            case 'refunded':
+                labelConf.title = 'Visszatérítve';
+                break;
+            case 'canceled':
+                labelConf.title = 'Visszamondva';
+                break;
+            default:
+                labelConf.title = 'Ismeretlen fizetési állapot';
+        }
+
+        return labelConf.title
+    };
+
+    const renderShippingAddressName = () => {
+        if (order.delivery?.shipBy === 'Személyes átvétel') {
+            const name = pickupLocation?.name || 'Átvételi pont ismeretlen';
+            return `${name}`;
+        }
+        return order.shippingAddress?.fullAddress || 'N/A';
+    };
+    const renderShippingAddressDetails = () => {
+        if (order.delivery?.shipBy === 'Személyes átvétel') {
+            const postcode = pickupLocation?.postcode || '';
+            const city = pickupLocation?.city || '';
+            const address = pickupLocation?.address || '';
+
+            return `${postcode} ${city}, ${address}`;
+        }
+        return order.shippingAddress?.fullAddress || 'N/A';
+    };
+    const renderNote = () => {
+        if (order.delivery?.shipBy === 'Személyes átvétel') {
+            return order?.note || '';
+        }
+        return order.shippingAddress?.note || '';
+    }
+
     return (
         <Page size="A4" style={styles.page}>
             {/* Header */}
@@ -185,7 +270,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={styles.subtitle}>Rendelési szám: {order.orderNumber}</Text>
-                    <Text>Dátum: {order.createdAt ? new Date(order.createdAt).toLocaleDateString('hu-HU') : 'N/A'}</Text>
+                    <Text>{renderPaymentStatusLabel()} Dátum: {order.createdAt ? new Date(order.createdAt).toLocaleDateString('hu-HU') : 'N/A'}</Text>
                 </View>
             </View>
 
@@ -194,9 +279,9 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     {/* Customer Information */}
                     <View style={{ width: '48%' }}>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>Név:</Text>
-                            <Text style={styles.infoValue}>{order.customer?.name || 'N/A'}</Text>
+                        <View style={{ ...styles.infoRow, borderBottom: '1px solid #3C5638', paddingBottom: 4, marginBottom: 4 }}>
+                            <Text style={styles.infoLabelFeatured}>Név:</Text>
+                            <Text style={styles.infoValueFeatured}>{order.customer?.name || 'N/A'}</Text>
                         </View>
                         <View style={styles.infoRow}>
                             <Text style={styles.infoLabel}>E-mail:</Text>
@@ -214,37 +299,37 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                             </Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>Szállítási idő:</Text>
-                            <Text style={styles.infoValue}>{order.shipment_time || ''}</Text>
+                            <Text style={styles.infoLabel}>Telefon:</Text>
+                            <Text style={styles.infoValue}>{order.shippingAddress?.phoneNumber || 'N/A'}</Text>
                         </View>
+                        
                         <View style={styles.infoRow}>
                             <Text style={styles.infoLabel}>Szállítási megj.:</Text>
-                            <Text style={styles.infoValue}>{order.shippingAddress?.note || ''}</Text>
+                            <Text style={styles.infoValue}>{renderNote()}</Text>
                         </View>
                     </View>
 
                     {/* Shipping Information */}
                     <View style={{ width: '48%' }}>
+                        <View style={{ ...styles.infoRow, borderBottom: '1px solid #3C5638', paddingBottom: 4, marginBottom: 4 }}>
+                            <Text style={styles.infoLabelFeaturedShort}>Cím:</Text>
+                            <Text style={styles.infoValueFeaturedLong}>{renderShippingAddressName()}</Text>
+                        </View>
+                        {order.delivery?.shipBy === 'Személyes átvétel' && <View style={styles.infoRow}>
+                            <Text style={styles.infoLabelShort} />
+                            <Text style={styles.infoValueLong}>{renderShippingAddressDetails()}</Text>
+                        </View>}
                         <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>Cím:</Text>
-                            <Text style={styles.infoValue}>{
-                                order.delivery?.shipBy === 'Személyes átvétel' ?
-                                    pickupLocation?.name || 'N/A' + ' | ' + pickupLocation?.postcode + ' ' + pickupLocation?.city + ', ' + pickupLocation?.address || 'N/A'
-                                    :
-                                    order.shippingAddress?.fullAddress || 'N/A'
-                            }</Text>
+                            <Text style={styles.infoLabelShort}>Száll. idő:</Text>
+                            <Text style={styles.infoValueLong}>{order.shipment_time || ''}</Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>Telefon:</Text>
-                            <Text style={styles.infoValue}>{order.shippingAddress?.phoneNumber || 'N/A'}</Text>
+                            <Text style={styles.infoLabelShort}>Szállítás:</Text>
+                            <Text style={styles.infoValueLong}>{order.delivery?.shipBy || 'N/A'}</Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>Szállítás:</Text>
-                            <Text style={styles.infoValue}>{order.delivery?.shipBy || 'N/A'}</Text>
-                        </View>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>Fizetés:</Text>
-                            <Text style={styles.infoValue}>{order.payment?.cardType || 'N/A'}</Text>
+                            <Text style={styles.infoLabelShort}>Fizetés:</Text>
+                            <Text style={styles.infoValueLong}>{order.payment?.cardType || 'N/A'}{order.payment?.status ? ` (${renderPaymentStatusLabel()})` : ''}</Text>
                         </View>
                     </View>
                 </View>

@@ -32,9 +32,10 @@ type Props = {
     onRefreshOrder?: () => void;
     customer:IOrderCustomer;
     deliveryGuyId?: number | null;
+    onRefreshPickupLocationTimes?: (openDays: (string | null)[]) => void;
 };
 
-export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId, onRefreshOrder, customer, deliveryGuyId }: Readonly<Props>) {
+export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId, onRefreshOrder, customer, deliveryGuyId, onRefreshPickupLocationTimes }: Readonly<Props>) {
     const pickuplocations = useGetPickupLocations();
     const { addresses: addressData } = useGetAddresses(customerId);
     const { deliveries } = useGetDeliveries();
@@ -320,6 +321,19 @@ export function OrderDetailsDelivery({ delivery, isEditable, orderId, customerId
                 parsedData.delivery = { shipBy: 'Személyes átvétel', address: newDeliveryAddress };
                 localStorage.setItem(`order-${orderId}`, JSON.stringify(parsedData));
             }
+
+
+            //Collect open days
+            let pickupLocationOpenDays = [
+                selectedLocation?.monday || 'zárva',
+                selectedLocation?.tuesday || 'zárva',
+                selectedLocation?.wednesday || 'zárva',
+                selectedLocation?.thursday || 'zárva',
+                selectedLocation?.friday || 'zárva',
+                selectedLocation?.saturday || 'zárva',
+                selectedLocation?.sunday || 'zárva',
+            ];
+            onRefreshPickupLocationTimes?.(pickupLocationOpenDays);
 
             toast.success('Átvételi pont sikeresen frissítve!');
             onRefreshOrder?.();

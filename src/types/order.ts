@@ -117,6 +117,7 @@ export type IOrderItem = {
     shipmentId: number | null;
     shipment_time?: string;
     invoiceData?: InvoiceData;
+    note?: string;
 };
 
 export type InvoiceData = {

@@ -30,7 +30,7 @@ export function DeliveryTimeSelector({
     pickupLocationId,
     selectedDateTime,
     onDateTimeChange,
-}: DeliveryTimeSelectorProps) {
+}: Readonly<DeliveryTimeSelectorProps>) {
     const [showAll, setShowAll] = useState(false);
     
     const {
@@ -132,7 +132,7 @@ export function DeliveryTimeSelector({
               ? deliveryDates.filter((date) => date.date === selectedDateTime)
               : [];
         const availableDatesCount = deliveryDates.filter((date) => date.isAvailable).length;
-
+        console.log('D', deliveryDates, datesToShow, selectedDateTime);
         return (
             <Box>
                 <Stack spacing={1}>
@@ -219,7 +219,7 @@ export function DeliveryTimeSelector({
           ? pickupTimes.filter((time) => time.date === selectedDateTime)
           : [];
     const availableTimesCount = pickupTimes.filter((time) => time.isAvailable).length;
-
+    console.log(pickupTimes, timesToShow, selectedDateTime);
     return (
         <Box>
             <Stack spacing={1}>
