@@ -200,6 +200,58 @@ export const getAvailableDeliveryDates = async (
     return finalDates;
 };
 
+// Helper function to check if we can order for a specific pickup date
+const canOrderForPickupDate = (pickupDate: Date): { canOrder: boolean; reason?: string } => {
+    const now = new Date();
+    const pickupDayIndex = pickupDate.getDay(); // 0=Sunday, 1=Monday, etc.
+
+    // Pickup cutoff rules (hardcoded):
+    // - For Monday, Tuesday, Wednesday pickup: order until Sunday 12:15
+    // - For Thursday, Friday, Saturday, Sunday pickup: order until Wednesday 12:15
+
+    let orderDeadlineDay: number; // 0=Sunday, 3=Wednesday
+    const orderDeadlineTime = { hours: 12, minutes: 15 };
+
+    // Determine which deadline applies based on pickup day
+    if (pickupDayIndex >= 1 && pickupDayIndex <= 3) {
+        // Monday(1), Tuesday(2), Wednesday(3) pickup -> deadline is Sunday(0)
+        orderDeadlineDay = 0;
+    } else {
+        // Thursday(4), Friday(5), Saturday(6), Sunday(0) pickup -> deadline is Wednesday(3)
+        orderDeadlineDay = 3;
+    }
+
+    // Calculate the deadline date for this pickup date
+    // We need to find the most recent occurrence of orderDeadlineDay before pickupDate
+    const deadlineDate = new Date(pickupDate);
+    const daysToSubtract = (pickupDate.getDay() - orderDeadlineDay + 7) % 7;
+    
+    if (daysToSubtract === 0) {
+        // If pickup day is the same as deadline day, deadline was last week
+        deadlineDate.setDate(deadlineDate.getDate() - 7);
+    } else {
+        deadlineDate.setDate(deadlineDate.getDate() - daysToSubtract);
+    }
+    
+    deadlineDate.setHours(orderDeadlineTime.hours, orderDeadlineTime.minutes, 0, 0);
+
+    console.log(
+        `Pickup date: ${formatDateDisplay(pickupDate)} (${getDayName(pickupDayIndex)}), ` +
+        `Deadline: ${formatDateDisplay(deadlineDate)} ${orderDeadlineTime.hours}:${String(orderDeadlineTime.minutes).padStart(2, '0')}, ` +
+        `Now: ${formatDateDisplay(now)} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
+    );
+
+    // Check if we're past the deadline
+    if (now > deadlineDate) {
+        return {
+            canOrder: false,
+            reason: `Past ordering deadline (${getDayName(orderDeadlineDay)} ${orderDeadlineTime.hours}:${String(orderDeadlineTime.minutes).padStart(2, '0')})`,
+        };
+    }
+
+    return { canOrder: true };
+};
+
 // Get available pickup times for personal pickup
 export const getAvailablePickupTimes = async (
     pickupLocationId: number
@@ -286,25 +338,35 @@ export const getAvailablePickupTimes = async (
             timeRange.trim().toLowerCase() !== 'zárva';
 
         if (isOpen) {
-            // Location is open on this day
-            const dateStorage = formatDateStorage(currentDate);
-            const isDenied = deniedDatesSet.has(dateStorage);
+            // Check if we can order for this pickup date based on cutoff rules
+            const canOrder = canOrderForPickupDate(currentDate);
+            console.log(`Can order for ${formatDateDisplay(currentDate)}:`, canOrder);
 
-            console.log(
-                `✓ Adding ${formatDateDisplay(currentDate)} (${dayName}): ${timeRange}, denied: ${isDenied}`
-            );
+            if (canOrder.canOrder) {
+                // Location is open on this day and we can still order
+                const dateStorage = formatDateStorage(currentDate);
+                const isDenied = deniedDatesSet.has(dateStorage);
 
-            pickupTimes.push({
-                date: dateStorage,
-                displayDate: formatDateDisplay(currentDate),
-                timeRange: timeRange.trim(),
-                isAvailable: !isDenied,
-                isDenied,
-            });
+                console.log(
+                    `✓ Adding ${formatDateDisplay(currentDate)} (${dayName}): ${timeRange}, denied: ${isDenied}`
+                );
 
-            // Only count this as an available day if it's not denied
-            if (!isDenied) {
-                availableDaysFound++;
+                pickupTimes.push({
+                    date: dateStorage,
+                    displayDate: formatDateDisplay(currentDate),
+                    timeRange: timeRange.trim(),
+                    isAvailable: !isDenied,
+                    isDenied,
+                });
+
+                // Only count this as an available day if it's not denied
+                if (!isDenied) {
+                    availableDaysFound++;
+                }
+            } else {
+                console.log(
+                    `✗ Skipping ${formatDateDisplay(currentDate)} (${dayName}): ${canOrder.reason}`
+                );
             }
         } else {
             console.log(
