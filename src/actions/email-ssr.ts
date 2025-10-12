@@ -432,6 +432,12 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData, userType:
     
     const grossSubtotal = orderData.items.reduce((acc, item) => acc + item.netPrice * item.quantity, 0);
 
+    const shippingVat = userType == 'vip' ? 0 : ((orderData.shippingCost / 1.27) * 0.27);
+    const netShipping = orderData.shippingCost - shippingVat;
+    const vatTotal = userType == 'vip' ? 0 : shippingVat + orderData.items.reduce((acc, item) => acc + ((item.grossPrice - item.netPrice) * item.quantity), 0);
+
+    const surchargeAmount = orderData.surchargeAmount || 0;
+
     orderDetailsTableHTML += `
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
                 <tr>
@@ -461,13 +467,17 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData, userType:
         </tr>
         <tr style="border-top: 1px solid #ddd;">
             <td colspan="2">ÁFA:</td>
-            <td style="text-align: right;">${formatNumber(Math.round(orderData.vatTotal), 0)} Ft</td>
+            <td style="text-align: right;">${formatNumber(Math.round(vatTotal), 0)} Ft</td>
         </tr>
+        ${surchargeAmount > 0 ? `
+        <tr style="border-top: 1px solid #ddd;">
+            <td colspan="2">Zárolási felár:</td>
+            <td style="text-align: right;">${formatNumber(surchargeAmount, 0)} Ft</td>
+        </tr>` : ''}
         <tr style="font-weight: 600; border-top: 1px solid #ddd;">
             <td colspan="2">Végösszeg:</td>
-            <td style="text-align: right;">${formatNumber(grossSubtotal + Math.round(orderData.vatTotal) + orderData.shippingCost, 0)} Ft</td>
+            <td style="text-align: right;">${formatNumber(surchargeAmount + grossSubtotal + Math.round(vatTotal) + netShipping, 0)} Ft</td>
         </tr>
-
         <tr>
             <td colspan="2" style="padding-top: 12px; font-size: 0.8rem; color: #888;">
                 Fizetési mód:
