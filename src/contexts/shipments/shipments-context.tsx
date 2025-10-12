@@ -10,6 +10,8 @@ export type ShipmentsContextType = {
     shipments: IShipment[];
     shipmentsLoading: boolean;
     shipmentsError: string | null;
+    limit: number;
+    setLimit: (limit: number) => void;
     shipmentsMutate: () => Promise<void>;
     addShipment: (newShipment: Omit<IShipment, 'date' | 'updatedAt'>) => Promise<void>;
     refreshCounts: (shipmentId: number) => Promise<void>;

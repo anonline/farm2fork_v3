@@ -253,7 +253,7 @@ export function OrderDetailsView({ orderId }: Props) {
 
                     //revert stocks
                     const changedQuantities: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }> = [];
-                    order?.items.forEach(item => {
+                    order?.items?.filter((item) => item.slug.length > 0).forEach(item => {
                         changedQuantities.push({ id: item.id, before: 0, after: item.quantity, type: 'added' });
                     });
 
@@ -716,8 +716,8 @@ export function OrderDetailsView({ orderId }: Props) {
                 const changedQuantities: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }> = [];
 
                 // Create maps for efficient lookup
-                const originalItemsMap = new Map(originalItems.map(item => [item.id, item]));
-                const editedItemsMap = new Map(editedItems.map(item => [item.id, item]));
+                const originalItemsMap = new Map(originalItems.filter((item) => item.slug.length > 0).map(item => [item.id, item]));
+                const editedItemsMap = new Map(editedItems.filter((item) => item.slug.length > 0).map(item => [item.id, item]));
 
                 // Check for new items (added)
                 editedItems.forEach(item => {
@@ -863,7 +863,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 //revert stocks
                 const changedQuantities: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }> = [];
 
-                order?.items.forEach(item => {
+                order?.items?.filter((item) => item.slug.length > 0).forEach(item => {
                     changedQuantities.push({ id: item.id, before: item.quantity, after: 0, type: 'deleted' });
                 });
 

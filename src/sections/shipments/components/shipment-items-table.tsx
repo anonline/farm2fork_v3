@@ -35,6 +35,36 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
     
     const columns: GridColDef[] = useMemo(() => [
         {
+            field: 'totalQuantity',
+            headerName: 'Mennyiség',
+            width: 200,
+            align: 'center',
+            headerAlign: 'center',
+            disableColumnMenu: true,
+            renderCell: (params) => {
+                if (params.row.isBundleItem) {
+                    // Bundle item format: "0.8 kg (2 x 0.4 kg)"
+                    const total = params.value;
+                    const parent = params.row.parentQuantity || 1;
+                    const individual = params.row.individualQuantity || 0;
+                    
+                    return (
+                        <Typography variant="caption" color="text.secondary">
+                            {total.toLocaleString('hu-HU', { minimumFractionDigits: total % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} {params.row.unit}
+                            {` (${parent} x ${individual.toLocaleString('hu-HU', { minimumFractionDigits: individual % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} ${params.row.unit})`}
+                        </Typography>
+                    );
+                }
+                
+                // Main product format: "2 ea"
+                return (
+                    <Typography variant="body2" fontWeight="medium">
+                        {params.value.toLocaleString('hu-HU')} {params.row.unit || 'db'}
+                    </Typography>
+                );
+            },
+        },
+        {
             field: 'name',
             headerName: 'Termék név',
             flex: 1,
@@ -42,8 +72,8 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             hideable: false,
             disableColumnMenu: true,
             renderCell: (params) => (
-                <Box sx={{ py: 1, display: 'flex', alignItems: 'center', gap: 1, pl: params.row.isBundleItem ? 4 : 0 }}>
-                    <Box sx={{ flex: 1 }}>
+                <Box sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 2, pl: params.row.isBundleItem ? 4 : 0 }}>
+                    <Box>
                         {params.row.productLink ? (
                             <Link href={params.row.productLink} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <Typography 
@@ -73,36 +103,6 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
                     )}
                 </Box>
             ),
-        },
-        {
-            field: 'totalQuantity',
-            headerName: 'Mennyiség',
-            width: 240,
-            align: 'center',
-            headerAlign: 'center',
-            disableColumnMenu: true,
-            renderCell: (params) => {
-                if (params.row.isBundleItem) {
-                    // Bundle item format: "0.8 kg (2 x 0.4 kg)"
-                    const total = params.value;
-                    const parent = params.row.parentQuantity || 1;
-                    const individual = params.row.individualQuantity || 0;
-                    
-                    return (
-                        <Typography variant="caption" color="text.secondary">
-                            {total.toLocaleString('hu-HU', { minimumFractionDigits: total % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} {params.row.unit}
-                            {` (${parent} x ${individual.toLocaleString('hu-HU', { minimumFractionDigits: individual % 1 === 0 ? 0 : 1, maximumFractionDigits: 2 })} ${params.row.unit})`}
-                        </Typography>
-                    );
-                }
-                
-                // Main product format: "2 ea"
-                return (
-                    <Typography variant="body2" fontWeight="medium">
-                        {params.value.toLocaleString('hu-HU')} {params.row.unit || 'db'}
-                    </Typography>
-                );
-            },
         },
         {
             field: 'totalValue',
@@ -267,7 +267,7 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             hideFooter={data.length <= 25}
             pageSizeOptions={[25, 50, 100]}
             initialState={{
-                pagination: { paginationModel: { pageSize: 25 } },
+                pagination: { paginationModel: { pageSize: 100 } },
             }}
             getRowClassName={(params) => params.row.isBundleItem ? 'bundle-item-row' : ''}
             sx={{
@@ -319,7 +319,7 @@ export function ShipmentItemsTable({ data, loading = false, error }: Readonly<Pr
             hideFooter={data.length <= 25}
             pageSizeOptions={[25, 50, 100]}
             initialState={{
-                pagination: { paginationModel: { pageSize: 25 } },
+                pagination: { paginationModel: { pageSize: 100 } },
             }}
             getRowClassName={(params) => params.row.isBundleItem ? 'bundle-item-row' : ''}
             sx={{

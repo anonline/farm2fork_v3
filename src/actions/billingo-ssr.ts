@@ -62,7 +62,9 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
     let existingPartner: Partner | undefined;
     // First try to find existing partner by name
     try {
-        const partnerList = await PartnerService.listPartner(1, 100, customerName);
+        console.log(billingAddress, customerName);
+        const partnerList = await PartnerService.listPartner(1, 100, billingAddress?.company || billingAddress?.name || customerName);
+        console.log('Found partners:', partnerList.data);
         existingPartner = partnerList.data?.find(p =>
             (p.tax_type == PartnerTaxType.HAS_TAX_NUMBER && p.taxcode === billingAddress?.taxNumber)
             || (p.tax_type == PartnerTaxType.NO_TAX_NUMBER && p.emails?.includes(billingAddress?.email || ''))
@@ -75,14 +77,17 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
     // Create new partner if not found
     try {
         if (existingPartner?.id) {
-            existingPartner.name = existingPartner.name !== customerName ? existingPartner.name : customerName;
+            existingPartner.name = billingAddress?.company || billingAddress?.name || customerName;
             existingPartner.emails = billingAddress?.email ? [billingAddress.email] : existingPartner.emails;
             existingPartner.phone = billingAddress?.phoneNumber ? billingAddress.phoneNumber : existingPartner.phone;
+            existingPartner.taxcode = billingAddress?.taxNumber ? billingAddress.taxNumber : existingPartner.taxcode;
+            existingPartner.tax_type = billingAddress?.taxNumber ? PartnerTaxType.HAS_TAX_NUMBER : PartnerTaxType.NO_TAX_NUMBER;
+            // Update address only if not already set
             existingPartner.address = existingPartner.address || (billingAddress?.fullAddress ? {
                 country_code: Country.HU,
                 post_code: billingAddress.postcode || '',
                 city: billingAddress.city || '',
-                address: ((billingAddress.street || '') + ' ' + (billingAddress.houseNumber || '') + ' ' + (billingAddress.doorbell || '')).trim(),
+                address: ((billingAddress.street || '') + ' ' + (billingAddress.houseNumber || '') + ' ' + (billingAddress.floor || '') + ' ' + (billingAddress.doorbell || '')).trim(),
             } : undefined);
 
             const updatedPartner = await PartnerService.updatePartner(existingPartner.id, existingPartner);
@@ -93,7 +98,7 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
 
         // Prepare partner data with proper validation
         const partnerData: Partner = {
-            name: customerName,
+            name: billingAddress?.company || billingAddress?.name || customerName,
         };
 
         // Add emails if available
@@ -106,6 +111,10 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
             partnerData.phone = billingAddress.phoneNumber;
         }
 
+        if(billingAddress?.email) {
+            partnerData.emails = partnerData.emails ? Array.from(new Set([...partnerData.emails, billingAddress.email])) : [billingAddress.email];
+        }
+
         // Add address if available - ALL fields are required if address is provided
         if (billingAddress?.fullAddress) {
             // If no billing address available, provide a minimal default address
@@ -114,7 +123,7 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
                 country_code: Country.HU,
                 post_code: billingAddress.postcode || '',
                 city: billingAddress.city || '',
-                address: ((billingAddress.street || '') + ' ' + (billingAddress.houseNumber || '') + ' ' + (billingAddress.doorbell || '')).trim(),
+                address: ((billingAddress.street || '') + ' ' + (billingAddress.houseNumber || '') + ' ' + (billingAddress.floor || '') + ' ' + (billingAddress.doorbell || '')).trim(),
             };
         }
 
@@ -159,7 +168,7 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
 
         // Calculate due date (add payment due days to current date)
         const dueDate = new Date();
-        dueDate.setDate(dueDate.getDate() + (orderData.paymentDueDays || 30));
+        dueDate.setDate(dueDate.getDate() + (orderData.paymentDueDays || 8));
 
         // Prepare invoice items
         const invoiceItems: DocumentProductData[] = [];
@@ -216,7 +225,7 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
             electronic: true,
             paid: orderData.paymentStatus === 'closed' || mapPaymentMethod(orderData.paymentMethod?.slug) === BillingoPaymentMethod.ONLINE_BANKCARD,
             items: invoiceItems,
-            comment: orderData.note || '',
+            comment: `Rendelés szám: #${orderData.id}`,
         };
 
         // Create the invoice

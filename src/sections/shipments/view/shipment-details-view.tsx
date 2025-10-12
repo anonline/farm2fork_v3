@@ -345,19 +345,19 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         <Stack direction="row" spacing={3} justifyContent="space-between" flexWrap="wrap">
                             <Stack spacing={1} sx={{ minWidth: 120 }}>
                                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                    Rendelések száma
+                                    Termékek száma
                                 </Typography>
                                 <Typography variant="h4">
-                                    {shipment?.orderCount}
+                                    {shipment?.productCount}
                                 </Typography>
                             </Stack>
 
                             <Stack spacing={1} sx={{ minWidth: 120 }}>
                                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                    Termékek száma
+                                    Rendelések száma
                                 </Typography>
                                 <Typography variant="h4">
-                                    {shipment?.productCount}
+                                    {shipment?.orderCount}
                                 </Typography>
                             </Stack>
 

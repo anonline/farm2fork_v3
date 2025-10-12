@@ -188,7 +188,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                         {!!customer?.discountPercent && customer?.discountPercent > 0 && <Label color="info">- {customer?.discountPercent} %</Label>}
                     </Box>
 
-                    <Box sx={{ color: 'text.secondary' }}>{customer?.email}</Box>
+                    <Box sx={{ color: 'text.secondary' }}>{orderData?.notifyEmails && orderData.notifyEmails.length > 0 ? orderData.notifyEmails.join(', ') : customer?.email}</Box>
 
                     {/* Invoice switch - inverted logic since it asks "Számla kiállítása" */}
                     <FormControlLabel
@@ -204,7 +204,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                     />
 
                     {/* Payment due days field - only show if payment method is wire transfer */}
-                    {orderData?.paymentMethod?.type === 'wire' && (
+                    {/* {orderData?.paymentMethod?.type === 'wire' && ( *} */}
                         <TextField
                             fullWidth
                             variant="outlined"
@@ -219,7 +219,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                             type="number"
                             inputProps={{ min: 0 }}
                         />
-                    )}
+                    {/* )} */}
                 </Stack>
             </Box>
 

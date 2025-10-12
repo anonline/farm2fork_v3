@@ -10,10 +10,11 @@ import { supabase } from "src/lib/supabase";
 
 import { ShipmentsContext } from "./shipments-context";
 
-export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }>) {
+export function ShipmentsProvider({ limit: initialLimit = 100, children }: Readonly<{ limit?: number; children: ReactNode }>) {
     const [shipments, setShipments] = useState<IShipment[]>([]);
     const [shipmentsLoading, setShipmentsLoading] = useState(true);
     const [shipmentsError, setShipmentsError] = useState<string | null>(null);
+    const [limit, setLimit] = useState(initialLimit);
 
     const fetchShipments = useCallback(async () => {
         setShipmentsLoading(true);
@@ -23,7 +24,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
             const { data, error } = await supabase
                 .from('Shipments')
                 .select('*')
-                .order('date', { ascending: false });
+                .order('date', { ascending: false })
+                .limit(limit);
 
             if (error) throw error;
 
@@ -33,7 +35,7 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         } finally {
             setShipmentsLoading(false);
         }
-    }, []);
+    }, [limit]);
 
     const addShipment = useCallback(async (newShipment: Omit<IShipment, 'date' | 'updatedAt'>) => {
         const { data, error } = await supabase
@@ -312,6 +314,8 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         shipments,
         shipmentsLoading,
         shipmentsError,
+        limit,
+        setLimit,
         shipmentsMutate: fetchShipments,
         addShipment,
         refreshCounts,
@@ -323,6 +327,7 @@ export function ShipmentsProvider({ children }: Readonly<{ children: ReactNode }
         shipments,
         shipmentsLoading,
         shipmentsError,
+        limit,
         fetchShipments,
         addShipment,
         refreshCounts,

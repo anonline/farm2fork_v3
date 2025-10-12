@@ -232,7 +232,11 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     // For now, we'll assume successful payment
 
     //TODO: prevent resend on refresh
-    await triggerOrderPlacedEmail(currentUser.email, order.customerName, orderId, fDate(order.plannedShippingDateTime));
+    order.notifyEmails.forEach(async (email) => {
+        if (email && email.trim().length > 5) {
+            await triggerOrderPlacedEmail(email.trim(), order.customerName, orderId, fDate(order.plannedShippingDateTime));
+        }
+    });
 
     const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAIL_FOR_NOTIFICATIONS;
     if (adminEmails) {

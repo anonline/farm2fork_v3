@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: `Create order | Dashboard - ${CONFIG.
 
 export default function Page() {
     return (
-        <ShipmentsProvider>
+        <ShipmentsProvider limit={10}>
             <OrderProvider>
                 <OrderCreateView />
             </OrderProvider>

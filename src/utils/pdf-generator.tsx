@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
         borderBottomStyle: 'solid',
         alignItems: 'center',
         minHeight: 12,
-        
+
         fontSize: 9,
         paddingVertical: 4,
     },
@@ -166,9 +166,16 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
     const pickupLocation = pickupLocations?.find(loc => loc.id.toString() === order.delivery?.address?.id || '');
     const isVIP = order.customer?.userType === 'vip';
     const netSubTotal = order.items?.reduce((sum, item) => sum + (item.netPrice || 0) * (item.quantity || 0), 0) || 0;
-    const taxTotal = isVIP ? 0 : order.items?.reduce((acc, item) => acc + (item.grossPrice - item.netPrice) * (item.quantity || 0), 0) + (order.shipping && order.customer.userType !== 'vip' ? (order.shipping / 1.27 * 0.27) : 0) || 0;
 
-    const grossTotal = netSubTotal + taxTotal + order.deposit + (order.shipping || 0) - (order.discount || 0);
+    const netShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping / 1.27 : 0;
+    const vatShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping - netShipping : 0;
+
+    const netDiscount = order.discount && order.customer.userType !== 'vip' ? order.discount / 1.27 : 0;
+    const vatDiscount = order.discount && order.customer.userType !== 'vip' ? order.discount - netDiscount : 0;
+
+    const taxTotal = isVIP ? 0 : order.items?.reduce((acc, item) => acc + (item.grossPrice - item.netPrice) * (item.quantity || 0), 0) + vatShipping - vatDiscount || 0;
+
+    const grossTotal = netSubTotal + taxTotal + order.deposit + (netShipping) - (netDiscount || 0);
     return (
         <Page size="A4" style={styles.page}>
             {/* Header */}
@@ -265,7 +272,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                         <Text style={styles.qty} />
                         <Text style={styles.rate}>{fCurrency((order.customer?.userType !== 'vip' ? item.grossPrice || 0 : item.netPrice || 0))}</Text>
                         <Text style={styles.rate} />
-                        <Text style={styles.amount}>{fCurrency((order.customer?.userType !== 'vip' ? item.subtotal || 0 : (item.netPrice || 0)*(item.quantity || 0)))}</Text>
+                        <Text style={styles.amount}>{fCurrency((order.customer?.userType !== 'vip' ? item.subtotal || 0 : (item.netPrice || 0) * (item.quantity || 0)))}</Text>
                     </View>
                 ))}
             </View>
@@ -314,10 +321,10 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
 };
 
 const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order, pickupLocations = [] }) => (
-        <Document>
-            <ShippingLabelPDFPage order={order} pickupLocations={pickupLocations} />
-        </Document>
-    );
+    <Document>
+        <ShippingLabelPDFPage order={order} pickupLocations={pickupLocations} />
+    </Document>
+);
 
 
 // Function to validate order data for PDF generation
@@ -349,12 +356,12 @@ interface MultipleShippingLabelsPDFProps {
 }
 
 const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders, pickupLocations = [] }) => (
-        <Document>
-            {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
-                <ShippingLabelPDFPage order={order} key={order.id || index} pickupLocations={pickupLocations} />
-            ))}
-        </Document>
-    );
+    <Document>
+        {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
+            <ShippingLabelPDFPage order={order} key={order.id || index} pickupLocations={pickupLocations} />
+        ))}
+    </Document>
+);
 
 // Function to generate and download PDF for multiple orders
 export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[], pickupLocations?: IPickupLocation[]): Promise<void> => {

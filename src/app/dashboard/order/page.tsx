@@ -10,5 +10,5 @@ import { OrderListView } from 'src/sections/order/view';
 export const metadata: Metadata = { title: `Order list | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-    return <ShipmentsProvider><OrderListView /></ShipmentsProvider>;
+    return <ShipmentsProvider limit={10}><OrderListView /></ShipmentsProvider>;
 }

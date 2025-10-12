@@ -118,9 +118,29 @@ export async function getUserByWooId(wooId: number) {
 export async function getUsersRoles() {
     const cookieStore = await cookies();
     const client = await supabaseSSR(cookieStore);
-    const { data, error } = await client.from('roles').select('*');
-    if (error) throw error.message;
-    return data as IRole[];
+    
+    let allRoles: IRole[] = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+        
+        const { data, error } = await client.from('roles').select('*').range(from, to);
+        if (error) throw error.message;
+        
+        if (data && data.length > 0) {
+            allRoles = [...allRoles, ...data];
+            hasMore = data.length === pageSize;
+            page++;
+        } else {
+            hasMore = false;
+        }
+    }
+    
+    return allRoles;
 }
 
 export async function getUserRoles(id: string) {

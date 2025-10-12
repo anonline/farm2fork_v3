@@ -690,11 +690,11 @@ async function adjustStockLevel(productId: string, quantityChange: number): Prom
         // Fetch current stock level
         const { data: product, error } = await supabase.from('Products').select('stock, backorder').eq('id', productId).single();
         if (error) {
-            console.error('Error fetching product for stock adjustment:', error);
+            console.info('Error fetching product for stock adjustment:', error);
             return;
         }
         if (!product) {
-            console.error('Product not found for stock adjustment:', productId);
+            console.info('Product not found for stock adjustment:', productId);
             return;
         }
 
