@@ -81,7 +81,7 @@ export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) 
                 ))}
             </FiltersBlock>
 
-            <FiltersBlock label="Közzétéve:" isShow={!!currentFilters.publish.length}>
+            <FiltersBlock label="Elérhető:" isShow={!!currentFilters.publish.length}>
                 {currentFilters.publish.map((item) => (
                     <Chip
                         {...chipProps}

@@ -192,7 +192,7 @@ function renderPage({shipment, itemsSummary}: Props) {
         </View>
 
         {/* Table Rows */}
-        {itemsSummary.map((item, index) => {
+        {itemsSummary.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => {
           const isBundleItem = item.isBundleItem || false;
           const productColStyle = isBundleItem ? styles.productColIndented : styles.productCol;
           const quantityColStyle = isBundleItem ? styles.quantityColSecondary : styles.quantityCol;

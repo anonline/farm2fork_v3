@@ -72,7 +72,7 @@ export function RenderCellUnit({ params }: Readonly<ParamsProps>) {
 export function RenderCellPublish({ params }: Readonly<ParamsProps>) {
     return (
         <Label variant="soft" color={params.row.publish ? 'success' : 'default'}>
-            {params.row.publish ? 'Közzétéve' : 'Rejtett'}
+            {params.row.publish ? 'Elérhető' : 'Rejtett'}
         </Label>
     );
 }

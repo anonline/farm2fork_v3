@@ -61,7 +61,7 @@ import {
 // ----------------------------------------------------------------------
 
 const PUBLISH_OPTIONS = [
-    { value: 'true', label: 'Közzétéve' },
+    { value: 'true', label: 'Elérhető' },
     { value: 'false', label: 'Rejtve' },
 ];
 

@@ -35,7 +35,7 @@ export default function FeaturedCard({ isOpen }: Readonly<FeaturedCardProps>) {
                     
                     <Divider />
 
-                    <RHFSwitch name="publish" label="Közzétéve" />
+                    <RHFSwitch name="publish" label="Elérhető" />
                 </Stack>
             </Collapse>
         </Card>
