@@ -590,9 +590,13 @@ export function ProductQuantitySelector({
                     product={product}
                     label="Kosár"
                     discountPercent={discountPercent || 0}
-                    onAddToCart={onAddToCart ?? undefined}
+                    onAddToCart={(newItem) => { 
+                        onAddToCart?.(newItem);
+                        setQuantity(undefined);
+                        setInputValue('');
+                     }}
                     isDisabled={buttonDisabled || quantity === undefined || isNaN(quantity) || outOfStock}
-                    sx={{ width: {xs: '100%', sm: format == 'column' ? '100%' : '50%' }}}
+                    sx={{ width: { xs: '100%', sm: format == 'column' ? '100%' : '50%' } }}
                 />
             )}
         </Box>
@@ -712,6 +716,7 @@ function ProductCardButton({
 
             toast.success(`${qty.toFixed(decimal)} ${product.unit} ${product.name} kosárhoz adva.`);
             // if we want to open sidecart on addToCart we should use this: openSideCart();
+
         }
     };
     return (
