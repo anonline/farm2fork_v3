@@ -45,6 +45,7 @@ import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
 import { OrderDetailsUserHistory } from '../order-details-user-history';
 
 import type { ProductForOrder } from '../product-selection-modal';
+import OrderDetailsTime from '../order-details-time';
 
 // ----------------------------------------------------------------------
 
@@ -103,7 +104,7 @@ export function OrderDetailsView({ orderId }: Props) {
         if (order?.delivery?.shipBy === 'Személyes átvétel' && order?.delivery?.address?.id && pickupLocations?.locations) {
             const pickupLocationId = order.delivery.address.id.toString();
             const selectedLocation = pickupLocations.locations.find(loc => loc.id.toString() === pickupLocationId);
-            
+
             if (selectedLocation) {
                 const openDays = [
                     selectedLocation.monday || 'zárva',
@@ -186,9 +187,9 @@ export function OrderDetailsView({ orderId }: Props) {
                     setStatus(newStatus); // Update UI immediately
 
                     let orderRef = undefined;
-                    if(orderData.simplepayDataJson){
+                    if (orderData.simplepayDataJson) {
                         const simpleJSON = JSON.parse(orderData.simplepayDataJson);
-                        if(simpleJSON.o){
+                        if (simpleJSON.o) {
                             orderRef = simpleJSON.o;
                         }
                     }
@@ -366,13 +367,13 @@ export function OrderDetailsView({ orderId }: Props) {
 
                 // Send notification email when changing to processing status
                 sendNotificationEmail(orderData.notifyEmails);
-                
+
                 if (orderData.paymentStatus == 'paid' && orderData.simplepayDataJson && newStatus == 'processing') {
                     try {
                         let orderRef = undefined;
-                        if(orderData.simplepayDataJson){
+                        if (orderData.simplepayDataJson) {
                             const simpleJSON = JSON.parse(orderData.simplepayDataJson);
-                            if(simpleJSON.o){
+                            if (simpleJSON.o) {
                                 orderRef = simpleJSON.o;
                             }
                         }
@@ -1099,6 +1100,12 @@ export function OrderDetailsView({ orderId }: Props) {
         setPickupLocationOpenDays(openDays.map(day => day ? day : 'zárva'));
     }, [orderId, orderData, setPickupLocationOpenDays]);
 
+    const handleShippingDateChange = useCallback((newDate: Date | null) => {
+        // This callback is used to update local state if needed
+        // The actual database update is handled in OrderShipmentDateSelector
+        // Refresh is triggered via onRefreshOrder callback
+    }, []);
+
     // Calculate updated totals when in edit mode
     const displayItems = isEditing ? editedItems : order?.items || [];
     const updatedSubtotal = isEditing
@@ -1239,6 +1246,18 @@ export function OrderDetailsView({ orderId }: Props) {
                             isEditable={status === 'pending'}
                         />
                         <Divider sx={{ borderStyle: 'dashed' }} />
+
+                        <OrderDetailsTime
+                            orderId={orderData?.id}
+                            shipmentTime={orderData?.shipment_time}
+                            onRefreshOrder={handleRefreshOrderHistory}
+                            additionalPickUpTimes={pickupLocationOpenDays}
+                            requestedShippingDate={order.planned_shipping_date_time}
+                            isEditable={status === 'pending'}
+                            onShippingDateChange={handleShippingDateChange}
+                        />
+                        <Divider sx={{ borderStyle: 'dashed' }} />
+
                         <OrderDetailsPayment
                             paymentMethod={orderData?.paymentMethod || null}
                             simplepayDataJson={orderData?.simplepayDataJson || null}

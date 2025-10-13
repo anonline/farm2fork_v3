@@ -275,15 +275,6 @@ export function OrderDetailsShipping({
                     history: [...(currentOrder.history || []), historyEntry],
                 };
 
-                // Add to history_for_user if the field exists
-                /*if (currentOrder.history_for_user !== undefined) {
-                    const userMessage = historyEntry.note;
-                    const currentHistory = currentOrder.history_for_user || '';
-                    updateData.history_for_user = currentHistory 
-                        ? `${currentHistory}\n${userMessage}` 
-                        : userMessage;
-                }*/
-
                 const { error } = await supabase
                     .from('orders')
                     .update(updateData)
@@ -371,7 +362,7 @@ export function OrderDetailsShipping({
                 }
             />
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                {/*<Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Box
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
@@ -389,9 +380,9 @@ export function OrderDetailsShipping({
                         }}
                         disabled={isUpdating}
                     />
-                </Box>
+                </Box>/*}
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/*<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box
                         component="span"
                         sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
@@ -423,7 +414,7 @@ export function OrderDetailsShipping({
                                 // Only show if not closed and not empty
                                 if (timeForDay && timeForDay !== 'zárva') {
                                     return (
-                                        <MenuItem key={timeForDay} value={timeForDay}>
+                                        <MenuItem key={timeForDay} value={timeForDay} sx={{ backgroundColor: 'primary.light', color: 'primary.main', fontWeight: 'bold', justifyContent: 'center' }}>
                                             {timeForDay}
                                         </MenuItem>
                                     );
@@ -431,13 +422,13 @@ export function OrderDetailsShipping({
                             }
                             return null;
                         })()}
-                        <MenuItem value="">?</MenuItem>
-                        <MenuItem value="9:00-12:00">9:00-12:00</MenuItem>
-                        <MenuItem value="12:00-15:00">12:00-15:00</MenuItem>
-                        <MenuItem value="15:00-18:00">15:00-18:00</MenuItem>
-                        <MenuItem value="18:00-20:00">18:00-20:00</MenuItem>
+                        <MenuItem value="" sx={{ justifyContent: 'center' }}>???</MenuItem>
+                        <MenuItem value="9:00-12:00" sx={{ justifyContent: 'center' }}>9:00-12:00</MenuItem>
+                        <MenuItem value="12:00-15:00" sx={{ justifyContent: 'center' }}>12:00-15:00</MenuItem>
+                        <MenuItem value="15:00-18:00" sx={{ justifyContent: 'center' }}>15:00-18:00</MenuItem>
+                        <MenuItem value="18:00-20:00" sx={{ justifyContent: 'center' }}>18:00-20:00</MenuItem>
                     </Select>
-                </Box>
+                </Box>*/}
 
                 {shippingAddress?.company && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -485,7 +476,7 @@ export function OrderDetailsShipping({
             </Stack>
 
             {/* Date Picker Popover */}
-            <Popover
+            {/*<Popover
                 open={isPopoverOpen}
                 anchorEl={anchorEl}
                 onClose={handlePopoverClose}
@@ -510,7 +501,7 @@ export function OrderDetailsShipping({
                         displayStaticWrapperAs="desktop"
                     />
                 </Box>
-            </Popover>
+            </Popover>*/}
 
             {/* Shipping Address Modal */}
             <OrderShippingAddressModal

@@ -23,7 +23,7 @@ export function useGetOrdersCountByStatus() {
         () => getAllOrdersCountsByStatus(),
         swrOptions
     );
-    console.log('Orders count by status data:', data, error);
+
     const memoizedValue = useMemo(
         () => ({
         ordersCountByStatus: data || {},

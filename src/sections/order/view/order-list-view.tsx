@@ -854,7 +854,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
 
     if (name) {
         inputData = inputData.filter(({ orderNumber, customer }) =>
-            [orderNumber, customer.name, customer.email].some((field) =>
+            [orderNumber, customer.name, customer.email, customer.companyName].some((field) =>
                 field && String(field).toLowerCase().includes(name.toLowerCase())
             )
         );

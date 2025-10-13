@@ -85,11 +85,11 @@ export function OrderDetailsPayment({
         const getDisplayLabel = (key: string) => {
             const labels: Record<string, string> = {
                 // SimplePay Success Response fields (matching the type)
-                r: 'Válasz kód',
+                //r: 'Válasz kód',
                 t: 'Tranzakció azonosító',
                 e: 'Állapot',
-                m: 'Státusz üzenet',
-                o: 'További információ',
+                //m: 'Státusz üzenet',
+                //o: 'További információ',
 
                 // Payment response fields
                 transactionId: 'Tranzakció azonosító',
@@ -114,13 +114,12 @@ export function OrderDetailsPayment({
 
             return labels[key];
         };
-        console.log(data);
         const entries = Object.entries(data);
 
         return (
             <Stack spacing={1.5}>
                 {entries.map(([key, value]) => (
-                    <Box key={key} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    (getDisplayLabel(key)?.length || 0 > 0) && <Box key={key} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium', minWidth: 140 }}>
                             {getDisplayLabel(key)}:
                         </Typography>
@@ -134,7 +133,7 @@ export function OrderDetailsPayment({
     };
 
     return (
-        <Card>
+        <>
             <CardHeader
                 title="Fizetési mód"
                 action={
@@ -201,6 +200,6 @@ export function OrderDetailsPayment({
                     </Box>
                 )}
             </CardContent>
-        </Card>
+        </>
     );
 }

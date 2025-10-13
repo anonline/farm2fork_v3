@@ -23,6 +23,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import BioBadge from 'src/components/bio-badge/bio-badge';
 
 import { type ProductForOrder, ProductSelectionModal } from './product-selection-modal';
+import { number } from 'zod';
 
 // ----------------------------------------------------------------------
 
@@ -244,9 +245,11 @@ export function OrderDetailsItems({
     };
 
     const handleDiscountChange = (value: string) => {
-        const numValue = parseFloat(value);
-
-        if (isNaN(numValue) || numValue < 0) {
+        let numValue = parseFloat(value);
+        if(isNaN(numValue)) {
+            numValue = 0;
+        }
+        else if (numValue < 0) {
             setDiscountError('Kedvezmény nem lehet negatív');
         } else {
             setDiscountError('');
@@ -646,6 +649,7 @@ export function OrderDetailsItems({
                                             type="number"
                                             label="Mennyiség"
                                             defaultValue={item.quantity}
+                                            onFocus={(e) => e.target.addEventListener("wheel", function (e) { e.preventDefault() }, { passive: false })}
                                             onBlur={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
                                             error={!!editErrors[item.id]?.quantity}
                                             helperText={editErrors[item.id]?.quantity}

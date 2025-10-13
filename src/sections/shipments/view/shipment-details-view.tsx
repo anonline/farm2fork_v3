@@ -138,7 +138,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
         orders.forEach((order) => {
             order.items.forEach((item) => {
-                const key = `${item.name}-${item.size || ''}-${item.unit || ''}`;
+                const key = `${item.name}-${item.unit || ''}`;
 
                 if (!itemsMap.has(key)) {
                     itemsMap.set(key, {

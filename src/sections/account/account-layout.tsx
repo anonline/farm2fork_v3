@@ -114,7 +114,7 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
                 heading="Felhasználói fiók"
                 links={[
                     { name: 'Dashboard', href: paths.dashboard.root },
-                    { name: 'Felhasználók', href: paths.dashboard.user.root },
+                    { name: 'Felhasználók', href: paths.dashboard.user.list },
                     { name: 'Fiók' },
                 ]}
                 sx={{ mb: 3 }}

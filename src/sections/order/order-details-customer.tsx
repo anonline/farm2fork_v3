@@ -154,20 +154,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
 
     return (
         <>
-            <CardHeader
-                title="Vásárló"
-                action={
-                    isEditable && (
-                        <IconButton 
-                            disabled={isUpdating}
-                            onClick={() => setCustomerModalOpen(true)}
-                        >
-                            <Iconify icon="solar:pen-bold" />
-                        </IconButton>
-                    )
-                }
-            />
-            <Box sx={{ p: 3, display: 'flex' }}>
+            <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'flex-start', width: '100%', gap: 2 }}>
                 <Avatar
                     color={
                         customer?.userType === "public" && "default" ||
@@ -182,7 +169,7 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                     } width={24} height={24} />
                 </Avatar>
 
-                <Stack spacing={0.5} sx={{ typography: 'body2', alignItems: 'flex-start' }}>
+                <Stack spacing={0.5} sx={{ typography: 'body2', alignItems: 'flex-start', flexGrow: 1 }}>
                     <Box display="flex" alignItems="center" gap={1} flexDirection="row">
                         <Typography variant="subtitle2">{customer?.name}</Typography>
                         {!!customer?.discountPercent && customer?.discountPercent > 0 && <Label color="info">- {customer?.discountPercent} %</Label>}
@@ -221,6 +208,15 @@ export function OrderDetailsCustomer({ customer, orderData, onOrderUpdate, isEdi
                         />
                     {/* )} */}
                 </Stack>
+                {isEditable && (
+                        <IconButton 
+                            disabled={isUpdating}
+                            onClick={() => setCustomerModalOpen(true)}
+                            
+                        >
+                            <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                    )}
             </Box>
 
             {/* Customer Selection Modal */}
