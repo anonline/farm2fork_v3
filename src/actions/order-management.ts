@@ -432,7 +432,7 @@ export async function getAllOrdersCountsByStatus(): Promise<{ [status: string]: 
 
         // Transform the view results into a status -> count object
         const counts: { [status: string]: number } = {};
-        
+
         if (data) {
             data.forEach((item: any) => {
                 counts[item.order_status] = item.count;
@@ -692,7 +692,7 @@ export async function getPendingOrdersCount(): Promise<{ count: number; error: s
     }
 }
 
-export async function handlingOrderItemQtyChangesStockReduction(orderId: string, items: Array<{ id: string; before:number; after: number; type: 'modified' | 'added' | 'deleted' }>): Promise<boolean> {
+export async function handlingOrderItemQtyChangesStockReduction(orderId: string, items: Array<{ id: string; before: number; after: number; type: 'modified' | 'added' | 'deleted' }>): Promise<boolean> {
     try {
         // Loop through each item and adjust stock levels accordingly
         for (const item of items) {
@@ -727,19 +727,19 @@ async function adjustStockLevel(productId: string, quantityChange: number): Prom
             return;
         }
 
-        if(product.stock === null){
+        if (product.stock === null) {
             return; // Stock is not managed for this product
         }
 
         let newStock = product.stock + quantityChange;
 
-        if(!product.backorder && newStock < 0){
+        if (!product.backorder && newStock < 0) {
             console.warn(`Cannot reduce stock for product ${productId} below zero as backorders are not allowed.`);
             newStock = 0; // Prevent stock from going negative
         }
 
         await supabase.from('Products').update({ stock: newStock }).eq('id', productId);
-    }catch (error) {
+    } catch (error) {
         console.error('Error adjusting stock level:', error);
     }
 }
@@ -794,13 +794,13 @@ export async function updateOrderItems(
 
         // Calculate new totals
         const subtotal = items.reduce((sum, item) => sum + (userType === 'company' || userType === 'vip' ? item.netPrice * item.quantity : item.subtotal), 0);
-        
+
         const total =
             subtotal +
             newShippingCost +
             (userType == 'company' ? newVatTotal : 0) +
             newSurchargeAmount -
-            newDiscountTotal;        
+            newDiscountTotal;
 
         // Create new history entry
         const historyEntry: OrderHistoryEntry = {

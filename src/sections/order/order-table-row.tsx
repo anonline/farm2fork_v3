@@ -69,6 +69,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
         <Label
             variant="soft"
             color={
+                (orderData.payment.cardType == 'SimplePay fizetés' && orderData.payment.status === 'pending' && 'error') ||
                 (orderData.payment.status === 'closed' && 'success') ||
                 (orderData.payment.status === 'pending' && 'warning') ||
                 (orderData.payment.status === 'paid' && 'info') ||

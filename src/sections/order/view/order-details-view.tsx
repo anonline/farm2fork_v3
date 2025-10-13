@@ -21,6 +21,7 @@ import { paths } from 'src/routes/paths';
 
 import { fDate } from 'src/utils/format-time';
 
+import { supabase } from 'src/lib/supabase';
 import { useGetDeliveries } from 'src/actions/delivery';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
@@ -72,6 +73,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const [showCancellationAlert, setShowCancellationAlert] = useState(false);
     const [pendingSave, setPendingSave] = useState(false);
     const [pickupLocationOpenDays, setPickupLocationOpenDays] = useState<(string)[]>([]);
+    const [hasAutoSetShipmentTime, setHasAutoSetShipmentTime] = useState(false);
 
     const userType = order?.customer?.userType || 'public';
 
@@ -79,6 +81,8 @@ export function OrderDetailsView({ orderId }: Props) {
     useEffect(() => {
         if (orderId) {
             fetchOrder(orderId);
+            // Reset the auto-set flag when loading a new order
+            setHasAutoSetShipmentTime(false);
         }
     }, [orderId, fetchOrder]);
 
@@ -119,6 +123,89 @@ export function OrderDetailsView({ orderId }: Props) {
             }
         }
     }, [order?.delivery?.shipBy, order?.delivery?.address?.id, pickupLocations?.locations]);
+
+    // Auto-set shipment time for pickup orders without a time set (only once per order load)
+    useEffect(() => {
+        const shouldAutoSetShipmentTime = 
+            orderData?.id &&
+            order?.status === 'pending' && // Only for editable/pending orders
+            !orderData?.shipment_time && // No shipment time set yet
+            order?.delivery?.shipBy === 'Személyes átvétel' && // Pickup order
+            pickupLocationOpenDays.length > 0 && // We have pickup location times available
+            !hasAutoSetShipmentTime; // Haven't auto-set yet for this order
+
+        if (shouldAutoSetShipmentTime) {
+            // Find the first available (non-closed) day
+            const firstAvailableDay = pickupLocationOpenDays.findIndex(day => day !== 'zárva');
+            
+            if (firstAvailableDay !== -1) {
+                // Auto-select the first available day's time
+                const autoSelectedTime = pickupLocationOpenDays[firstAvailableDay];
+                
+                // Update the orderData context and database
+                const updateShipmentTime = async () => {
+                    try {
+                        // Get current order to access existing history
+                        const { data: currentOrder, error: fetchError } = await supabase
+                            .from('orders')
+                            .select('history, shipment_time')
+                            .eq('id', orderData.id)
+                            .single();
+
+                        if (fetchError) {
+                            console.error('Failed to fetch order for shipment time update:', fetchError);
+                            return;
+                        }
+
+                        // Double-check that shipment_time is still empty in the database
+                        if (currentOrder.shipment_time) {
+                            console.log('Shipment time already set in database, skipping auto-set');
+                            setHasAutoSetShipmentTime(true);
+                            return;
+                        }
+
+                        // Create history entry
+                        const historyEntry = {
+                            timestamp: new Date().toISOString(),
+                            status: order.status,
+                            note: `Automatikusan beállított átvételi időpont: ${autoSelectedTime}`,
+                        };
+
+                        // Update order in database
+                        const { error: updateError } = await supabase
+                            .from('orders')
+                            .update({
+                                shipment_time: autoSelectedTime,
+                                updated_at: new Date().toISOString(),
+                                history: [...(currentOrder.history || []), historyEntry],
+                            })
+                            .eq('id', orderData.id);
+
+                        if (updateError) {
+                            console.error('Failed to auto-set shipment time:', updateError);
+                            return;
+                        }
+
+                        // Update context
+                        updateOrderData({
+                            ...orderData,
+                            shipment_time: autoSelectedTime,
+                        });
+
+                        // Mark that we've auto-set the shipment time for this order
+                        setHasAutoSetShipmentTime(true);
+
+                        console.log(`Auto-selected pickup time: ${autoSelectedTime} for day index ${firstAvailableDay}`);
+                        toast.success(`Átvételi idő automatikusan beállítva: ${autoSelectedTime}`);
+                    } catch (error) {
+                        console.error('Error auto-setting shipment time:', error);
+                    }
+                };
+
+                updateShipmentTime();
+            }
+        }
+    }, [orderData?.id, order?.status, orderData?.shipment_time, order?.delivery?.shipBy, pickupLocationOpenDays, hasAutoSetShipmentTime]);
 
     // Handler for payment method changes
     const handlePaymentMethodChange = useCallback(async (paymentMethodId: number) => {
