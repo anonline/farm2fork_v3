@@ -5,9 +5,6 @@ import React from 'react';
 import { Svg, pdf, Page, Text, View, Font, Path, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from './format-number';
-import BioBadge from 'src/components/bio-badge/bio-badge';
-import F2FIcons from 'src/components/f2ficons/f2ficons';
-import { Box } from '@mui/material';
 
 // Register fonts for better Hungarian character support
 Font.register({
