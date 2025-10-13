@@ -23,7 +23,6 @@ import { Scrollbar } from 'src/components/scrollbar';
 import BioBadge from 'src/components/bio-badge/bio-badge';
 
 import { type ProductForOrder, ProductSelectionModal } from './product-selection-modal';
-import { number } from 'zod';
 
 // ----------------------------------------------------------------------
 
@@ -649,8 +648,8 @@ export function OrderDetailsItems({
                                             type="number"
                                             label="Mennyiség"
                                             defaultValue={item.quantity}
-                                            onFocus={(e) => e.target.addEventListener("wheel", function (e) { e.preventDefault() }, { passive: false })}
-                                            onBlur={(e) => handleFieldChange(item.id, 'quantity', e.target.value)}
+                                            onFocus={(eventFocus) => eventFocus.target.addEventListener("wheel", function (eventBlur) { eventBlur.preventDefault() }, { passive: false })}
+                                            onBlur={(eventBlur) => handleFieldChange(item.id, 'quantity', eventBlur.target.value)}
                                             error={!!editErrors[item.id]?.quantity}
                                             helperText={editErrors[item.id]?.quantity}
                                             sx={{ width: '100%' }}

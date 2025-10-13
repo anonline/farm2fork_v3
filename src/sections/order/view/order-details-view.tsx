@@ -33,6 +33,7 @@ import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrde
 
 import { toast } from 'src/components/snackbar';
 
+import OrderDetailsTime from '../order-details-time';
 import { OrderDetailsItems } from '../order-details-items';
 import { OrderDetailsToolbar } from '../order-details-toolbar';
 import { OrderDetailsHistory } from '../order-details-history';
@@ -45,7 +46,6 @@ import { OrderDetailsAdminNotes } from '../order-details-admin-notes';
 import { OrderDetailsUserHistory } from '../order-details-user-history';
 
 import type { ProductForOrder } from '../product-selection-modal';
-import OrderDetailsTime from '../order-details-time';
 
 // ----------------------------------------------------------------------
 

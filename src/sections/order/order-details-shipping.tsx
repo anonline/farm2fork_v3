@@ -7,16 +7,11 @@ import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import { Chip } from '@mui/material';
 import Stack from '@mui/material/Stack';
-import Select from '@mui/material/Select';
-import Popover from '@mui/material/Popover';
-import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
-import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 
 import { supabase } from 'src/lib/supabase';
 import { useShipments } from 'src/contexts/shipments/shipments-context';

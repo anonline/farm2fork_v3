@@ -1,12 +1,16 @@
-import { Box, Chip, Popover, styled } from "@mui/material";
-import { PickersDay, PickersDayProps, StaticDatePicker } from "@mui/x-date-pickers";
+import type { PickersDayProps} from "@mui/x-date-pickers";
+import type { IDatePickerControl } from "src/types/common";
+import type { OrderHistoryEntry } from "src/types/order-management";
+
 import dayjs from "dayjs";
-import { useState } from "react";
 import { toast } from "sonner";
-import { useShipments } from "src/contexts/shipments/shipments-context";
+import { useState } from "react";
+
+import { Box, Chip, styled, Popover } from "@mui/material";
+import { PickersDay, StaticDatePicker } from "@mui/x-date-pickers";
+
 import { supabase } from "src/lib/supabase";
-import { IDatePickerControl } from "src/types/common";
-import { OrderHistoryEntry } from "src/types/order-management";
+import { useShipments } from "src/contexts/shipments/shipments-context";
 
 type Props = {
     orderId?: string; // Optional, if not provided, won't update Supabase
