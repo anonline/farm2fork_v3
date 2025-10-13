@@ -77,6 +77,7 @@ export type IOrderProductItem = {
     subtotal: number;
     slug: string;
     vat: number;
+    bio?: boolean;
     type?: 'simple' | 'bundle';
     bundleItems?: {
         productId: string;

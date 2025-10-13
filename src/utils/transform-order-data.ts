@@ -56,6 +56,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
 
     const userType = await getUserType(orderData.customerId);
 
+    const bioProductIds = await getBioProductIds();
+
     const result: IOrderItem = {
         id: orderData.id,
         orderNumber: orderData.id,
@@ -132,6 +134,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             slug: item.slug || '',
             type: item.type,
             bundleItems: item.bundleItems,
+            bio: bioProductIds.has(item.id?.toString() || ''),
         })),
         history: {
             orderTime: orderData.dateCreated,
@@ -189,6 +192,33 @@ export async function getUserType(customerId: string | null): Promise<'public' |
     } catch (error) {
         console.error('Error fetching user type from Supabase:', error);
         return 'public';
+    }
+}
+
+export async function getBioProductIds(): Promise<Set<string>> {
+    try {
+        // Import Supabase client
+        const { createClient } = await import('@supabase/supabase-js');
+
+        const supabase = createClient(
+            CONFIG.supabase.url,
+            CONFIG.supabase.key
+        );
+
+        const { data, error } = await supabase
+            .from('Products')
+            .select('id')
+            .eq('bio', true);
+
+        if (error) {
+            console.error('Error fetching bio product IDs from Supabase:', error);
+            return new Set();
+        }
+
+        return new Set(data.map((item: { id: string }) => item.id.toString()));
+    } catch (error) {
+        console.error('Error fetching bio product IDs from Supabase:', error);
+        return new Set();
     }
 }
 

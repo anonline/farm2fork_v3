@@ -51,6 +51,7 @@ export type IOrderItem = {
     custom?: boolean;
     slug?: string;
     type?: 'simple' | 'bundle';
+    bio?: boolean;
     bundleItems?: {
         productId: string;
         qty: number;

@@ -484,7 +484,7 @@ export function OrderDetailsItems({
                                                 sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
                                             >
                                                 <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8125rem', lineHeight: 1.3 }}>
-                                                    {item.name}
+                                                    {item.name} {item.bio && <BioBadge width={20} height={12} />}
                                                 </Typography>
                                             </Link>
                                         ) : (
@@ -601,7 +601,7 @@ export function OrderDetailsItems({
                                                 href={paths.dashboard.product.edit(item.slug)}
                                                 sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { fontWeight: 600, textDecoration: 'none' } }}
                                             >
-                                                {item.name}
+                                                {item.name} {item.bio && <BioBadge width={32} height={14} />}
                                             </Link>
                                             :
                                             <Stack direction="row" alignItems="center" spacing={1}>
