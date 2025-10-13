@@ -418,6 +418,35 @@ function transformOrderRow(row: any): IOrderData {
     };
 }
 
+export async function getAllOrdersCountsByStatus(): Promise<{ [status: string]: number }> {
+    try {
+        // Use the order_counts_view for efficient counting
+        const { data, error } = await supabase
+            .from('order_counts_view')
+            .select('order_status, count');
+
+        if (error) {
+            console.error('Error fetching orders count by status:', error);
+            return {};
+        }
+
+        // Transform the view results into a status -> count object
+        const counts: { [status: string]: number } = {};
+        
+        if (data) {
+            data.forEach((item: any) => {
+                counts[item.order_status] = item.count;
+            });
+        }
+
+        console.log('Order counts by status:', counts);
+        return counts;
+    } catch (error) {
+        console.error('Error fetching orders count by status:', error);
+        return {};
+    }
+}
+
 /**
  * Get all orders with pagination and filtering
  */

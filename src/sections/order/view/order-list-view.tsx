@@ -30,7 +30,7 @@ import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
 import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
-import { useGetOrders } from 'src/actions/order';
+import { useGetOrders, useGetOrdersCountByStatus } from 'src/actions/order';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
@@ -168,7 +168,7 @@ export function OrderListView() {
 
     // Fetch orders from database
     const {
-        orders: ordersData,
+        orders: filteredOrdersData,
         ordersLoading,
         ordersError,
         refreshOrders
@@ -178,7 +178,8 @@ export function OrderListView() {
 
     // Fetch all orders for tab counts (without status filter)
     const { orders: allOrdersData } = useGetOrders({});
-
+    const { ordersCountByStatus, refreshOrdersCountByStatus } = useGetOrdersCountByStatus();
+    
     // Transform orders data to table format
     const [tableData, setTableData] = useState<IOrderItem[]>([]);
 
@@ -191,14 +192,14 @@ export function OrderListView() {
 
     useEffect(() => {
         const loadTransformedData = async () => {
-            if (ordersData) {
-                const transformedData = await transformOrdersDataToTableItems(ordersData);
+            if (filteredOrdersData) {
+                const transformedData = await transformOrdersDataToTableItems(filteredOrdersData);
                 setTableData(transformedData);
             }
         };
 
         loadTransformedData();
-    }, [ordersData]);
+    }, [filteredOrdersData]);
 
     // Refresh orders when page regains focus (e.g., returning from detail view)
     useEffect(() => {
@@ -292,6 +293,7 @@ export function OrderListView() {
         (event: React.SyntheticEvent, newValue: string) => {
             table.onResetPage();
             updateFilters({ status: newValue });
+            refreshOrdersCountByStatus();
         },
         [updateFilters, table]
     );
@@ -500,13 +502,13 @@ export function OrderListView() {
             }
 
             // Check if orders are still loading
-            if (ordersLoading || !ordersData) {
+            if (ordersLoading || !filteredOrdersData) {
                 toast.error('Rendelések betöltése folyamatban, kérjük várjon...');
                 return;
             }
 
             // Get selected orders from the original ordersData (IOrderData[])
-            const selectedOrders = ordersData.filter((order) => table.selected.includes(order.id));
+            const selectedOrders = filteredOrdersData.filter((order) => table.selected.includes(order.id));
 
             if (selectedOrders.length === 0) {
                 toast.warning('A kiválasztott rendelések nem találhatók!');
@@ -525,7 +527,7 @@ export function OrderListView() {
             console.error('Address list export error:', error);
             toast.error('Hiba a címlista exportálása során!');
         }
-    }, [ordersData, table.selected, ordersLoading]);
+    }, [filteredOrdersData, table.selected, ordersLoading]);
 
 
 
@@ -642,8 +644,7 @@ export function OrderListView() {
                                                 'processing',
                                                 'deleted',
                                             ].includes(tab.value)
-                                                ? allOrdersData.filter((order) => order.orderStatus === tab.value)
-                                                    .length
+                                                ? ordersCountByStatus[tab.value] || 0
                                                 : allOrdersData.length}
                                         </Label>
                                     }

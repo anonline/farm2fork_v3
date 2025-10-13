@@ -5,7 +5,7 @@ import type { SWRConfiguration } from 'swr';
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
-import { getAllOrders, getAllOrdersBatched } from './order-management';
+import { getAllOrders, getAllOrdersBatched, getAllOrdersCountsByStatus } from './order-management';
 
 // ----------------------------------------------------------------------
 
@@ -16,6 +16,26 @@ const swrOptions: SWRConfiguration = {
 };
 
 // ----------------------------------------------------------------------
+
+export function useGetOrdersCountByStatus() {
+    const { data, error, isLoading, isValidating, mutate } = useSWR(
+        'orders-count-by-status',
+        () => getAllOrdersCountsByStatus(),
+        swrOptions
+    );
+    console.log('Orders count by status data:', data, error);
+    const memoizedValue = useMemo(
+        () => ({
+        ordersCountByStatus: data || {},
+        ordersCountByStatusLoading: isLoading,
+        ordersCountByStatusError: error,
+        ordersCountByStatusValidating: isValidating,
+        refreshOrdersCountByStatus: mutate,
+        }), [data, error, isLoading, isValidating, mutate]
+    );
+
+    return memoizedValue;
+}
 
 /**
  * React hook to get orders with SWR
