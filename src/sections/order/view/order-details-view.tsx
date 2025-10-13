@@ -197,8 +197,8 @@ export function OrderDetailsView({ orderId }: Props) {
 
                         console.log(`Auto-selected pickup time: ${autoSelectedTime} for day index ${firstAvailableDay}`);
                         toast.success(`Átvételi idő automatikusan beállítva: ${autoSelectedTime}`);
-                    } catch (error) {
-                        console.error('Error auto-setting shipment time:', error);
+                    } catch (autoSettingShipmentError) {
+                        console.error('Error auto-setting shipment time:', autoSettingShipmentError);
                     }
                 };
 
