@@ -3,6 +3,7 @@ import type { IOrderData } from 'src/types/order-management';
 import type { IOrderItem, InvoiceData } from 'src/types/order';
 
 import { CONFIG } from 'src/global-config';
+import { getUsersType } from 'src/actions/user-client';
 import { getCustomersWithDiscount } from 'src/actions/customer';
 
 // ----------------------------------------------------------------------
@@ -54,9 +55,8 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=00AB55&color=fff&size=128`;
     };
 
-    const userType = await getUserType(orderData.customerId);
+    //const userType = await getUserType(orderData.customerId);
 
-    const bioProductIds = await getBioProductIds();
 
     const result: IOrderItem = {
         id: orderData.id,
@@ -78,7 +78,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             email: customerEmail,
             avatarUrl: generateAvatarUrl(customerName),
             ipAddress: '192.168.1.1', // Not tracked in our system
-            userType,
+            userType: 'public', // Default, will be set later
             companyName: orderData.billingAddress?.company || '',
             taxNumber: orderData.billingAddress?.taxNumber || '',
             phoneNumber: orderData.billingAddress?.phoneNumber || '',
@@ -134,7 +134,147 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
             slug: item.slug || '',
             type: item.type,
             bundleItems: item.bundleItems,
-            bio: bioProductIds.has(item.id?.toString() || ''),
+            bio: false //by default false, will be set later
+        })),
+        history: {
+            orderTime: orderData.dateCreated,
+            paymentTime: orderData.paymentStatus === 'paid' ? orderData.dateCreated : null,
+            deliveryTime: orderData.orderStatus === 'delivered' ? orderData.plannedShippingDateTime?.toLocaleDateString('hu-HU') || null : null,
+            completionTime: orderData.orderStatus === 'delivered' ? orderData.plannedShippingDateTime?.toLocaleDateString('hu-HU') || null : null,
+            timeline: orderData.history.map(h => ({
+                title: `Status: ${h.status}${h.note ? ` - ${h.note}` : ''}`,
+                time: h.timestamp,
+            })),
+        },
+        shipmentId: orderData.shipmentId || null,
+        shipment_time: orderData.shipment_time,
+        invoiceData: orderData.invoiceDataJson ? orderData.invoiceDataJson as unknown as InvoiceData : undefined,
+    };
+    
+    return result;
+}
+
+export async function transformOrderDataForContextItem(orderData: IOrderData): Promise<IOrderItem> {
+    // Calculate totals from items
+    const totalQuantity = orderData.items.reduce((total, item) => total + item.quantity, 0);
+    
+    // Map order status to the expected format
+    const getStatusLabel = (status: string): string => {
+        switch (status) {
+            case 'pending':
+                return 'pending';
+            case 'confirmed':
+                return 'processing';
+            case 'processing':
+                return 'processing';
+            case 'shipping':
+                return 'shipping';
+            case 'delivered':
+                return 'delivered';
+            case 'cancelled':
+                return 'cancelled';
+            case 'refunded':
+                return 'cancelled';
+            default:
+                return 'pending';
+        }
+    };
+
+    // Extract customer information
+    const customerName = orderData.customerName || 'Unknown Customer';
+    const customerEmail = orderData.billingEmails[0] || orderData.notifyEmails[0] || '';
+
+    // Generate avatar URL from name initials
+    const generateAvatarUrl = (name: string): string => {
+        const initials = name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=00AB55&color=fff&size=128`;
+    };
+
+    const userType = await getUserType(orderData.customerId);
+    const bioProductIds = await getBioProductIds();
+
+    const result: IOrderItem = {
+        id: orderData.id,
+        orderNumber: orderData.id,
+        status: getStatusLabel(orderData.orderStatus),
+        totalAmount: orderData.total,
+        totalQuantity,
+        subtotal: orderData.subtotal,
+        vatTotal: orderData.vatTotal,
+        taxes: orderData.vatTotal,
+        shipping: orderData.shippingCost,
+        discount: orderData.discountTotal,
+        deposit: orderData.surchargeAmount || 0,
+        createdAt: orderData.dateCreated,
+        planned_shipping_date_time: orderData.plannedShippingDateTime,
+        customer: {
+            id: orderData.customerId || 'guest',
+            name: customerName,
+            email: customerEmail,
+            avatarUrl: generateAvatarUrl(customerName),
+            ipAddress: '192.168.1.1', // Not tracked in our system
+            userType: userType || 'public', // Default, will be set later
+            companyName: orderData.billingAddress?.company || '',
+            taxNumber: orderData.billingAddress?.taxNumber || '',
+            phoneNumber: orderData.billingAddress?.phoneNumber || '',
+        },
+        payment: {
+            cardType: orderData.paymentMethod?.name || 'Unknown',
+            cardNumber: '**** **** **** ****', // Not stored for security
+            status: orderData.paymentStatus,
+        },
+        delivery: {
+            shipBy: orderData.shippingMethod?.name || '',
+            locationName: '',
+            address: orderData.shippingAddress ? {
+                id: orderData.shippingAddress?.id || '',
+                postcode: orderData.shippingAddress?.postcode || '',
+                city: orderData.shippingAddress?.city || '',
+                street: orderData.shippingAddress?.street || '',
+                floor: orderData.shippingAddress?.floor || '',
+                houseNumber: orderData.shippingAddress?.houseNumber || '',
+                doorbell: orderData.shippingAddress?.doorbell || '',
+                comment: orderData.shippingAddress?.note || '',
+                name: orderData.shippingAddress?.name || customerName,
+                company: orderData.shippingAddress?.company || '',
+                fullAddress: orderData.shippingAddress?.fullAddress || 'No address provided',
+                phoneNumber: orderData.shippingAddress?.phoneNumber || '',
+            } as unknown as IAddress : null,
+        },
+        shippingAddress: {
+            postcode: orderData.shippingAddress?.postcode || '',
+            city: orderData.shippingAddress?.city || '',
+            street: orderData.shippingAddress?.street || '',
+            floor: orderData.shippingAddress?.floor || '',
+            houseNumber: orderData.shippingAddress?.houseNumber || '',
+            doorbell: orderData.shippingAddress?.doorbell || '',
+            note: orderData.shippingAddress?.note || '',
+            name: orderData.shippingAddress?.name || customerName,
+            company: orderData.shippingAddress?.company || '',
+            fullAddress: orderData.shippingAddress?.fullAddress || 'No address provided',
+            phoneNumber: orderData.shippingAddress?.phoneNumber || '',
+        },
+        items: orderData.items.map(item => ({
+            id: item.id?.toString() || '',
+            sku: `SKU-${item.id}`,
+            name: item.name,
+            netPrice: item.netPrice,
+            grossPrice: item.grossPrice,
+            coverUrl: item.coverUrl || 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
+            quantity: Math.round((item.quantity || 0)*10)/10,
+            unit: item.unit || 'db',
+            subtotal: item.subtotal,
+            note: item.note || '',
+            vat: item.netPrice ? Math.round((item.grossPrice-item.netPrice)/item.netPrice * 100) : 0 ,
+            slug: item.slug || '',
+            type: item.type,
+            bundleItems: item.bundleItems,
+            bio: bioProductIds.has(item.id?.toString() || '') // Check if the item is a bio product
         })),
         history: {
             orderTime: orderData.dateCreated,
@@ -223,25 +363,40 @@ export async function getBioProductIds(): Promise<Set<string>> {
 }
 
 /**
- * Transform multiple order data items to table items
+ * Transform multiple order data items to order list table items
  */
 export async function transformOrdersDataToTableItems(ordersData: IOrderData[]): Promise<IOrderItem[]> {
     let orders = await Promise.all(ordersData.map(transformOrderDataToTableItem));
 
     const discountCustomers = await getCustomersWithDiscount();
+    const bioProductIds = await getBioProductIds();
+    const usersType = await getUsersType(orders.map(o => o.customer.id));
+    
     const discountMap = new Map(discountCustomers.map(c => [c.uid, c]));
 
     // Apply discountPercent from customer data if available
     orders = orders.map(order => {
-        const customer = discountMap.get(order.customer.id);
-        if (customer) {
-            if(customer.discountPercent){
-                order.customer.discountPercent = customer?.discountPercent;
+        const customerWithDiscount = discountMap.get(order.customer.id);
+        if (customerWithDiscount) {
+            if(customerWithDiscount.discountPercent){
+                order.customer.discountPercent = customerWithDiscount?.discountPercent;
             }
-            if(customer?.companyName){
-                order.customer.companyName = customer?.companyName;
+            if(customerWithDiscount?.companyName){
+                order.customer.companyName = customerWithDiscount?.companyName;
             }
         }
+
+        order.items = order.items.map(item => ({
+            ...item,
+            bio: bioProductIds.has(item.id?.toString() || ''),
+        }));
+
+        const userRole = usersType.find(u => u.uid === order.customer.id) || {uid: order.customer.id, is_admin: false, is_corp: false, is_vip: false};
+        const isVIP = userRole.is_vip;
+        const isCompany = userRole.is_corp;
+
+        order.customer.userType = isVIP ? 'vip' : isCompany ? 'company' : 'public';
+
         return order;
     });
 

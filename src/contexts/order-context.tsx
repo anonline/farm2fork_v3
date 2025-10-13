@@ -6,7 +6,7 @@ import type { IOrderData } from 'src/types/order-management';
 
 import { useMemo, useContext, useReducer, useCallback, createContext } from 'react';
 
-import { transformOrderDataToTableItem } from 'src/utils/transform-order-data';
+import { transformOrderDataForContextItem } from 'src/utils/transform-order-data';
 
 import { getCustomerData } from 'src/actions/customer';
 import { getOrderById } from 'src/actions/order-management';
@@ -119,7 +119,7 @@ export function OrderProvider({ children }: Readonly<OrderProviderProps>) {
           const customerData = await getCustomerData(result.order.customerId);
 
           // Transform IOrderData to IOrderItem using the utility function
-          const transformedOrder = await transformOrderDataToTableItem(result.order);
+          const transformedOrder = await transformOrderDataForContextItem(result.order);
 
           if (customerData) {
             transformedOrder.customer = {
@@ -170,7 +170,7 @@ export function OrderProvider({ children }: Readonly<OrderProviderProps>) {
 
       if (result.order) {
         // Transform IOrderData to IOrderItem using the utility function
-        const transformedOrder = await transformOrderDataToTableItem(result.order);
+        const transformedOrder = await transformOrderDataForContextItem(result.order);
 
         dispatch({
           type: 'FETCH_SUCCESS',

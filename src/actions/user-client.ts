@@ -23,6 +23,17 @@ export async function upsertUserCustomerData(updates: Partial<ICustomerData>): P
     return true;
 }
 
+export async function getUsersType(userIds:string[]): Promise<IRole[]> {
+    const { data, error } = await supabase
+        .from('roles')
+        .select('*')
+        .in('uid', userIds);
+
+    if (error) throw error.message;
+
+    return data as IRole[];
+}
+
 export async function updateUserRole(id: string, roleUpdates: Partial<IRole>): Promise<boolean> {
     const { error } = await supabase
         .from('roles')
