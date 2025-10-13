@@ -227,7 +227,7 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
             const name = pickupLocation?.name || 'Átvételi pont ismeretlen';
             return `${name}`;
         }
-        return order.shippingAddress?.fullAddress || 'N/A';
+        return order.shippingAddress?.postcode + ' ' + order.shippingAddress?.city + ' ' + order.shippingAddress?.street + ' ' + order.shippingAddress?.houseNumber + ' ' + order.shippingAddress?.floor + ' ' + order.shippingAddress?.doorbell || 'N/A';
     };
     const renderShippingAddressDetails = () => {
         if (order.delivery?.shipBy === 'Személyes átvétel') {

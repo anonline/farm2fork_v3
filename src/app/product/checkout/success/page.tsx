@@ -126,6 +126,9 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                     status: 'pending',
                     note: `Fizetés sikertelen a SimplePay-en keresztül: ${failMessage}`,
                 };
+
+                await updateOrderPaymentStatusSSR(orderId, 'failed', 0);
+
             }
 
             await updateOrderPaymentSimpleStatusSSR(orderId, JSON.stringify(simplePayResponse));
