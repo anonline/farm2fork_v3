@@ -1,5 +1,3 @@
-import type { Option } from 'src/types/option';
-import type { ICategoryItem } from 'src/types/category';
 
 import { cookies } from 'next/headers';
 

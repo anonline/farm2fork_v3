@@ -2,6 +2,7 @@
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
 
+import { CSS } from '@dnd-kit/utilities';
 import { useState, useEffect, useCallback } from 'react';
 import {
     useSortable,
@@ -20,7 +21,6 @@ import {
     KeyboardSensor,
     MeasuringStrategy,
 } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -29,12 +29,12 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 
-import { toast } from 'src/components/snackbar';
-import { Iconify } from 'src/components/iconify';
 import { DashboardContent } from 'src/layouts/dashboard';
-
 import { useCategories } from 'src/contexts/category-context';
 import { updateCategoryOrder, useGetCategoryOrder } from 'src/actions/category-order';
+
+import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -377,7 +377,7 @@ export function CategoryOrderView() {
                             }}
                         >
                             <Typography variant="caption" color="warning.darker">
-                                Mentetlen módosításaid vannak. Kattints a "Sorrend mentése" gombra a változtatások alkalmazásához.
+                                Mentetlen módosításaid vannak. Kattints a &quot;Sorrend mentése&quot; gombra a változtatások alkalmazásához.
                             </Typography>
                         </Box>
                     )}

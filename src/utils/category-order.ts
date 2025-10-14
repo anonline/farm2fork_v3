@@ -1,5 +1,5 @@
-import type { ICategoryItem } from 'src/types/category';
 import type { IProductItem } from 'src/types/product';
+import type { ICategoryItem } from 'src/types/category';
 
 /**
  * Sort categories by custom order array

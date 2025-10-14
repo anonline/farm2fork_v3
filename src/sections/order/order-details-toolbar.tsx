@@ -19,8 +19,8 @@ import { RouterLink } from 'src/routes/components';
 import { fDateTime } from 'src/utils/format-time';
 import { generateShippingLabelPDF, fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 
-import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetCategoryOrder } from 'src/actions/category-order';
+import { useGetPickupLocations } from 'src/actions/pickup-location';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';

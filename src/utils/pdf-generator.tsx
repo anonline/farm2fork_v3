@@ -1,5 +1,5 @@
-import type { IOrderItem, IOrderProductItem } from 'src/types/order';
 import type { IPickupLocation } from 'src/types/pickup-location';
+import type { IOrderItem, IOrderProductItem } from 'src/types/order';
 
 import React from 'react';
 import { Svg, pdf, Page, Text, View, Font, Path, Document, StyleSheet } from '@react-pdf/renderer';
@@ -98,16 +98,8 @@ export function sortOrderItemsByCategoryOrder(
 
         // Use the highest position category
         const targetCategory = orderedPositions[0].catId;
-        console.log('📦 [sortOrderItemsByCategoryOrder] Adding item to bucket:', 
-            { name: item.name, categories: itemCategories, targetBucket: targetCategory, allPositions: orderedPositions }
-        );
         buckets.get(targetCategory)!.push(item);
     });
-
-    // Log bucket sizes
-    console.log('� [sortOrderItemsByCategoryOrder] Bucket sizes:', 
-        Array.from(buckets.entries()).map(([catId, items]) => ({ categoryId: catId, count: items.length }))
-    );
 
     // Sort items alphabetically within each bucket and concatenate
     const result: IOrderProductItem[] = [];
@@ -117,7 +109,6 @@ export function sortOrderItemsByCategoryOrder(
         const bucketItems = buckets.get(catId) || [];
         if (bucketItems.length > 0) {
             const sortedBucket = bucketItems.sort((a, b) => a.name.localeCompare(b.name));
-            console.log(`✅ [sortOrderItemsByCategoryOrder] Bucket ${catId}: ${sortedBucket.length} items, first: ${sortedBucket[0]?.name}`);
             result.push(...sortedBucket);
         }
     });
@@ -126,13 +117,8 @@ export function sortOrderItemsByCategoryOrder(
     const bucket42Items = buckets.get(42) || [];
     if (bucket42Items.length > 0) {
         const sortedBucket42 = bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
-        console.log(`✅ [sortOrderItemsByCategoryOrder] Bucket 42 (uncategorized): ${sortedBucket42.length} items`);
         result.push(...sortedBucket42);
     }
-
-    console.log('🎯 [sortOrderItemsByCategoryOrder] Final sort complete. Total items:', result.length,
-        'First 5:', result.slice(0, 5).map(i => i.name)
-    );
 
     return result;
 }

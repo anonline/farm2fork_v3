@@ -5,7 +5,6 @@ import { pdf, Page, Text, View, Font, Document, StyleSheet } from '@react-pdf/re
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { fDate } from './format-time';
 
 // Register fonts that support Hungarian characters
 Font.register({

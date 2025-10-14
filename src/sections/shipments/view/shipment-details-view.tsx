@@ -19,8 +19,8 @@ import { paths } from 'src/routes/paths';
 
 import { generateShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateShipmentXLS } from 'src/utils/shipment-xls-export';
-import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
+import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
@@ -196,7 +196,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
         
         if (categoryOrder && categoryOrder.length > 0 && categoryConnections.size > 0) {
             // Create order map for quick lookup (excluding category 42)
-            const filteredCategoryOrder = categoryOrder.filter(id => id !== 42);
+            const filteredCategoryOrder = categoryOrder.filter(categoryIdentifier => categoryIdentifier !== 42);
             const orderMap = new Map<number, number>();
             filteredCategoryOrder.forEach((catId, index) => {
                 orderMap.set(catId, index);
@@ -294,9 +294,9 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
         try {
             // Fetch category connections for products in orders
-            const categoryConnections = await fetchCategoryConnectionsForOrders(orders as any);
+            const shipmentCategoryMappings = await fetchCategoryConnectionsForOrders(orders as any);
             
-            await generateShipmentPDF(shipment, itemsSummary, categoryOrder, categoryConnections);
+            await generateShipmentPDF(shipment, itemsSummary, categoryOrder, shipmentCategoryMappings);
             toast.success('PDF export sikeresen elkészült!');
         } catch (err) {
             console.error('PDF export error:', err);
@@ -309,9 +309,9 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
         try {
             // Fetch category connections for products in orders
-            const categoryConnections = await fetchCategoryConnectionsForOrders(orders as any);
+            const shipmentCategoryLinks = await fetchCategoryConnectionsForOrders(orders as any);
             
-            generateShipmentXLS(shipment, itemsSummary, categoryOrder, categoryConnections);
+            generateShipmentXLS(shipment, itemsSummary, categoryOrder, shipmentCategoryLinks);
             toast.success('XLS export sikeresen elkészült!');
         } catch (err) {
             console.error('XLS export error:', err);

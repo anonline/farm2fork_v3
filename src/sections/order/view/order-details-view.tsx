@@ -20,6 +20,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 
 import { fDate } from 'src/utils/format-time';
+import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 
 import { supabase } from 'src/lib/supabase';
 import { useGetDeliveries } from 'src/actions/delivery';
@@ -31,7 +32,6 @@ import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
-import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderUserHistory, updateOrderDeliveryGuy, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, handlingOrderItemQtyChangesStockReduction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
