@@ -14,6 +14,7 @@ export enum OptionsEnum {
     SurchargePercentVIP = 'surcharge_percent_vip',
     SurchargePercentCompany = 'surcharge_percent_company',
     CustomProductBasePrice = 'custom_product_base_price',
+    CategoryOrder = 'category_order',
 
     //API Keys
     BillingoV3ApiKey = 'billingo_v3_api_key'

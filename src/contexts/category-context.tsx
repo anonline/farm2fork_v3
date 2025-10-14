@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { ICategoryItem } from 'src/types/category';
 
 import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect, useContext, createContext } from 'react';
+import { useMemo, useState, useEffect, useContext, createContext } from 'react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -32,6 +32,7 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
     useEffect(() => {
         async function fetchProductCategories() {
             setLoading(true);
+
             const { data, error } = await supabase
                 .rpc('get_enabled_categories_with_products');
 
@@ -63,8 +64,18 @@ export function CategoryProvider({ children }: Readonly<{ children: ReactNode }>
         fetchProductCategories();
     }, []);
 
+    const contextValue = useMemo(
+        () => ({
+            categories,
+            allCategories,
+            loading,
+            error: loadError,
+        }),
+        [categories, allCategories, loading, loadError]
+    );
+
     return (
-        <CategoryContext.Provider value={{ categories, allCategories, loading, error: loadError }}>
+        <CategoryContext.Provider value={contextValue}>
             {children}
         </CategoryContext.Provider>
     );

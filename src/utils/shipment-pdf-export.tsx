@@ -45,7 +45,131 @@ type ShipmentItemSummary = {
 type Props = {
   shipment: IShipment;
   itemsSummary: ShipmentItemSummary[];
+  categoryOrder?: number[];
+  categoryConnections?: Map<string, number[]>;
 };
+
+/**
+ * Sort shipment items by category order
+ * Items with multiple categories will be sorted by the earliest category in the order
+ * Items without categories or with unordered categories appear at the end
+ */
+function sortShipmentItemsByCategoryOrder(
+  items: ShipmentItemSummary[],
+  categoryOrder: number[],
+  categoryConnections: Map<string, number[]>
+): ShipmentItemSummary[] {
+  console.log('🔍 [sortShipmentItemsByCategoryOrder] Starting bucket sort with:', {
+    itemsCount: items.length,
+    categoryOrderLength: categoryOrder.length,
+    categoryConnectionsSize: categoryConnections.size,
+    sampleItems: items.slice(0, 3).map(i => ({ productId: i.productId, name: i.name })),
+    categoryConnectionsKeys: Array.from(categoryConnections.keys()).slice(0, 10),
+    categoryConnectionsSample: Array.from(categoryConnections.entries()).slice(0, 5).map(([k, v]) => ({ productId: k, categories: v }))
+  });
+
+  if (!categoryOrder || categoryOrder.length === 0) {
+    console.log('⚠️ [sortShipmentItemsByCategoryOrder] No category order, sorting alphabetically');
+    return items.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Create buckets for each category in the order (excluding 42 which is special fallback)
+  // Key is category ID, value is array of items
+  const buckets = new Map<number, ShipmentItemSummary[]>();
+  
+  // Create a map of category ID to its position in the order (excluding 42)
+  const orderMap = new Map<number, number>();
+  const filteredCategoryOrder = categoryOrder.filter(id => id !== 42);
+  
+  // Initialize buckets for all categories in order (except 42)
+  filteredCategoryOrder.forEach((catId, index) => {
+    buckets.set(catId, []);
+    orderMap.set(catId, index);
+  });
+  
+  // Add bucket 42 for "All Products" (uncategorized items) - NOT in orderMap
+  buckets.set(42, []);
+
+  console.log('🪣 [sortShipmentItemsByCategoryOrder] Created buckets for categories:', 
+    Array.from(buckets.keys()),
+    '\n   Category 42 is fallback bucket (not in orderMap)'
+  );
+
+  // Place each item in the bucket of its highest position category
+  items.forEach(item => {
+    // Convert productId to string for Map lookup (handles both string and number types)
+    const productIdKey = item.productId ? String(item.productId) : '';
+    const itemCategories = categoryConnections.get(productIdKey) || [];
+    
+    if (itemCategories.length === 0) {
+      // No categories, put in bucket 42
+      console.log('📦 [sortShipmentItemsByCategoryOrder] Item has no categories, adding to bucket 42:', {
+        name: item.name,
+        productId: item.productId,
+        productIdType: typeof item.productId,
+        productIdKey,
+        lookupResult: categoryConnections.get(productIdKey),
+        hasInMap: categoryConnections.has(productIdKey)
+      });
+      buckets.get(42)!.push(item);
+      return;
+    }
+
+    // Find the highest position (most specific) category that exists in our order
+    const orderedPositions = itemCategories
+      .map(catId => ({ catId, position: orderMap.get(catId) }))
+      .filter(({ position }) => position !== undefined)
+      .sort((a, b) => b.position! - a.position!); // Sort descending to get highest position
+
+    if (orderedPositions.length === 0) {
+      // Item has categories but none are in the order, put in bucket 42
+      console.log('📦 [sortShipmentItemsByCategoryOrder] Item categories not in order, adding to bucket 42:', 
+        { name: item.name, categories: itemCategories }
+      );
+      buckets.get(42)!.push(item);
+      return;
+    }
+
+    // Use the highest position category
+    const targetCategory = orderedPositions[0].catId;
+    console.log('📦 [sortShipmentItemsByCategoryOrder] Adding item to bucket:', 
+      { name: item.name, categories: itemCategories, targetBucket: targetCategory }
+    );
+    buckets.get(targetCategory)!.push(item);
+  });
+
+  // Log bucket sizes
+  console.log('� [sortShipmentItemsByCategoryOrder] Bucket sizes:', 
+    Array.from(buckets.entries()).map(([catId, items]) => ({ categoryId: catId, count: items.length }))
+  );
+
+  // Sort items alphabetically within each bucket and concatenate
+  const result: ShipmentItemSummary[] = [];
+  
+  // Process buckets in category order (excluding 42)
+  filteredCategoryOrder.forEach(catId => {
+    const bucketItems = buckets.get(catId) || [];
+    if (bucketItems.length > 0) {
+      const sortedBucket = bucketItems.sort((a, b) => a.name.localeCompare(b.name));
+      console.log(`✅ [sortShipmentItemsByCategoryOrder] Bucket ${catId}: ${sortedBucket.length} items, first: ${sortedBucket[0]?.name}`);
+      result.push(...sortedBucket);
+    }
+  });
+  
+  // Add bucket 42 at the end
+  const bucket42Items = buckets.get(42) || [];
+  if (bucket42Items.length > 0) {
+    const sortedBucket42 = bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
+    console.log(`✅ [sortShipmentItemsByCategoryOrder] Bucket 42 (uncategorized): ${sortedBucket42.length} items`);
+    result.push(...sortedBucket42);
+  }
+
+  console.log('🎯 [sortShipmentItemsByCategoryOrder] Final sort complete. Total items:', result.length,
+    'First 5:', result.slice(0, 5).map(i => i.name)
+  );
+
+  return result;
+}
 
 // Define styles for the PDF
 const styles = StyleSheet.create({
@@ -141,7 +265,19 @@ const styles = StyleSheet.create({
   },
 });
 
-function renderPage({shipment, itemsSummary}: Props) {
+function renderPage({shipment, itemsSummary, categoryOrder = [], categoryConnections = new Map()}: Props) {
+  console.log('📄 [renderPage] Rendering page with:', {
+    shipmentId: shipment.id,
+    itemsCount: itemsSummary.length,
+    categoryOrderLength: categoryOrder.length,
+    categoryConnectionsSize: categoryConnections.size,
+    willSort: categoryOrder.length > 0 && categoryConnections.size > 0
+  });
+  
+  // Sort items by category order if provided
+  const sortedItems = categoryOrder.length > 0 && categoryConnections.size > 0
+    ? sortShipmentItemsByCategoryOrder(itemsSummary, categoryOrder, categoryConnections)
+    : itemsSummary.sort((a, b) => a.name.localeCompare(b.name));
   
   return (
     <Page size="A4" style={styles.page}>
@@ -192,7 +328,7 @@ function renderPage({shipment, itemsSummary}: Props) {
         </View>
 
         {/* Table Rows */}
-        {itemsSummary.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => {
+        {sortedItems.map((item, index) => {
           const isBundleItem = item.isBundleItem || false;
           const productColStyle = isBundleItem ? styles.productColIndented : styles.productCol;
           const quantityColStyle = isBundleItem ? styles.quantityColSecondary : styles.quantityCol;
@@ -241,20 +377,32 @@ function renderPage({shipment, itemsSummary}: Props) {
 }
 // ----------------------------------------------------------------------
 
-function ShipmentPDF({ shipment, itemsSummary }: Readonly<Props>) {
+function ShipmentPDF({ shipment, itemsSummary, categoryOrder = [], categoryConnections = new Map() }: Readonly<Props>) {
   
 
   return (
     <Document>
-      {renderPage({shipment, itemsSummary})}
+      {renderPage({shipment, itemsSummary, categoryOrder, categoryConnections})}
     </Document>
   );
 }
 
 // ----------------------------------------------------------------------
 
-export async function generateShipmentPDF(shipment: IShipment, itemsSummary: ShipmentItemSummary[]) {
-  const blob = await pdf(<ShipmentPDF shipment={shipment} itemsSummary={itemsSummary} />).toBlob();
+export async function generateShipmentPDF(
+  shipment: IShipment, 
+  itemsSummary: ShipmentItemSummary[],
+  categoryOrder?: number[],
+  categoryConnections?: Map<string, number[]>
+) {
+  const blob = await pdf(
+    <ShipmentPDF 
+      shipment={shipment} 
+      itemsSummary={itemsSummary}
+      categoryOrder={categoryOrder}
+      categoryConnections={categoryConnections}
+    />
+  ).toBlob();
   
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -273,14 +421,16 @@ type MultiShipmentPDFProps = {
     shipment: IShipment;
     itemsSummary: ShipmentItemSummary[];
   }>;
+  categoryOrder?: number[];
+  categoryConnections?: Map<string, number[]>;
 };
 
-function MultiShipmentPDF({ shipmentsData }: Readonly<MultiShipmentPDFProps>) {
+function MultiShipmentPDF({ shipmentsData, categoryOrder = [], categoryConnections = new Map() }: Readonly<MultiShipmentPDFProps>) {
   return (
     <Document>
       {shipmentsData.map(({ shipment, itemsSummary }, index) => (
         <Fragment key={shipment.id + '-' + index}>
-          {renderPage({ shipment, itemsSummary })}
+          {renderPage({ shipment, itemsSummary, categoryOrder, categoryConnections })}
         </Fragment>
       ))}
     </Document>
@@ -290,11 +440,21 @@ function MultiShipmentPDF({ shipmentsData }: Readonly<MultiShipmentPDFProps>) {
 /**
  * Generate PDF for multiple shipments with each shipment on a new page
  */
-export async function generateMultiShipmentPDF(shipmentsData: Array<{
-  shipment: IShipment;
-  itemsSummary: ShipmentItemSummary[];
-}>) {
-  const blob = await pdf(<MultiShipmentPDF shipmentsData={shipmentsData} />).toBlob();
+export async function generateMultiShipmentPDF(
+  shipmentsData: Array<{
+    shipment: IShipment;
+    itemsSummary: ShipmentItemSummary[];
+  }>,
+  categoryOrder?: number[],
+  categoryConnections?: Map<string, number[]>
+) {
+  const blob = await pdf(
+    <MultiShipmentPDF 
+      shipmentsData={shipmentsData}
+      categoryOrder={categoryOrder}
+      categoryConnections={categoryConnections}
+    />
+  ).toBlob();
   
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

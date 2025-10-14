@@ -20,9 +20,11 @@ import { paths } from 'src/routes/paths';
 import { generateShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateShipmentXLS } from 'src/utils/shipment-xls-export';
 import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
+import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
+import { useGetCategoryOrder } from 'src/actions/category-order';
 import { getOrdersByShipmentId } from 'src/actions/order-management';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 
@@ -61,11 +63,13 @@ export type ShipmentItemSummary = {
 export function ShipmentDetailsView({ id }: Readonly<Props>) {
     const theme = useTheme();
     const { shipments, shipmentsLoading, refreshCounts, shipmentsMutate } = useShipments();
+    const { categoryOrder } = useGetCategoryOrder();
 
     const [loading, setLoading] = useState(true);
     const [orders, setOrders] = useState<IOrderData[]>([]);
     const [products, setProducts] = useState<IProductItem[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [categoryConnections, setCategoryConnections] = useState<Map<string, number[]>>(new Map());
 
     const shipment = useMemo(() =>
         shipments.find((s: IShipment) => s.id === Number(id)),
@@ -106,6 +110,10 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                         setProducts(productsResult.products);
                     }
                 }
+
+                // Fetch category connections for sorting
+                const connections = await fetchCategoryConnectionsForOrders(result.orders as any);
+                setCategoryConnections(connections);
                 
             }
         } catch (err) {
@@ -181,11 +189,73 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
                 productLink: data.item.slug ? paths.dashboard.product.edit(data.item.slug) : null,
                 productData,
             };
-        }).sort((a, b) => a.name.localeCompare(b.name));
+        });
 
-        // Expand bundle items
+        // Apply category ordering to summary items
+        let sortedSummaryItems: typeof summaryItems;
+        
+        if (categoryOrder && categoryOrder.length > 0 && categoryConnections.size > 0) {
+            // Create order map for quick lookup (excluding category 42)
+            const filteredCategoryOrder = categoryOrder.filter(id => id !== 42);
+            const orderMap = new Map<number, number>();
+            filteredCategoryOrder.forEach((catId, index) => {
+                orderMap.set(catId, index);
+            });
+
+            // Create buckets for each category
+            const buckets = new Map<number, typeof summaryItems>();
+            filteredCategoryOrder.forEach((catId) => {
+                buckets.set(catId, []);
+            });
+            buckets.set(42, []); // Fallback bucket
+
+            // Place items in buckets
+            summaryItems.forEach(item => {
+                const productIdKey = item.productId ? String(item.productId) : '';
+                const itemCategories = categoryConnections.get(productIdKey) || [];
+                
+                if (itemCategories.length === 0) {
+                    buckets.get(42)!.push(item);
+                    return;
+                }
+
+                // Find highest position category
+                const orderedPositions = itemCategories
+                    .map(catId => ({ catId, position: orderMap.get(catId) }))
+                    .filter(({ position }) => position !== undefined)
+                    .sort((a, b) => b.position! - a.position!);
+
+                if (orderedPositions.length === 0) {
+                    buckets.get(42)!.push(item);
+                } else {
+                    const targetBucket = orderedPositions[0].catId;
+                    buckets.get(targetBucket)!.push(item);
+                }
+            });
+
+            // Concatenate buckets in order
+            sortedSummaryItems = [];
+            filteredCategoryOrder.forEach((catId) => {
+                const bucketItems = buckets.get(catId) || [];
+                if (bucketItems.length > 0) {
+                    bucketItems.sort((a, b) => a.name.localeCompare(b.name));
+                    sortedSummaryItems.push(...bucketItems);
+                }
+            });
+            // Add uncategorized items at the end
+            const bucket42Items = buckets.get(42) || [];
+            if (bucket42Items.length > 0) {
+                bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
+                sortedSummaryItems.push(...bucket42Items);
+            }
+        } else {
+            // Fallback to alphabetical sorting
+            sortedSummaryItems = [...summaryItems].sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // Expand bundle items while maintaining order
         const expandedItems: ShipmentItemSummary[] = [];
-        summaryItems.forEach((item) => {
+        sortedSummaryItems.forEach((item) => {
             // Add the main product
             expandedItems.push(item);
 
@@ -217,19 +287,22 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
         });
 
         return expandedItems;
-    }, [orders, products]);
+    }, [orders, products, categoryOrder, categoryConnections]);
 
     const handleExportPDF = useCallback(async () => {
         if (!shipment) return;
 
         try {
-            await generateShipmentPDF(shipment, itemsSummary);
+            // Fetch category connections for products in orders
+            const categoryConnections = await fetchCategoryConnectionsForOrders(orders as any);
+            
+            await generateShipmentPDF(shipment, itemsSummary, categoryOrder, categoryConnections);
             toast.success('PDF export sikeresen elkészült!');
         } catch (err) {
             console.error('PDF export error:', err);
             toast.error('Hiba a PDF exportálása során');
         }
-    }, [shipment, itemsSummary]);
+    }, [shipment, itemsSummary, orders, categoryOrder]);
 
     const handleExportXLS = useCallback(async () => {
         if (!shipment) return;

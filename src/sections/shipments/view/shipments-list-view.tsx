@@ -37,9 +37,11 @@ import { fDate } from 'src/utils/format-time';
 import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
 import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 import { generateMultiSheetShipmentXLS } from 'src/utils/shipment-xls-export';
+import { fetchCategoryConnectionsForShipments } from 'src/utils/pdf-generator';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
+import { useGetCategoryOrder } from 'src/actions/category-order';
 import { getOrdersByShipmentId } from 'src/actions/order-management';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 
@@ -209,6 +211,7 @@ export function ShipmentsListView() {
     const newShipmentModal = useBoolean();
 
     const { shipments, shipmentsLoading, shipmentsMutate, deleteShipment, refreshCounts } = useShipments();
+    const { categoryOrder } = useGetCategoryOrder();
 
     const [tableData, setTableData] = useState<IShipment[]>([]);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
@@ -410,14 +413,15 @@ export function ShipmentsListView() {
 
         try {
             const summarizedShipmentData = await collectSummarizedShipmentDataForPdf(tableData);
-            await generateMultiShipmentPDF([summarizedShipmentData]);
+            const categoryConnections = await fetchCategoryConnectionsForShipments([summarizedShipmentData]);
+            await generateMultiShipmentPDF([summarizedShipmentData], categoryOrder, categoryConnections);
             toast.success('PDF export sikeresen elkészült!');
         } catch (error) {
             console.error('PDF export error:', error);
             toast.error('Hiba a PDF exportálása során!');
         }
 
-    }, [selectedRowIds, tableData]);
+    }, [selectedRowIds, tableData, categoryOrder]);
 
     const handleExportSelectedToPDF = useCallback(async () => {
         if (selectedRowIds.length === 0) {
@@ -426,13 +430,14 @@ export function ShipmentsListView() {
         }
         try {
             const shipmentsData = await collectShipmentsDataForPdf(tableData);
-            await generateMultiShipmentPDF(shipmentsData);
+            const categoryConnections = await fetchCategoryConnectionsForShipments(shipmentsData);
+            await generateMultiShipmentPDF(shipmentsData, categoryOrder, categoryConnections);
             toast.success('PDF export sikeresen elkészült!');
         } catch (error) {
             console.error('PDF export error:', error);
             toast.error('Hiba a PDF exportálása során!');
         }
-    }, [selectedRowIds, tableData]);
+    }, [selectedRowIds, tableData, categoryOrder]);
 
     const handleExportXLS = useCallback(async () => {
         if (selectedRowIds.length === 0) {
@@ -571,7 +576,8 @@ export function ShipmentsListView() {
             });
 
             // Generate export (using existing PDF export function as base)
-            await generateMultiShipmentPDF(summaryData);
+            const categoryConnections = await fetchCategoryConnectionsForShipments(summaryData);
+            await generateMultiShipmentPDF(summaryData, categoryOrder, categoryConnections);
             toast.success('Szállítási módok szerinti összesítő PDF export sikeresen elkészült!');
 
         } catch (error) {

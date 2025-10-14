@@ -1,10 +1,141 @@
-import type { IOrderItem } from 'src/types/order';
+import type { IOrderItem, IOrderProductItem } from 'src/types/order';
 import type { IPickupLocation } from 'src/types/pickup-location';
 
 import React from 'react';
 import { Svg, pdf, Page, Text, View, Font, Path, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fCurrency } from './format-number';
+
+/**
+ * Sort order product items by category order
+ * Products with multiple categories will be sorted by the earliest category in the order
+ * Products without categories or with unordered categories appear at the end
+ * 
+ * @param items - Array of order product items to sort
+ * @param categoryOrder - Array of category IDs in desired order
+ * @param categoryConnections - Map of product ID to array of category IDs
+ * @returns Sorted array of order product items
+ */
+export function sortOrderItemsByCategoryOrder(
+    items: IOrderProductItem[],
+    categoryOrder: number[],
+    categoryConnections: Map<string, number[]>
+): IOrderProductItem[] {
+    console.log('🔍 [sortOrderItemsByCategoryOrder] Starting bucket sort with:', {
+        itemsCount: items.length,
+        categoryOrderLength: categoryOrder.length,
+        categoryConnectionsSize: categoryConnections.size,
+        sampleItems: items.slice(0, 3).map(i => ({ id: i.id, name: i.name }))
+    });
+
+    if (!categoryOrder || categoryOrder.length === 0) {
+        console.log('⚠️ [sortOrderItemsByCategoryOrder] No category order provided, sorting alphabetically');
+        return items.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    // Create buckets for each category in the order (excluding 42 which is special fallback)
+    // Key is category ID, value is array of items
+    const buckets = new Map<number, IOrderProductItem[]>();
+    
+    // Create a map of category ID to its position in the order (excluding 42)
+    const orderMap = new Map<number, number>();
+    const filteredCategoryOrder = categoryOrder.filter(id => id !== 42);
+    
+    // Initialize buckets for all categories in order (except 42)
+    filteredCategoryOrder.forEach((catId, index) => {
+        buckets.set(catId, []);
+        orderMap.set(catId, index);
+    });
+    
+    // Add bucket 42 for "All Products" (uncategorized items) - NOT in orderMap
+    buckets.set(42, []);
+
+    console.log('🪣 [sortOrderItemsByCategoryOrder] Created buckets for categories:', 
+        Array.from(buckets.keys()),
+        '\n   Category 42 is fallback bucket (not in orderMap)'
+    );
+
+    // Place each item in the bucket of its highest position category
+    items.forEach(item => {
+        // Convert item.id to string for Map lookup (handles both string and number types)
+        const productIdKey = item.id ? String(item.id) : '';
+        const itemCategories = categoryConnections.get(productIdKey) || [];
+        
+        console.log('🔍 [sortOrderItemsByCategoryOrder] Processing item:', {
+            name: item.name,
+            id: item.id,
+            productIdKey,
+            categories: itemCategories
+        });
+        
+        if (itemCategories.length === 0) {
+            // No categories, put in bucket 42
+            console.log('📦 [sortOrderItemsByCategoryOrder] Item has no categories, adding to bucket 42:', item.name);
+            buckets.get(42)!.push(item);
+            return;
+        }
+
+        // Find the highest position (most specific) category that exists in our order
+        const orderedPositions = itemCategories
+            .map(catId => {
+                const position = orderMap.get(catId);
+                console.log(`   Category ${catId} -> position ${position}`);
+                return { catId, position };
+            })
+            .filter(({ position }) => position !== undefined)
+            .sort((a, b) => b.position! - a.position!); // Sort descending to get highest position
+
+        console.log('   Ordered positions:', orderedPositions);
+
+        if (orderedPositions.length === 0) {
+            // Item has categories but none are in the order, put in bucket 42
+            console.log('📦 [sortOrderItemsByCategoryOrder] Item categories not in order, adding to bucket 42:', 
+                { name: item.name, categories: itemCategories }
+            );
+            buckets.get(42)!.push(item);
+            return;
+        }
+
+        // Use the highest position category
+        const targetCategory = orderedPositions[0].catId;
+        console.log('📦 [sortOrderItemsByCategoryOrder] Adding item to bucket:', 
+            { name: item.name, categories: itemCategories, targetBucket: targetCategory, allPositions: orderedPositions }
+        );
+        buckets.get(targetCategory)!.push(item);
+    });
+
+    // Log bucket sizes
+    console.log('� [sortOrderItemsByCategoryOrder] Bucket sizes:', 
+        Array.from(buckets.entries()).map(([catId, items]) => ({ categoryId: catId, count: items.length }))
+    );
+
+    // Sort items alphabetically within each bucket and concatenate
+    const result: IOrderProductItem[] = [];
+    
+    // Process buckets in category order (excluding 42)
+    filteredCategoryOrder.forEach(catId => {
+        const bucketItems = buckets.get(catId) || [];
+        if (bucketItems.length > 0) {
+            const sortedBucket = bucketItems.sort((a, b) => a.name.localeCompare(b.name));
+            console.log(`✅ [sortOrderItemsByCategoryOrder] Bucket ${catId}: ${sortedBucket.length} items, first: ${sortedBucket[0]?.name}`);
+            result.push(...sortedBucket);
+        }
+    });
+    
+    // Add bucket 42 at the end
+    const bucket42Items = buckets.get(42) || [];
+    if (bucket42Items.length > 0) {
+        const sortedBucket42 = bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
+        console.log(`✅ [sortOrderItemsByCategoryOrder] Bucket 42 (uncategorized): ${sortedBucket42.length} items`);
+        result.push(...sortedBucket42);
+    }
+
+    console.log('🎯 [sortOrderItemsByCategoryOrder] Final sort complete. Total items:', result.length,
+        'First 5:', result.slice(0, 5).map(i => i.name)
+    );
+
+    return result;
+}
 
 // Register fonts for better Hungarian character support
 Font.register({
@@ -172,14 +303,25 @@ const styles = StyleSheet.create({
 interface ShippingLabelPDFProps {
     order: IOrderItem;
     pickupLocations?: IPickupLocation[];
+    categoryOrder?: number[];
+    categoryConnections?: Map<string, number[]>;
 }
 
 
 
-const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps) => {
+const ShippingLabelPDFPage = ({ order, pickupLocations, categoryOrder = [], categoryConnections = new Map() }: ShippingLabelPDFProps) => {
     const pickupLocation = pickupLocations?.find(loc => loc.id.toString() === order.delivery?.address?.id || '');
     const isVIP = order.customer?.userType === 'vip';
-    const netSubTotal = order.items?.reduce((sum, item) => sum + (item.netPrice || 0) * (item.quantity || 0), 0) || 0;
+    
+    // Sort order items by category order if provided
+    const sortedItems = React.useMemo(
+        () => categoryOrder.length > 0 && categoryConnections.size > 0
+            ? sortOrderItemsByCategoryOrder(order.items || [], categoryOrder, categoryConnections)
+            : order.items || [],
+        [order.items, categoryOrder, categoryConnections]
+    );
+    
+    const netSubTotal = sortedItems.reduce((sum, item) => sum + (item.netPrice || 0) * (item.quantity || 0), 0) || 0;
 
     const netShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping / 1.27 : order.shipping || 0;
     const vatShipping = order.shipping && order.customer.userType !== 'vip' ? order.shipping - netShipping : 0;
@@ -333,10 +475,10 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
                 </View>
 
                 {/* Table Rows */}
-                {order.items?.map((item) => (
+                {sortedItems.map((item) => (
                     <View style={styles.tableRow} key={item.id}>
                         <View style={{...styles.description, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                            <Text>{item.name || 'N/A'}</Text>{item.bio && <BioSVG />}
+                            <Text>{item.bio && "[BIO] "}{item.name || 'N/A'}</Text>
                         </View>
                         <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 1) || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />
@@ -390,9 +532,14 @@ const ShippingLabelPDFPage = ({ order, pickupLocations }: ShippingLabelPDFProps)
     )
 };
 
-const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order, pickupLocations = [] }) => (
+const ShippingLabelPDF: React.FC<ShippingLabelPDFProps> = ({ order, pickupLocations = [], categoryOrder = [], categoryConnections = new Map() }) => (
     <Document>
-        <ShippingLabelPDFPage order={order} pickupLocations={pickupLocations} />
+        <ShippingLabelPDFPage 
+            order={order} 
+            pickupLocations={pickupLocations}
+            categoryOrder={categoryOrder}
+            categoryConnections={categoryConnections}
+        />
     </Document>
 );
 
@@ -423,18 +570,31 @@ const validateOrderData = (order: IOrderItem): boolean => {
 interface MultipleShippingLabelsPDFProps {
     orders: IOrderItem[];
     pickupLocations?: IPickupLocation[];
+    categoryOrder?: number[];
+    categoryConnections?: Map<string, number[]>;
 }
 
-const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders, pickupLocations = [] }) => (
+const MultipleShippingLabelsPDF: React.FC<MultipleShippingLabelsPDFProps> = ({ orders, pickupLocations = [], categoryOrder = [], categoryConnections = new Map() }) => (
     <Document>
         {orders.toSorted((a, b) => (a.shippingAddress.postcode || '').localeCompare(b.shippingAddress.postcode || '')).map((order, index) => (
-            <ShippingLabelPDFPage order={order} key={order.id || index} pickupLocations={pickupLocations} />
+            <ShippingLabelPDFPage 
+                order={order} 
+                key={order.id || index} 
+                pickupLocations={pickupLocations}
+                categoryOrder={categoryOrder}
+                categoryConnections={categoryConnections}
+            />
         ))}
     </Document>
 );
 
 // Function to generate and download PDF for multiple orders
-export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[], pickupLocations?: IPickupLocation[]): Promise<void> => {
+export const generateMultipleShippingLabelsPDF = async (
+    orders: IOrderItem[], 
+    pickupLocations?: IPickupLocation[],
+    categoryOrder?: number[],
+    categoryConnections?: Map<string, number[]>
+): Promise<void> => {
     try {
         // Validate that we have orders
         if (!orders || orders.length === 0) {
@@ -456,7 +616,12 @@ export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[], pi
             throw new Error(`Hibás rendelések:\n${invalidOrders.join('\n')}`);
         }
 
-        const doc = <MultipleShippingLabelsPDF orders={orders} pickupLocations={pickupLocations || []} />;
+        const doc = <MultipleShippingLabelsPDF 
+            orders={orders} 
+            pickupLocations={pickupLocations || []}
+            categoryOrder={categoryOrder}
+            categoryConnections={categoryConnections}
+        />;
         const pdfBlob = await pdf(doc).toBlob();
 
         // Create download link
@@ -480,12 +645,22 @@ export const generateMultipleShippingLabelsPDF = async (orders: IOrderItem[], pi
 };
 
 // Function to generate and download PDF for single order (existing functionality)
-export const generateShippingLabelPDF = async (order: IOrderItem, pickupLocations?: IPickupLocation[]): Promise<void> => {
+export const generateShippingLabelPDF = async (
+    order: IOrderItem, 
+    pickupLocations?: IPickupLocation[],
+    categoryOrder?: number[],
+    categoryConnections?: Map<string, number[]>
+): Promise<void> => {
     try {
         // Validate order data
         validateOrderData(order);
 
-        const doc = <ShippingLabelPDF order={order} pickupLocations={pickupLocations || []} />;
+        const doc = <ShippingLabelPDF 
+            order={order} 
+            pickupLocations={pickupLocations || []}
+            categoryOrder={categoryOrder}
+            categoryConnections={categoryConnections}
+        />;
         const pdfBlob = await pdf(doc).toBlob();
 
         // Create download link
@@ -507,6 +682,152 @@ export const generateShippingLabelPDF = async (order: IOrderItem, pickupLocation
         throw new Error(errorMessage);
     }
 };
+
+/**
+ * Fetch category connections for products in orders
+ * This is used to enable product sorting by category order in PDFs
+ * 
+ * @param orders - Array of orders containing product items
+ * @returns Map of product ID to array of category IDs
+ */
+export async function fetchCategoryConnectionsForOrders(orders: IOrderItem[]): Promise<Map<string, number[]>> {
+    // Collect all unique product IDs from all orders
+    const productIds = new Set<string>();
+    orders.forEach((order) => {
+        order.items?.forEach((item) => {
+            productIds.add(item.id);
+        });
+    });
+
+    if (productIds.size === 0) {
+        return new Map();
+    }
+
+    try {
+        // Dynamically import supabase to avoid issues with server-side rendering
+        const { createClient } = await import('@supabase/supabase-js');
+        const { CONFIG } = await import('src/global-config');
+        
+        const supabase = createClient(
+            CONFIG.supabase.url,
+            CONFIG.supabase.key
+        );
+
+        // Fetch category connections for all products
+        const { data, error } = await supabase
+            .from('ProductCategories_Products')
+            .select('productId, categoryId')
+            .in('productId', Array.from(productIds));
+
+        if (error) {
+            console.error('Error fetching category connections:', error);
+            return new Map();
+        }
+
+        // Build the map
+        const categoryConnections = new Map<string, number[]>();
+        data?.forEach((conn: { productId: number; categoryId: number }) => {
+            const productId = conn.productId.toString();
+            if (!categoryConnections.has(productId)) {
+                categoryConnections.set(productId, []);
+            }
+            categoryConnections.get(productId)!.push(conn.categoryId);
+        });
+
+        return categoryConnections;
+    } catch (error) {
+        console.error('Error fetching category connections:', error);
+        return new Map();
+    }
+}
+
+/**
+ * Fetch category connections for products in shipment items
+ * @param shipmentsData - Array of shipment data with itemsSummary
+ * @returns Map of product ID to array of category IDs
+ */
+export async function fetchCategoryConnectionsForShipments(
+    shipmentsData: Array<{ itemsSummary: Array<{ productId?: string }> }>
+): Promise<Map<string, number[]>> {
+    console.log('🔍 [fetchCategoryConnectionsForShipments] Starting fetch with:', {
+        shipmentsCount: shipmentsData.length,
+        totalItems: shipmentsData.reduce((sum, s) => sum + (s.itemsSummary?.length || 0), 0)
+    });
+
+    // Collect all unique product IDs from all shipments
+    const productIds = new Set<string>();
+    shipmentsData.forEach((shipmentData) => {
+        shipmentData.itemsSummary?.forEach((item) => {
+            if (item.productId) {
+                productIds.add(item.productId);
+            }
+        });
+    });
+
+    console.log('📦 [fetchCategoryConnectionsForShipments] Collected product IDs:', {
+        count: productIds.size,
+        sampleIds: Array.from(productIds).slice(0, 10)
+    });
+
+    if (productIds.size === 0) {
+        console.log('⚠️ [fetchCategoryConnectionsForShipments] No product IDs found');
+        return new Map();
+    }
+
+    try {
+        // Dynamically import supabase to avoid issues with server-side rendering
+        const { createClient } = await import('@supabase/supabase-js');
+        const { CONFIG } = await import('src/global-config');
+        
+        const supabase = createClient(
+            CONFIG.supabase.url,
+            CONFIG.supabase.key
+        );
+
+        // Convert string IDs to numbers for database query
+        const productIdsAsNumbers = Array.from(productIds).map(id => parseInt(id, 10));
+
+        console.log('🔢 [fetchCategoryConnectionsForShipments] Converted to numbers:', {
+            sampleNumbers: productIdsAsNumbers.slice(0, 10)
+        });
+
+        // Fetch category connections for all products
+        const { data, error } = await supabase
+            .from('ProductCategories_Products')
+            .select('productId, categoryId')
+            .in('productId', productIdsAsNumbers);
+
+        if (error) {
+            console.error('❌ [fetchCategoryConnectionsForShipments] Database error:', error);
+            return new Map();
+        }
+
+        console.log('✅ [fetchCategoryConnectionsForShipments] Database query successful:', {
+            rowsReturned: data?.length || 0,
+            sampleData: data?.slice(0, 5)
+        });
+
+        // Build the map
+        const categoryConnections = new Map<string, number[]>();
+        data?.forEach((conn: { productId: number; categoryId: number }) => {
+            const productId = conn.productId.toString();
+            if (!categoryConnections.has(productId)) {
+                categoryConnections.set(productId, []);
+            }
+            categoryConnections.get(productId)!.push(conn.categoryId);
+        });
+
+        console.log('🗺️ [fetchCategoryConnectionsForShipments] Built connections map:', {
+            mapSize: categoryConnections.size,
+            sampleEntries: Array.from(categoryConnections.entries()).slice(0, 5)
+        });
+
+        return categoryConnections;
+    } catch (error) {
+        console.error('Error fetching category connections:', error);
+        return new Map();
+    }
+}
 
 const F2FSVG = () => (
     <Svg width="114" height="31" viewBox="0 0 114 31" fill="none">

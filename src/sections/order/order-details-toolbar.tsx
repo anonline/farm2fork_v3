@@ -17,9 +17,10 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDateTime } from 'src/utils/format-time';
-import { generateShippingLabelPDF } from 'src/utils/pdf-generator';
+import { generateShippingLabelPDF, fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 
 import { useGetPickupLocations } from 'src/actions/pickup-location';
+import { useGetCategoryOrder } from 'src/actions/category-order';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -72,6 +73,7 @@ export function OrderDetailsToolbar({
 }: Props) {
     const paymentMenuActions = usePopover();
     const { locations: pickupLocations } = useGetPickupLocations();
+    const { categoryOrder } = useGetCategoryOrder();
 
     const handleGeneratePDF = async () => {
         if (!order) {
@@ -81,7 +83,11 @@ export function OrderDetailsToolbar({
 
         try {
             toast.info('PDF generálása folyamatban...');
-            await generateShippingLabelPDF(order, pickupLocations);
+            
+            // Fetch category connections for products in this order
+            const categoryConnections = await fetchCategoryConnectionsForOrders([order]);
+            
+            await generateShippingLabelPDF(order, pickupLocations, categoryOrder, categoryConnections);
             toast.success('Szállítólevél sikeresen letöltve!');
         } catch (error) {
             console.error('Failed to generate PDF:', error);

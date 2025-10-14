@@ -26,12 +26,13 @@ import { RouterLink } from 'src/routes/components';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 import { generateMultiShipmentPDF } from 'src/utils/shipment-pdf-export';
-import { generateMultipleShippingLabelsPDF } from 'src/utils/pdf-generator';
+import { generateMultipleShippingLabelsPDF, fetchCategoryConnectionsForOrders, fetchCategoryConnectionsForShipments } from 'src/utils/pdf-generator';
 import { generateOrderAddressPDF } from 'src/utils/order-address-pdf-export';
 import { transformOrdersDataToTableItems } from 'src/utils/transform-order-data';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { fetchGetProductsByIds } from 'src/actions/product';
+import { useGetCategoryOrder } from 'src/actions/category-order';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { deleteOrder, deleteOrders } from 'src/actions/order-management';
@@ -148,6 +149,7 @@ export function OrderListView() {
     const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', defaultDense: true });
     const { shipments, shipmentsLoading } = useShipments();
     const { locations: pickupLocations } = useGetPickupLocations();
+    const { categoryOrder } = useGetCategoryOrder();
     const confirmDialog = useBoolean();
     const [pdfGenerating, setPdfGenerating] = useState(false);
     const [sumOrderGrossValue, setSumOrderGrossValue] = useState(0);
@@ -319,7 +321,10 @@ export function OrderListView() {
             // Notify user about the process
             toast.info(`${selectedOrders.length} rendelés szállítólevelének generálása...`);
 
-            await generateMultipleShippingLabelsPDF(selectedOrders, pickupLocations);
+            // Fetch category connections for all products in selected orders (single query for all)
+            const categoryConnections = await fetchCategoryConnectionsForOrders(selectedOrders);
+
+            await generateMultipleShippingLabelsPDF(selectedOrders, pickupLocations, categoryOrder, categoryConnections);
             toast.success(`${selectedOrders.length} rendelés szállítólevele sikeresen generálva és letöltve!`);
 
         } catch (error) {
@@ -482,7 +487,8 @@ export function OrderListView() {
                 itemsSummary,
             };
 
-            await generateMultiShipmentPDF([summarizedData]);
+            const categoryConnections = await fetchCategoryConnectionsForShipments([summarizedData]);
+            await generateMultiShipmentPDF([summarizedData], categoryOrder, categoryConnections);
             toast.success(`${selectedOrders.length} rendelés összesítése sikeresen generálva!`);
 
         } catch (error) {
