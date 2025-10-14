@@ -1,5 +1,5 @@
 import type { IShipment } from 'src/types/shipments';
-import type { IOrderData, IOrderItem, PaymentStatus, OrderHistoryEntry } from 'src/types/order-management';
+import type { IOrderData, IOrderItem, OrderStatus, PaymentStatus, OrderHistoryEntry } from 'src/types/order-management';
 
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
@@ -252,6 +252,33 @@ export async function getAllOrdersSSR(params?: {
     }
 }
 
+export async function updateOrderStatusSSR(
+    orderId: string,
+    orderStatus: OrderStatus
+): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const supabase = await createAdminClient();
+
+        const { error } = await supabase
+            .from('orders')
+            .update({ 
+                order_status: orderStatus,
+                updated_at: new Date().toISOString(),
+             })
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error updating order status (SSR):', error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating order status (SSR):', error);
+        return { success: false, error: 'Failed to update order status' };
+    }
+}
+
 /**
  * Update order payment status - Server-side version
  */
@@ -364,6 +391,66 @@ export async function handleStockReductionForOrderSSR(orderId: string): Promise<
 
     return { success: true, error: null };
 }
+
+export async function revertStockReductionForOrderSSR(orderId: string): Promise<{ success: boolean; error: string | null }> {
+    const supabase = await createAdminClient();
+
+    const { data: orderData, error: fetchError } = await supabase
+        .from('orders')
+        .select('id, items')
+        .eq('id', orderId)
+        .single();
+
+    if (fetchError) {
+        console.error('Error fetching order for stock reduction revert (SSR):', fetchError);
+        return { success: false, error: 'Failed to fetch order for stock reduction revert' };
+    }
+
+    if (!orderData) {
+        return { success: false, error: 'Order not found' };
+    }
+
+    // Revert stock for each item in the order
+    const updates: Array<{ id: string; stock: number }> = [];
+
+    for (const item of orderData.items) {
+        const { data: productData, error: productFetchError } = await supabase
+            .from('Products')
+            .select('id, stock')
+            .eq('id', item.id)
+            .single();
+
+        if (productFetchError) {
+            console.error('Error fetching product for stock reduction revert (SSR):', productFetchError);
+            return { success: false, error: 'Failed to fetch product for stock reduction revert' };
+        }
+
+        if (!productData) {
+            continue; // Product not found, skip
+        }
+
+        const newStock = productData.stock + item.quantity;
+        updates.push({ id: item.id, stock: newStock });
+    }
+
+    // Perform bulk update if there are any updates
+    if (updates.length > 0) {
+        for (const update of updates) {
+            const { error: stockUpdateError } = await supabase
+                .from('Products')
+                .update({ stock: update.stock })
+                .eq('id', update.id);
+
+            if (stockUpdateError) {
+                console.error('Error updating product stock (SSR):', stockUpdateError);
+                return { success: false, error: 'Failed to update product stock' };
+            }
+        }
+    }
+
+    return { success: true, error: null };
+}
+
 
 export async function ensureOrderInShipmentSSR(orderId: string): Promise<{ success: boolean; error: string | null }> {
     const supabase = await createAdminClient();
@@ -533,9 +620,7 @@ export async function updateOrderPaymentSimpleStatusSSR(
     }
 }
 
-export async function addOrderHistorySSR(orderId: string, newHistory: OrderHistoryEntry): Promise<{ success: boolean; error: string | null }> {
-    console.log('adding new OrderHistory', orderId, newHistory);
-
+export async function addOrderHistoriesSSR(orderId: string, newHistories: OrderHistoryEntry[]): Promise<{ success: boolean; error: string | null }> {
     try {
         const supabase = await createAdminClient();
 
@@ -548,7 +633,39 @@ export async function addOrderHistorySSR(orderId: string, newHistory: OrderHisto
             console.error('Error fetching order history:', error);
             return { success: false, error: error.message };
         }
-        console.log('existing history:', data);
+
+        const history = data[0]?.history || [];
+        history.push(...newHistories);
+
+        const { error: updateError } = await supabase
+            .from('orders')
+            .update({ history })
+            .eq('id', orderId);
+
+        if (updateError) {
+            console.error('Error updating order history:', updateError);
+            return { success: false, error: updateError.message };
+        }
+        console.log('History updated successfully.');
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error adding order history:', error);
+        return { success: false, error: 'Failed to add order history' };
+    }
+}
+export async function addOrderHistorySSR(orderId: string, newHistory: OrderHistoryEntry): Promise<{ success: boolean; error: string | null }> {
+    try {
+        const supabase = await createAdminClient();
+
+        const { data, error } = await supabase
+            .from('orders')
+            .select('history')
+            .eq('id', orderId);
+
+        if (error) {
+            console.error('Error fetching order history:', error);
+            return { success: false, error: error.message };
+        }
 
         const history = data[0]?.history || [];
         history.push(newHistory);

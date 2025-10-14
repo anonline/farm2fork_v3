@@ -10,8 +10,8 @@ import { Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 
-import { stornoBillingoInvoiceSSR, createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { clearOrderInvoiceData, updateOrderInvoiceData, updateOrderBillingAddress } from 'src/actions/order-management';
+import { stornoBillingoInvoiceSSR, createBillingoInvoiceSSR, getInvoiceStatusInBillingoSSR } from 'src/actions/billingo-ssr';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -33,8 +33,8 @@ type Props = {
     orderData?: IOrderData | null; // Full order data needed for invoice creation
 };
 
-export function OrderDetailsBilling({ 
-    billingAddress, 
+export function OrderDetailsBilling({
+    billingAddress,
     orderId,
     customerId,
     onRefreshOrder,
@@ -80,13 +80,31 @@ export function OrderDetailsBilling({
 
             // Refresh order data to update the display
             onRefreshOrder?.();
-            
+
             toast.success('Számlázási cím sikeresen frissítve!');
         } catch (error) {
             console.error('Error saving billing address:', error);
             toast.error('Hiba történt a számlázási cím mentése során');
         }
     };
+
+    const handleInvoiceStatusGet = async () => {
+        if (!invoiceDataJson?.invoiceId) {
+            toast.error('Hiányzó számla azonosító');
+            return;
+        }
+
+        try {
+            const status = await getInvoiceStatusInBillingoSSR(invoiceDataJson.invoiceId);
+            if (!status.success) {
+                throw new Error(status.error || 'Számla státusz lekérdezési hiba');
+            }
+            toast.success(`Számla státusz: ${status.status}`);
+        } catch (error) {
+            console.error('Error getting invoice status:', error);
+            toast.error(`Számla státusz lekérdezési hiba: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
+        }
+    }
 
     const handleStornoInvoice = async () => {
         if (!orderId || !invoiceDataJson?.invoiceId) {
@@ -95,11 +113,11 @@ export function OrderDetailsBilling({
         }
 
         setIsStornoLoading(true);
-        
+
         try {
             // First, create storno invoice in Billingo
             const stornoResult = await stornoBillingoInvoiceSSR(invoiceDataJson.invoiceId);
-            
+
             if (!stornoResult.success) {
                 throw new Error(stornoResult.error || 'Sztornó hiba');
             }
@@ -107,7 +125,7 @@ export function OrderDetailsBilling({
             // Then clear invoice data from order
             const clearResult = await clearOrderInvoiceData(
                 orderId,
-                `Számla sztornózva. Sztornó számla ID: ${stornoResult.stornoInvoiceId}`,
+                `Számla sztornózva. Sztornó számla ID: ${stornoResult.stornoInvoiceId || 'Ismeretlen sztornó ID'}`,
                 undefined, // userId - can be added if available
                 'Admin felület'
             );
@@ -118,9 +136,9 @@ export function OrderDetailsBilling({
 
             // Refresh order data to update the display
             onRefreshOrder?.();
-            
-            toast.success(`Számla sikeresen sztornózva! Sztornó ID: ${stornoResult.stornoInvoiceId}`);
-            
+
+            toast.success(`Számla sikeresen sztornózva! Sztornó ID: ${stornoResult.stornoInvoiceId || 'Ismeretlen sztornó ID'}`);
+
         } catch (error) {
             console.error('Error storning invoice:', error);
             toast.error(`Sztornó hiba: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
@@ -136,11 +154,11 @@ export function OrderDetailsBilling({
         }
         console.log('Creating invoice for orderData from button:', orderData);
         setIsCreateInvoiceLoading(true);
-        
+
         try {
             // Create invoice using existing Billingo function
             const invoiceResult = await createBillingoInvoiceSSR(orderData);
-            
+
             if (!invoiceResult.success) {
                 throw new Error(invoiceResult.error || 'Számla létrehozási hiba');
             }
@@ -160,9 +178,9 @@ export function OrderDetailsBilling({
 
             // Refresh order data to update the display
             onRefreshOrder?.();
-            
+
             toast.success(`Számla sikeresen létrehozva! Számla ID: ${invoiceResult.invoiceId}`);
-            
+
         } catch (error) {
             console.error('Error creating invoice:', error);
             toast.error(`Számla hiba: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`);
@@ -172,12 +190,12 @@ export function OrderDetailsBilling({
     };
 
     // Determine if create invoice button should be shown
-    const canCreateInvoice = orderData && 
-        !isInvoiceCreated && 
-        !invoiceDataJson && 
+    const canCreateInvoice = orderData &&
+        !isInvoiceCreated &&
+        !invoiceDataJson &&
         !orderData.denyInvoice &&
-        orderData.orderStatus !== 'pending' && 
-        orderData.orderStatus !== 'cancelled' && 
+        orderData.orderStatus !== 'pending' &&
+        orderData.orderStatus !== 'cancelled' &&
         orderData.orderStatus !== 'refunded';
 
     return (
@@ -201,23 +219,33 @@ export function OrderDetailsBilling({
 
                         {/* Storno button - show only if invoice exists */}
                         {isInvoiceCreated && invoiceDataJson && (
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                size="small"
-                                onClick={() => setIsStornoModalOpen(true)}
-                                disabled={isStornoLoading}
-                                startIcon={<Iconify icon="solar:pen-bold" />}
-                            >
-                                Sztornó
-                            </Button>
+                            <>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    size="small"
+                                    onClick={handleInvoiceStatusGet}
+                                >
+                                    Státusz
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    size="small"
+                                    onClick={() => setIsStornoModalOpen(true)}
+                                    disabled={isStornoLoading}
+                                    startIcon={<Iconify icon="solar:pen-bold" />}
+                                >
+                                    Sztornó
+                                </Button>
+                            </>
                         )}
-                        
+
                         {/* Edit address button */}
-                        <IconButton 
+                        <IconButton
                             onClick={handleEditAddressClick}
                             disabled={isInvoiceCreated}
-                            sx={{ 
+                            sx={{
                                 opacity: isInvoiceCreated ? 0.5 : 1,
                                 cursor: isInvoiceCreated ? 'not-allowed' : 'pointer'
                             }}
@@ -230,10 +258,10 @@ export function OrderDetailsBilling({
             <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
                 {isInvoiceCreated && (
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" color="warning.main" sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 0.5 
+                        <Typography variant="caption" color="warning.main" sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.5
                         }}>
                             <Iconify icon="solar:lock-password-outline" width={14} />
                             A számla már létrejött, ezért nem szerkeszthető
@@ -282,9 +310,9 @@ export function OrderDetailsBilling({
                     >
                         Cím
                     </Box>
-                    {billingAddress?.fullAddress || 
-                     `${billingAddress?.postcode || ''} ${billingAddress?.city || ''} ${billingAddress?.street || ''} ${billingAddress?.houseNumber || ''}${billingAddress?.floor ? `, ${billingAddress.floor}` : ''}${billingAddress?.doorbell ? `, ${billingAddress.doorbell}` : ''}`.trim() || 
-                     '-'
+                    {billingAddress?.fullAddress ||
+                        `${billingAddress?.postcode || ''} ${billingAddress?.city || ''} ${billingAddress?.street || ''} ${billingAddress?.houseNumber || ''}${billingAddress?.floor ? `, ${billingAddress.floor}` : ''}${billingAddress?.doorbell ? `, ${billingAddress.doorbell}` : ''}`.trim() ||
+                        '-'
                     }
                 </Box>
 

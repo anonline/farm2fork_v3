@@ -14,6 +14,7 @@ import {
     Country,
     Currency,
     UnitPriceType,
+    PaymentStatus,
     PartnerService,
     PartnerTaxType,
     DocumentService,
@@ -111,7 +112,7 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
             partnerData.phone = billingAddress.phoneNumber;
         }
 
-        if(billingAddress?.email) {
+        if (billingAddress?.email) {
             partnerData.emails = partnerData.emails ? Array.from(new Set([...partnerData.emails, billingAddress.email])) : [billingAddress.email];
         }
 
@@ -271,12 +272,49 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
     }
 }
 
+export async function getInvoiceStatusInBillingoSSR(invoiceId: number): Promise<{ success: boolean; status?: 'cancelled' | 'paid' | 'unpaid'; error?: string }> {
+    try {
+        addBillingoApiKey();
+
+        const invoice = await DocumentService.getDocument(invoiceId);
+        const isPaidStatus = invoice.payment_status === PaymentStatus.PAID ? 'paid' : 'unpaid';
+
+        return {
+            success: true,
+            status: invoice.cancelled ? 'cancelled' : isPaidStatus,
+        };
+    } catch (error: any) {
+        console.error('Error fetching Billingo invoice status:', error?.body || error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+        };
+    }
+}
+
 /**
  * Cancel/Storno an invoice in Billingo - Server Action
  */
 export async function stornoBillingoInvoiceSSR(invoiceId: number): Promise<{ success: boolean; stornoInvoiceId?: number; error?: string; response?: any }> {
     try {
         addBillingoApiKey();
+
+        const currentStatus = await getInvoiceStatusInBillingoSSR(invoiceId);
+        if (!currentStatus.success) {
+            throw new Error('Failed to get current invoice status: ' + currentStatus.error);
+        }
+
+        if (currentStatus.status === 'cancelled') {
+            const response = {
+                success: true,
+                stornoInvoiceId: undefined,
+                stornoInvoiceNumber: '',
+                originalInvoiceId: invoiceId,
+                createdAt: new Date().toISOString(),
+            };
+            return response;
+        }
+
 
         // Cancel the invoice using Billingo's cancel endpoint
         // This creates a storno (cancellation) document automatically

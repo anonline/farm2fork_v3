@@ -12,7 +12,7 @@ import { fDate } from 'src/utils/format-time';
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
 import { triggerOrderPlacedEmail, triggerOrderPlacedAdminEmail } from 'src/actions/email-ssr';
-import { getOrderByIdSSR, addOrderHistorySSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
+import { getOrderByIdSSR, addOrderHistorySSR, updateOrderStatusSSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -79,7 +79,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     let transactionId = 0;
     let failMessageForUser = '';
 
-    if (order.paymentMethod?.slug === 'simple' && order.paymentStatus == 'pending') {
+    if (order.paymentMethod?.slug === 'simple' && (order.paymentStatus == 'pending' || order.paymentStatus == 'failed')) {
         if (!r) {
             console.error('Missing SimplePay response:', { orderId });
             redirect('/');
@@ -100,7 +100,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                 historyEntry = {
                     timestamp: new Date().toISOString(),
                     status: 'pending',
-                    note: 'Fizetés sikeres a SimplePay-en keresztül',
+                    note: 'Fizetés sikeres a SimplePay-en keresztül. SimpleData: ' + JSON.stringify(simplePayResponse),
                 };
             }
             else {
@@ -128,6 +128,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
                 };
 
                 await updateOrderPaymentStatusSSR(orderId, 'failed', 0);
+                await updateOrderStatusSSR(orderId, 'cancelled');
 
             }
 
@@ -153,13 +154,17 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     }
 
     // Update payment status if successful
-    if (isPaymentSuccess && order.paymentStatus == 'pending' && order.paymentMethod?.slug === 'simple') {
+    if (isPaymentSuccess && (order.paymentStatus == 'pending' || order.paymentStatus == 'failed') && order.paymentMethod?.slug === 'simple') {
         await updateOrderPaymentStatusSSR(orderId, 'paid', order.total);
-
-
     }
 
     if (!isPaymentSuccess) {
+        try {
+            await updateOrderStatusSSR(orderId, 'cancelled');
+        } catch (updateOrderStatusError) {
+            console.error('Error updating order status for order:', updateOrderStatusError);
+        }
+
         // If payment failed, show failure message
         return (
             <Container sx={{ py: 10, textAlign: 'center' }}>
@@ -228,6 +233,12 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
             await handleStockReductionForOrderSSR(orderId);
         } catch (stockReductionError) {
             console.error('Error handling stock reduction for order:', stockReductionError);
+        }
+
+        try {
+            await updateOrderStatusSSR(orderId, 'pending');
+        } catch (updateOrderStatusError) {
+            console.error('Error updating order status for order:', updateOrderStatusError);
         }
     }
 

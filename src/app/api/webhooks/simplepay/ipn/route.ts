@@ -1,7 +1,11 @@
 import type { NextRequest } from 'next/server';
+import type { OrderHistoryEntry } from 'src/types/order-management';
 
 import { NextResponse } from 'next/server';
 import { checkSignature, generateSignature } from 'simplepay-js-sdk';
+
+import { getOrderByIdSSR, addOrderHistoriesSSR, updateOrderStatusSSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR } from 'src/actions/order-ssr';
+
 
 // SimplePay IPN endpoint to handle instant payment notifications
 export async function POST(request: NextRequest) {
@@ -45,6 +49,64 @@ export async function POST(request: NextRequest) {
         } catch (parseError) {
             console.error('Invalid JSON in IPN body:', parseError);
             return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+        }
+
+        if (ipnData.orderRef && ipnData.transactionId && ipnData.status) {
+            const ipnOrderRef = ipnData.orderRef as string;
+            console.log('Processing IPN for orderRef:', ipnOrderRef);
+
+            const historyEntries: OrderHistoryEntry[] = [{
+                timestamp: new Date().toISOString(),
+                status: 'pending',
+                note: 'IPN received: ' + ipnBody,
+            }];
+
+            const { order, error:orderError } = await getOrderByIdSSR(ipnOrderRef);
+            if(orderError || !order) {
+                console.error('IPN: Order not found for orderRef:', ipnOrderRef);
+                return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+            }
+
+            if(ipnData.status === 'AUTHORIZED') {
+                if(order.paymentStatus !== 'paid') {
+                    console.log(`IPN: Order ${ipnOrderRef} payment authorized.`);
+                    // Here you would typically update the order status in your database
+                    await updateOrderPaymentStatusSSR(ipnOrderRef, 'paid', order.total);
+                    historyEntries.push({
+                        timestamp: new Date().toISOString(),
+                        status: 'paid',
+                        note: 'Payment finished via SimplePay IPN.',
+                    });
+                }
+
+                if(order.orderStatus === 'cancelled') {
+                    console.log(`IPN: Order ${ipnOrderRef} was cancelled but payment authorized. Updating order status to pending.`);
+                    await updateOrderStatusSSR(ipnOrderRef, 'pending');
+                    await ensureOrderInShipmentSSR(ipnOrderRef);
+                    await handleStockReductionForOrderSSR(ipnOrderRef);
+                    
+                    historyEntries.push({
+                        timestamp: new Date().toISOString(),
+                        status: 'pending',
+                        note: 'Order status updated to pending after payment authorization via SimplePay IPN.',
+                    });
+                }
+            }
+            else if(ipnData.status === 'FINISHED') {
+                if(order.paymentStatus !== 'closed') {
+                    console.log(`IPN: Order ${ipnOrderRef} payment finished.`);
+                    // Here you would typically update the order status in your database
+                    await updateOrderPaymentStatusSSR(ipnOrderRef, 'closed', order.total);
+                    historyEntries.push({
+                        timestamp: new Date().toISOString(),
+                        status: 'closed',
+                        note: 'Payment finished via SimplePay IPN.',
+                    });
+                }
+            }
+
+            await addOrderHistoriesSSR(ipnOrderRef, historyEntries);
+
         }
 
         // Add receiveDate property to the response
