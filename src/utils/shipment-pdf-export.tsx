@@ -49,27 +49,101 @@ type Props = {
   categoryConnections?: Map<string, number[]>;
 };
 
+type ConsolidatedItem = ShipmentItemSummary & {
+  notes?: string;
+};
+
+/**
+ * Consolidate bundle items with their simple product counterparts
+ * Bundle items are merged into the main product row with notes showing the breakdown
+ */
+function consolidateBundleItems(items: ShipmentItemSummary[]): ConsolidatedItem[] {
+  // Create a map to consolidate items by name-unit combination (not productId)
+  // This ensures items with the same name and unit are merged together
+  const consolidatedMap = new Map<string, ConsolidatedItem>();
+
+  // Track simple quantities separately to build proper notes
+  const simpleQuantities = new Map<string, number>();
+
+  items.forEach(item => {
+    // Use name + unit as key to properly consolidate duplicate products
+    const key = `${item.name}-${item.unit || 'db'}`;
+    const existing = consolidatedMap.get(key);
+
+    if (!item.isBundleItem) {
+      // Simple product - track the quantity
+      const currentSimple = simpleQuantities.get(key) || 0;
+      simpleQuantities.set(key, currentSimple + item.totalQuantity);
+
+      if (existing) {
+        // Merge with existing simple product
+        existing.totalQuantity += item.totalQuantity;
+        existing.totalValue += item.totalValue;
+      } else {
+        // First occurrence of this product
+        consolidatedMap.set(key, {
+          ...item,
+          notes: undefined,
+        });
+      }
+    } else {
+      // Bundle item
+      const bundleCount = item.parentQuantity || 1;
+      const bundleIndividual = item.individualQuantity || 0;
+      const unit = item.unit || 'db';
+
+      const bundleNote = `${bundleCount} x ${bundleIndividual.toLocaleString('hu-HU', { 
+        minimumFractionDigits: bundleIndividual % 1 === 0 ? 0 : 1, 
+        maximumFractionDigits: 2 
+      })} ${unit} (box)`;
+
+      if (existing) {
+        // Merge with existing product (simple or bundle)
+        existing.totalQuantity += item.totalQuantity;
+        existing.notes = existing.notes 
+          ? `${existing.notes} + ${bundleNote}`
+          : bundleNote;
+      } else {
+        // First occurrence - bundle only (no simple product)
+        consolidatedMap.set(key, {
+          ...item,
+          isBundleItem: false, // Treat as normal product now
+          notes: bundleNote,
+        });
+      }
+    }
+  });
+
+  // Build final notes with simple quantity prefix
+  consolidatedMap.forEach((item, key) => {
+    const simpleQty = simpleQuantities.get(key);
+    if (simpleQty && item.notes) {
+      // Has both simple and bundle - prepend simple quantity
+      const unit = item.unit || 'db';
+      const simpleNote = `${simpleQty.toLocaleString('hu-HU', { 
+        minimumFractionDigits: simpleQty % 1 === 0 ? 0 : 1, 
+        maximumFractionDigits: 2 
+      })} ${unit}`;
+      item.notes = `${simpleNote} + ${item.notes}`;
+    }
+  });
+
+  const result = Array.from(consolidatedMap.values());
+  return result;
+}
+
 /**
  * Sort shipment items by category order
  * Items with multiple categories will be sorted by the earliest category in the order
  * Items without categories or with unordered categories appear at the end
  */
 function sortShipmentItemsByCategoryOrder(
-  items: ShipmentItemSummary[],
+  items: ConsolidatedItem[],
   categoryOrder: number[],
   categoryConnections: Map<string, number[]>
-): ShipmentItemSummary[] {
-  console.log('🔍 [sortShipmentItemsByCategoryOrder] Starting bucket sort with:', {
-    itemsCount: items.length,
-    categoryOrderLength: categoryOrder.length,
-    categoryConnectionsSize: categoryConnections.size,
-    sampleItems: items.slice(0, 3).map(i => ({ productId: i.productId, name: i.name })),
-    categoryConnectionsKeys: Array.from(categoryConnections.keys()).slice(0, 10),
-    categoryConnectionsSample: Array.from(categoryConnections.entries()).slice(0, 5).map(([k, v]) => ({ productId: k, categories: v }))
-  });
+): ConsolidatedItem[] {
 
   if (!categoryOrder || categoryOrder.length === 0) {
-    console.log('⚠️ [sortShipmentItemsByCategoryOrder] No category order, sorting alphabetically');
     return items.sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -90,11 +164,6 @@ function sortShipmentItemsByCategoryOrder(
   // Add bucket 42 for "All Products" (uncategorized items) - NOT in orderMap
   buckets.set(42, []);
 
-  console.log('🪣 [sortShipmentItemsByCategoryOrder] Created buckets for categories:', 
-    Array.from(buckets.keys()),
-    '\n   Category 42 is fallback bucket (not in orderMap)'
-  );
-
   // Place each item in the bucket of its highest position category
   items.forEach(item => {
     // Convert productId to string for Map lookup (handles both string and number types)
@@ -103,14 +172,6 @@ function sortShipmentItemsByCategoryOrder(
     
     if (itemCategories.length === 0) {
       // No categories, put in bucket 42
-      console.log('📦 [sortShipmentItemsByCategoryOrder] Item has no categories, adding to bucket 42:', {
-        name: item.name,
-        productId: item.productId,
-        productIdType: typeof item.productId,
-        productIdKey,
-        lookupResult: categoryConnections.get(productIdKey),
-        hasInMap: categoryConnections.has(productIdKey)
-      });
       buckets.get(42)!.push(item);
       return;
     }
@@ -123,25 +184,14 @@ function sortShipmentItemsByCategoryOrder(
 
     if (orderedPositions.length === 0) {
       // Item has categories but none are in the order, put in bucket 42
-      console.log('📦 [sortShipmentItemsByCategoryOrder] Item categories not in order, adding to bucket 42:', 
-        { name: item.name, categories: itemCategories }
-      );
       buckets.get(42)!.push(item);
       return;
     }
 
     // Use the highest position category
     const targetCategory = orderedPositions[0].catId;
-    console.log('📦 [sortShipmentItemsByCategoryOrder] Adding item to bucket:', 
-      { name: item.name, categories: itemCategories, targetBucket: targetCategory }
-    );
     buckets.get(targetCategory)!.push(item);
   });
-
-  // Log bucket sizes
-  console.log('� [sortShipmentItemsByCategoryOrder] Bucket sizes:', 
-    Array.from(buckets.entries()).map(([catId, items]) => ({ categoryId: catId, count: items.length }))
-  );
 
   // Sort items alphabetically within each bucket and concatenate
   const result: ShipmentItemSummary[] = [];
@@ -151,7 +201,6 @@ function sortShipmentItemsByCategoryOrder(
     const bucketItems = buckets.get(catId) || [];
     if (bucketItems.length > 0) {
       const sortedBucket = bucketItems.sort((a, b) => a.name.localeCompare(b.name));
-      console.log(`✅ [sortShipmentItemsByCategoryOrder] Bucket ${catId}: ${sortedBucket.length} items, first: ${sortedBucket[0]?.name}`);
       result.push(...sortedBucket);
     }
   });
@@ -160,13 +209,8 @@ function sortShipmentItemsByCategoryOrder(
   const bucket42Items = buckets.get(42) || [];
   if (bucket42Items.length > 0) {
     const sortedBucket42 = bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
-    console.log(`✅ [sortShipmentItemsByCategoryOrder] Bucket 42 (uncategorized): ${sortedBucket42.length} items`);
     result.push(...sortedBucket42);
   }
-
-  console.log('🎯 [sortShipmentItemsByCategoryOrder] Final sort complete. Total items:', result.length,
-    'First 5:', result.slice(0, 5).map(i => i.name)
-  );
 
   return result;
 }
@@ -244,10 +288,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   productCol: { width: '40%', paddingHorizontal: 4 },
-  productColIndented: { width: '40%', paddingHorizontal: 4, paddingLeft: 16 },
   quantityCol: { width: '30%', paddingHorizontal: 4, textAlign: 'center' },
-  quantityColSecondary: { width: '30%', paddingHorizontal: 4, textAlign: 'center', color: '#666', fontSize: 8 },
-  notesCol: { width: '30%', paddingHorizontal: 4, textAlign: 'left' },
+  notesCol: { width: '30%', paddingHorizontal: 4, textAlign: 'left', fontSize: 8 },
   summaryRow: {
     flexDirection: 'row',
     borderTop: '1pt solid #000',
@@ -266,18 +308,14 @@ const styles = StyleSheet.create({
 });
 
 function renderPage({shipment, itemsSummary, categoryOrder = [], categoryConnections = new Map()}: Props) {
-  console.log('📄 [renderPage] Rendering page with:', {
-    shipmentId: shipment.id,
-    itemsCount: itemsSummary.length,
-    categoryOrderLength: categoryOrder.length,
-    categoryConnectionsSize: categoryConnections.size,
-    willSort: categoryOrder.length > 0 && categoryConnections.size > 0
-  });
   
-  // Sort items by category order if provided
+  // First consolidate bundle items
+  const consolidatedItems = consolidateBundleItems(itemsSummary);
+  
+  // Then sort items by category order if provided
   const sortedItems = categoryOrder.length > 0 && categoryConnections.size > 0
-    ? sortShipmentItemsByCategoryOrder(itemsSummary, categoryOrder, categoryConnections)
-    : itemsSummary.sort((a, b) => a.name.localeCompare(b.name));
+    ? sortShipmentItemsByCategoryOrder(consolidatedItems, categoryOrder, categoryConnections)
+    : consolidatedItems.sort((a, b) => a.name.localeCompare(b.name));
   
   return (
     <Page size="A4" style={styles.page}>
@@ -286,7 +324,7 @@ function renderPage({shipment, itemsSummary, categoryOrder = [], categoryConnect
           <View>
               {/* Simple logo placeholder */}
                 <Text style={styles.title}>
-                  {fDate(shipment.date) === 'Invalid date' && typeof shipment.date === 'string' ? shipment.date : fDate(shipment.date)}
+                  {shipment.date.toString()}
                 </Text>
           </View>
           <View style={styles.companyInfo}>
@@ -329,35 +367,16 @@ function renderPage({shipment, itemsSummary, categoryOrder = [], categoryConnect
 
         {/* Table Rows */}
         {sortedItems.map((item, index) => {
-          const isBundleItem = item.isBundleItem || false;
-          const productColStyle = isBundleItem ? styles.productColIndented : styles.productCol;
-          const quantityColStyle = isBundleItem ? styles.quantityColSecondary : styles.quantityCol;
-          
-          // Format quantity based on whether it's a bundle item
-          let quantityText = '';
-          if (isBundleItem && item.parentQuantity && item.individualQuantity) {
-            // Bundle item format: "0.8 kg (2 x 0.4 kg)"
-            const total = item.totalQuantity;
-            const parent = item.parentQuantity;
-            const individual = item.individualQuantity;
-            const unit = item.unit || 'db';
-            
-            quantityText = `${total.toLocaleString('hu-HU', { 
-              minimumFractionDigits: total % 1 === 0 ? 0 : 1, 
-              maximumFractionDigits: 2 
-            })} ${unit} (${parent} x ${individual.toLocaleString('hu-HU', { 
-              minimumFractionDigits: individual % 1 === 0 ? 0 : 1, 
-              maximumFractionDigits: 2 
-            })} ${unit})`;
-          } else {
-            // Main product format
-            const unit = item.unit || 'db';
-            quantityText = `${item.totalQuantity.toLocaleString('hu-HU')} ${unit}`;
-          }
+          // Format quantity
+          const unit = item.unit || 'db';
+          const quantityText = `${item.totalQuantity.toLocaleString('hu-HU', { 
+            minimumFractionDigits: item.totalQuantity % 1 === 0 ? 0 : 1, 
+            maximumFractionDigits: 2 
+          })} ${unit}`;
           
           return (
             <View key={item.id + '-' + index} style={styles.tableRow}>
-              <Text style={productColStyle}>
+              <Text style={styles.productCol}>
                 {item.isBio && (
                   <Text style={{ fontSize: 8, color: '#2e7d32', fontWeight: 'bold', fontFamily: 'Roboto' }}>
                     [BIO]{' '}
@@ -365,10 +384,12 @@ function renderPage({shipment, itemsSummary, categoryOrder = [], categoryConnect
                 )}            
                 {item.name}
               </Text>
-              <Text style={quantityColStyle}>
+              <Text style={styles.quantityCol}>
                 {quantityText}
               </Text>
-              <Text style={styles.notesCol} />
+              <Text style={styles.notesCol}>
+                {item.notes || ''}
+              </Text>
             </View>
           );
         })}

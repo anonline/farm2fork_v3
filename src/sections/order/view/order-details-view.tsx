@@ -3,7 +3,7 @@
 import type { IOrderProductItem } from 'src/types/order';
 import type { OrderStatus, PaymentStatus } from 'src/types/order-management';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -25,11 +25,13 @@ import { supabase } from 'src/lib/supabase';
 import { useGetDeliveries } from 'src/actions/delivery';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useOrderContext } from 'src/contexts/order-context';
+import { useGetCategoryOrder } from 'src/actions/category-order';
 import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { createBillingoInvoiceSSR } from 'src/actions/billingo-ssr';
 import { useShipments } from 'src/contexts/shipments/shipments-context';
 import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from 'src/_mock';
+import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 import { updateOrderItems, updateOrderStatus, updateOrderInvoiceData, updateOrderUserHistory, updateOrderDeliveryGuy, updateOrderPaymentMethod, updateOrderPaymentStatus, finishSimplePayTransaction, cancelSimplePayTransaction, handlingOrderItemQtyChangesStockReduction } from 'src/actions/order-management';
 
 import { toast } from 'src/components/snackbar';
@@ -60,6 +62,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const { order, orderData, loading, error } = state;
     const { deliveries } = useGetDeliveries();
     const pickupLocations = useGetPickupLocations();
+    const { categoryOrder } = useGetCategoryOrder();
 
     const [status, setStatus] = useState(order?.status);
     const [isEditing, setIsEditing] = useState(false);
@@ -74,6 +77,7 @@ export function OrderDetailsView({ orderId }: Props) {
     const [pendingSave, setPendingSave] = useState(false);
     const [pickupLocationOpenDays, setPickupLocationOpenDays] = useState<(string)[]>([]);
     const [hasAutoSetShipmentTime, setHasAutoSetShipmentTime] = useState(false);
+    const [categoryConnections, setCategoryConnections] = useState<Map<string, number[]>>(new Map());
 
     const userType = order?.customer?.userType || 'public';
 
@@ -92,6 +96,17 @@ export function OrderDetailsView({ orderId }: Props) {
             setStatus(order.status);
             setEditedItems([...order.items || []]);
         }
+    }, [order]);
+
+    // Fetch category connections when order changes
+    useEffect(() => {
+        const fetchConnections = async () => {
+            if (order) {
+                const connections = await fetchCategoryConnectionsForOrders([order] as any);
+                setCategoryConnections(connections);
+            }
+        };
+        fetchConnections();
     }, [order]);
 
     useEffect(() => {
@@ -1193,8 +1208,73 @@ export function OrderDetailsView({ orderId }: Props) {
         // Refresh is triggered via onRefreshOrder callback
     }, []);
 
-    // Calculate updated totals when in edit mode
-    const displayItems = isEditing ? editedItems : order?.items || [];
+    // Calculate updated totals when in edit mode and apply category sorting
+    const displayItems = useMemo(() => {
+        const items = isEditing ? editedItems : order?.items || [];
+        
+        // Apply category ordering if available
+        if (categoryOrder && categoryOrder.length > 0 && categoryConnections.size > 0) {
+            // Create order map for quick lookup (excluding category 42)
+            const filteredCategoryOrder = categoryOrder.filter(id => id !== 42);
+            const orderMap = new Map<number, number>();
+            filteredCategoryOrder.forEach((catId, index) => {
+                orderMap.set(catId, index);
+            });
+
+            // Create buckets for each category
+            const buckets = new Map<number, typeof items>();
+            filteredCategoryOrder.forEach((catId) => {
+                buckets.set(catId, []);
+            });
+            buckets.set(42, []); // Fallback bucket
+
+            // Place items in buckets
+            items.forEach(item => {
+                const productIdKey = item.id ? String(item.id) : '';
+                const itemCategories = categoryConnections.get(productIdKey) || [];
+                
+                if (itemCategories.length === 0) {
+                    buckets.get(42)!.push(item);
+                    return;
+                }
+
+                // Find highest position category
+                const orderedPositions = itemCategories
+                    .map(catId => ({ catId, position: orderMap.get(catId) }))
+                    .filter(({ position }) => position !== undefined)
+                    .sort((a, b) => b.position! - a.position!);
+
+                if (orderedPositions.length === 0) {
+                    buckets.get(42)!.push(item);
+                } else {
+                    const targetBucket = orderedPositions[0].catId;
+                    buckets.get(targetBucket)!.push(item);
+                }
+            });
+
+            // Concatenate buckets in order
+            const sortedItems: typeof items = [];
+            filteredCategoryOrder.forEach((catId) => {
+                const bucketItems = buckets.get(catId) || [];
+                if (bucketItems.length > 0) {
+                    bucketItems.sort((a, b) => a.name.localeCompare(b.name));
+                    sortedItems.push(...bucketItems);
+                }
+            });
+            // Add uncategorized items at the end
+            const bucket42Items = buckets.get(42) || [];
+            if (bucket42Items.length > 0) {
+                bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
+                sortedItems.push(...bucket42Items);
+            }
+            
+            return sortedItems;
+        }
+        
+        // Fallback to alphabetical sorting
+        return [...items].sort((a, b) => a.name.localeCompare(b.name));
+    }, [isEditing, editedItems, order?.items, categoryOrder, categoryConnections]);
+    
     const updatedSubtotal = isEditing
         ? editedItems.reduce((sum, item) => sum + item.subtotal, 0)
         : order?.subtotal || 0;

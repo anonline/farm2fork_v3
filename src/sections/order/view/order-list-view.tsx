@@ -471,6 +471,7 @@ export function OrderListView() {
             const orderNumbers = selectedOrders
                 .map(order => order.orderNumber)
                 .filter(Boolean)
+                .map(num => `#${num}`)
                 .join(', ');
 
             const mockShipment: IShipment = {

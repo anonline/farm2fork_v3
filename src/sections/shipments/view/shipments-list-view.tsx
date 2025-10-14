@@ -446,13 +446,18 @@ export function ShipmentsListView() {
         }
         try {
             const shipmentsData = await collectShipmentsDataForPdf(tableData);
-            generateMultiSheetShipmentXLS(shipmentsData);
+            
+            // Fetch category connections for all shipments
+            const allItemsSummaries = shipmentsData.flatMap(s => s.itemsSummary);
+            const categoryConnections = await fetchCategoryConnectionsForShipments(allItemsSummaries as any);
+            
+            generateMultiSheetShipmentXLS(shipmentsData, categoryOrder, categoryConnections);
             toast.success('XLS export sikeresen elkészült!');
         } catch (err) {
             console.error('XLS export error:', err);
             toast.error('Hiba az XLS exportálása során');
         }
-    }, [selectedRowIds, tableData]);
+    }, [selectedRowIds, tableData, categoryOrder]);
 
     const handleSummarizedExportXLS = useCallback(async () => {
         if (selectedRowIds.length === 0) {
@@ -460,14 +465,18 @@ export function ShipmentsListView() {
             return;
         }
         try {
-            const shipmentsData = await collectSummarizedShipmentDataForPdf(tableData);
-            generateMultiSheetShipmentXLS([shipmentsData]);
+            const summarizedShipmentData = await collectSummarizedShipmentDataForPdf(tableData);
+            
+            // Fetch category connections for summarized shipment - wrap in array format
+            const categoryConnections = await fetchCategoryConnectionsForShipments([summarizedShipmentData] as any);
+            
+            generateMultiSheetShipmentXLS([summarizedShipmentData], categoryOrder, categoryConnections);
             toast.success('XLS export sikeresen elkészült!');
         } catch (err) {
             console.error('XLS export error:', err);
             toast.error('Hiba az XLS exportálása során');
         }
-    }, [selectedRowIds, tableData]);
+    }, [selectedRowIds, tableData, categoryOrder]);
 
     const handleRecalculate = useCallback(async () => {
         if (selectedRowIds.length === 0) {

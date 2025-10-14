@@ -308,13 +308,16 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
         if (!shipment) return;
 
         try {
-            generateShipmentXLS(shipment, itemsSummary);
+            // Fetch category connections for products in orders
+            const categoryConnections = await fetchCategoryConnectionsForOrders(orders as any);
+            
+            generateShipmentXLS(shipment, itemsSummary, categoryOrder, categoryConnections);
             toast.success('XLS export sikeresen elkészült!');
         } catch (err) {
             console.error('XLS export error:', err);
             toast.error('Hiba az XLS exportálása során');
         }
-    }, [shipment, itemsSummary]);
+    }, [shipment, itemsSummary, orders, categoryOrder]);
 
     const handleExportAddressList = useCallback(async () => {
         if (!shipment || orders.length === 0) return;

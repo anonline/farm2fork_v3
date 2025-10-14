@@ -208,8 +208,13 @@ export function CategoryOrderView() {
     // Initialize items from categories and category order
     useEffect(() => {
         if (!categoriesLoading && !categoryOrderLoading && allCategories.length > 0) {
-            // Get all categories
-            const categoriesWithIds = allCategories.filter((cat) => cat.id !== null);
+            // Get all categories and filter to only include level 0 and level 1
+            const categoriesWithIds = allCategories
+                .filter((cat) => cat.id !== null)
+                .filter((cat) => {
+                    const level = getCategoryLevel(cat.id);
+                    return level === 0 || level === 1;
+                });
 
             if (categoryOrder.length > 0) {
                 // Sort by existing order
