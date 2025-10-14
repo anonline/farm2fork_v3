@@ -5,7 +5,8 @@ import type { IOrderData } from 'src/types/order-management';
 import type {
     Partner,
     DocumentInsert,
-    DocumentProductData
+    DocumentProductData,
+    SendDocument
 } from '@codingsans/billingo-client';
 
 import {
@@ -235,6 +236,17 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
 
         if (!invoice.id) {
             throw new Error('Invoice creation failed - no ID returned');
+        }
+
+        const emailsNotification: SendDocument = {
+            emails: orderData.billingEmails || [],
+        };
+        try {
+            if (emailsNotification.emails?.length) {
+                await DocumentService.sendDocument(invoice.id, emailsNotification);
+            }
+        } catch (invoiceEmailError) {
+            console.error('Error sending invoice email:', invoiceEmailError);
         }
 
         // Get the download URL for the invoice
