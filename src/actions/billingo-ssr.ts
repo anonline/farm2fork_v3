@@ -4,9 +4,9 @@ import type { IAddressItem } from 'src/types/common';
 import type { IOrderData } from 'src/types/order-management';
 import type {
     Partner,
+    SendDocument,
     DocumentInsert,
-    DocumentProductData,
-    SendDocument
+    DocumentProductData
 } from '@codingsans/billingo-client';
 
 import {

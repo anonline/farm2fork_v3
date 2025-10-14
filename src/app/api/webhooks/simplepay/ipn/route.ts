@@ -4,15 +4,22 @@ import type { OrderHistoryEntry } from 'src/types/order-management';
 import { NextResponse } from 'next/server';
 import { checkSignature, generateSignature } from 'simplepay-js-sdk';
 
-import { getOrderByIdSSR, addOrderHistoriesSSR, updateOrderStatusSSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR } from 'src/actions/order-ssr';
+import { getOrderByIdSSR, addOrderHistoriesSSR, updateOrderStatusSSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
+type SimplePayResponse = {
+    r: number, //válasz kód
+    t: number, // tranzakciós azonosító
+    e: string, // hibaüzenet
+    m: string, // státusz üzenet
+    o: string // egyéb információ
+}
 
 // SimplePay IPN endpoint to handle instant payment notifications
 export async function POST(request: NextRequest) {
     try {
         // Get the signature from the header
         const signatureHeader = request.headers.get('Signature') || request.headers.get('signature');
-        
+
         if (!signatureHeader) {
             console.error('Missing signature header in IPN request');
             return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
@@ -20,7 +27,7 @@ export async function POST(request: NextRequest) {
 
         // Get the raw body
         const ipnBody = await request.text();
-        
+
         if (!ipnBody) {
             console.error('Empty IPN body received');
             return NextResponse.json({ error: 'Empty body' }, { status: 400 });
@@ -28,7 +35,7 @@ export async function POST(request: NextRequest) {
 
         // Get the merchant key from environment
         const SIMPLEPAY_MERCHANT_KEY_HUF = process.env.SIMPLEPAY_MERCHANT_KEY_HUF;
-        
+
         if (!SIMPLEPAY_MERCHANT_KEY_HUF) {
             console.error('Missing SIMPLEPAY_MERCHANT_KEY_HUF environment variable');
             return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
@@ -36,7 +43,7 @@ export async function POST(request: NextRequest) {
 
         // Validate the signature
         const isValidSignature = checkSignature(ipnBody, signatureHeader, SIMPLEPAY_MERCHANT_KEY_HUF);
-        
+
         if (!isValidSignature) {
             console.error('Invalid signature in IPN request');
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
@@ -61,14 +68,22 @@ export async function POST(request: NextRequest) {
                 note: 'IPN received: ' + ipnBody,
             }];
 
-            const { order, error:orderError } = await getOrderByIdSSR(ipnOrderRef);
-            if(orderError || !order) {
+            const { order, error: orderError } = await getOrderByIdSSR(ipnOrderRef);
+            if (orderError || !order) {
                 console.error('IPN: Order not found for orderRef:', ipnOrderRef);
                 return NextResponse.json({ error: 'Order not found' }, { status: 404 });
             }
 
-            if(ipnData.status === 'AUTHORIZED') {
-                if(order.paymentStatus !== 'paid') {
+            const newSimpleDataJson = {
+                t: ipnData.transactionId,
+                r: 0,
+                e: ipnData.status,
+                m: ipnData.merchant,
+                o: ipnOrderRef
+            };
+
+            if (ipnData.status === 'AUTHORIZED') {
+                if (order.paymentStatus !== 'paid') {
                     console.log(`IPN: Order ${ipnOrderRef} payment authorized.`);
                     // Here you would typically update the order status in your database
                     await updateOrderPaymentStatusSSR(ipnOrderRef, 'paid', order.total);
@@ -79,12 +94,12 @@ export async function POST(request: NextRequest) {
                     });
                 }
 
-                if(order.orderStatus === 'cancelled') {
+                if (order.orderStatus === 'cancelled') {
                     console.log(`IPN: Order ${ipnOrderRef} was cancelled but payment authorized. Updating order status to pending.`);
                     await updateOrderStatusSSR(ipnOrderRef, 'pending');
                     await ensureOrderInShipmentSSR(ipnOrderRef);
                     await handleStockReductionForOrderSSR(ipnOrderRef);
-                    
+
                     historyEntries.push({
                         timestamp: new Date().toISOString(),
                         status: 'pending',
@@ -92,8 +107,8 @@ export async function POST(request: NextRequest) {
                     });
                 }
             }
-            else if(ipnData.status === 'FINISHED') {
-                if(order.paymentStatus !== 'closed') {
+            else if (ipnData.status === 'FINISHED') {
+                if (order.paymentStatus !== 'closed') {
                     console.log(`IPN: Order ${ipnOrderRef} payment finished.`);
                     // Here you would typically update the order status in your database
                     await updateOrderPaymentStatusSSR(ipnOrderRef, 'closed', order.total);
@@ -102,6 +117,19 @@ export async function POST(request: NextRequest) {
                         status: 'closed',
                         note: 'Payment finished via SimplePay IPN.',
                     });
+                }
+            }
+
+            if (!order.simplepayDataJson) {
+                try {
+                    await updateOrderPaymentSimpleStatusSSR(ipnOrderRef, JSON.stringify(newSimpleDataJson));
+                    historyEntries.push({
+                        timestamp: new Date().toISOString(),
+                        status: 'pending',
+                        note: 'New SimplePay Data from IPN inserted.',
+                    });
+                } catch (error) {
+                    console.error('Error updating order payment simple status:', error);
                 }
             }
 
