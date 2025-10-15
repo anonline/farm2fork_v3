@@ -1,7 +1,10 @@
+import type { NextRequest} from "next/server";
+
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { getPaymentStatus } from "src/lib/billingo-invoice";
+import { NextResponse } from "next/server";
+
 import { supabaseSSR } from "src/lib/supabase-ssr";
+import { getPaymentStatus } from "src/lib/billingo-invoice";
 
 
 export async function GET(request: NextRequest) {

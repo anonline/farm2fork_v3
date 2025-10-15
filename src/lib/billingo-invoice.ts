@@ -1,10 +1,9 @@
 import type { IAddressItem } from 'src/types/common';
 import type { IOrderData } from 'src/types/order-management';
-import type { 
+import type {
     DocumentInsert,
     PaymentHistory,
-    DocumentProductData,
-    ApiError
+    DocumentProductData
 } from '@codingsans/billingo-client';
 
 import { 
@@ -13,12 +12,12 @@ import {
     Country,
     Currency,
     UnitPriceType,
+    PaymentStatus,
     PartnerService,
     DocumentService,
     DocumentLanguage,
     DocumentInsertType,
-    PaymentMethod as BillingoPaymentMethod,
-    PaymentStatus
+    PaymentMethod as BillingoPaymentMethod
 } from '@codingsans/billingo-client';
 
 // Add Billingo API key
@@ -252,8 +251,8 @@ export async function getPaymentStatus(invoiceId: number): Promise<{ success: bo
                 error: 'Invoice not found or paid status unavailable',
             };
         }
-    } catch (error: ApiError | any) {
-        console.error('Error fetching invoice payment status:', error.body);
+    } catch (error) {
+        console.error('Error fetching invoice payment status:', error);
         return {
             success: false,
             paid: false,
