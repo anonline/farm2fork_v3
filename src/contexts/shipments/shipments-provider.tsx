@@ -71,7 +71,7 @@ export function ShipmentsProvider({ limit: initialLimit = 100, children }: Reado
         orders.forEach((order: IOrderData) => {
             // Count unique product IDs across all orders
             order.items.forEach(item => {
-                uniqueProductIds.add(`${item.name}-${item.unit || ''}`);
+                uniqueProductIds.add(`${item.id}-${item.name}-${item.unit || ''}`);
             });
 
             if (order.items.length > 0) {
