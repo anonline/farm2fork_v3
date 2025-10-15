@@ -70,7 +70,8 @@ export function SupabaseUpdatePasswordView() {
         try {
             await updatePassword({ password: data.password });
             await signOut();
-            router.push(paths.auth.supabase.signIn);
+            // Redirect to sign-in without returnTo parameter to avoid redirect loop
+            window.location.href = paths.auth.supabase.signIn;
         } catch (error) {
             console.error(error);
             const feedbackMessage = getErrorMessage(error);

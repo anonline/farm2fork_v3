@@ -65,10 +65,12 @@ export type SignInSchemaType = zod.infer<typeof SignInSchema>;
 // ----------------------------------------------------------------------
 
 export function SupabaseSignInView() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const errorParam = searchParams.get('error');
     const router = useRouter();
     const showPassword = useBoolean();
     const { checkUserSession } = useAuthContext();
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(errorParam);
 
     const defaultValues: SignInSchemaType = { email: '', password: '' };
 

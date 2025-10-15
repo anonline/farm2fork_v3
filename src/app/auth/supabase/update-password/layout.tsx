@@ -10,6 +10,12 @@ type Props = {
     children: React.ReactNode;
 };
 
-export default function Layout({ children }: Props) {
-    return <ProfileGuard><MainLayout><Container>{children}</Container></MainLayout></ProfileGuard>;
+export default function Layout({ children }: Readonly<Props>) {
+    return (
+        <ProfileGuard>
+            <MainLayout>
+                <Container>{children}</Container>
+            </MainLayout>
+        </ProfileGuard>
+    );
 }
