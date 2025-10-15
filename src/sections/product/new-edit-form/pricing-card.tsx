@@ -40,7 +40,7 @@ export default function PricingCard({ isOpen, handleGrossPriceChange, handleStoc
                         label="Végtelen készlet"
                         sx={{ ml: 0 }}
                         control={
-                            <Switch checked={handleStock} onChange={handleStockChange} name="handleStock" />
+                            <Switch checked={!handleStock} onChange={handleStockChange} name="handleStock" />
                         }
                     />
 
