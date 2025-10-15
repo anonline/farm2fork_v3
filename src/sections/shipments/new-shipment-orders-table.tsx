@@ -34,7 +34,7 @@ type Props = {
     hideCheckboxes?: boolean;
 };
 
-export function OrdersTable({ orders, selectedOrders, onOrderToggle, loading, hideCheckboxes = false }: Props) {
+export function OrdersTable({ orders, selectedOrders, onOrderToggle, loading, hideCheckboxes = false }: Readonly<Props>) {
     const theme = useTheme();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -43,11 +43,15 @@ export function OrdersTable({ orders, selectedOrders, onOrderToggle, loading, hi
         if (!searchQuery.trim()) return orders;
 
         const query = searchQuery.toLowerCase();
-        return orders.filter(order =>
+        return orders.filter(order => {
+            const itemNames = order.items.map(item => item.name).join(' ').toLowerCase();
+            return (
             order.customerName.toLowerCase().includes(query) ||
-            order.id.toLowerCase().includes(query) ||
-            order.note.toLowerCase().includes(query)
-        );
+            order.id.toString().toLowerCase().includes(query) ||
+            order.note.toLowerCase().includes(query) ||
+            itemNames.includes(query)
+            );
+        });
     }, [orders, searchQuery]);
 
     const getOrderStatusColor = (status: string) => {
@@ -100,7 +104,7 @@ export function OrdersTable({ orders, selectedOrders, onOrderToggle, loading, hi
             <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <TextField
                     fullWidth
-                    placeholder="Keresés rendelés ID, ügyfélnév vagy megjegyzés alapján..."
+                    placeholder="Keresés rendelés ID, ügyfélnév, terméknév vagy megjegyzés alapján..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     size="small"
