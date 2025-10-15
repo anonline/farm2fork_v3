@@ -701,7 +701,7 @@ export async function handlingOrderItemQtyChangesStockReduction(orderId: string,
                 await adjustStockLevel(item.id, item.before);
             } else if (item.type === 'modified') {
                 // If the item is modified, adjust the stock based on the new quantity
-                await adjustStockLevel(item.id, item.after - item.before);
+                await adjustStockLevel(item.id, item.before - item.after);
             } else if (item.type === 'added') {
                 // If the item is added, decrease the stock
                 await adjustStockLevel(item.id, -item.after);
@@ -731,12 +731,7 @@ async function adjustStockLevel(productId: string, quantityChange: number): Prom
             return; // Stock is not managed for this product
         }
 
-        let newStock = product.stock + quantityChange;
-
-        if (!product.backorder && newStock < 0) {
-            console.warn(`Cannot reduce stock for product ${productId} below zero as backorders are not allowed.`);
-            newStock = 0; // Prevent stock from going negative
-        }
+        const newStock = product.stock + quantityChange;
 
         await supabase.from('Products').update({ stock: newStock }).eq('id', productId);
     } catch (error) {

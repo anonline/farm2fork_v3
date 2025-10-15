@@ -37,7 +37,7 @@ export default function PricingCard({ isOpen, handleGrossPriceChange, handleStoc
                     <Divider sx={{ my: 2 }} />
 
                     <FormControlLabel
-                        label="Készlet kezelése"
+                        label="Végtelen készlet"
                         sx={{ ml: 0 }}
                         control={
                             <Switch checked={handleStock} onChange={handleStockChange} name="handleStock" />
