@@ -318,7 +318,6 @@ export default function ProductDetails() {
                     {renderSeasonality()}
                 </Box>)}
 
-                {renderBundleItems()}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: headRightSectionGap }}>
                     {renderProducerInfo()}
                 </Box>
