@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         // Verify the request is from Vercel Cron (optional but recommended)
         const authHeader = request.headers.get('authorization');
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-          //return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
     
         console.log('Cron job started: Checking announcements...');
@@ -24,49 +24,90 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
     const supabase = await supabaseSSR(cookieStore);
 
+    // Limit to 50 orders per run to stay well under the 100 queries/min rate limit
+    // With 30-minute intervals, this ensures we can process all orders safely
+    const BATCH_SIZE = 50;
+    
     const { data: unpaidOrders } = await supabase.from('orders')
         .select('id, invoice_data_json')
         .gt('id', 50000) // Only check orders with ID greater than 50000
         .eq('payment_status', 'pending')
         .not('invoice_data_json', 'is', null)
-        .limit(100);
-        
-    // Ensure invoice_data_json is not null
-    if (!unpaidOrders || unpaidOrders.length === 0) {
+        .order('id', { ascending: true }) // Process oldest orders first
+        .limit(BATCH_SIZE);
+
+    const {data:countAllUnpaidOrders, error:countError} = await supabase.from('orders')
+        .select('id, invoice_data_json')
+        .gt('id', 50000) // Only check orders with ID greater than 50000
+        .eq('payment_status', 'pending')
+        .not('invoice_data_json', 'is', null)
+        .order('id', { ascending: true }); // Process oldest orders first
+
+        // Ensure invoice_data_json is not null
+    if (!unpaidOrders || unpaidOrders.length === 0 || !countAllUnpaidOrders || countAllUnpaidOrders.length === 0) {
         console.log('No unpaid orders found or invoice_data_json is null');
         return NextResponse.json({ message: 'No unpaid orders found' });
     }
+    console.log('Found', countAllUnpaidOrders.length, 'total unpaid orders.');
+    console.log(`Processing ${unpaidOrders.length} unpaid orders...`);
+    
+    let processedCount = 0;
+    let closedCount = 0;
+    let errorCount = 0;
 
-    unpaidOrders.forEach(async (order, index) => {
+    // Process orders sequentially to respect rate limits
+    // With 50 orders and ~1.2s per call = ~60 seconds total (well under 100 queries/min)
+    for (let i = 0; i < unpaidOrders.length; i += 1) {
+        const order = unpaidOrders[i];
+        
         if (!order.invoice_data_json) {
             console.log(`Skipping order ${order.id} as invoice_data_json is null`);
-            return;
+            continue;
         }
 
         const invoiceData = order.invoice_data_json;
 
         try {
             const { success, paid } = await getPaymentStatus(invoiceData.invoiceId);
-            console.log(`${index}/${unpaidOrders.length} - ${invoiceData.invoiceId}:`, { success, paid });
-            if (success) {
-                if(paid) {
-                    // Update order payment status to 'closed'
-                    const { error } = await supabase.from('orders')
-                        .update({ payment_status: 'closed' })
-                        .eq('id', order.id);
-                    if (error) {
-                        console.error(`Error updating order ${order.id} to closed:`, error);
-                    } else {
-                        console.log(`Order ${order.id} marked as closed.`);
-                    }
+            console.log(`[${i + 1}/${unpaidOrders.length}] Order ${order.id} - Invoice ${invoiceData.invoiceId}: ${paid ? 'PAID' : 'UNPAID'}`);
+            
+            processedCount += 1;
+            
+            if (success && paid) {
+                // Update order payment status to 'closed'
+                const { error } = await supabase.from('orders')
+                    .update({ payment_status: 'closed' })
+                    .eq('id', order.id);
+                    
+                if (error) {
+                    console.error(`Error updating order ${order.id} to closed:`, error);
+                    errorCount += 1;
+                } else {
+                    console.log(`✓ Order ${order.id} marked as closed.`);
+                    closedCount += 1;
                 }
-                else {
-                    console.log(`Invoice ${invoiceData.invoiceId} for order ${order.id} is still unpaid.`);
-                }
+            }
+            
+            // Add a small delay between API calls to be respectful of rate limits
+            // This ensures we stay well under 100 queries/min
+            if (i < unpaidOrders.length - 1) {
+                await new Promise(resolve => { setTimeout(resolve, 700); });
             }
         } catch (error) {
             console.error(`Error checking payment status for invoice ${invoiceData.invoiceId}:`, error);
+            errorCount += 1;
         }
-    });
-    return NextResponse.json({ message: 'Cron job executed successfully' });
+    }
+    
+    const summary = {
+        message: 'Cron job executed successfully',
+        processed: processedCount,
+        closed: closedCount,
+        errors: errorCount,
+        remaining: unpaidOrders.length === BATCH_SIZE ? 'possibly more' : 0,
+        all: countAllUnpaidOrders.length || 0,
+    };
+    
+    console.log('Summary:', summary);
+    return NextResponse.json(summary);
 }
