@@ -65,8 +65,8 @@ function consolidateBundleItems(items: ShipmentItemSummary[]): ConsolidatedItem[
   const simpleQuantities = new Map<string, number>();
 
   items.forEach(item => {
-    // Use name + unit as key to properly consolidate duplicate products
-    const key = `${item.name}-${item.unit || 'db'}`;
+    // Use id + name + unit as key to properly consolidate duplicate products
+    const key = `${item.id}-${item.name}-${item.unit || 'db'}`;
     const existing = consolidatedMap.get(key);
 
     if (!item.isBundleItem) {
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
 });
 
 function renderPage({shipment, itemsSummary, categoryOrder = [], categoryConnections = new Map()}: Props) {
-  
+  console.log('itemSummary', itemsSummary);
   // First consolidate bundle items
   const consolidatedItems = consolidateBundleItems(itemsSummary);
   

@@ -385,7 +385,7 @@ export function OrderListView() {
 
             selectedOrders.forEach((order) => {
                 order.items.forEach((item) => {
-                    const key = `${item.name || 'Unknown'}-${item.unit || ''}`;
+                    const key = `${item.id}-${item.name || 'Unknown'}-${item.unit || ''}`;
 
                     if (!itemsMap.has(key)) {
                         const productData = products.find(p => p.id.toString() === item.id.toString());

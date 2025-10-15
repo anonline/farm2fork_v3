@@ -735,11 +735,6 @@ export async function fetchCategoryConnectionsForOrders(orders: IOrderItem[]): P
 export async function fetchCategoryConnectionsForShipments(
     shipmentsData: Array<{ itemsSummary: Array<{ productId?: string }> }>
 ): Promise<Map<string, number[]>> {
-    console.log('🔍 [fetchCategoryConnectionsForShipments] Starting fetch with:', {
-        shipmentsCount: shipmentsData.length,
-        totalItems: shipmentsData.reduce((sum, s) => sum + (s.itemsSummary?.length || 0), 0)
-    });
-
     // Collect all unique product IDs from all shipments
     const productIds = new Set<string>();
     shipmentsData.forEach((shipmentData) => {
@@ -750,13 +745,7 @@ export async function fetchCategoryConnectionsForShipments(
         });
     });
 
-    console.log('📦 [fetchCategoryConnectionsForShipments] Collected product IDs:', {
-        count: productIds.size,
-        sampleIds: Array.from(productIds).slice(0, 10)
-    });
-
     if (productIds.size === 0) {
-        console.log('⚠️ [fetchCategoryConnectionsForShipments] No product IDs found');
         return new Map();
     }
 
@@ -773,10 +762,6 @@ export async function fetchCategoryConnectionsForShipments(
         // Convert string IDs to numbers for database query
         const productIdsAsNumbers = Array.from(productIds).map(id => parseInt(id, 10));
 
-        console.log('🔢 [fetchCategoryConnectionsForShipments] Converted to numbers:', {
-            sampleNumbers: productIdsAsNumbers.slice(0, 10)
-        });
-
         // Fetch category connections for all products
         const { data, error } = await supabase
             .from('ProductCategories_Products')
@@ -788,11 +773,6 @@ export async function fetchCategoryConnectionsForShipments(
             return new Map();
         }
 
-        console.log('✅ [fetchCategoryConnectionsForShipments] Database query successful:', {
-            rowsReturned: data?.length || 0,
-            sampleData: data?.slice(0, 5)
-        });
-
         // Build the map
         const categoryConnections = new Map<string, number[]>();
         data?.forEach((conn: { productId: number; categoryId: number }) => {
@@ -801,11 +781,6 @@ export async function fetchCategoryConnectionsForShipments(
                 categoryConnections.set(productId, []);
             }
             categoryConnections.get(productId)!.push(conn.categoryId);
-        });
-
-        console.log('🗺️ [fetchCategoryConnectionsForShipments] Built connections map:', {
-            mapSize: categoryConnections.size,
-            sampleEntries: Array.from(categoryConnections.entries()).slice(0, 5)
         });
 
         return categoryConnections;
@@ -832,9 +807,4 @@ const F2FSVG = () => (
     </Svg>
 );
 
-const BioSVG = () => (
-    <Svg style={{marginTop: '-4px'}} width="8" viewBox="0 0 512 512" fill="#4A6E50">
-        <Path d="M471.3 6.7C477.7 .6 487-1.6 495.6 1.2 505.4 4.5 512 13.7 512 24l0 186.9c0 131.2-108.1 237.1-238.8 237.1-77 0-143.4-49.5-167.5-118.7-35.4 30.8-57.7 76.1-57.7 126.7 0 13.3-10.7 24-24 24S0 469.3 0 456C0 381.1 38.2 315.1 96.1 276.3 131.4 252.7 173.5 240 216 240l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0c-39.7 0-77.3 8.8-111 24.5 23.3-70 89.2-120.5 167-120.5 66.4 0 115.8-22.1 148.7-44 19.2-12.8 35.5-28.1 50.7-45.3z"/>
-    </Svg>
-);
 export default ShippingLabelPDF;

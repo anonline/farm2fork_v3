@@ -39,7 +39,7 @@ export function SupabaseVerifyView() {
                     <FormHead
                         icon={<Iconify icon="solar:letter-outline" width={64} />}
                         title="Ellenőrizd az email fiókodat!"
-                        description={`Küldtünk egy 6-jegyű megerősítő kódot. \nKérjük, írd be a kódot az alábbi mezőbe az email címed megerősítéséhez.`}
+                        description="Küldtünk egy linket, amely a jelszavad visszaállításához szükséges."
                     />
 
                     <FormReturnLink href={paths.auth.supabase.signIn} sx={{ mb: 5 }} />

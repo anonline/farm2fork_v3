@@ -146,7 +146,7 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
         orders.forEach((order) => {
             order.items.forEach((item) => {
-                const key = `${item.name}-${item.unit || ''}`;
+                const key = `${item.id}-${item.name}-${item.unit || ''}`;
 
                 if (!itemsMap.has(key)) {
                     itemsMap.set(key, {
@@ -261,7 +261,6 @@ export function ShipmentDetailsView({ id }: Readonly<Props>) {
 
             // If it's a bundle product, add its bundle items
             if (item.productData?.type === 'bundle' && item.productData?.bundleItems && item.productData.bundleItems.length > 0) {
-                console.log('Expanding bundle items for', item.productData.bundleItems);
                 item.productData.bundleItems.forEach((bundleItem) => {
                     const totalBundleQuantity = bundleItem.qty * item.totalQuantity;
                     expandedItems.push({

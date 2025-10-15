@@ -127,7 +127,7 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
 
     orders.forEach((order) => {
         order.items.forEach((item) => {
-            const key = `${item.name}-${item.size || ''}-${item.unit || ''}`;
+            const key = `${item.id}-${item.name}-${item.size || ''}-${item.unit || ''}`;
 
             if (!itemsMap.has(key)) {
                 itemsMap.set(key, {
