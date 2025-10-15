@@ -6,7 +6,7 @@ import { SupabaseResetPasswordView } from 'src/auth/view/supabase';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Reset password | Supabase - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Elfelejtett jelszó kérése - ${CONFIG.appName}` };
 
 export default function Page() {
     return <SupabaseResetPasswordView />;

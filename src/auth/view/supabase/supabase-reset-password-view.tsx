@@ -3,6 +3,8 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Stack from 'node_modules/@mui/material/esm/Stack/Stack';
+import Container from 'node_modules/@mui/material/esm/Container/Container';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,12 +12,12 @@ import Button from '@mui/material/Button';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { PasswordIcon } from 'src/assets/icons';
-
+import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 import { FormHead } from '../../components/form-head';
 import { resetPassword } from '../../context/supabase';
+import { Illustration } from './supabase-sign-up-view';
 import { FormReturnLink } from '../../components/form-return-link';
 
 // ----------------------------------------------------------------------
@@ -63,8 +65,8 @@ export function SupabaseResetPasswordView() {
             <Field.Text
                 autoFocus
                 name="email"
-                label="Email address"
-                placeholder="example@gmail.com"
+                label="E-mail cím"
+                placeholder="példa@gmail.com"
                 slotProps={{ inputLabel: { shrink: true } }}
             />
 
@@ -74,26 +76,51 @@ export function SupabaseResetPasswordView() {
                 type="submit"
                 variant="contained"
                 loading={isSubmitting}
-                loadingIndicator="Send request..."
+                loadingIndicator="Kérés küldése..."
             >
-                Send request
+                Új jelszó kérése
             </Button>
         </Box>
     );
 
     return (
-        <>
-            <FormHead
-                icon={<PasswordIcon />}
-                title="Forgot your password?"
-                description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
-            />
+        <Container
+            maxWidth={false}
+            disableGutters
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 'calc(100vh - 200px)',
+                paddingY: 5,
+            }}
+        >
+            <Box
+                display="flex"
+                sx={{
+                    width: 1,
+                    maxWidth: 'lg',
+                    gap: { xs: 4, md: 8 },
+                    alignItems: 'center',
+                }}
+            >
+                <Stack sx={{ width: 1, maxWidth: 450, marginRight: 'auto' }}>
 
-            <Form methods={methods} onSubmit={onSubmit}>
-                {renderForm()}
-            </Form>
+                    <FormHead
+                        icon={<Iconify icon="solar:lock-password-outline" width={64} />}
+                        title="Elfelejtetted a jelszavad?"
+                        description="Kérjük, add meg a fiókodhoz kapcsolódó email címet, és küldünk egy linket a jelszavad visszaállításához."
+                    />
 
-            <FormReturnLink href={paths.auth.supabase.signIn} />
-        </>
+                    <Form methods={methods} onSubmit={onSubmit}>
+                        {renderForm()}
+                    </Form>
+                    <FormReturnLink href={paths.auth.supabase.signIn} sx={{ mt: 5 }} />
+
+                </Stack>
+                <Illustration />
+            </Box>
+
+        </Container>
     );
 }

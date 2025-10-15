@@ -6,7 +6,7 @@ import { SupabaseVerifyView } from 'src/auth/view/supabase';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Verify | Supabase - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Elfelejtett jelszó - ${CONFIG.appName}` };
 
 export default function Page() {
     return <SupabaseVerifyView />;
