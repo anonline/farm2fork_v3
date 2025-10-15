@@ -3,7 +3,8 @@ import type { IOrderData } from 'src/types/order-management';
 import type { 
     DocumentInsert,
     PaymentHistory,
-    DocumentProductData
+    DocumentProductData,
+    ApiError
 } from '@codingsans/billingo-client';
 
 import { 
@@ -16,12 +17,13 @@ import {
     DocumentService,
     DocumentLanguage,
     DocumentInsertType,
-    PaymentMethod as BillingoPaymentMethod
+    PaymentMethod as BillingoPaymentMethod,
+    PaymentStatus
 } from '@codingsans/billingo-client';
 
 // Add Billingo API key
 function addBillingoApiKey() {
-    const apiKey = '8f0a70aa-6deb-11f0-a720-0adb4fd9a356';
+    const apiKey = process.env.BILLINGO_API_KEY;
     if (apiKey) {
         OpenAPI.HEADERS = {
             'X-API-KEY': apiKey,
@@ -229,6 +231,32 @@ export async function markInvoiceAsPaid(invoiceId: number, amount: number, payme
         console.error('Error marking invoice as paid:', error);
         return {
             success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+        };
+    }
+}
+
+export async function getPaymentStatus(invoiceId: number): Promise<{ success: boolean; paid?: boolean; error?: string }> {
+    try {
+        addBillingoApiKey();
+        const invoice = await DocumentService.getDocument(invoiceId);
+        if (invoice && invoice.payment_status === PaymentStatus.PAID) {
+            return {
+                success: true,
+                paid: invoice.payment_status === PaymentStatus.PAID,
+            };
+        } else {
+            return {
+                success: true,
+                paid: false,
+                error: 'Invoice not found or paid status unavailable',
+            };
+        }
+    } catch (error: ApiError | any) {
+        console.error('Error fetching invoice payment status:', error.body);
+        return {
+            success: false,
+            paid: false,
             error: error instanceof Error ? error.message : 'Unknown error occurred',
         };
     }
