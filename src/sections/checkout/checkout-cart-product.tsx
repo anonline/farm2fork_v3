@@ -88,108 +88,214 @@ export function CheckoutCartProduct({
     const getSubtotalToShow = () => getPriceToShow() * row.quantity;
 
     return (
-        <TableRow>
-            <TableCell>
-                <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-                    <Avatar
-                        variant="rounded"
-                        alt={row.name}
-                        src={
-                            row.coverUrl ||
-                            'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
-                        }
-                        sx={{ width: 100, height: 100 }}
-                    />
+        <>
+            <TableRow sx={{ display: { xs: 'none', md: 'table-row' } }}>
+                <TableCell>
+                    <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+                        <Avatar
+                            variant="rounded"
+                            alt={row.name}
+                            src={
+                                row.coverUrl ||
+                                'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                            }
+                            sx={{ width: 100, height: 100 }}
+                        />
 
-                    <Stack spacing={1} sx={{ flex: 1 }}>
-                        <Typography
-                            noWrap
-                            sx={{
-                                maxWidth: 240,
-                                fontWeight: 700,
-                                fontSize: '18px',
-                                lineHeight: '28px',
-                                color: '#262626',
-                            }}
-                        >
-                            {row.name}
-                        </Typography>
-
-                        <Typography
-                            sx={{
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                lineHeight: '24px',
-                                color: '#7e7e7e',
-                            }}
-                        >
-                            {fCurrency(getPriceToShow())}/{row.unit ?? 'db'}
-                        </Typography>
-
-                        <Box
-                            sx={{
-                                width: 150,
-                                gap: '8px',
-                                textAlign: 'right',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <NumberInput
-                                hideDivider
-                                digits={1}
-                                value={Number(row.quantity.toFixed(1))}
-                                onChange={(event, quantity: number) =>
-                                    onChangeItemQuantity(row.id, quantity)
-                                }
-                                min={row.minQuantity || 1}
-                                max={row.maxQuantity || row.available}
-                                step={row.stepQuantity || 1}
-                            />
-
-                            <IconButton onClick={() => onDeleteCartItem(row.id)}>
-                                <Iconify icon="solar:trash-bin-trash-bold" />
-                            </IconButton>
-                            
-                        </Box>
-
-                        <Collapse in={showNoteField}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                placeholder="Megjegyzés hozzáadása..."
-                                value={noteText}
-                                onChange={handleNoteChange}
-                                onKeyDown={handleNoteKeyPress}
-                                onBlur={handleNoteSubmit}
-                                autoFocus
+                        <Stack spacing={1} sx={{ flex: 1 }}>
+                            <Typography
+                                noWrap
                                 sx={{
-                                    mt: 1,
-                                    '& .MuiOutlinedInput-root': {
-                                        fontSize: '14px',
-                                    },
+                                    maxWidth: 240,
+                                    fontWeight: 700,
+                                    fontSize: '18px',
+                                    lineHeight: '28px',
+                                    color: '#262626',
                                 }}
-                            />
-                        </Collapse>
-                    </Stack>
-                </Box>
-            </TableCell>
+                            >
+                                {row.name}
+                            </Typography>
 
-            <TableCell align="right" sx={{ px: 3 }}>
-                <Stack spacing={1}>
-                    <Typography>{fCurrency(getSubtotalToShow())}</Typography>
-                    <Box>
-                        <IconButton onClick={handleToggleNote}>
-                            <F2FIcons
-                                name={row.note ? 'CommentOn' : 'CommentAdd'}
-                                width={20}
-                                height={20}
-                            />
-                        </IconButton>
+                            <Typography
+                                sx={{
+                                    fontSize: '16px',
+                                    fontWeight: '500',
+                                    lineHeight: '24px',
+                                    color: '#7e7e7e',
+                                }}
+                            >
+                                {fCurrency(getPriceToShow())}/{row.unit ?? 'db'}
+                            </Typography>
+
+                            <Box
+                                sx={{
+                                    width: 150,
+                                    gap: '8px',
+                                    textAlign: 'right',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <NumberInput
+                                    hideDivider
+                                    digits={1}
+                                    value={Number(row.quantity.toFixed(1))}
+                                    onChange={(event, quantity: number) =>
+                                        onChangeItemQuantity(row.id, quantity)
+                                    }
+                                    min={row.minQuantity || 1}
+                                    max={row.maxQuantity || row.available}
+                                    step={row.stepQuantity || 1}
+                                />
+
+                                <IconButton onClick={() => onDeleteCartItem(row.id)}>
+                                    <Iconify icon="solar:trash-bin-trash-bold" />
+                                </IconButton>
+
+                            </Box>
+
+                            <Collapse in={showNoteField}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    placeholder="Megjegyzés hozzáadása..."
+                                    value={noteText}
+                                    onChange={handleNoteChange}
+                                    onKeyDown={handleNoteKeyPress}
+                                    onBlur={handleNoteSubmit}
+                                    autoFocus
+                                    sx={{
+                                        mt: 1,
+                                        '& .MuiOutlinedInput-root': {
+                                            fontSize: '14px',
+                                        },
+                                    }}
+                                />
+                            </Collapse>
+                        </Stack>
                     </Box>
-                </Stack>
-            </TableCell>
-        </TableRow>
+                </TableCell>
+
+                <TableCell align="right" sx={{ px: 3 }}>
+                    <Stack spacing={1}>
+                        <Typography>{fCurrency(getSubtotalToShow())}</Typography>
+                        <Box>
+                            <IconButton onClick={handleToggleNote}>
+                                <F2FIcons
+                                    name={row.note ? 'CommentOn' : 'CommentAdd'}
+                                    width={20}
+                                    height={20}
+                                />
+                            </IconButton>
+                        </Box>
+                    </Stack>
+                </TableCell>
+            </TableRow>
+
+            {/* Mobile view */}
+            <TableRow sx={{ display: { xs: 'table-row', md: 'none' } }}>
+                <TableCell>
+                    <Box sx={{ gap: 2, display: 'flex', alignItems: 'flex-start' }}>
+                        <Avatar
+                            variant="rounded"
+                            alt={row.name}
+                            src={
+                                row.coverUrl ||
+                                'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
+                            }
+                            sx={{ width: 100, height: 100 }}
+                        />
+
+                        <Stack spacing={1} sx={{ flex: 1 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <Typography
+                                    noWrap
+                                    sx={{
+                                        maxWidth: 240,
+                                        fontWeight: 700,
+                                        fontSize: '18px',
+                                        lineHeight: '28px',
+                                        color: '#262626',
+                                    }}
+                                >
+                                    {row.name}
+                                </Typography>
+
+                                <Typography
+                                    sx={{
+                                        fontSize: '16px',
+                                        fontWeight: '500',
+                                        lineHeight: '24px',
+                                        color: '#7e7e7e',
+                                    }}
+                                >
+                                    {fCurrency(getPriceToShow())}/{row.unit ?? 'db'}
+                                </Typography>
+                            </Box>
+                            <Typography sx={{ fontWeight: '600', fontSize: '18px', lineHeight: '28px', color: '#262626' }}>{fCurrency(getSubtotalToShow())}</Typography>
+
+                            <Box
+                                sx={{
+                                    width: '100%',
+                                    gap: 2,
+                                    textAlign: 'right',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <NumberInput
+                                    hideDivider
+                                    digits={1}
+                                    value={Number(row.quantity.toFixed(1))}
+                                    onChange={(event, quantity: number) =>
+                                        onChangeItemQuantity(row.id, quantity)
+                                    }
+                                    min={row.minQuantity || 1}
+                                    max={row.maxQuantity || row.available}
+                                    step={row.stepQuantity || 1}
+                                    sx={{flexGrow: 1}}
+                                />
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
+                                    <IconButton onClick={() => onDeleteCartItem(row.id)}>
+                                        <Iconify icon="solar:trash-bin-trash-bold" />
+                                    </IconButton>
+
+                                    <IconButton onClick={handleToggleNote} sx={{ mt: '-7px' }}>
+                                        <F2FIcons
+                                            name={row.note ? 'CommentOn' : 'CommentAdd'}
+                                            width={20}
+                                            height={20}
+                                        />
+                                    </IconButton>
+                                </Box>
+                            </Box>
+
+                            
+                        </Stack>
+                    </Box>
+                    <Collapse in={showNoteField}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    placeholder="Megjegyzés hozzáadása..."
+                                    value={noteText}
+                                    onChange={handleNoteChange}
+                                    onKeyDown={handleNoteKeyPress}
+                                    onBlur={handleNoteSubmit}
+                                    autoFocus
+                                    sx={{
+                                        mt: 1,
+                                        '& .MuiOutlinedInput-root': {
+                                            fontSize: '14px',
+                                        },
+                                    }}
+                                />
+                            </Collapse>
+                </TableCell>
+            </TableRow>
+        </>
     );
 }

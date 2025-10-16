@@ -40,6 +40,8 @@ export function Iconify({ className, icon, width = 20, height, sx, ...other }: I
             ssr
             id={id}
             icon={icon}
+            style={{ touchAction: 'manipulation' }} //prevent zoom on mobile double tap
+
             className={mergeClasses([iconifyClasses.root, className])}
             sx={[
                 {

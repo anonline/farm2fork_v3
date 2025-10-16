@@ -94,6 +94,16 @@ export function CheckoutCart() {
     return (
         <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 7 }}>
+                <Button
+                    component={RouterLink}
+                    href={paths.product.root}
+                    color="inherit"
+                    startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
+                    sx={{ mb: 3 }}
+                >
+                    Vásárlás folytatása
+                </Button>
+
                 <Card sx={{ mb: 3 }}>
                     {loading ? (
                         renderLoading()
@@ -116,17 +126,10 @@ export function CheckoutCart() {
 
                 <CheckoutCustomProductForm onAddCustomProduct={onAddToCart} />
 
-                <Button
-                    component={RouterLink}
-                    href={paths.product.root}
-                    color="inherit"
-                    startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
-                >
-                    Vásárlás folytatása
-                </Button>
+                
             </Grid>
 
-            <Grid size={{ xs: 12, md: 5 }} sx={{ backgroundColor: '#F8F8F8', padding: '24px' }}>
+            <Grid size={{ xs: 12, md: 5 }} sx={{ /*backgroundColor: '#F8F8F8', */ padding: '0px' }}>
                 <CheckoutSummary checkoutState={checkoutState} />
 
                 {/* Minimum Purchase Alert */}

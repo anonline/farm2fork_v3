@@ -131,6 +131,7 @@ export function NumberInput({
                         disabled={isDecrementDisabled}
                         onClick={handleDecrement}
                         {...slotProps?.button}
+                        style={{ touchAction: 'manipulation' }} //prevent zoom on mobile double tap
                     >
                         <Iconify width={16} icon="mingcute:minimize-line" />
                     </CounterButton>
@@ -155,6 +156,7 @@ export function NumberInput({
                         disabled={isIncrementDisabled}
                         onClick={handleIncrement}
                         {...slotProps?.button}
+                        style={{ touchAction: 'manipulation' }} //prevent zoom on mobile double tap
                     >
                         <Iconify width={16} icon="mingcute:add-line" />
                     </CounterButton>

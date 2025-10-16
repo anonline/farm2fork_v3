@@ -190,7 +190,7 @@ export function CheckoutSummary({
 
                 <Divider sx={{ borderStyle: 'dashed' }} />
 
-                <Box sx={{ ...rowStyles }}>
+                <Box sx={{ ...rowStyles, width: '100%', flexDirection: { xs: 'column', md: 'row' } }}>
                     <Typography component="span" variant="subtitle1" sx={{ flexGrow: 1 }}>
                         Összesen
                     </Typography>
