@@ -12,6 +12,11 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
     const supabase = await supabaseSSRCron(cookieStore);
 
+    // Limit to 150 orders per run to stay well under the 300 queries/min rate limit
+    // With 30-minute intervals, this ensures we can process all orders safely
+    const BATCH_SIZE = 150;
+    const WAITING_TIME_BETWEEN_API_CALLS_MS = 1.4; // 1.4 seconds between calls
+
     try {
         // Verify the request is from Vercel Cron (optional but recommended)
         const authHeader = request.headers.get('authorization');
@@ -37,9 +42,7 @@ export async function GET(request: NextRequest) {
 
 
 
-    // Limit to 50 orders per run to stay well under the 100 queries/min rate limit
-    // With 30-minute intervals, this ensures we can process all orders safely
-    const BATCH_SIZE = 50;
+
 
     const { data: unpaidOrders } = await supabase.from('orders')
         .select('id, invoice_data_json')
@@ -112,7 +115,7 @@ export async function GET(request: NextRequest) {
             // Add a small delay between API calls to be respectful of rate limits
             // This ensures we stay well under 100 queries/min
             if (i < unpaidOrders.length - 1) {
-                await new Promise(resolve => { setTimeout(resolve, 700); });
+                await new Promise(resolve => { setTimeout(resolve, WAITING_TIME_BETWEEN_API_CALLS_MS); });
             }
         } catch (error) {
             console.error(`Error checking payment status for invoice ${invoiceData.invoiceId}:`, error);
@@ -127,6 +130,7 @@ export async function GET(request: NextRequest) {
         errors: errorCount,
         remaining: unpaidOrders.length === BATCH_SIZE ? 'possibly more' : 0,
         all: countAllUnpaidOrders.length || 0,
+        closedIds: closedOrderIds
     };
 
     const now = new Date();

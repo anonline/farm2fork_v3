@@ -102,10 +102,29 @@ export function NumberInput({
 
     const handleChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
-            const transformedValue = transformNumberOnChange(event.target.value, { min, max });
+            const inputValue = event.target.value;
+
+            // Allow empty string during typing
+            if (inputValue === '' || inputValue === '.') {
+                onChange?.(event, 0);
+                return;
+            }
+
+            const transformedValue = transformNumberOnChange(inputValue, { min, max });
             onChange?.(event, transformedValue);
         },
         [max, min, onChange]
+    );
+
+    const handleBlur = useCallback(
+        (event: React.FocusEvent<HTMLInputElement>) => {
+            // When user leaves the input, ensure it's at least min value
+            if (currentValue < min) {
+                const syntheticEvent = event as any;
+                onChange?.(syntheticEvent, min);
+            }
+        },
+        [currentValue, min, onChange]
     );
 
     return (
@@ -137,13 +156,19 @@ export function NumberInput({
                     </CounterButton>
                 )}
 
-                <InputContainer {...slotProps?.inputWrapper}>
+                <InputContainer {...slotProps?.inputWrapper} style={{ touchAction: 'manipulation' }}>
                     <CenteredInput
                         name={id}
                         disabled={disabled || disableInput}
                         value={currentValue.toFixed(currentValue % 1 == 0 ? 0 : stepDigits)}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         {...slotProps?.input}
+                        style={{ touchAction: 'manipulation' }} //prevent zoom on mobile double tap
+                        inputProps={{
+                            inputMode: 'decimal',
+                            pattern: '[0-9]*\\.?[0-9]*',
+                        }}
                     />
 
                     {captionText && (
@@ -183,7 +208,7 @@ export function transformNumberOnChange(
     if (!value || value.trim() === '') {
         return 0;
     }
-
+    value = value.replace(',', '.'); // Replace comma with dot for decimal
     const numericValue = Number(value.trim());
 
     if (!Number.isNaN(numericValue)) {
