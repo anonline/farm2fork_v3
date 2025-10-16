@@ -153,7 +153,7 @@ export function CheckoutPayment() {
             const subtotal = checkoutState.subtotal + checkoutState.surcharge;
 
             // If minNetPrice is set and subtotal is below minimum, exclude this method
-            if (method.minNetPrice > 0 && subtotal < method.minNetPrice) {
+            if (method.minNetPrice > 0 && subtotal <= method.minNetPrice) {
                 return false;
             }
 
@@ -166,21 +166,60 @@ export function CheckoutPayment() {
         });
     }, [shippingMethods, getUserType, checkoutState.subtotal, checkoutState.surcharge]);
 
+    // Check if method is personal pickup
+    const isPersonalPickup = useMemo(
+        () => (methodId: number) => {
+            const method = shippingMethods.find((m) => m.id === methodId);
+            return method?.name === 'Személyes átvétel';
+        },
+        [shippingMethods]
+    );
+
+    // Check if method is home delivery
+    const isHomeDelivery = useMemo(
+        () => (methodId: number) => {
+            const method = shippingMethods.find((m) => m.id === methodId);
+            return method?.name === 'Házhozszállítás';
+        },
+        [shippingMethods]
+    );
+
     // Filter payment methods based on user type
     const availablePaymentMethods = useMemo(() => {
         const userType = getUserType;
-        return paymentMethods.filter((method) => {
-            // Check if method is enabled for user type
-            switch (userType) {
-                case 'vip':
-                    return method.enableVIP;
-                case 'company':
-                    return method.enableCompany;
-                default:
-                    return method.enablePublic;
+        const refinedPaymentMethods = [...paymentMethods];
+        console.log('Selected shipping method:', selectedShippingMethod);
+        if (selectedShippingMethod) {
+            if (isPersonalPickup(selectedShippingMethod)) {
+                return refinedPaymentMethods.filter((method) => {
+                    // Check if method is enabled for user type
+                    switch (userType) {
+                        case 'vip':
+                            return method.enableVIP && method.type === 'cod';
+                        case 'company':
+                            return method.enableCompany;
+                        default:
+                            return method.enablePublic && method.type !== 'cod';
+                    }
+                });
             }
-        });
-    }, [paymentMethods, getUserType]);
+            if (isHomeDelivery(selectedShippingMethod)) {
+                return refinedPaymentMethods.filter((method) => {
+                    // Check if method is enabled for user type
+                    switch (userType) {
+                        case 'vip':
+                            return method.enableVIP;
+                        case 'company':
+                            return method.enableCompany;
+                        default:
+                            return method.enablePublic;
+                    }
+                });
+            }
+        }
+        return [];
+
+    }, [paymentMethods, getUserType, selectedShippingMethod, isPersonalPickup]);
 
     // Get cost for current user type
     const getMethodCost = useMemo(
@@ -241,23 +280,7 @@ export function CheckoutPayment() {
         [getTotalMethodCost]
     );
 
-    // Check if method is personal pickup
-    const isPersonalPickup = useMemo(
-        () => (methodId: number) => {
-            const method = shippingMethods.find((m) => m.id === methodId);
-            return method?.name === 'Személyes átvétel';
-        },
-        [shippingMethods]
-    );
 
-    // Check if method is home delivery
-    const isHomeDelivery = useMemo(
-        () => (methodId: number) => {
-            const method = shippingMethods.find((m) => m.id === methodId);
-            return method?.name === 'Házhozszállítás';
-        },
-        [shippingMethods]
-    );
 
     // Check if delivery details are complete
     const isDeliveryDetailsComplete = useMemo(() => {
@@ -406,6 +429,8 @@ export function CheckoutPayment() {
                     setSelectedDeliveryAddressIndex(0);
                     setValue('deliveryAddressIndex', 0);
                 }
+
+                onUpdatePaymentMethod(null);
             }
         }
     };
@@ -974,13 +999,13 @@ export function CheckoutPayment() {
             </Button>
 
             <Typography
-                sx={{ 
+                sx={{
                     mb: 2,
                     fontFamily: themeConfig.fontFamily.primary,
                     fontSize: '32px',
                     fontWeight: 700,
                     lineHeight: '40px',
-                }}    
+                }}
             >
                 Megrendelés
             </Typography>
@@ -1505,38 +1530,38 @@ export function CheckoutPayment() {
 
                                 {/* Data transfer checkbox - conditionally visible */}
                                 {checkoutState.selectedPaymentMethod?.slug === 'simple' && (
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={dataTransferAccepted}
-                                                    onChange={(e) =>
-                                                        setDataTransferAccepted(e.target.checked)
-                                                    }
-                                                />
-                                            }
-                                            label={
-                                                <Typography variant="body2">
-                                                    A megrendeléssel elfogadom az{' '}
-                                                    <Link
-                                                        href="https://simplepay.hu/wp-content/uploads/2025/07/SimplePay_kereskedoi_kapcsolattartoi_adatkezeles_hun_20250703.pdf"
-                                                        target="_blank"
-                                                        sx={{
-                                                            color: 'primary.main',
-                                                            textDecoration: 'none',
-                                                        }}
-                                                    >
-                                                        adattovábbítási nyilatkozatot
-                                                    </Link>
-                                                    .
-                                                    <Tooltip title="Tudomásul veszem, hogy a(z) Farm2Fork Kft. (2009 Pilisszentlászló, Tölgyfa utca 21.) adatkezelő által a(z) farm2fork.hu felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a SimplePay Zrt., mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: Felhasználó neve, címe, e-mail címe, megvásárolt termékek. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a SimplePay Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg: https://simplepay.hu/adatkezelesi-tajekoztatok/ ">
-                                                        <IconButton>
-                                                            <F2FIcons name="Info" width={20} height={-1} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Typography>
-                                            }
-                                            sx={{ alignItems: 'center', mt: 0 }}
-                                        />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={dataTransferAccepted}
+                                                onChange={(e) =>
+                                                    setDataTransferAccepted(e.target.checked)
+                                                }
+                                            />
+                                        }
+                                        label={
+                                            <Typography variant="body2">
+                                                A megrendeléssel elfogadom az{' '}
+                                                <Link
+                                                    href="https://simplepay.hu/wp-content/uploads/2025/07/SimplePay_kereskedoi_kapcsolattartoi_adatkezeles_hun_20250703.pdf"
+                                                    target="_blank"
+                                                    sx={{
+                                                        color: 'primary.main',
+                                                        textDecoration: 'none',
+                                                    }}
+                                                >
+                                                    adattovábbítási nyilatkozatot
+                                                </Link>
+                                                .
+                                                <Tooltip title="Tudomásul veszem, hogy a(z) Farm2Fork Kft. (2009 Pilisszentlászló, Tölgyfa utca 21.) adatkezelő által a(z) farm2fork.hu felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a SimplePay Zrt., mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: Felhasználó neve, címe, e-mail címe, megvásárolt termékek. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a SimplePay Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg: https://simplepay.hu/adatkezelesi-tajekoztatok/ ">
+                                                    <IconButton>
+                                                        <F2FIcons name="Info" width={20} height={-1} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Typography>
+                                        }
+                                        sx={{ alignItems: 'center', mt: 0 }}
+                                    />
                                 )}
                             </Box>
 
