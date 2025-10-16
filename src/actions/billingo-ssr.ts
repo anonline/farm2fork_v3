@@ -78,6 +78,20 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
 
     // Create new partner if not found
     try {
+
+        // Validate Hungarian VAT number format: xxxxxxxx-x-xx or EU format: CCxxxxxxxx
+        const vatNumberRegex = /^\d{8}-\d-\d{2}$/;
+        const euVatNumberRegex = /^[A-Z]{2}\d{8}$/;
+        if (billingAddress?.taxNumber) {
+            const isValidHungarianVat = vatNumberRegex.test(billingAddress.taxNumber.trim());
+            const isValidEuVat = euVatNumberRegex.test(billingAddress.taxNumber.trim());
+            
+            if (!isValidHungarianVat && !isValidEuVat) {
+                console.warn('Invalid VAT number format:', billingAddress.taxNumber);
+                billingAddress.taxNumber = undefined; // Ignore invalid VAT number
+            }
+        }
+
         if (existingPartner?.id) {
             existingPartner.name = billingAddress?.company || billingAddress?.name || customerName;
             existingPartner.emails = billingAddress?.email ? [billingAddress.email] : existingPartner.emails;
@@ -345,7 +359,7 @@ export async function stornoBillingoInvoiceSSR(invoiceId: number, emailsToSend: 
             originalInvoiceId: invoiceId,
             createdAt: new Date().toISOString(),
         };
-        
+
         if (emailsToSend.length > 0) {
             await DocumentService.sendDocument(stornoInvoice.id, { emails: emailsToSend });
         }
