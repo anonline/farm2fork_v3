@@ -370,10 +370,12 @@ const ShippingLabelPDFPage = ({ order, pickupLocations, categoryOrder = [], cate
     };
     const renderNote = () => {
         if (order.delivery?.shipBy === 'Személyes átvétel') {
-            return order?.note || '';
+            return '';
         }
         return order.shippingAddress?.note || '';
     }
+
+    const renderOrderNote = () => order?.note || '';
 
     return (
         <Page size="A4" style={styles.page}>
@@ -444,6 +446,10 @@ const ShippingLabelPDFPage = ({ order, pickupLocations, categoryOrder = [], cate
                         <View style={styles.infoRow}>
                             <Text style={styles.infoLabelShort}>Fizetés:</Text>
                             <Text style={styles.infoValueLong}>{order.payment?.cardType || 'N/A'}{order.payment?.status ? ` (${renderPaymentStatusLabel()})` : ''}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.infoLabelShort}>Rend. megj.:</Text>
+                            <Text style={styles.infoValueLong}>{renderOrderNote()}</Text>
                         </View>
                     </View>
                 </View>

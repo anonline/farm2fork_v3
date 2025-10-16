@@ -86,7 +86,9 @@ export function OrderDetailsToolbar({
             
             // Fetch category connections for products in this order
             const categoryConnections = await fetchCategoryConnectionsForOrders([order]);
-            
+            if(!order.note){
+                order.note = orderData?.note
+            }
             await generateShippingLabelPDF(order, pickupLocations, categoryOrder, categoryConnections);
             toast.success('Szállítólevél sikeresen letöltve!');
         } catch (error) {
