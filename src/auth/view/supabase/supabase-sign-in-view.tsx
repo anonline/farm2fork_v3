@@ -25,6 +25,8 @@ import { Form, Field } from 'src/components/hook-form';
 import { useAuthContext } from '../../hooks';
 import { FormHead } from '../../components/form-head';
 import { signInWithPassword, signInWithWordpress } from '../../context/supabase';
+import { FormSocials } from 'src/auth/components/form-socials';
+import { FormDivider } from 'src/auth/components/form-divider';
 
 // ----------------------------------------------------------------------
 
@@ -197,6 +199,14 @@ export function SupabaseSignInView() {
                             </Button>
                         </Stack>
                     </Form>
+                    
+                    {/* <FormDivider />
+
+                    <FormSocials
+                        signInWithGoogle={() => { }}
+                        singInWithGithub={() => { }}
+                        signInWithTwitter={() => { }}
+                    />*/}
 
                     <Stack spacing={2} sx={{ mt: 5 }}>
                         <Typography variant="h6">Nincs még fiókod?</Typography>
@@ -211,6 +221,7 @@ export function SupabaseSignInView() {
                             Regisztráció
                         </Button>
                     </Stack>
+
                 </Stack>
 
                 <Illustration />
