@@ -16,6 +16,9 @@ export const supabaseSSR = async (cookieStore: ReadonlyRequestCookies) =>
 export const supabaseAdmin = async (cookieStore: ReadonlyRequestCookies) =>
     (await createSSRClient(supabaseUrl, service_role_key, cookieStore)).auth.admin;
 
+export const supabaseSSRCron = async (cookieStore: ReadonlyRequestCookies) =>
+    (await createSSRClient(supabaseUrl, service_role_key, cookieStore));
+
 async function createSSRClient(url: string, key: string, cookieStore: ReadonlyRequestCookies) {
     return createServerClient(url, key, {
         cookies: {
