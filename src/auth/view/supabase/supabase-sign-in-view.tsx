@@ -25,8 +25,6 @@ import { Form, Field } from 'src/components/hook-form';
 import { useAuthContext } from '../../hooks';
 import { FormHead } from '../../components/form-head';
 import { signInWithPassword, signInWithWordpress } from '../../context/supabase';
-import { FormSocials } from 'src/auth/components/form-socials';
-import { FormDivider } from 'src/auth/components/form-divider';
 
 // ----------------------------------------------------------------------
 

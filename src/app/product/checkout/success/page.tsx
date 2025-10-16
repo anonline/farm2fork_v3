@@ -230,7 +230,7 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
 
         //handling stock reduction
         try {
-            await handleStockReductionForOrderSSR(orderId);
+            const stockResult = await handleStockReductionForOrderSSR(orderId);
         } catch (stockReductionError) {
             console.error('Error handling stock reduction for order:', stockReductionError);
         }

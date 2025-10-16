@@ -5,11 +5,13 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 
 import { CONFIG } from 'src/global-config';
+import { supabaseSSRCron } from 'src/lib/supabase-ssr';
 
 // ----------------------------------------------------------------------
 
 /**
  * Create a server-side Supabase client with service role for admin operations
+ * This client bypasses RLS policies
  */
 async function createAdminClient() {
     const cookieStore = await cookies();
@@ -261,10 +263,10 @@ export async function updateOrderStatusSSR(
 
         const { error } = await supabase
             .from('orders')
-            .update({ 
+            .update({
                 order_status: orderStatus,
                 updated_at: new Date().toISOString(),
-             })
+            })
             .eq('id', orderId);
 
         if (error) {
@@ -317,8 +319,9 @@ export async function updateOrderPaymentStatusSSR(
 }
 
 export async function handleStockReductionForOrderSSR(orderId: string): Promise<{ success: boolean; error: string | null }> {
-    const supabase = await createAdminClient();
-
+    const cookieStore = await cookies();
+    const supabase = await supabaseSSRCron(cookieStore);
+    
     const { data: orderData, error: fetchError } = await supabase
         .from('orders')
         .select('id, items')
@@ -336,8 +339,7 @@ export async function handleStockReductionForOrderSSR(orderId: string): Promise<
 
     // Reduce stock for each item in the order
     // Collect all product IDs first
-    const productIds = orderData.items.map((item:IOrderItem) => item.id);
-    
+    const productIds = orderData.items.map((item: IOrderItem) => item.id);
     // Fetch all products in a single query
     const { data: productsData, error: productsFetchError } = await supabase
         .from('Products')
@@ -351,13 +353,11 @@ export async function handleStockReductionForOrderSSR(orderId: string): Promise<
 
     // Create a map of product ID to product data for quick lookup
     const productsMap = new Map(productsData?.map(p => [p.id, p]) || []);
-
     // Prepare bulk updates
-    const updates: Array<{ id: string; stock: number }> = [];
+    const updates: Array<{ id: number; stock: number }> = [];
 
     for (const item of orderData.items) {
         const productData = productsMap.get(item.id);
-
         if (!productData) {
             continue; // Product not found, skip
         }
@@ -373,18 +373,33 @@ export async function handleStockReductionForOrderSSR(orderId: string): Promise<
         const newStock = productData.stock - item.quantity;
         updates.push({ id: item.id, stock: newStock });
     }
-
     // Perform bulk update if there are any updates
     if (updates.length > 0) {
+        
         for (const update of updates) {
-            const { error: stockUpdateError } = await supabase
+            
+            // First, verify the product exists and log current state
+            const { data: existingProduct, error: checkError } = await supabase
+                .from('Products')
+                .select('id, stock, backorder')
+                .eq('id', update.id)
+                .single();
+            
+
+            const { data: updatedData, error: stockUpdateError } = await supabase
                 .from('Products')
                 .update({ stock: update.stock })
-                .eq('id', update.id);
+                .eq('id', update.id)
+                .select();
 
             if (stockUpdateError) {
-                console.error('Error updating product stock (SSR):', stockUpdateError);
-                return { success: false, error: 'Failed to update product stock' };
+                console.error(`[Stock Update] Error updating product stock for ID ${update.id}:`, stockUpdateError);
+                return { success: false, error: `Failed to update product stock: ${stockUpdateError.message}` };
+            }
+
+            if (!updatedData || updatedData.length === 0) {
+                console.error(`[Stock Update] No rows updated for product ID ${update.id}. This suggests RLS is blocking the update.`);
+                return { success: false, error: `Failed to update product ${update.id} - no rows affected (RLS may be blocking)` };
             }
         }
     }
@@ -411,7 +426,7 @@ export async function revertStockReductionForOrderSSR(orderId: string): Promise<
     }
 
     // Revert stock for each item in the order
-    const updates: Array<{ id: string; stock: number }> = [];
+    const updates: Array<{ id: number; stock: number }> = [];
 
     for (const item of orderData.items) {
         const { data: productData, error: productFetchError } = await supabase
@@ -436,14 +451,20 @@ export async function revertStockReductionForOrderSSR(orderId: string): Promise<
     // Perform bulk update if there are any updates
     if (updates.length > 0) {
         for (const update of updates) {
-            const { error: stockUpdateError } = await supabase
+            const { data: updatedData, error: stockUpdateError } = await supabase
                 .from('Products')
                 .update({ stock: update.stock })
-                .eq('id', update.id);
+                .eq('id', update.id)
+                .select();
 
             if (stockUpdateError) {
-                console.error('Error updating product stock (SSR):', stockUpdateError);
+                console.error('Error updating product stock revert (SSR):', stockUpdateError);
                 return { success: false, error: 'Failed to update product stock' };
+            }
+
+            if (!updatedData || updatedData.length === 0) {
+                console.error(`No rows updated for product ID ${update.id} during revert. Product may not exist or ID type mismatch.`);
+                return { success: false, error: `Failed to revert stock for product ${update.id} - no rows affected` };
             }
         }
     }
