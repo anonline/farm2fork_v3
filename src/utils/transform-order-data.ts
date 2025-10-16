@@ -71,6 +71,7 @@ export async function transformOrderDataToTableItem(orderData: IOrderData): Prom
         discount: orderData.discountTotal,
         deposit: orderData.surchargeAmount || 0,
         createdAt: orderData.dateCreated,
+        note: orderData.note || '',
         planned_shipping_date_time: orderData.plannedShippingDateTime,
         customer: {
             id: orderData.customerId || 'guest',
