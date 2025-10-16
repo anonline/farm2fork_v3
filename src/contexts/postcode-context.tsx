@@ -3,12 +3,9 @@
 import type { ReactNode } from 'react';
 import type { IPostcodeItem } from 'src/types/postcode';
 
-import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useContext, createContext } from 'react';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from 'src/lib/supabase';
 
 type PostcodeContextType = {
     postcodes: IPostcodeItem[];
@@ -38,6 +35,7 @@ export function PostcodeProvider({ children }: Readonly<{ children: ReactNode }>
                 setPostcodes(data ?? []);
                 setError(null);
             }
+            console.log(data,supabaseError)
             setLoading(false);
         }
         fetchPostcodes();
@@ -60,6 +58,5 @@ export const useEnabledPostcodes = () => {
     const context = useContext(PostcodeContext);
     if (!context) throw new Error('usePostcodes csak a PostcodeProvider-en belül használható');
 
-    context.postcodes = context.postcodes.filter((postcode) => postcode.enabled);
     return context;
 };

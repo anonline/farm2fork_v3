@@ -1,5 +1,7 @@
 export type IPostcodeItem = {
-    id: number;
-    postcode: string;
-    enabled: boolean;
+    ID: number;
+    Iranyitoszam: string;
+    CutoffIdo: string;
+    RendelesiNap: number;
+    SzallitasiNap: number;
 };

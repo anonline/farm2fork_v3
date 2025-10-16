@@ -38,7 +38,7 @@ export default function KiszallitasiCimekTerkep() {
             return;
         }
 
-        if (postcodes.filter((x) => x.postcode == newValue).length > 0) {
+        if (postcodes.filter((x) => x.Iranyitoszam == newValue).length > 0) {
             setFound(true);
         } else {
             setFound(false);
