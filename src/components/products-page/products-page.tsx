@@ -165,7 +165,7 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
 
             <Grid
                 container
-                spacing={2}
+                spacing="5px"
                 justifyContent="start"
                 style={{ marginTop: '20px', width: '100%' }}
             >

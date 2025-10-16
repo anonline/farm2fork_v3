@@ -3,8 +3,8 @@ import type { InputBaseProps } from '@mui/material/InputBase';
 import type { ButtonBaseProps } from '@mui/material/ButtonBase';
 import type { FormHelperTextProps } from '@mui/material/FormHelperText';
 
-import { useId, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
+import { useId, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 
@@ -71,6 +71,8 @@ export function NumberInput({
     const id = useId();
 
     const currentValue = value ?? 0;
+    const [inputValue, setInputValue] = useState<string>('');
+    const [isFocused, setIsFocused] = useState(false);
 
     const isDecrementDisabled = currentValue <= min || disabled;
     const isIncrementDisabled = currentValue >= max || disabled;
@@ -83,41 +85,61 @@ export function NumberInput({
     const handleDecrement = useCallback(
         (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             if (!isDecrementDisabled) {
-                const newValue = round(Number(currentValue) - Number(step), digits);
+                const newValue = round(Number(currentValue) - Number(step), stepDigits);
                 onChange?.(event, newValue);
+                // Update input value if focused
+                if (isFocused) {
+                    setInputValue(newValue.toString());
+                }
             }
         },
-        [isDecrementDisabled, onChange, currentValue, step, digits]
+        [isDecrementDisabled, onChange, currentValue, step, stepDigits, isFocused]
     );
 
     const handleIncrement = useCallback(
         (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             if (!isIncrementDisabled) {
-                const newValue = round(Number(currentValue) + Number(step), digits);
+                const newValue = round(Number(currentValue) + Number(step), stepDigits);
                 onChange?.(event, newValue);
+                // Update input value if focused
+                if (isFocused) {
+                    setInputValue(newValue.toString());
+                }
             }
         },
-        [isIncrementDisabled, onChange, currentValue, step, digits]
+        [isIncrementDisabled, onChange, currentValue, step, stepDigits, isFocused]
     );
 
     const handleChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
-            const inputValue = event.target.value;
+            const eventInputValue = event.target.value;
+            
+            // Store the raw input value for display
+            setInputValue(eventInputValue);
 
             // Allow empty string during typing
-            if (inputValue === '' || inputValue === '.') {
+            if (eventInputValue === '' || eventInputValue === '.' || eventInputValue === ',') {
                 onChange?.(event, 0);
                 return;
             }
 
-            const transformedValue = transformNumberOnChange(inputValue, { min, max });
+            const transformedValue = transformNumberOnChange(eventInputValue, { min, max });
             onChange?.(event, transformedValue);
         },
         [max, min, onChange]
     );
 
+    const handleFocus = useCallback(() => {
+        setIsFocused(true);
+        // Set input value to current value for editing
+        setInputValue(currentValue.toString());
+    }, [currentValue]);
+
     const handleBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
+            setIsFocused(false);
+            setInputValue('');
+            
             // When user leaves the input, ensure it's at least min value
             if (currentValue < min) {
                 const syntheticEvent = event as any;
@@ -126,6 +148,11 @@ export function NumberInput({
         },
         [currentValue, min, onChange]
     );
+
+    // Display value: use raw input during focus, formatted value when not focused
+    const displayValue = isFocused 
+        ? inputValue 
+        : currentValue.toFixed(currentValue % 1 == 0 ? 0 : stepDigits);
 
     return (
         <Box {...slotProps?.wrapper}>
@@ -160,8 +187,9 @@ export function NumberInput({
                     <CenteredInput
                         name={id}
                         disabled={disabled || disableInput}
-                        value={currentValue.toFixed(currentValue % 1 == 0 ? 0 : stepDigits)}
+                        value={displayValue}
                         onChange={handleChange}
+                        onFocus={handleFocus}
                         onBlur={handleBlur}
                         {...slotProps?.input}
                         style={{ touchAction: 'manipulation' }} //prevent zoom on mobile double tap

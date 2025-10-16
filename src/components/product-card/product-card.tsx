@@ -61,7 +61,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         position: 'relative',
     };
 
-    const productCardDetailsUpperContainterStyle: React.CSSProperties = {
+    const productCardDetailsUpperContainterStyle: SxProps<Theme> = {
         padding: '32px 16px 16px 16px',
         display: 'flex',
         flexDirection: 'column',
@@ -87,8 +87,8 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
         cursor: 'pointer',
     };
 
-    const productCardPriceContentStyle: React.CSSProperties = {
-        padding: '16px',
+    const productCardPriceContentStyle: SxProps<Theme> = {
+        padding: { xs: '12px', md: '16px' },
         display: 'flex',
         gap: 16,
     };
@@ -182,7 +182,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
 
             {product.bio && <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />}
 
-            <div style={productCardDetailsUpperContainterStyle}>
+            <Box sx={productCardDetailsUpperContainterStyle}>
                 {checkoutState.items.filter((x) => x.id == product.id).length > 0 && (
                     <F2FIcons
                         name="Check"
@@ -234,8 +234,8 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         style={{ position: 'absolute', top: -24, left: 16 }}
                     />}
                 </div>
-            </div>
-            <div style={productCardPriceContentStyle}>
+            </Box>
+            <Box sx={productCardPriceContentStyle}>
                 <div className="productCardPriceDetails" style={productCardPriceDetailsStyle}>
                     <ProductPriceDetails grossPrice={isVIP || isCorp ? getNetPrice() : getGrossPrice()} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
@@ -248,7 +248,7 @@ export default function ProductCard(props: Readonly<ProductCardProps>) {
                         step={product.stepQuantity}
                     />
                 </div>
-            </div>
+            </Box>
         </Paper>
     );
 }
