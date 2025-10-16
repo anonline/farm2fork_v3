@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Limit to 50 orders per run to stay well under the 100 queries/min rate limit
     // With 30-minute intervals, this ensures we can process all orders safely
-    const BATCH_SIZE = 1;
+    const BATCH_SIZE = 50;
 
     const { data: unpaidOrders } = await supabase.from('orders')
         .select('id, invoice_data_json')
