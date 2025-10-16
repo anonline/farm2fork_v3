@@ -116,7 +116,7 @@ export function OrderDetailsBilling({
 
         try {
             // First, create storno invoice in Billingo
-            const stornoResult = await stornoBillingoInvoiceSSR(invoiceDataJson.invoiceId);
+            const stornoResult = await stornoBillingoInvoiceSSR(invoiceDataJson.invoiceId, [orderData?.billingEmails || orderData?.notifyEmails || []].flat());
 
             if (!stornoResult.success) {
                 throw new Error(stornoResult.error || 'Sztornó hiba');

@@ -134,6 +134,7 @@ Font.register({
     src: '/fonts/Roboto-Bold.ttf',
 });
 
+
 // Define styles for the PDF
 const styles = StyleSheet.create({
     page: {
@@ -463,8 +464,9 @@ const ShippingLabelPDFPage = ({ order, pickupLocations, categoryOrder = [], cate
                 {/* Table Rows */}
                 {sortedItems.map((item) => (
                     <View style={styles.tableRow} key={item.id}>
-                        <View style={{...styles.description, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                        <View style={{...styles.description, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1}}>
                             <Text>{item.bio && "[BIO] "}{item.name || 'N/A'}</Text>
+                            {item.note && <Text style={{ fontSize: 8, color: '#555' }}>{item.note}</Text>}
                         </View>
                         <Text style={styles.qty}>{item.quantity.toFixed(item.quantity % 1 === 0 ? 0 : 1) || 0} {item.unit || ''}</Text>
                         <Text style={styles.qty} />

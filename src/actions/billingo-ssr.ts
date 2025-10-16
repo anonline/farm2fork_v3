@@ -307,7 +307,7 @@ export async function getInvoiceStatusInBillingoSSR(invoiceId: number): Promise<
 /**
  * Cancel/Storno an invoice in Billingo - Server Action
  */
-export async function stornoBillingoInvoiceSSR(invoiceId: number): Promise<{ success: boolean; stornoInvoiceId?: number; error?: string; response?: any }> {
+export async function stornoBillingoInvoiceSSR(invoiceId: number, emailsToSend: string[]): Promise<{ success: boolean; stornoInvoiceId?: number; error?: string; response?: any }> {
     try {
         addBillingoApiKey();
 
@@ -345,6 +345,10 @@ export async function stornoBillingoInvoiceSSR(invoiceId: number): Promise<{ suc
             originalInvoiceId: invoiceId,
             createdAt: new Date().toISOString(),
         };
+        
+        if (emailsToSend.length > 0) {
+            await DocumentService.sendDocument(stornoInvoice.id, { emails: emailsToSend });
+        }
 
         return response;
 
