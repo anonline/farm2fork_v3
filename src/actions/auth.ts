@@ -30,6 +30,36 @@ export async function registerUser(data: RegistrationSchemaType) {
         throw new Error(`Hiba a felhasználói szerepkör beállítása során: ${rolesError.message}`);
     }
 
+    const inputtedDeliveryAddress = data.stepThree.zipCode ? {
+        id: `${Date.now()}-${Math.random()}`,
+        companyName: data.stepTwo.companyName || null,
+        fullName: data.stepThree.fullName,
+        postcode: data.stepThree.zipCode,
+        city: data.stepThree.city,
+        street: data.stepThree.street,
+        floor: data.stepThree.floor,
+        houseNumber: data.stepThree.houseNumber,
+        comment: data.stepThree.comment,
+        doorbell: data.stepThree.doorbell || null,
+        phone: data.stepThree.phone,
+        type: 'shipping'
+    } : null;
+
+    const inputtedBillingAddress = data.stepThree.zipCode ? {
+        id: `${Date.now()}-${Math.random()}`,
+        fullName: data.stepThree.fullName,
+        postcode: data.stepThree.zipCode,
+        city: data.stepThree.city,
+        street: data.stepThree.street,
+        floor: data.stepThree.floor,
+        houseNumber: data.stepThree.houseNumber,
+        doorbell: data.stepThree.doorbell || null,
+        phone: data.stepThree.phone,
+        companyName: data.stepTwo.companyName || null,
+        taxNumber: data.stepTwo.taxNumber || null,
+        type: 'billing'
+    } : null;
+
     const customerDataObject = {
         uid: authData.user.id,
         firstname: data.stepTwo.firstName,
@@ -38,38 +68,8 @@ export async function registerUser(data: RegistrationSchemaType) {
         isCompany: data.stepOne.role === 'company',
         newsletterConsent: data.stepTwo.newsletter,
         acquisitionSource: data.stepThree.source || null,
-        deliveryAddress: [
-            {
-                id: `${Date.now()}-${Math.random()}`,
-                companyName: data.stepTwo.companyName || null,
-                fullName: data.stepThree.fullName,
-                postcode: data.stepThree.zipCode,
-                city: data.stepThree.city,
-                street: data.stepThree.street,
-                floor: data.stepThree.floor,
-                houseNumber: data.stepThree.houseNumber,
-                comment: data.stepThree.comment,
-                doorbell: data.stepThree.doorbell || null,
-                phone: data.stepThree.phone,
-                type: 'shipping'
-            },
-        ],
-        billingAddress: [
-            {
-                id: `${Date.now()}-${Math.random()}`,
-                fullName: data.stepThree.fullName,
-                postcode: data.stepThree.zipCode,
-                city: data.stepThree.city,
-                street: data.stepThree.street,
-                floor: data.stepThree.floor,
-                houseNumber: data.stepThree.houseNumber,
-                doorbell: data.stepThree.doorbell || null,
-                phone: data.stepThree.phone,
-                companyName: data.stepTwo.companyName || null,
-                taxNumber: data.stepTwo.taxNumber || null,
-                type: 'billing'
-            },
-        ],
+        deliveryAddress: inputtedDeliveryAddress ? [inputtedDeliveryAddress] : [],
+        billingAddress: inputtedBillingAddress ? [inputtedBillingAddress] : [],
     };
 
     const { error: dbError } = await supabase.from('CustomerDatas').insert(customerDataObject);

@@ -2,6 +2,7 @@
 
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState, useCallback } from 'react';
 
@@ -18,7 +19,7 @@ import { StepOne, StepTwo, Stepper, StepThree, StepCompleted } from './form-step
 
 export type RegistrationSchemaType = zod.infer<ReturnType<typeof getRegistrationSchema>>;
 
-const getRegistrationSchema = () => {
+const getRegistrationSchema = (skipAddressValidation: boolean = false) => {
     const StepOneSchema = zod.object({
         role: zod.enum(['private', 'company'], {
             required_error: 'Kérjük, válassza ki a szerepkörét!',
@@ -56,11 +57,17 @@ const getRegistrationSchema = () => {
 
     const StepThreeSchema = zod.object({
         fullName: zod.string().optional(),
-        zipCode: zod
-            .string()
-            .regex(/^\d*$/, { message: 'Az irányítószám csak számokat tartalmazhat.' })
-            .max(4, { message: 'Az irányítószám maximum 4 karakter lehet.' })
-            .optional(),
+        zipCode: skipAddressValidation
+            ? zod
+                .string()
+                .regex(/^\d*$/, { message: 'Az irányítószám csak számokat tartalmazhat.' })
+                .max(4, { message: 'Az irányítószám maximum 4 karakter lehet.' })
+                .optional()
+            : zod
+                .string()
+                .min(1, { message: 'Kérjük, adja meg legalább az irányítószámot!' })
+                .regex(/^\d+$/, { message: 'Az irányítószám csak számokat tartalmazhat.' })
+                .length(4, { message: 'Az irányítószám pontosan 4 karakter hosszú kell legyen.' }),
         city: zod.string().optional(),
         street: zod.string().optional(),
         floor: zod.string().optional(),
@@ -112,8 +119,9 @@ const STEPS = ['Szerepkör', 'Alapadatok', 'Szállítási adatok'];
 
 export function SignUpWizard() {
     const [activeStep, setActiveStep] = useState(0);
+    const skip = useBoolean(false);
 
-    const RegistrationSchema = useMemo(() => getRegistrationSchema(), []);
+    const RegistrationSchema = useMemo(() => getRegistrationSchema(skip.value), [skip.value]);
 
     const defaultValues = {
         stepOne: { role: 'private' as const },
@@ -175,12 +183,20 @@ export function SignUpWizard() {
 
     const onSubmit = handleSubmit(async (data) => {
         try {
+            console.log('Skip value:', skip.value);
+            console.log('Form data:', data);
+            
             await registerUser(data);
             toast.success('Sikeres regisztráció!');
             setActiveStep((prev) => prev + 1);
+            
+            // Reset skip state after successful submission
+            skip.onFalse();
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || 'Hiba történt a regisztráció során.');
+            // Reset skip state on error too
+            skip.onFalse();
         }
     });
 
@@ -237,7 +253,11 @@ export function SignUpWizard() {
                                     size="large"
                                     variant="outlined"
                                     color="inherit"
-                                    type="submit"
+                                    onClick={() => {
+                                        skip.onTrue();
+                                        // Use setTimeout to ensure skip state is set before submission
+                                        setTimeout(() => onSubmit(), 0);
+                                    }}
                                     loading={isSubmitting}
                                 >
                                     Később adom meg
@@ -246,6 +266,9 @@ export function SignUpWizard() {
                                     size="large"
                                     variant="contained"
                                     color="inherit"
+                                    onClick={() => {
+                                        skip.onFalse();
+                                    }}
                                     type="submit"
                                     loading={isSubmitting}
                                 >
