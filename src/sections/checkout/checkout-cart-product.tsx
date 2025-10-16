@@ -20,6 +20,8 @@ import { NumberInput } from 'src/components/number-input';
 
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
+import { CheckoutDeleteConfirmPopover } from './checkout-delete-confirm-popover';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -40,6 +42,7 @@ export function CheckoutCartProduct({
     const { user } = useAuthContext();
     const [showNoteField, setShowNoteField] = useState(false);
     const [noteText, setNoteText] = useState(row.note || '');
+    const [deleteAnchorEl, setDeleteAnchorEl] = useState<HTMLElement | null>(null);
 
     const handleToggleNote = () => {
         setShowNoteField(!showNoteField);
@@ -66,6 +69,18 @@ export function CheckoutCartProduct({
             setNoteText(row.note || '');
             setShowNoteField(false);
         }
+    };
+
+    const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setDeleteAnchorEl(event.currentTarget);
+    };
+
+    const handleDeleteClose = () => {
+        setDeleteAnchorEl(null);
+    };
+
+    const handleDeleteConfirm = () => {
+        onDeleteCartItem(row.id);
     };
 
     const getUserType = () => {
@@ -149,7 +164,7 @@ export function CheckoutCartProduct({
                                     step={row.stepQuantity || 1}
                                 />
 
-                                <IconButton onClick={() => onDeleteCartItem(row.id)}>
+                                <IconButton onClick={handleDeleteClick}>
                                     <Iconify icon="solar:trash-bin-trash-bold" />
                                 </IconButton>
 
@@ -259,7 +274,7 @@ export function CheckoutCartProduct({
                                     sx={{flexGrow: 1}}
                                 />
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
-                                    <IconButton onClick={() => onDeleteCartItem(row.id)}>
+                                    <IconButton onClick={handleDeleteClick}>
                                         <Iconify icon="solar:trash-bin-trash-bold" />
                                     </IconButton>
 
@@ -296,6 +311,14 @@ export function CheckoutCartProduct({
                             </Collapse>
                 </TableCell>
             </TableRow>
+
+            <CheckoutDeleteConfirmPopover
+                open={Boolean(deleteAnchorEl)}
+                anchorEl={deleteAnchorEl}
+                onClose={handleDeleteClose}
+                onConfirm={handleDeleteConfirm}
+                productName={row.name}
+            />
         </>
     );
 }

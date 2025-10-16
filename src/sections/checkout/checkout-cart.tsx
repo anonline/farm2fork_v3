@@ -129,7 +129,7 @@ export function CheckoutCart() {
                 
             </Grid>
 
-            <Grid size={{ xs: 12, md: 5 }} sx={{ /*backgroundColor: '#F8F8F8', */ padding: '0px' }}>
+            <Grid size={{ xs: 12, md: 5 }} sx={{ /*backgroundColor: '#F8F8F8', */ padding: '0px', display: {xs: (checkoutState.items.length > 0 ? 'block' : 'none'), md: 'block'} }}>
                 <CheckoutSummary checkoutState={checkoutState} />
 
                 {/* Minimum Purchase Alert */}
