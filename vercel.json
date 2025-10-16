@@ -1,11 +1,11 @@
 {
   "crons": [
     {
-      "path": "/api/cron/announcements",
+      "path": "/api/cron/announcements/",
       "schedule": "15 12 * * *"
     },
     {
-      "path": "/api/cron/billingo/checkpayments",
+      "path": "/api/cron/billingo/checkpayments/",
       "schedule": "*/30 * * * *"
     }
   ]
