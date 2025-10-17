@@ -7,8 +7,6 @@ import { Box, Alert, Button, Container, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { fDate } from 'src/utils/format-time';
-
 import { CONFIG } from 'src/global-config';
 import { getCurrentUserSSR } from 'src/actions/auth-ssr';
 import { triggerOrderPlacedEmail, triggerOrderPlacedAdminEmail } from 'src/actions/email-ssr';
@@ -248,14 +246,14 @@ export default async function PaymentSuccessPage({ searchParams }: Readonly<Succ
     //TODO: prevent resend on refresh
     order.notifyEmails.forEach(async (email) => {
         if (email && email.trim().length > 5) {
-            await triggerOrderPlacedEmail(email.trim(), order.customerName, orderId, fDate(order.plannedShippingDateTime));
+            await triggerOrderPlacedEmail(email.trim(), order.customerName, orderId, order.plannedShippingDateTime?.toLocaleDateString('hu-HU') || '');
         }
     });
 
     const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAIL_FOR_NOTIFICATIONS;
     if (adminEmails) {
         adminEmails.split(',').forEach(async (email) => {
-            await triggerOrderPlacedAdminEmail(email.trim(), order.customerName, orderId, fDate(order.plannedShippingDateTime));
+            await triggerOrderPlacedAdminEmail(email.trim(), order.customerName, orderId, order.plannedShippingDateTime?.toLocaleDateString('hu-HU') || '');
         });
     }
 

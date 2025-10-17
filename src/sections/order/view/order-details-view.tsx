@@ -19,7 +19,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 
-import { fDate } from 'src/utils/format-time';
 import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 
 import { supabase } from 'src/lib/supabase';
@@ -253,7 +252,7 @@ export function OrderDetailsView({ orderId }: Props) {
         try {
             await Promise.all(notifyEmails.map(async email => {
                 if (email?.includes('@')) {
-                    await triggerOrderProcessedEmail(email, orderData.customerName, orderData.id, fDate(orderData.plannedShippingDateTime));
+                    await triggerOrderProcessedEmail(email, orderData.customerName, orderData.id, orderData.plannedShippingDateTime?.toLocaleDateString('hu-HU') || '');
                 }
             }));
         } catch (emailError) {
