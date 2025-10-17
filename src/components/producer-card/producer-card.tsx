@@ -60,19 +60,19 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
         display: 'block',
     };
 
-    const producerCardDetailsUpperContainterStyle: React.CSSProperties = {
-        padding: '32px 16px 16px 16px',
+    const producerCardDetailsUpperContainerStyle: SxProps<Theme> = {
+        padding: { xs: '16px 16px 16px 16px', md: '32px 16px 16px 16px' },
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
         position: 'relative',
     };
 
-    const producerCardDetailsUpperLabelContainerStyle: React.CSSProperties = {
+    const producerCardDetailsUpperLabelContainerStyle: SxProps<Theme> = {
         display: 'flex',
         flexDirection: 'column',
         gap: 4,
-        height: 52,
+        height: {xs: '48px', md: '52px'},
     };
 
     const producerCardNameStyle: React.CSSProperties = {
@@ -84,6 +84,12 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
         letterSpacing: '0em',
         margin: 0,
         cursor: 'pointer',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical',
+        whiteSpace: 'normal',
     };
 
     const producerCardPriceContentStyle: React.CSSProperties = {
@@ -113,11 +119,11 @@ export default function ProducerCard(props: Readonly<ProducerCardProps>) {
 
             {producer.bio && <BioBadge style={{ position: 'absolute', top: 16, right: 16 }} />}
 
-            <div style={producerCardDetailsUpperContainterStyle}>
+            <Box sx={producerCardDetailsUpperContainerStyle}>
                 <Box sx={producerCardDetailsUpperLabelContainerStyle} onClick={openProductPage}>
                     <h2 style={producerCardNameStyle}>{producer.name}</h2>
                 </Box>
-            </div>
+            </Box>
             <div style={producerCardPriceContentStyle}>
                 <div style={producerCardPriceDetailsStyle}>
                     <Typography display="flex" flexDirection="row" alignItems="center" gap="8px" sx={{color: '#7e7e7e', fontWeight: 500}}>
