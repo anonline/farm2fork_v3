@@ -63,7 +63,7 @@ export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderD
         if (!data) {
             return { order: null, error: 'Order not found' };
         }
-
+        console.log('Fetched order (SSR):', data.planned_shipping_date_time);
         // Transform database fields to match our interface
         const order: IOrderData = {
             id: data.id,
@@ -91,7 +91,9 @@ export async function getOrderByIdSSR(orderId: string): Promise<{ order: IOrderD
             orderStatus: data.order_status || 'pending',
             paymentDueDays: data.payment_due_days || 0,
             courier: data.courier,
-            plannedShippingDateTime: data.planned_shipping_date_time ? new Date(data.planned_shipping_date_time) : null,
+            plannedShippingDateTime: data.planned_shipping_date_time 
+                ? new Date(data.planned_shipping_date_time.split('T')[0] + 'T00:00:00Z') 
+                : null,
             shipment_time: data.shipment_time || '',
             simplepayDataJson: data.simplepay_data_json,
             invoiceDataJson: data.invoice_data_json,
@@ -239,7 +241,9 @@ export async function getAllOrdersSSR(params?: {
             orderStatus: row.order_status || 'pending',
             paymentDueDays: row.payment_due_days || 0,
             courier: row.courier,
-            plannedShippingDateTime: row.planned_shipping_date_time ? new Date(row.planned_shipping_date_time) : null,
+            plannedShippingDateTime: row.planned_shipping_date_time 
+                ? new Date(row.planned_shipping_date_time.split('T')[0] + 'T00:00:00Z') 
+                : null,
             shipment_time: row.shipment_time || '',
             simplepayDataJson: row.simplepay_data_json,
             invoiceDataJson: row.invoice_data_json,
