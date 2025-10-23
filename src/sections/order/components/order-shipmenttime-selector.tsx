@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { Box, Select, MenuItem } from "@mui/material";
 
 import { supabase } from "src/lib/supabase";
+import { Iconify } from "src/components/iconify";
 
 type OrderShipmentTimeSelectorProps = {
     orderId?: string; // Optional, if not provided, won't update Supabase
@@ -124,6 +125,8 @@ export default function OrderShipmentTimeSelector({ orderId, shipmentTime, onRef
         }
     };
 
+    const missingShipmentTime = selectedShipmentTime === '' || selectedShipmentTime === undefined || selectedShipmentTime === null || selectedShipmentTime === '???';
+
     return (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box
@@ -131,6 +134,7 @@ export default function OrderShipmentTimeSelector({ orderId, shipmentTime, onRef
                 sx={{ color: 'text.secondary', width: 120, flexShrink: 0 }}
             >
                 Idősáv
+                <Iconify icon='solar:danger-triangle-bold' sx={{ ml: 0.5, width: 16, height: 16, color: 'warning.main', verticalAlign: 'middle', display: missingShipmentTime ? 'inline-block' : 'none' }} />
             </Box>
 
             <Select
@@ -138,10 +142,12 @@ export default function OrderShipmentTimeSelector({ orderId, shipmentTime, onRef
                 value={selectedShipmentTime}
                 onChange={handleShipmentTimeChange}
                 displayEmpty
+                error={missingShipmentTime}
                 disabled={isUpdating}
                 sx={{
                     minWidth: 140,
-                    opacity: isUpdating ? 0.6 : 1
+                    opacity: isUpdating ? 0.6 : 1,
+                    backgroundColor: ''
                 }}
             >
                 {(() => {

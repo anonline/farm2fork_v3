@@ -12,11 +12,21 @@ import { fCurrency } from 'src/utils/format-number';
 import { fTime, fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
+import BioBadge from 'src/components/bio-badge/bio-badge';
+import { NumberInput } from 'src/components/number-input';
+import { Iconify } from 'src/components/iconify';
+import { useCallback, useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { updateProductStock } from 'src/actions/product-ssr';
 
 // ----------------------------------------------------------------------
 
 type ParamsProps = {
     params: GridCellParams;
+};
+
+type StockCellProps = ParamsProps & {
+    onStockUpdate?: (productId: string, stock: number | null, backorder: boolean) => void;
 };
 
 export function RenderCellPrice({ params }: Readonly<ParamsProps>) {
@@ -71,8 +81,22 @@ export function RenderCellUnit({ params }: Readonly<ParamsProps>) {
 
 export function RenderCellPublish({ params }: Readonly<ParamsProps>) {
     return (
-        <Label variant="soft" color={params.row.publish ? 'success' : 'default'}>
-            {params.row.publish ? 'Elérhető' : 'Rejtett'}
+        <Label
+            variant="filled"
+            color={params.row.publish ? 'primary' : 'error'}
+            style={{
+                borderRadius: '50%',
+                fontSize: '0.75rem',
+                display: 'block',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '16px',
+                width: '16px',
+                padding: 0,
+                minWidth: '16px',
+                maxHeight: '16px',
+            }}
+        >
         </Label>
     );
 }
@@ -116,6 +140,119 @@ export function RenderCellStock({ params }: Readonly<ParamsProps>) {
                     Elfogyott
                 </Label>
             )}
+        </Box>
+    );
+}
+
+export function RenderCellStockNew({ params, onStockUpdate }: Readonly<StockCellProps>) {
+    const [backorderEnabled, setBackorderEnabled] = useState(params.row.backorder);
+    const [stockValue, setStockValue] = useState<number | null>(params.row.stock);
+
+    const min = 0;
+    const max = 9999;
+    const step = params.row.stepQuantity || 1;
+
+    // Use useMemo to preserve the original values
+    const [originalStock, setOriginalStock] = useState(() => params.row.stock);
+    const [originalBackorder, setOriginalBackorder] = useState(() => params.row.backorder);
+
+    const handleStockChange = useCallback((event: any, value: number | null) => {
+        setStockValue(value);
+    }, []);
+
+    const handleOutofStockButtonClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setStockValue(prev => {
+            if (prev === 0) {
+                return min;
+            } else {
+                return 0;
+            }
+        });
+    }, [min]);
+
+    const handleBackorderClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setBackorderEnabled((prev: boolean) => !prev);
+    }, []);
+
+
+    const handleSaveStockClick = useCallback(async () => {
+        try {
+            await updateProductStock(params.row.id, stockValue, backorderEnabled);
+            setOriginalStock(stockValue);
+            setOriginalBackorder(backorderEnabled);
+
+            // Update parent component's data
+            if (onStockUpdate) {
+                onStockUpdate(params.row.id, stockValue, backorderEnabled);
+            }
+
+            toast.success(`${stockValue ?? 'Végtelen'} ${params.row.unit} készlet mentve${backorderEnabled ? ' utánrendeléssel' : ''}.`);
+        } catch (error) {
+            console.error('Error updating product stock:', error);
+            toast.error('Hiba történt a készlet frissítésekor.');
+        }
+    }, [stockValue, backorderEnabled, params.row.id, params.row.unit, onStockUpdate]);
+
+    // Auto-save when stock value or backorder status changes
+    useEffect(() => {
+        const hasStockChanged = stockValue !== originalStock;
+        const hasBackorderChanged = backorderEnabled !== originalBackorder;
+
+        if (hasStockChanged || hasBackorderChanged) {
+            // Debounce the save to avoid too many calls
+            const timeoutId = setTimeout(() => {
+                handleSaveStockClick();
+            }, 1000); // 1000ms debounce delay
+
+            return () => {
+                clearTimeout(timeoutId);
+            };
+        }
+        return undefined;
+    }, [stockValue, backorderEnabled, originalStock, originalBackorder, handleSaveStockClick]);
+
+    return (
+        <Box sx={{ width: 1, typography: 'caption', color: 'text.secondary' }}>
+            <Box display={'flex'} flexDirection={'row'} gap={1} alignItems={'center'} mb={1}>
+                <Iconify
+                    icon="eva:minus-circle-fill"
+                    width={24}
+                    sx={{
+                        color: stockValue === 0 ? 'error.main' : 'inherit',
+                        cursor: 'pointer'
+                    }}
+                    onClick={handleOutofStockButtonClick}
+                />
+
+                <NumberInput
+                    value={stockValue}
+                    step={step}
+                    digits={1}
+                    min={min}
+                    max={max}
+                    suffix={params.row.unit ?? 'db'}
+                    onChange={handleStockChange}
+                    showInfinityOnNull={true}
+
+                />
+
+                <Iconify
+                    icon="solar:box-minimalistic-bold"
+                    width={24}
+                    sx={{
+                        color: backorderEnabled ? 'warning.main' : 'inherit',
+                        cursor: 'pointer',
+
+                    }}
+                    onClick={handleBackorderClick}
+                />
+
+            </Box>
+
         </Box>
     );
 }
@@ -167,15 +304,21 @@ export function RenderCellProduct({ params, href }: ParamsProps & { href: string
                     'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp'
                 }
                 variant="rounded"
-                sx={{ width: 64, height: 64 }}
+                sx={{ width: { xs: 48, md: 64 }, height: { xs: 48, md: 64 } }}
             />
 
             <ListItemText
                 primary={
                     <Link component={RouterLink} href={href} color="inherit">
-                        {params.row.name}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-start' }}>
+                            <Box sx={{ display: { xs: 'inline-block', md: 'none' } }}>
+                                <RenderCellPublish params={params} />
+                            </Box>
+                            {params.row.name} {params.row.bio && <BioBadge width={32} />}
+                        </Box>
                     </Link>
                 }
+                secondary={<Box sx={{ width: '100%', mt: 1, display: { xs: 'block', md: 'none' } }}><RenderCellStockNew params={params} /></Box>}
                 slotProps={{
                     primary: { noWrap: true },
                     secondary: { sx: { color: 'text.disabled' } },

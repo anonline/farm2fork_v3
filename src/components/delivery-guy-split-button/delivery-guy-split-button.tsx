@@ -36,7 +36,7 @@ export function DeliveryGuySplitButton({
     color = 'inherit',
     variant = 'outlined',
     disabled = false,
-}: Props) {
+}: Readonly<Props>) {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef<HTMLButtonElement>(null);
 
@@ -76,7 +76,7 @@ export function DeliveryGuySplitButton({
                 {currentDeliveryGuy?.name || 'Nincs Futár'}
             </Button>
             <Popper
-                sx={{ zIndex: 1 }}
+                sx={{ zIndex: 1, minWidth: anchorRef.current?.offsetWidth}}
                 open={open}
                 anchorEl={anchorRef.current}
                 role={undefined}
@@ -90,7 +90,7 @@ export function DeliveryGuySplitButton({
                             transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
                         }}
                     >
-                        <Paper>
+                        <Paper elevation={2} sx={{padding: 1}}>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList id="delivery-guy-menu" autoFocusItem>
                                     <MenuItem

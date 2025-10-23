@@ -44,10 +44,12 @@ export type NumberInputProps = Omit<React.ComponentProps<typeof NumberInputRoot>
     hideButtons?: boolean;
     digits?: number;
     disableInput?: boolean;
+    showInfinityOnNull?: boolean;
+    suffix?: string;
     helperText?: React.ReactNode;
     captionText?: React.ReactNode;
     slotProps?: NumberInputSlotProps;
-    onChange?: (event: EventHandler, value: number) => void;
+    onChange?: (event: EventHandler, value: number | null) => void;
 };
 
 export function NumberInput({
@@ -62,6 +64,8 @@ export function NumberInput({
     hideDivider,
     hideButtons,
     disableInput,
+    showInfinityOnNull = false,
+    suffix,
     min = 0,
     max = 9999,
     step = 1,
@@ -74,7 +78,7 @@ export function NumberInput({
     const [inputValue, setInputValue] = useState<string>('');
     const [isFocused, setIsFocused] = useState(false);
 
-    const isDecrementDisabled = currentValue <= min || disabled;
+    const isDecrementDisabled = currentValue <= min && !showInfinityOnNull || (showInfinityOnNull && currentValue === null ) || disabled;
     const isIncrementDisabled = currentValue >= max || disabled;
 
     const stepDigits = step % 1 == 0 ? 0 : step % 0.1 == 0 ? 1 : 1;
@@ -85,29 +89,45 @@ export function NumberInput({
     const handleDecrement = useCallback(
         (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             if (!isDecrementDisabled) {
-                const newValue = round(Number(currentValue) - Number(step), stepDigits);
-                onChange?.(event, newValue);
-                // Update input value if focused
-                if (isFocused) {
-                    setInputValue(newValue.toString());
+                // If showInfinityOnNull is enabled and value is 0, switch to null
+                if (showInfinityOnNull && currentValue === 0) {
+                    onChange?.(event, null as any);
+                    if (isFocused) {
+                        setInputValue('');
+                    }
+                } else {
+                    const newValue = round(Number(currentValue) - Number(step), stepDigits);
+                    onChange?.(event, newValue);
+                    // Update input value if focused
+                    if (isFocused) {
+                        setInputValue(newValue.toString());
+                    }
                 }
             }
         },
-        [isDecrementDisabled, onChange, currentValue, step, stepDigits, isFocused]
+        [isDecrementDisabled, onChange, currentValue, step, stepDigits, isFocused, showInfinityOnNull]
     );
 
     const handleIncrement = useCallback(
         (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             if (!isIncrementDisabled) {
-                const newValue = round(Number(currentValue) + Number(step), stepDigits);
-                onChange?.(event, newValue);
-                // Update input value if focused
-                if (isFocused) {
-                    setInputValue(newValue.toString());
+                // If showInfinityOnNull is enabled and value is null, switch to 0
+                if (showInfinityOnNull && value === null) {
+                    onChange?.(event, 0);
+                    if (isFocused) {
+                        setInputValue('0');
+                    }
+                } else {
+                    const newValue = round(Number(currentValue) + Number(step), stepDigits);
+                    onChange?.(event, newValue);
+                    // Update input value if focused
+                    if (isFocused) {
+                        setInputValue(newValue.toString());
+                    }
                 }
             }
         },
-        [isIncrementDisabled, onChange, currentValue, step, stepDigits, isFocused]
+        [isIncrementDisabled, onChange, currentValue, step, stepDigits, isFocused, showInfinityOnNull, value]
     );
 
     const handleChange = useCallback(
@@ -152,7 +172,9 @@ export function NumberInput({
     // Display value: use raw input during focus, formatted value when not focused
     const displayValue = isFocused 
         ? inputValue 
-        : currentValue.toFixed(currentValue % 1 == 0 ? 0 : stepDigits);
+        : (value === null && showInfinityOnNull)
+            ? '∞'
+            : currentValue.toFixed(currentValue % 1 == 0 ? 0 : stepDigits);
 
     return (
         <Box {...slotProps?.wrapper}>
@@ -187,7 +209,7 @@ export function NumberInput({
                     <CenteredInput
                         name={id}
                         disabled={disabled || disableInput}
-                        value={displayValue}
+                        value={suffix && !isFocused ? `${displayValue} ${suffix}` : displayValue}
                         onChange={handleChange}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
@@ -195,7 +217,7 @@ export function NumberInput({
                         style={{ touchAction: 'manipulation' }} //prevent zoom on mobile double tap
                         inputProps={{
                             inputMode: 'decimal',
-                            pattern: '[0-9]*\\.?[0-9]*',
+                            pattern: String.raw`[0-9]*\.?[0-9]*`,
                         }}
                     />
 

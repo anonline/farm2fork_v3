@@ -50,7 +50,7 @@ export default function TarolasKartya({ method }: Readonly<TarolasKartyaProps>) 
             const category = categories.find(cat => cat.id === method.categoryId);
             setCategoryLink(category ? paths.categories.list(category.slug) : null);
         }
-    }, [categories]);
+    }, [categories, method.categoryId]);
 
     return (
         <Box sx={{ backgroundColor: 'transparent' }}>

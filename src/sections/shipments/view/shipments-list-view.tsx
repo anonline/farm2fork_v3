@@ -66,8 +66,6 @@ import {
 
 const HIDE_COLUMNS = { category: false };
 
-const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
-
 // ----------------------------------------------------------------------
 
 type ShipmentItemSummary = {
@@ -125,8 +123,8 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
         orderIds: Set<string>;
     }>();
 
-    orders.forEach((order) => {
-        order.items.forEach((item) => {
+    for (const order of orders) {
+        for (const item of order.items) {
             const key = `${item.id}-${item.name}-${item.size || ''}-${item.unit || ''}`;
 
             if (!itemsMap.has(key)) {
@@ -144,8 +142,8 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
             summary.prices.push(item.grossPrice);
             summary.customers.add(order.customerName);
             summary.orderIds.add(order.id);
-        });
-    });
+        }
+    }
 
     const summaryItems = Array.from(itemsMap.entries()).map(([key, data]) => {
         const totalQuantity = data.quantities.reduce((sum, qty) => sum + qty, 0);
@@ -173,13 +171,13 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
 
     // Expand bundle items
     const expandedItems: ShipmentItemSummary[] = [];
-    summaryItems.forEach((item) => {
+    for (const item of summaryItems) {
         // Add the main product
         expandedItems.push(item);
 
         // If it's a bundle product, add its bundle items
         if (item.productData?.type === 'bundle' && item.productData?.bundleItems && item.productData.bundleItems.length > 0) {
-            item.productData.bundleItems.forEach((bundleItem) => {
+            for (const bundleItem of item.productData.bundleItems) {
                 const totalBundleQuantity = bundleItem.qty * item.totalQuantity;
                 expandedItems.push({
                     id: `${item.id}-bundle-${bundleItem.productId}`,
@@ -197,9 +195,9 @@ async function fetchShipmentItemsSummary(shipmentId: number): Promise<ShipmentIt
                     parentQuantity: item.totalQuantity,
                     individualQuantity: bundleItem.qty,
                 });
-            });
+            }
         }
-    });
+    }
 
     return expandedItems;
 }

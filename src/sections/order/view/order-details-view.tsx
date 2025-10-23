@@ -799,7 +799,7 @@ export function OrderDetailsView({ orderId }: Props) {
         }
 
         // Calculate new total
-        const { newSubtotal, newTotal } = calculateNewTotalsForFrontend(editedItems);
+        const { newTotal } = calculateNewTotalsForFrontend(editedItems);
 
         // Check if payment method is 'simple' and if new total exceeds paid amount
         const isSimplePayment = orderData?.paymentMethod?.slug === 'simple';

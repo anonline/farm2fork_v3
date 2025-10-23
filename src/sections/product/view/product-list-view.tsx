@@ -20,6 +20,8 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import {
     DataGrid,
     gridClasses,
@@ -56,6 +58,7 @@ import {
     RenderCellProduct,
     RenderCellCategories,
     RenderCellGrossPrice,
+    RenderCellStockNew,
 } from '../product-table-row';
 
 // ----------------------------------------------------------------------
@@ -84,6 +87,8 @@ const NoResultsOverlay = () => <EmptyContent title="Nincs találat." />;
 
 export function ProductListView() {
     const confirmDialog = useBoolean();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const { products, loading: productsLoading, refreshProducts } = useProducts();
     const { allCategories } = useCategories();
@@ -99,6 +104,14 @@ export function ProductListView() {
 
     const [columnVisibilityModel, setColumnVisibilityModel] =
         useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
+
+    // Update column visibility based on screen size
+    useEffect(() => {
+        setColumnVisibilityModel((prev) => ({
+            ...prev,
+            publish: !isMobile,
+        }));
+    }, [isMobile]);
 
     useEffect(() => {
         if (products.length) {
@@ -159,6 +172,11 @@ export function ProductListView() {
         }
     }, [products]);
 
+    const handleStockUpdate = useCallback((productId: string, stock: number | null, backorder: boolean) => {
+        console.log('Updating stock for product:', productId, 'to stock:', stock, 'backorder:', backorder);
+        refreshProducts();
+    }, []);
+
     const categoryOptions = allCategories
         .filter((cat) => cat.enabled)
         .map((cat) => ({ 
@@ -190,22 +208,23 @@ export function ProductListView() {
         { field: 'category', headerName: 'Category', filterable: false },
         {
             field: 'publish',
-            headerName: 'Aktív',
-            width: 110,
+            headerName: '',
+            width: 20,
             renderCell: (params) => <RenderCellPublish params={params} />,
+            hideable: true,
         },
-        {
+        /*{
             field: 'bio',
             headerName: 'Bio',
             width: 90,
 
             renderCell: (params) => <RenderCellBio params={params} />,
-        },
+        },*/
         {
             field: 'name',
             headerName: 'Termék',
             flex: 1,
-            minWidth: 360,
+            minWidth: isMobile ? 300 : 300,
             hideable: false,
             renderCell: (params) => (
                 <RenderCellProduct
@@ -215,12 +234,12 @@ export function ProductListView() {
             ),
         },
         {
-            field: 'inventoryType',
+            field: 'inventoryTypeNew',
             headerName: 'Készlet',
-            width: 100,
+            width: isMobile ? 100 : 230,
             editable: false,
 
-            renderCell: (params) => <RenderCellStock params={params} />,
+            renderCell: (params) => <RenderCellStockNew params={params} onStockUpdate={handleStockUpdate} />,
         },
         {
             field: 'price',
@@ -352,7 +371,7 @@ export function ProductListView() {
                         minHeight: 840,
                         flexGrow: { md: 1 },
                         display: { md: 'flex' },
-                        height: { xs: 800, md: '1px' },
+                        height: { xs: 'auto', md: '1px' },
                         flexDirection: { md: 'column' },
                     }}
                 >
@@ -364,7 +383,7 @@ export function ProductListView() {
                         loading={productsLoading}
                         getRowHeight={() => 'auto'}
                         pageSizeOptions={[5, 10, 20, 50, 100, { value: -1, label: 'Összes' }]}
-                        initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                        initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
                         onRowSelectionModelChange={(newSelectionModel) =>
                             setSelectedRowIds(newSelectionModel)
                         }
