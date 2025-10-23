@@ -207,7 +207,7 @@ export default function NewPostForm({ onSave, onCancel, currentPost }: Readonly<
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel} variant="outlined" color="inherit">
-                    Cancel
+                    Mégse
                 </Button>
                 <Button type="submit" variant="contained">
                     Mentés
