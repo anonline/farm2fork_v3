@@ -20,6 +20,9 @@ import { CONFIG } from 'src/global-config';
 import { Logo } from 'src/components/logo';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
+import { ContactModal } from 'src/components/contact-modal';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -44,7 +47,7 @@ const LINKS = [
             { name: 'GYIK', href: paths.faqs },
             { name: 'ÁSZF', href: paths.aszf },
             { name: 'Adatkezelési tájékoztató', href: paths.adatkezelesi },
-            { name: 'Kapcsolat', href: '#' },
+            { name: 'Kapcsolat', href: '#', action: 'contact' },
         ],
     },
 ];
@@ -65,6 +68,8 @@ export function Footer({
     layoutQuery = 'md',
     ...other
 }: FooterProps & { layoutQuery?: Breakpoint }) {
+    const [contactModalOpen, setContactModalOpen] = useState(false);
+    
     return (
         <FooterRoot sx={sx} {...other}>
             <Container
@@ -288,6 +293,7 @@ export function Footer({
                                             key={link.name}
                                             component={RouterLink}
                                             href={link.href}
+                                            onClick={link.action === 'contact' ? () => setContactModalOpen(true) : undefined}
                                             color="inherit"
                                             sx={{
                                                 color: '#ffffff',
@@ -357,6 +363,17 @@ export function Footer({
                     </Box>
                 </Container>
             </Container>
+
+            {/* Contact Modal */}
+            <ContactModal
+                subject='Kapcsolatfelvétel'
+                open={contactModalOpen}
+                onClose={() => setContactModalOpen(false)}
+                onSuccess={() => {
+                    console.log('Contact form submitted successfully');
+                    toast.success('Köszönjük, hogy felvetted velünk a kapcsolatot! Hamarosan jelentkezünk.');
+                }}
+            />
         </FooterRoot>
     );
 }

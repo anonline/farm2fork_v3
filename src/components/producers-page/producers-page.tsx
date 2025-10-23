@@ -192,7 +192,7 @@ export default function ProducersPage() {
             {loading ? (
                 <Grid container spacing={1} justifyContent="start" style={{ marginTop: '20px' }}>
                     {Array.from({ length: CONFIG.pagination.producersPerPage }).map((_, index) => (
-                        <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={index}>
+                        <Grid size={{ xs: 12, sm: 4, md: 2.4, lg: 2.4 }} key={index+'_loading'}>
                             <Skeleton height={400} />
                         </Grid>
                     ))}
