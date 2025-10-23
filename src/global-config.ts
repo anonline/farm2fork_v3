@@ -38,6 +38,7 @@ export type ConfigValue = {
         producersPerPage: number;
         infiniteScrollThreshold: number;
     };
+    cookieYesId: string;
 };
 
 // ----------------------------------------------------------------------
@@ -115,4 +116,8 @@ export const CONFIG: ConfigValue = {
         producersPerPage: 20, // Number of producers to load per page
         infiniteScrollThreshold: 1500, // Distance from bottom in pixels to trigger load more
     },
+    /**
+     * CookieYes ID
+     */
+    cookieYesId: process.env.NEXT_PUBLIC_COOKIE_YES_ID ?? '', 
 };
