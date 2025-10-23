@@ -41,11 +41,12 @@ type FormErrors = {
 
 type Props = {
     open: boolean;
+    subject?: string;
     onClose: () => void;
     onSuccess?: () => void;
 };
 
-export function ContactModal({ open, onClose, onSuccess }: Readonly<Props>) {
+export function ContactModal({ open, onClose, onSuccess, subject }: Readonly<Props>) {
     const [formData, setFormData] = useState<ContactFormSchemaType>({
         name: '',
         email: '',
@@ -134,6 +135,7 @@ export function ContactModal({ open, onClose, onSuccess }: Readonly<Props>) {
 
             // Send email
             const result = await sendContactFormEmail({
+                subject: subject || 'Új kapcsolatfelvételi üzenet a weboldalról',
                 name: formData.name,
                 email: formData.email,
                 message: formData.message,

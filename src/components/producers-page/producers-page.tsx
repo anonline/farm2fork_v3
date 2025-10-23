@@ -15,6 +15,7 @@ import { SortingOrder } from 'src/types/search';
 import ProducerCard from '../producer-card/producer-card';
 import { ContactModal } from '../contact-modal';
 import ProducersPageFilter from '../producers-page-filter/producers-page-filter';
+import { toast } from 'sonner';
 
 export default function ProducersPage() {
     const [keyword, setKeyword] = useState('');
@@ -241,10 +242,12 @@ export default function ProducersPage() {
             
             {/* Contact Modal */}
             <ContactModal
+                subject='Termelő jelentkezés'
                 open={contactModalOpen}
                 onClose={() => setContactModalOpen(false)}
                 onSuccess={() => {
                     console.log('Contact form submitted successfully');
+                    toast.success('Köszönjük, hogy felvetted velünk a kapcsolatot! Hamarosan jelentkezünk.');
                 }}
             />
         </>

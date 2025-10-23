@@ -415,7 +415,7 @@ function replaceExpectedDelivery(body: string, expectedDelivery: string, expecte
 
 function replaceChangeLog(body: string, changeLog: string) {
     // Replace newlines with <br /> tags for HTML email display
-    changeLog = changeLog.replace(/\n/g, '<br />');
+    changeLog = changeLog.replaceAll('\n', '<br />');
     const text = changeLog.trim() ? `<p style="padding: 12px;background: #cecece;border-radius: 8px;width: 100%;display: inline-block;"><span style="font-weight: 600;">Pár tételt módosítanunk kellett a rendelésedben:</span><br />${changeLog}</p>` : '';
     return body.replaceAll('{{change_log_section}}', text);
 }
@@ -527,10 +527,24 @@ function replaceOrderDetailsTable(body: string, orderData: IOrderData, userType:
 
 const formatNumber = (num: string | number, decimals = -1) =>{
     let numValue = Number(num);
-    if(isNaN(numValue)) numValue = 0;
-    const stringValue = numValue.toFixed( decimals < 0 ? (Number.isInteger(numValue) ? 0 : 1) : decimals );
+    if(Number.isNaN(numValue)) numValue = 0;
+    const checkIntValue = Number.isInteger(numValue) ? 0 : 1;
+    const stringValue = numValue.toFixed( decimals < 0 ? checkIntValue : decimals );
 
-    return stringValue.replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
+    return stringValue.replaceAll(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
+}
+
+// Helper function to escape HTML special characters to prevent XSS attacks
+function escapeHtml(text: string): string {
+    const htmlEscapeMap: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+    };
+    return text.replaceAll(/[&<>"'/]/g, (char) => htmlEscapeMap[char] || char);
 }
 
 // ----------------------------------------------------------------------
@@ -538,6 +552,7 @@ const formatNumber = (num: string | number, decimals = -1) =>{
 // ----------------------------------------------------------------------
 
 export type ContactFormData = {
+    subject?: string;
     name: string;
     email: string;
     message: string;
@@ -559,29 +574,40 @@ export async function sendContactFormEmail(data: ContactFormData): Promise<{ suc
         }
 
         // Get admin emails from config or database
-        // const adminEmails = await getAdminEmails();
+        const adminEmails = process.env.CONTACT_FORM_RECIPIENTS?.split(',').map(email => email.trim()) || ['info@farm2fork.hu'];
+
+        // Sanitize user input to prevent XSS attacks
+        const safeName = escapeHtml(data.name);
+        const safeEmail = escapeHtml(data.email);
+        const safeMessage = escapeHtml(data.message).replaceAll('\n', '<br />');
+        const safeSubject = data.subject ? escapeHtml(data.subject) : 'Új kapcsolatfelvételi üzenet a weboldalról';
 
         // Prepare email template
-        // const email = new EmailBaseTemplate();
-        // email.setSubject(`Új kapcsolatfelvételi üzenet: ${data.name}`);
-        // email.setBody(`
-        //     <p><strong>Név:</strong> ${data.name}</p>
-        //     <p><strong>Email:</strong> ${data.email}</p>
-        //     <p><strong>Üzenet:</strong></p>
-        //     <p>${data.message}</p>
-        // `);
+        const email = new EmailBaseTemplate();
+        email.setSubject(`${safeSubject}: ${safeName}`);
+        email.setHeader(safeSubject);
+        email.setBody(`
+            <p><strong>Név:</strong> ${safeName}</p>
+            <p><strong>Email:</strong> ${safeEmail}</p>
+            <p><strong>Üzenet:</strong></p>
+            <p>${safeMessage}</p>
+        `);
 
-        // Send email using Resend
-        // const result = await resendClient.sendEmailTemplate({
-        //     to: adminEmails,
-        //     from: process.env.FROM_EMAIL || 'noreply@farm2fork.com',
-        //     subject: email.subject,
-        //     template: email,
-        // });
+        // Send emails to each admin with delay to comply with Resend rate limit (2 emails/sec)
+        for (let i = 0; i < adminEmails.length; i++) {
+            if (i > 0) {
+                // Add 2.5 second delay between emails
+                await new Promise(resolve => setTimeout(resolve, 2500));
+            }
+            
+            await resendClient.sendEmailTemplate({
+                to: adminEmails[i],
+                from: process.env.FROM_EMAIL || 'noreply@farm2fork.com',
+                subject: email.subject,
+                template: email,
+            });
+        }
 
-        // Placeholder for now - will be implemented later
-        console.log('Contact form data:', data);
-        
         return { success: true };
     } catch (error) {
         console.error('Error sending contact form email:', error);
