@@ -97,7 +97,7 @@ export async function resizeImage(
     file: File,
     maxWidth: number = 1200,
     maxHeight: number = 1200,
-    quality: number = 0.85
+    quality: number = 0.95
 ): Promise<File> {
     const img = await loadImage(file);
 

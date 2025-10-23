@@ -19,8 +19,11 @@ import {
     Autocomplete,
 } from '@mui/material';
 
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 import { useGetProducts } from 'src/actions/product';
-import { uploadFile } from 'src/lib/blob/blobClient';
+import { uploadFile, deleteFile } from 'src/lib/blob/blobClient';
+import { resizeImage } from 'src/utils/image-resize';
 import {
     createProducer,
     updateProducer,
@@ -50,7 +53,7 @@ const ProducerSchema = zod.object({
         .union([zod.string(), zod.instanceof(File)])
         .nullable()
         .optional(),
-    productIds: zod.array(zod.string()).optional(),
+    productIds: zod.array(zod.union([zod.string(), zod.number()])).optional(),
     enabled: zod.boolean(),
 });
 
@@ -61,6 +64,7 @@ type Props = {
 };
 
 export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>) {
+    const router = useRouter();
     const { products, productsLoading } = useGetProducts();
 
     const defaultValues = useMemo(() => {
@@ -93,12 +97,18 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
         handleSubmit,
         setValue,
         control,
-        formState: { isSubmitting },
+        formState: { isSubmitting, errors },
     } = methods;
 
     useEffect(() => {
         reset(defaultValues);
     }, [defaultValues, reset]);
+
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            console.log('Current form errors:', errors);
+        }
+    }, [errors]);
 
     const generateSlug = (name: string) => {
         const hungarianMap: Record<string, string> = {
@@ -152,28 +162,65 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
         [currentProducer?.id, setValue]
     );
 
-    const onSubmit = handleSubmit(async (data) => {
-        try {
-            let finalImageUrl = data.featuredImage;
-            let coverImageUrl = data.coverImage;
-            
-            if (finalImageUrl instanceof File) {
-                const response = await uploadFile(finalImageUrl, 'producers', 0);
-                if (!response.url) {
-                    throw new Error('A képfeltöltés nem adott vissza URL-t.');
-                }
-                finalImageUrl = response.url;
-                toast.success('Kép sikeresen feltöltve!');
-            }
+    const onSubmit = handleSubmit(
+        async (data) => {
+            console.log('Form submitted with data:', data);
 
-            if (coverImageUrl instanceof File) {
-                const response = await uploadFile(coverImageUrl, 'producers', 0);
-                if (!response.url) {
-                    throw new Error('A borítókép feltöltése nem adott vissza URL-t.');
+            try {
+                let finalImageUrl = data.featuredImage;
+                let coverImageUrl = data.coverImage;
+                
+                // Handle featured image upload with resizing
+                if (finalImageUrl instanceof File) {
+                    console.info('Resizing and uploading featured image...');
+                    // Resize featured image to 800x800px max to save storage and bandwidth
+                    const resizedImage = await resizeImage(finalImageUrl, 800, 800);
+                    
+                    const response = await uploadFile(resizedImage, 'producers', 0);
+                    if (!response.url) {
+                        throw new Error('A képfeltöltés nem adott vissza URL-t.');
+                    }
+                    finalImageUrl = response.url;
+                    toast.success('Kép sikeresen feltöltve!');
+
+                    // Delete old featured image if it exists and was replaced
+                    if (currentProducer?.featuredImage && currentProducer.featuredImage !== finalImageUrl) {
+                        try {
+                            console.info('Deleting old featured image:', currentProducer.featuredImage);
+                            await deleteFile(currentProducer.featuredImage);
+                        } catch (deleteError) {
+                            // Log the error but don't block the save operation
+                            toast.warning('Régi kép törlése sikertelen, de a mentés folytatódik.');
+                            console.error('Failed to delete old featured image, continuing with save:', deleteError);
+                        }
+                    }
                 }
-                coverImageUrl = response.url;
-                toast.success('Borítókép sikeresen feltöltve!');
-            }
+
+                // Handle cover image upload with resizing
+                if (coverImageUrl instanceof File) {
+                    console.info('Resizing and uploading cover image...');
+                    // Resize cover image to 800x600px max to save storage and bandwidth
+                    const resizedCoverImage = await resizeImage(coverImageUrl, 800, 600);
+                    
+                    const response = await uploadFile(resizedCoverImage, 'producers', 0);
+                    if (!response.url) {
+                        throw new Error('A borítókép feltöltése nem adott vissza URL-t.');
+                    }
+                    coverImageUrl = response.url;
+                    toast.success('Borítókép sikeresen feltöltve!');
+
+                    // Delete old cover image if it exists and was replaced
+                    if (currentProducer?.coverImage && currentProducer.coverImage !== coverImageUrl) {
+                        try {
+                            console.info('Deleting old cover image:', currentProducer.coverImage);
+                            await deleteFile(currentProducer.coverImage);
+                        } catch (deleteError) {
+                            // Log the error but don't block the save operation
+                            toast.warning('Régi borítókép törlése sikertelen, de a mentés folytatódik.');
+                            console.error('Failed to delete old cover image, continuing with save:', deleteError);
+                        }
+                    }
+                }
 
             const plainShortDescription = data.shortDescription
                 ? data.shortDescription.replace(/<.*?>/g, '')
@@ -207,13 +254,27 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
                 throw new Error('A termelő azonosítója nem található a mentés után.');
             }
 
-            await updateProductAssignments(producerId, data.productIds || []);
+            await updateProductAssignments(producerId, data.productIds?.map(id => id.toString()) || []);
             toast.success('Termék-hozzárendelések frissítve!');
+            
+            // If creating a new producer, redirect to edit page
+            if (currentProducer) {
+                toast.success('Minden adat sikeresen frissítve!');
+                //router.refresh();
+
+            } else {
+                router.push(paths.dashboard.producer.edit(data.slug));
+            }
         } catch (error: any) {
             console.error('Hiba a beküldés során:', error);
             toast.error(error.message || 'Hiba történt a mentés során.');
         }
-    });
+    },
+    (errors) => {
+        console.error('Form validation errors:', errors);
+        toast.error('Kérlek töltsd ki a kötelező mezőket!');
+    }
+);
 
     return (
         <FormProvider {...methods}>

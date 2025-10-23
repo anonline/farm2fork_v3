@@ -123,6 +123,8 @@ export async function deleteProducer(id: string) {
 }
 
 export async function updateProductAssignments(producerId: string, newProductIds: string[]) {
+    console.log('Updating product assignments for producer:', producerId);
+    console.log('New product IDs to assign:', newProductIds);
     const { data: currentProducts, error: fetchError } = await supabase
         .from('Products')
         .select('id')
@@ -130,7 +132,7 @@ export async function updateProductAssignments(producerId: string, newProductIds
 
     if (fetchError) throw new Error('A meglévő termékek lekérdezése sikertelen.');
 
-    const currentProductIds = currentProducts.map((p) => p.id);
+    const currentProductIds = currentProducts.map((p) => p.id.toString());
 
     const productsToAssign = newProductIds.filter((id) => !currentProductIds.includes(id));
     const productsToUnassign = currentProductIds.filter((id) => !newProductIds.includes(id));
@@ -139,13 +141,13 @@ export async function updateProductAssignments(producerId: string, newProductIds
 
     if (productsToAssign.length > 0) {
         operations.push(
-            supabase.from('Products').update({ producer_id: producerId }).in('id', productsToAssign)
+            supabase.from('Products').update({ producerId: producerId }).in('id', productsToAssign)
         );
     }
 
     if (productsToUnassign.length > 0) {
         operations.push(
-            supabase.from('Products').update({ producer_id: null }).in('id', productsToUnassign)
+            supabase.from('Products').update({ producerId: null }).in('id', productsToUnassign)
         );
     }
 
