@@ -39,6 +39,7 @@ export type ConfigValue = {
         infiniteScrollThreshold: number;
     };
     cookieYesId: string;
+    recaptchaSiteKey: string;
 };
 
 // ----------------------------------------------------------------------
@@ -120,4 +121,8 @@ export const CONFIG: ConfigValue = {
      * CookieYes ID
      */
     cookieYesId: process.env.NEXT_PUBLIC_COOKIE_YES_ID ?? '', 
+    /**
+     * reCAPTCHA Site Key
+     */
+    recaptchaSiteKey: process.env.NEXT_PUBLIC_RE_CAPTCHA_GOOGLE_SITE_KEY ?? '',
 };

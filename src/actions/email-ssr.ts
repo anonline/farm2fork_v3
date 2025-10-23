@@ -532,3 +532,62 @@ const formatNumber = (num: string | number, decimals = -1) =>{
 
     return stringValue.replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1 ');
 }
+
+// ----------------------------------------------------------------------
+// Contact form email - To be implemented
+// ----------------------------------------------------------------------
+
+export type ContactFormData = {
+    name: string;
+    email: string;
+    message: string;
+    captchaToken?: string;
+};
+
+/**
+ * Send contact form email to admins
+ * This function will be implemented when email sending is ready
+ * 
+ * @param data - Contact form data
+ * @returns Promise with success status
+ */
+export async function sendContactFormEmail(data: ContactFormData): Promise<{ success: boolean; error?: string }> {
+    try {
+        // Validate CAPTCHA token
+        if (!data.captchaToken) {
+            throw new Error('CAPTCHA verification required');
+        }
+
+        // Get admin emails from config or database
+        // const adminEmails = await getAdminEmails();
+
+        // Prepare email template
+        // const email = new EmailBaseTemplate();
+        // email.setSubject(`Új kapcsolatfelvételi üzenet: ${data.name}`);
+        // email.setBody(`
+        //     <p><strong>Név:</strong> ${data.name}</p>
+        //     <p><strong>Email:</strong> ${data.email}</p>
+        //     <p><strong>Üzenet:</strong></p>
+        //     <p>${data.message}</p>
+        // `);
+
+        // Send email using Resend
+        // const result = await resendClient.sendEmailTemplate({
+        //     to: adminEmails,
+        //     from: process.env.FROM_EMAIL || 'noreply@farm2fork.com',
+        //     subject: email.subject,
+        //     template: email,
+        // });
+
+        // Placeholder for now - will be implemented later
+        console.log('Contact form data:', data);
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending contact form email:', error);
+        return { 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+        };
+    }
+}

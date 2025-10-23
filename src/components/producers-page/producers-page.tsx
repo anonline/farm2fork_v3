@@ -13,11 +13,13 @@ import { CONFIG } from 'src/global-config';
 import { SortingOrder } from 'src/types/search';
 
 import ProducerCard from '../producer-card/producer-card';
+import { ContactModal } from '../contact-modal';
 import ProducersPageFilter from '../producers-page-filter/producers-page-filter';
 
 export default function ProducersPage() {
     const [keyword, setKeyword] = useState('');
     const [sortDirection, setSortDirection] = useState<SortingOrder>(SortingOrder.Ascending);
+    const [contactModalOpen, setContactModalOpen] = useState(false);
 
     // Use infinite producers hook
     const {
@@ -164,9 +166,13 @@ export default function ProducersPage() {
                             color: themeConfig.palette.grey[500],
                         }}
                     >
-                        Amennyiben szívesen dolhoznál velünk, várjuk jelentkezésedet!
+                        Amennyiben szívesen dolgoznál velünk, várjuk jelentkezésedet!
                     </Typography>
-                    <Button style={{ width: '125px', padding: '10px 24px' }} variant="outlined">
+                    <Button
+                        style={{ width: '125px', padding: '10px 24px' }}
+                        variant="outlined"
+                        onClick={() => setContactModalOpen(true)}
+                    >
                         Írj nekünk
                     </Button>
                 </Box>
@@ -232,6 +238,15 @@ export default function ProducersPage() {
                     </Button>
                 </Box>
             )}
+            
+            {/* Contact Modal */}
+            <ContactModal
+                open={contactModalOpen}
+                onClose={() => setContactModalOpen(false)}
+                onSuccess={() => {
+                    console.log('Contact form submitted successfully');
+                }}
+            />
         </>
     );
 }
