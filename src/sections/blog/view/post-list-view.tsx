@@ -181,7 +181,7 @@ export default function PostListView() {
                 />
             )}
 
-            <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="sm">
+            <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="md">
                 <NewPostForm
                     currentPost={selectedPost}
                     onSave={handleSave}

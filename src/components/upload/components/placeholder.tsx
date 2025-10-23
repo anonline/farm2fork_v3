@@ -29,11 +29,9 @@ export function UploadPlaceholder({ sx, className, ...other }: UploadPlaceholder
         >
             <UploadIllustration hideBackground sx={{ width: 200 }} />
             <PlaceholderContent>
-                <div className={uploadPlaceholderClasses.title}>Drop or select file</div>
+                <div className={uploadPlaceholderClasses.title}>Húzd ide a fájlt, vagy válaszd ki</div>
                 <div className={uploadPlaceholderClasses.description}>
-                    Drop files here or click to
-                    <span>browse</span>
-                    through your machine.
+                    Húzd ide a fájlt, vagy <span>böngéssz</span> a gépeden.
                 </div>
             </PlaceholderContent>
         </PlaceholderRoot>

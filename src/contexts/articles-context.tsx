@@ -3,12 +3,8 @@
 import type { ReactNode } from 'react';
 import type { ICategory, IArticleItem } from 'src/types/article';
 
-import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useContext, useCallback, createContext } from 'react';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from 'src/lib/supabase';
 
 type ArticlesContextType = {
     articles: IArticleItem[];

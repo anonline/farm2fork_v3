@@ -393,15 +393,23 @@ export function ProductNewEditForm({ currentProduct }: Readonly<{ currentProduct
             // Delete old featured image if it was removed
             if((productData.featuredImage == null || productData.featuredImage === '' || productData.featuredImage === undefined)
             && currentProduct?.featuredImage) {
-                console.info('Deleted old featured image:', currentProduct.featuredImage);
-                await deleteFile(currentProduct.featuredImage);
+                try {
+                    console.info('Deleting old featured image:', currentProduct.featuredImage);
+                    await deleteFile(currentProduct.featuredImage);
+                } catch (deleteError) {
+                    console.error('Failed to delete old featured image, continuing with save:', deleteError);
+                }
             }
 
             // Delete removed product images
             for (const imageToDelete of imagesToDelete) {
                 if (typeof imageToDelete === 'string') {
-                    console.info('Deleting removed product image:', imageToDelete);
-                    await deleteFile(imageToDelete);
+                    try {
+                        console.info('Deleting removed product image:', imageToDelete);
+                        await deleteFile(imageToDelete);
+                    } catch (deleteError) {
+                        console.error('Failed to delete product image, continuing with save:', deleteError);
+                    }
                 }
             }
 

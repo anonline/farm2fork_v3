@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { Box, Grid, Stack, Button, Container, Typography, CircularProgress } from '@mui/material';
 
@@ -11,19 +11,20 @@ import RolunkArticleGridItem from './rolunk-article-griditem';
 export default function RolunkArticles() {
     const articlesStorage = useArticles();
 
-    const categories = [
-        ...Array.from(
-            new Set(
-                articlesStorage.articles
-                    .filter((a) => a.publish === 'published')
-                    .flatMap((article) => article.categories.map((cat) => cat.title))
-                    .filter(Boolean)
-            )
-        ),
-    ];
-    const categoriesStringList = categories.join(',');
+    const categories = useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    articlesStorage.articles
+                        .filter((a) => a.publish === 'published')
+                        .flatMap((article) => article.categories.map((cat) => cat.title))
+                        .filter(Boolean)
+                )
+            ),
+        [articlesStorage.articles]
+    );
 
-    const [activeCategory, setActiveCategory] = useState(categories[0]);
+    const [activeCategory, setActiveCategory] = useState<string>('');
     const INITIAL_VISIBLE_COUNT = 3;
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
     const [loading, setLoading] = useState(false);
@@ -53,12 +54,12 @@ export default function RolunkArticles() {
         }, 300);
     };
 
+    // Set initial category when categories are loaded
     useEffect(() => {
-        if (categories.length && activeCategory !== categories[0]) {
+        if (categories.length > 0 && !activeCategory) {
             setActiveCategory(categories[0]);
-            setVisibleCount(INITIAL_VISIBLE_COUNT);
         }
-    }, [categoriesStringList, activeCategory, categories]);
+    }, [categories, activeCategory]);
 
     return (
         <Container

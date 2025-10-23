@@ -1,12 +1,12 @@
 // lib/blobService.ts
 import type { PutBlobResult } from '@vercel/blob';
 
-import crypto from 'crypto';
 import { put } from '@vercel/blob';
+import * as crypto from 'node:crypto';
 
 import { CONFIG } from 'src/global-config';
 
-export type UploadFolder = 'category' | 'product' | 'assets' | 'news';
+export type UploadFolder = 'category' | 'product' | 'assets' | 'news' | 'articles';
 
 function generateUniqueFilename(originalName: string) {
     const ext = originalName.split('.').pop();
