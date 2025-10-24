@@ -156,8 +156,8 @@ export function CheckoutCartProduct({
                                     hideDivider
                                     digits={1}
                                     value={Number(row.quantity.toFixed(1))}
-                                    onChange={(event, quantity: number) =>
-                                        onChangeItemQuantity(row.id, quantity)
+                                    onChange={(event, quantity: number | null) =>
+                                        onChangeItemQuantity(row.id, quantity || row.minQuantity || 1)
                                     }
                                     min={row.minQuantity || 1}
                                     max={row.maxQuantity || row.available}
@@ -265,8 +265,8 @@ export function CheckoutCartProduct({
                                     hideDivider
                                     digits={1}
                                     value={Number(row.quantity.toFixed(1))}
-                                    onChange={(event, quantity: number) =>
-                                        onChangeItemQuantity(row.id, quantity)
+                                    onChange={(event, quantity: number | null) =>
+                                        onChangeItemQuantity(row.id, quantity || row.minQuantity || 1)
                                     }
                                     min={row.minQuantity || 1}
                                     max={row.maxQuantity || row.available}

@@ -25,7 +25,7 @@ export function NumberInputs() {
                 <NumberInput
                     hideDivider
                     value={value2}
-                    onChange={(event, newValue) => setValue2(newValue)}
+                    onChange={(event, newValue) => setValue2(newValue || 1)}
                     max={999999}
                     captionText={
                         <>

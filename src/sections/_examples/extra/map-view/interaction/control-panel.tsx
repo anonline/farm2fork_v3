@@ -40,11 +40,11 @@ type MapControlPanelProps = {
 
 // ----------------------------------------------------------------------
 
-export function MapControlPanel({ settings, onChange }: MapControlPanelProps) {
+export function MapControlPanel({ settings, onChange }: Readonly<MapControlPanelProps>) {
     return (
         <ControlPanelRoot>
             {Object.keys(settings).map((name) =>
-                renderControlSettings(name as MapSettingKeys, settings as MapSettings, onChange)
+                renderControlSettings(name as MapSettingKeys, settings, onChange)
             )}
         </ControlPanelRoot>
     );
@@ -138,7 +138,7 @@ const renderControlSettings = (
                     max={['minPitch', 'maxPitch'].includes(name) ? 85 : 20}
                     hideButtons
                     value={value}
-                    onChange={(event, newValue) => handleChangeNumber(newValue)}
+                    onChange={(event, newValue) => handleChangeNumber(newValue || 1)}
                     sx={{ maxWidth: 40 }}
                     slotProps={{
                         input: {
