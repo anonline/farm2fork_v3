@@ -465,7 +465,7 @@ export function SideCartItem({
                         <NumberInput
                             disabled={hideControl}
                             value={item.quantity}
-                            onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue)}
+                            onChange={(_, newValue) => onChangeItemQuantity?.(item.id, newValue || item.minQuantity || 1)}
                             min={item.minQuantity || 1}
                             max={item.maxQuantity || 999}
                             step={item.stepQuantity || 0.1}
