@@ -86,7 +86,7 @@ export function CheckoutCart() {
         <EmptyContent
             title="Üres a kosarad!"
             description="Úgy tűnik, hogy nincsenek elemek a kosaradban."
-            imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-cart.svg`}
+            imgUrl={`${CONFIG.assetsDir}/icons/empty/ic-cart.svg`}
             sx={{ height: 340 }}
         />
     );

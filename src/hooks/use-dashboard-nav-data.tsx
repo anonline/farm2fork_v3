@@ -15,7 +15,7 @@ import { usePendingOrdersCount } from './use-pending-orders-count';
 // ----------------------------------------------------------------------
 
 const icon = (name: string) => (
-    <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/${name}.svg`} />
+    <SvgColor src={`${CONFIG.assetsDir}/icons/navbar/${name}.svg`} />
 );
 
 const ICONS = {

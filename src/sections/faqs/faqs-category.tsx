@@ -22,24 +22,24 @@ import { F2FFaqsList } from './faqs-list';
 const CATEGORIES = [
     {
         label: 'Managing your account',
-        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-account.svg`,
+        icon: `${CONFIG.assetsDir}/icons/faqs/ic-account.svg`,
         href: '#',
     },
-    { label: 'Payment', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-payment.svg`, href: '#' },
-    { label: 'Delivery', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-delivery.svg`, href: '#' },
+    { label: 'Payment', icon: `${CONFIG.assetsDir}/icons/faqs/ic-payment.svg`, href: '#' },
+    { label: 'Delivery', icon: `${CONFIG.assetsDir}/icons/faqs/ic-delivery.svg`, href: '#' },
     {
         label: 'Problem with the product',
-        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-package.svg`,
+        icon: `${CONFIG.assetsDir}/icons/faqs/ic-package.svg`,
         href: '#',
     },
     {
         label: 'Return & refund',
-        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-refund.svg`,
+        icon: `${CONFIG.assetsDir}/icons/faqs/ic-refund.svg`,
         href: '#',
     },
     {
         label: 'Guarantees and assurances',
-        icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-assurances.svg`,
+        icon: `${CONFIG.assetsDir}/icons/faqs/ic-assurances.svg`,
         href: '#',
     },
 ];

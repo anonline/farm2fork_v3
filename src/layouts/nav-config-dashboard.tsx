@@ -11,7 +11,7 @@ import { SvgColor } from 'src/components/svg-color';
 // ----------------------------------------------------------------------
 
 const icon = (name: string) => (
-    <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/${name}.svg`} />
+    <SvgColor src={`${CONFIG.assetsDir}/icons/navbar/${name}.svg`} />
 );
 
 const ICONS = {

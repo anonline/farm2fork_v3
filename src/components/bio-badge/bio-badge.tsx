@@ -10,7 +10,7 @@ export default function BioBadge(props: BioBadgeSvgProps) {
     return (
         <img
             style={props.style}
-            src={`${CONFIG.assetsDir}/assets/icons/BIO.svg`}
+            src={`${CONFIG.assetsDir}/icons/BIO.svg`}
             width={props.width || 45}
             height={props.height || 24}
         />

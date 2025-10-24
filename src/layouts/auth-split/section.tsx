@@ -33,7 +33,7 @@ export function AuthSplitSection({
     methods,
     layoutQuery = 'md',
     title = 'Manage the job',
-    imgUrl = `${CONFIG.assetsDir}/assets/illustrations/illustration-dashboard.webp`,
+    imgUrl = `${CONFIG.assetsDir}/illustrations/illustration-dashboard.webp`,
     subtitle = 'More effectively with optimized workflows.',
     ...other
 }: AuthSplitSectionProps) {
@@ -44,7 +44,7 @@ export function AuthSplitSection({
                     ...theme.mixins.bgGradient({
                         images: [
                             `linear-gradient(0deg, ${varAlpha(theme.vars.palette.background.defaultChannel, 0.92)}, ${varAlpha(theme.vars.palette.background.defaultChannel, 0.92)})`,
-                            `url(${CONFIG.assetsDir}/assets/background/background-3-blur.webp)`,
+                            `url(${CONFIG.assetsDir}/background/background-3-blur.webp)`,
                         ],
                     }),
                     px: 3,

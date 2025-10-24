@@ -74,18 +74,18 @@ export const _mock = {
     // Image
     image: {
         cover: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/cover/cover-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/cover/cover-${index + 1}.webp`,
         avatar: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/avatar/avatar-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/avatar/avatar-${index + 1}.webp`,
         travel: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/travel/travel-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/travel/travel-${index + 1}.webp`,
         course: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/course/course-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/course/course-${index + 1}.webp`,
         company: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/company/company-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/company/company-${index + 1}.webp`,
         product: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/m-product/product-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/m-product/product-${index + 1}.webp`,
         portrait: (index: number) =>
-            `${CONFIG.assetsDir}/assets/images/mock/portrait/portrait-${index + 1}.webp`,
+            `${CONFIG.assetsDir}/images/mock/portrait/portrait-${index + 1}.webp`,
     },
 };

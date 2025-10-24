@@ -20,7 +20,7 @@ import { varFade, MotionViewport } from 'src/components/animate';
 export function AboutVision({ sx, ...other }: BoxProps) {
     const renderImage = () => (
         <Image
-            src={`${CONFIG.assetsDir}/assets/images/about/vision.webp`}
+            src={`${CONFIG.assetsDir}/images/about/vision.webp`}
             alt="About vision"
             ratio={{ xs: '4/3', sm: '16/9' }}
             slotProps={{

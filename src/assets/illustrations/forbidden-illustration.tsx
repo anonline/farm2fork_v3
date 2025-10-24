@@ -15,7 +15,7 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {
     const renderCharacterImage = () => (
         <image
-            href={`${CONFIG.assetsDir}/assets/illustrations/characters/character-reject.webp`}
+            href={`${CONFIG.assetsDir}/illustrations/characters/character-reject.webp`}
             height="280"
             x="220"
             y="40"

@@ -48,7 +48,7 @@ export const CONFIG: ConfigValue = {
     appName: 'Farm2Fork',
     appVersion: packageJson.version,
     serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
-    assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '',
+    assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? '/assets',
     isStaticExport: JSON.parse(process.env.BUILD_STATIC_EXPORT ?? 'false'),
     /**
      * Auth

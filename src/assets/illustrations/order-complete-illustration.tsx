@@ -15,7 +15,7 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 function OrderCompleteIllustration({ hideBackground, sx, ...other }: SvgProps) {
     const renderCharacterImage = () => (
         <image
-            href={`${CONFIG.assetsDir}/assets/illustrations/characters/character-happy-jump.webp`}
+            href={`${CONFIG.assetsDir}/illustrations/characters/character-happy-jump.webp`}
             height="280"
             x="270"
             y="40"

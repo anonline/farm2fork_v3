@@ -15,7 +15,7 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 function ComingSoonIllustration({ hideBackground, sx, ...other }: SvgProps) {
     const renderCharacterImage = () => (
         <image
-            href={`${CONFIG.assetsDir}/assets/illustrations/characters/character-notification.webp`}
+            href={`${CONFIG.assetsDir}/illustrations/characters/character-notification.webp`}
             height="280"
             x="290"
             y="40"

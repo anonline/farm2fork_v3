@@ -256,7 +256,7 @@ export function Footer({
                             }}
                         >
                             <Image
-                                src={`${CONFIG.assetsDir}/assets/images/footer/simplepay-logos.webp`}
+                                src={`${CONFIG.assetsDir}/images/footer/simplepay-logos.webp`}
                             />
                         </Box>
                     </Grid>

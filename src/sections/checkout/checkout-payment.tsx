@@ -26,8 +26,10 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
-import { themeConfig } from 'src/theme';
+import { themeConfig } from 'src/theme/theme-config';
+import { OptionsEnum } from 'src/types/option';
 import { createOrder } from 'src/actions/order-management';
+import { useGetOption } from 'src/actions/options';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
@@ -38,6 +40,7 @@ import { Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
+import { PaymentInfoModal, shouldShowPaymentInfoModal } from 'src/components/payment-info-modal';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -98,12 +101,18 @@ export function CheckoutPayment() {
     const [hasShippingZoneError, setHasShippingZoneError] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [dataTransferAccepted, setDataTransferAccepted] = useState(false);
+    const [showPaymentInfoModal, setShowPaymentInfoModal] = useState(false);
 
     const { user, authenticated } = useAuthContext();
     const { locations: pickupLocations } = useGetPickupLocations();
     const { methods: shippingMethods } = useGetShippingCostMethods();
     const { methods: paymentMethods } = useGetPaymentMethods();
     const { customerData, customerDataMutate } = useGetCustomerData(user?.id);
+
+    // Get surcharge options based on user type
+    const { option: surchargePublic } = useGetOption(OptionsEnum.SurchargePercentPublic);
+    const { option: surchargeVIP } = useGetOption(OptionsEnum.SurchargePercentVIP);
+    const { option: surchargeCompany } = useGetOption(OptionsEnum.SurchargePercentCompany);
 
     const {
         onResetCart,
@@ -280,6 +289,19 @@ export function CheckoutPayment() {
         [getTotalMethodCost]
     );
 
+    // Get the appropriate surcharge percentage based on user type
+    const getSurchargePercent = useMemo(() => {
+        const userType = getUserType;
+        switch (userType) {
+            case 'vip':
+                return surchargeVIP ?? 0;
+            case 'company':
+                return surchargeCompany ?? 0;
+            default:
+                return surchargePublic ?? 0;
+        }
+    }, [surchargeVIP, surchargeCompany, surchargePublic, getUserType]);
+
 
 
     // Check if delivery details are complete
@@ -356,7 +378,7 @@ export function CheckoutPayment() {
     }, [checkoutState.selectedDeliveryDateTime, selectedShippingMethod, isPersonalPickup]);
 
     const defaultValues: PaymentSchemaType = {
-        payment: 0,
+        payment: checkoutState.selectedPaymentMethod?.id || availablePaymentMethods.find((method) => method.slug == 'simple')?.id || availablePaymentMethods[0]?.id || 0,
         shippingMethod: selectedShippingMethod || 0,
         pickupLocation: selectedPickupLocation || undefined,
         deliveryAddressIndex: selectedDeliveryAddressIndex || undefined,
@@ -748,16 +770,26 @@ export function CheckoutPayment() {
 
     // Initialize default payment method when available payment methods are loaded
     useEffect(() => {
+        console.log('Available payment methods:', availablePaymentMethods);
+        console.log('Current selected payment method:', checkoutState.selectedPaymentMethod);
+        
         if (availablePaymentMethods.length > 0 && !checkoutState.selectedPaymentMethod) {
             const defaultPaymentMethod = availablePaymentMethods[0];
-            setValue('payment', defaultPaymentMethod.id);
+            console.log('Setting default payment method:', defaultPaymentMethod);
+            setValue('payment', defaultPaymentMethod.id, { shouldValidate: true });
             onUpdatePaymentMethod(defaultPaymentMethod);
         }
+        else{
+            console.log('No need to set default payment method.');
+        }
+        console.log('Payment methods updated, current selected:', checkoutState.selectedPaymentMethod);
+        console.log('Available payment methods:', availablePaymentMethods);
     }, [
         availablePaymentMethods,
         checkoutState.selectedPaymentMethod,
         setValue,
         onUpdatePaymentMethod,
+        paymentAccordionExpanded, // Trigger when accordion opens
     ]);
 
     // Initialize default billing address when customer data is loaded
@@ -768,6 +800,17 @@ export function CheckoutPayment() {
             setValue('billingAddressIndex', 0);
         }
     }, [customerData?.billingAddress, selectedBillingAddressIndex, setValue]);
+
+    // Show payment info modal when payment accordion is open and 'simple' payment is selected
+    useEffect(() => {
+        if (
+            paymentAccordionExpanded &&
+            checkoutState.selectedPaymentMethod?.slug === 'simple' &&
+            shouldShowPaymentInfoModal()
+        ) {
+            setShowPaymentInfoModal(true);
+        }
+    }, [paymentAccordionExpanded, checkoutState.selectedPaymentMethod]);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -1332,22 +1375,24 @@ export function CheckoutPayment() {
                             <Controller
                                 name="payment"
                                 control={control}
-                                render={({ field: { value, onChange }, fieldState: { error } }) => (
-                                    <Box sx={{ mb: 3 }}>
-                                        <RadioGroup
-                                            value={value || ''}
-                                            onChange={(e) => {
-                                                const methodId = parseInt(e.target.value, 10);
-                                                onChange(methodId);
+                                render={({ field: { value, onChange }, fieldState: { error } }) => {
+                                    console.log('Rendering payment methods, current value:', value);
+                                    return (
+                                        <Box sx={{ mb: 3 }}>
+                                            <RadioGroup
+                                                value={value}
+                                                onChange={(e) => {
+                                                    const methodId = Number.parseInt(e.target.value, 10);
+                                                    onChange(methodId);
 
-                                                // Find the selected payment method and update context
-                                                const selectedMethod = availablePaymentMethods.find(
-                                                    (m) => m.id === methodId
-                                                );
-                                                onUpdatePaymentMethod(selectedMethod || null);
-                                            }}
-                                            sx={{ gap: 1 }}
-                                        >
+                                                    // Find the selected payment method and update context
+                                                    const selectedMethod = availablePaymentMethods.find(
+                                                        (m) => m.id === methodId
+                                                    );
+                                                    onUpdatePaymentMethod(selectedMethod || null);
+                                                }}
+                                                sx={{ gap: 1 }}
+                                            >
                                             {availablePaymentMethods.map((method) => (
                                                 <FormControlLabel
                                                     key={method.id}
@@ -1451,7 +1496,8 @@ export function CheckoutPayment() {
                                             </FormHelperText>
                                         )}
                                     </Box>
-                                )}
+                                    );
+                                }}
                             />
 
                             {/* Billing Address Section */}
@@ -1616,6 +1662,13 @@ export function CheckoutPayment() {
                     />
                 </Grid>
             </Grid>
+
+            {/* Payment Info Modal */}
+            <PaymentInfoModal
+                open={showPaymentInfoModal}
+                onClose={() => setShowPaymentInfoModal(false)}
+                surchargePercent={getSurchargePercent}
+            />
         </Form>
     );
 }

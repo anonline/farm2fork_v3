@@ -47,7 +47,7 @@ export function MailNav({
         <Stack sx={{ flex: '1 1 auto', px: { xs: 2.5, md: 1.5 } }}>
             <EmptyContent
                 title="No labels"
-                imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-folder-empty.svg`}
+                imgUrl={`${CONFIG.assetsDir}/icons/empty/ic-folder-empty.svg`}
             />
         </Stack>
     );

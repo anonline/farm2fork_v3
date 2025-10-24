@@ -15,7 +15,7 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 function MaintenanceIllustration({ hideBackground, sx, ...other }: SvgProps) {
     const renderCharacterImage = () => (
         <image
-            href={`${CONFIG.assetsDir}/assets/illustrations/characters/character-maintenance.webp`}
+            href={`${CONFIG.assetsDir}/illustrations/characters/character-maintenance.webp`}
             height="280"
             x="290"
             y="40"

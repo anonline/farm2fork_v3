@@ -50,7 +50,7 @@ export function NavItemDashboard({ path, sx, ...other }: NavItemDashboardProps) 
                     whileHover={varHover(1.02)}
                     transition={transitionTap()}
                     alt="Dashboard illustration"
-                    src={`${CONFIG.assetsDir}/assets/illustrations/illustration-dashboard.webp`}
+                    src={`${CONFIG.assetsDir}/illustrations/illustration-dashboard.webp`}
                     sx={{ width: 640, objectFit: 'cover', aspectRatio: '4/3' }}
                 />
             </Box>

@@ -24,7 +24,7 @@ export function EcommerceWelcome({ title, description, action, img, sx, ...other
                     ...theme.mixins.bgGradient({
                         images: [
                             `linear-gradient(to right, ${theme.vars.palette.grey[900]} 25%, ${varAlpha(theme.vars.palette.primary.darkerChannel, 0.88)})`,
-                            `url(${CONFIG.assetsDir}/assets/background/background-6.webp)`,
+                            `url(${CONFIG.assetsDir}/background/background-6.webp)`,
                         ],
                     }),
                     pt: 5,

@@ -150,7 +150,7 @@ export function AuthCenteredLayout({
 
 const backgroundStyles = (theme: Theme): CSSObject => ({
     ...theme.mixins.bgGradient({
-        images: [`url(${CONFIG.assetsDir}/assets/background/background-3-blur.webp)`],
+        images: [`url(${CONFIG.assetsDir}/background/background-3-blur.webp)`],
     }),
     zIndex: 1,
     opacity: 0.24,

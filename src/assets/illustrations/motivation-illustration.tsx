@@ -15,7 +15,7 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 function MotivationIllustration({ hideBackground, sx, ...other }: SvgProps) {
     const renderCharacterImage = () => (
         <image
-            href={`${CONFIG.assetsDir}/assets/illustrations/characters/character-fly.webp`}
+            href={`${CONFIG.assetsDir}/illustrations/characters/character-fly.webp`}
             height="280"
             x="260"
             y="40"

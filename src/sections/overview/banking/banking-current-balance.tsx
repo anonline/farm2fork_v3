@@ -39,7 +39,7 @@ export function BankingCurrentBalance({ list, sx, ...other }: Props) {
             sx={[
                 (theme) => ({
                     ...theme.mixins.bgGradient({
-                        images: [`url(${CONFIG.assetsDir}/assets/background/background-4.jpg)`],
+                        images: [`url(${CONFIG.assetsDir}/background/background-4.jpg)`],
                     }),
                     mb: 2,
                     borderRadius: 2,

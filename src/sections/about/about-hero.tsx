@@ -20,8 +20,8 @@ export function AboutHero({ sx, ...other }: BoxProps) {
                 (theme) => ({
                     ...theme.mixins.bgGradient({
                         images: [
-                            `url(${CONFIG.assetsDir}/assets/background/overlay.svg)`,
-                            `url(${CONFIG.assetsDir}/assets/images/about/hero.webp)`,
+                            `url(${CONFIG.assetsDir}/background/overlay.svg)`,
+                            `url(${CONFIG.assetsDir}/images/about/hero.webp)`,
                         ],
                     }),
                     height: { md: 560 },

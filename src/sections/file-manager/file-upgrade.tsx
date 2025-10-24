@@ -30,7 +30,7 @@ export function FileUpgrade({ sx, ...other }: CardProps) {
             <Box
                 component="img"
                 alt="Upgrade Illustration"
-                src={`${CONFIG.assetsDir}/assets/illustrations/illustration-upgrade.webp`}
+                src={`${CONFIG.assetsDir}/illustrations/illustration-upgrade.webp`}
                 sx={{
                     right: 16,
                     zIndex: 9,
@@ -41,7 +41,7 @@ export function FileUpgrade({ sx, ...other }: CardProps) {
             />
 
             <SvgColor
-                src={`${CONFIG.assetsDir}/assets/background/shape-circle-1.svg`}
+                src={`${CONFIG.assetsDir}/background/shape-circle-1.svg`}
                 sx={{
                     zIndex: 8,
                     width: 200,

@@ -50,7 +50,7 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
         return (
             <EmptyContent
                 title={error}
-                imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-email-disabled.svg`}
+                imgUrl={`${CONFIG.assetsDir}/icons/empty/ic-email-disabled.svg`}
             />
         );
     }
