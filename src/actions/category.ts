@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useMemo } from 'react';
 
 import { supabase } from 'src/lib/supabase';
-import { deleteImageAndCleanDB } from 'src/lib/blob/blobService';
+import { deleteFile } from 'src/lib/blob/blobClient';
 
 // ----------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ export async function useDeleteCategoryById(categoryId: number): Promise<boolean
 
     try {
         if (coverUrl.data?.coverUrl) {
-            await deleteImageAndCleanDB(coverUrl.data?.coverUrl);
+            await deleteFile(coverUrl.data?.coverUrl);
         }
 
         const { error } = await supabase.from('ProductCategories').delete().eq('id', categoryId);
@@ -142,7 +142,7 @@ export async function updateCategory(category: Partial<ICategoryItem>): Promise<
 
     if (coverUrl.data?.coverUrl && category.coverUrl !== coverUrl.data.coverUrl) {
         console.log(coverUrl.data.coverUrl);
-        await deleteImageAndCleanDB(coverUrl.data.coverUrl);
+        await deleteFile(coverUrl.data.coverUrl);
     }
 
     return data as ICategoryItem;
@@ -157,7 +157,7 @@ export async function deleteCategoryById(categoryId: number): Promise<boolean> {
 
     try {
         if (coverUrl.data?.coverUrl) {
-            await deleteImageAndCleanDB(coverUrl.data?.coverUrl);
+            await deleteFile(coverUrl.data?.coverUrl);
         }
 
         const { error } = await supabase.from('ProductCategories').delete().eq('id', categoryId);

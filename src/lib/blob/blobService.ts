@@ -1,3 +1,5 @@
+'use server';
+
 // lib/blobService.ts
 import type { PutBlobResult } from '@vercel/blob';
 

@@ -977,7 +977,7 @@ export function CheckoutPayment() {
                     cost: checkoutState.shipping // Use the calculated shipping cost from checkout state
                 } : null,
                 paymentMethod: selectedPaymentMethodData,
-                paymentDueDays: 8,
+                paymentDueDays: selectedPaymentMethodData?.slug === 'utanvet' ? 1 : 8,
                 plannedShippingDateTime: checkoutState.selectedDeliveryDateTime,
             };
 
