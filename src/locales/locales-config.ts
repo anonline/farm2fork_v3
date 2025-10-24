@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 
 export const fallbackLng = 'hu';
-export const languages = ['en', 'fr', 'vi', 'cn', 'ar', 'hu'];
+export const languages = ['en', 'hu'];
 export const defaultNS = 'common';
 export const cookieName = 'i18next';
 

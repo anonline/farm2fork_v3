@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Box, Grid, Button, Typography } from '@mui/material';
 
 import { themeConfig } from 'src/theme';
+import { useTranslate } from 'src/locales';
 
 interface ProductDetailsSmallInfoProps {
     product: IProductItem | null;
@@ -16,6 +17,7 @@ export default function ProductDetailsSmallInfo({
     product,
 }: Readonly<ProductDetailsSmallInfoProps>) {
     const router = useRouter();
+    const { t } = useTranslate('productpage');
 
     if (!product) {
         return null;
@@ -75,7 +77,7 @@ export default function ProductDetailsSmallInfo({
         <Grid container spacing={{ xs: 3, md: 5 }} sx={{ my: 7 }}>
             {usageText && (
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography sx={titleStyle}>Felhasználás</Typography>
+                    <Typography sx={titleStyle}>{t('usage')}</Typography>
                     <Typography variant="body1" sx={textStyle}>
                         {usageText}
                     </Typography>
@@ -86,7 +88,7 @@ export default function ProductDetailsSmallInfo({
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                         <Box sx={{ flexGrow: 1 }}>
-                            <Typography sx={titleStyle}>Tárolás</Typography>
+                            <Typography sx={titleStyle}>{t('storage')}</Typography>
                             <Typography variant="body1" sx={textStyle}>
                                 {storingText}
                             </Typography>
