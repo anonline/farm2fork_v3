@@ -141,7 +141,7 @@ export async function updateProductAssignments(producerId: string, newProductIds
 
     if (productsToAssign.length > 0) {
         operations.push(
-            supabase.from('Products').update({ producerId: producerId }).in('id', productsToAssign)
+            supabase.from('Products').update({ producerId }).in('id', productsToAssign)
         );
     }
 

@@ -1,19 +1,21 @@
 import { useState } from 'react';
+
 import {
-    Dialog,
-    DialogContent,
-    DialogActions,
-    Button,
-    Typography,
-    Box,
-    Checkbox,
-    FormControlLabel,
-    useTheme,
-    useMediaQuery,
     Grid,
     Stack,
+    Dialog,
+    Button,
+    Checkbox,
+    useTheme,
+    Typography,
+    DialogContent,
+    DialogActions,
+    useMediaQuery,
+    FormControlLabel,
 } from '@mui/material';
+
 import { CONFIG } from 'src/global-config';
+
 import { Image } from '../image';
 
 // ----------------------------------------------------------------------

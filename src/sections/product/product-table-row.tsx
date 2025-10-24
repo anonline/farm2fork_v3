@@ -1,6 +1,9 @@
 import type { GridCellParams } from '@mui/x-data-grid';
 import type { ICategoryItem } from 'src/types/category';
 
+import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
@@ -11,13 +14,12 @@ import { RouterLink } from 'src/routes/components';
 import { fCurrency } from 'src/utils/format-number';
 import { fTime, fDate } from 'src/utils/format-time';
 
+import { updateProductStock } from 'src/actions/product-ssr';
+
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import BioBadge from 'src/components/bio-badge/bio-badge';
 import { NumberInput } from 'src/components/number-input';
-import { Iconify } from 'src/components/iconify';
-import { useCallback, useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { updateProductStock } from 'src/actions/product-ssr';
 
 // ----------------------------------------------------------------------
 
@@ -96,8 +98,7 @@ export function RenderCellPublish({ params }: Readonly<ParamsProps>) {
                 minWidth: '16px',
                 maxHeight: '16px',
             }}
-        >
-        </Label>
+         />
     );
 }
 
@@ -217,7 +218,7 @@ export function RenderCellStockNew({ params, onStockUpdate }: Readonly<StockCell
 
     return (
         <Box sx={{ width: 1, typography: 'caption', color: 'text.secondary' }}>
-            <Box display={'flex'} flexDirection={'row'} gap={1} alignItems={'center'} mb={1}>
+            <Box display="flex" flexDirection="row" gap={1} alignItems="center" mb={1}>
                 <Iconify
                     icon="eva:minus-circle-fill"
                     width={24}
@@ -236,7 +237,7 @@ export function RenderCellStockNew({ params, onStockUpdate }: Readonly<StockCell
                     max={max}
                     suffix={params.row.unit ?? 'db'}
                     onChange={handleStockChange}
-                    showInfinityOnNull={true}
+                    showInfinityOnNull
 
                 />
 

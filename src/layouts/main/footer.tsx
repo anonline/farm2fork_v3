@@ -1,5 +1,8 @@
 import type { Breakpoint } from '@mui/material/styles';
 
+import { toast } from 'sonner';
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
@@ -21,8 +24,6 @@ import { Logo } from 'src/components/logo';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { ContactModal } from 'src/components/contact-modal';
-import { toast } from 'sonner';
-import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 

@@ -2,6 +2,8 @@ import 'src/global.css';
 
 import type { Metadata, Viewport } from 'next';
 
+import Script from 'next/script';
+
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 
@@ -28,7 +30,6 @@ import { AuthProvider as Auth0AuthProvider } from 'src/auth/context/auth0';
 import { AuthProvider as AmplifyAuthProvider } from 'src/auth/context/amplify';
 import { AuthProvider as SupabaseAuthProvider } from 'src/auth/context/supabase';
 import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase';
-import Script from 'next/script';
 
 // ----------------------------------------------------------------------
 
@@ -127,7 +128,7 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
                     </AuthProvider>
                 </I18nProvider>
                 
-                <Script src={`https://cdn-cookieyes.com/client_data/${CONFIG.cookieYesId}/script.js`}></Script>
+                <Script src={`https://cdn-cookieyes.com/client_data/${CONFIG.cookieYesId}/script.js`} />
             </body>
         </html>
     );

@@ -19,8 +19,8 @@ import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import { useTheme } from '@mui/material/styles';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
     DataGrid,
@@ -50,15 +50,13 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ProductTableToolbar } from '../product-table-toolbar';
 import { ProductTableFiltersResult } from '../product-table-filters-result';
 import {
-    RenderCellBio,
     RenderCellTags,
-    RenderCellStock,
     RenderCellPrice,
     RenderCellPublish,
     RenderCellProduct,
+    RenderCellStockNew,
     RenderCellCategories,
     RenderCellGrossPrice,
-    RenderCellStockNew,
 } from '../product-table-row';
 
 // ----------------------------------------------------------------------

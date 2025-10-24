@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Script from "next/script";
+import { useState, useEffect } from "react";
+
 import { CONFIG } from "src/global-config";
 
 declare global {

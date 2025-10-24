@@ -26,10 +26,9 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 
-import { themeConfig } from 'src/theme/theme-config';
-import { OptionsEnum } from 'src/types/option';
-import { createOrder } from 'src/actions/order-management';
 import { useGetOption } from 'src/actions/options';
+import { themeConfig } from 'src/theme/theme-config';
+import { createOrder } from 'src/actions/order-management';
 import { useGetPaymentMethods } from 'src/actions/payment-method';
 import { useGetPickupLocations } from 'src/actions/pickup-location';
 import { useGetShippingCostMethods } from 'src/actions/shipping-cost';
@@ -43,6 +42,8 @@ import F2FIcons from 'src/components/f2ficons/f2ficons';
 import { PaymentInfoModal, shouldShowPaymentInfoModal } from 'src/components/payment-info-modal';
 
 import { useAuthContext } from 'src/auth/hooks';
+
+import { OptionsEnum } from 'src/types/option';
 
 import { useCheckoutContext } from './context';
 import { CheckoutSummary } from './checkout-summary';

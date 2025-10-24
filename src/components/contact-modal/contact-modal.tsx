@@ -1,33 +1,35 @@
 'use client';
 
-import type { ChangeEvent, FormEvent } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 
 import { useState } from 'react';
 
 import {
+    Link,
+    Alert,
     Dialog,
     Button,
-    TextField,
     Checkbox,
+    TextField,
+    Typography,
     DialogTitle,
-    FormControlLabel,
     DialogContent,
     DialogActions,
+    FormControlLabel,
     CircularProgress,
-    Link,
-    Typography,
-    Alert,
 } from '@mui/material';
 
-import { themeConfig } from 'src/theme';
 import { paths } from 'src/routes/paths';
 
-import { useCaptcha } from 'src/components/captcha';
+import { themeConfig } from 'src/theme';
 import { verifyCaptcha } from 'src/actions/captcha';
 import { sendContactFormEmail } from 'src/actions/email-ssr';
 
-import type { ContactFormSchemaType } from './schema';
+import { useCaptcha } from 'src/components/captcha';
+
 import { ContactFormSchema } from './schema';
+
+import type { ContactFormSchemaType } from './schema';
 
 // ----------------------------------------------------------------------
 

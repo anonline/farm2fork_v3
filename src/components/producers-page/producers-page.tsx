@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useState } from 'react';
 
 import { Box, Grid, Button, Skeleton, Typography, CircularProgress } from '@mui/material';
@@ -12,10 +13,9 @@ import { CONFIG } from 'src/global-config';
 
 import { SortingOrder } from 'src/types/search';
 
-import ProducerCard from '../producer-card/producer-card';
 import { ContactModal } from '../contact-modal';
+import ProducerCard from '../producer-card/producer-card';
 import ProducersPageFilter from '../producers-page-filter/producers-page-filter';
-import { toast } from 'sonner';
 
 export default function ProducersPage() {
     const [keyword, setKeyword] = useState('');

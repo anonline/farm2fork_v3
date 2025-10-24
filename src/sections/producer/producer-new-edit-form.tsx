@@ -21,9 +21,11 @@ import {
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+
+import { resizeImage } from 'src/utils/image-resize';
+
 import { useGetProducts } from 'src/actions/product';
 import { uploadFile, deleteFile } from 'src/lib/blob/blobClient';
-import { resizeImage } from 'src/utils/image-resize';
 import {
     createProducer,
     updateProducer,
@@ -270,8 +272,8 @@ export default function ProducerNewEditForm({ currentProducer }: Readonly<Props>
             toast.error(error.message || 'Hiba történt a mentés során.');
         }
     },
-    (errors) => {
-        console.error('Form validation errors:', errors);
+    (formValidationErrors) => {
+        console.error('Form validation errors:', formValidationErrors);
         toast.error('Kérlek töltsd ki a kötelező mezőket!');
     }
 );
