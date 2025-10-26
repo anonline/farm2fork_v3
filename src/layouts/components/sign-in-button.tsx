@@ -4,10 +4,12 @@ import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
 export function SignInButton({ sx, ...other }: ButtonProps) {
+    const { t } = useTranslate();
     return (
         <Button
             component={RouterLink}
@@ -17,7 +19,7 @@ export function SignInButton({ sx, ...other }: ButtonProps) {
             sx={sx}
             {...other}
         >
-            Belépés
+            { t('signin_btn_label') }
         </Button>
     );
 }
