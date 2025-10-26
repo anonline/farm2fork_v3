@@ -3,19 +3,18 @@
 import type { LanguageValue } from 'src/locales';
 import type { IconButtonProps } from '@mui/material/IconButton';
 
-import { m } from 'framer-motion';
 import { useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
 
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 
 import { useTranslate } from 'src/locales';
 
 import { FlagIcon } from 'src/components/flag-icon';
 import { CustomPopover } from 'src/components/custom-popover';
-import { varTap, varHover, transitionTap } from 'src/components/animate';
+import { Typography } from '@mui/material';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -47,7 +46,7 @@ export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProp
                     <MenuItem
                         key={option.value}
                         selected={option.value === currentLang.value}
-                        onClick={() => handleChangeLang(option.value as LanguageValue)}
+                        onClick={() => handleChangeLang(option.value)}
                     >
                         <FlagIcon code={option.countryCode} />
                         {option.label}
@@ -59,26 +58,33 @@ export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProp
 
     return (
         <>
-            <IconButton
-                component={m.button}
-                whileTap={varTap(0.96)}
-                whileHover={varHover(1.04)}
-                transition={transitionTap()}
-                aria-label="Languages button"
-                onClick={onOpen}
+            <Typography
+                onMouseEnter={onOpen}
                 sx={[
                     (theme) => ({
-                        p: 0,
-                        width: 40,
-                        height: 40,
-                        ...(open && { bgcolor: theme.vars.palette.action.selected }),
+                        p: 1,
+                        fontWeight: 600,
+                        borderRadius: '8px',
+                        fontSize: 14,
+                        display: 'inline-flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textTransform: 'uppercase',
+                        color: theme.palette.text.primary,
+                        ...(open &&
+                        {
+                            cursor: 'pointer',
+                            backgroundColor: '#7e7e7e1a',
+
+                        }),
                     }),
                     ...(Array.isArray(sx) ? sx : [sx]),
                 ]}
                 {...other}
             >
-                <FlagIcon code={currentLang.countryCode} />
-            </IconButton>
+                {currentLang.value} <Iconify icon="eva:arrow-ios-downward-fill" width={16} sx={{ ml: 0.5 }} />
+            </Typography>
 
             {renderMenuList()}
         </>
