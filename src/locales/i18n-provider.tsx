@@ -12,6 +12,7 @@ import { CONFIG } from 'src/global-config';
 import { i18nOptions, fallbackLng } from './locales-config';
 
 import type { LanguageValue } from './locales-config';
+import { DatabaseBackend } from 'src/actions/translation';
 
 // ----------------------------------------------------------------------
 
@@ -32,18 +33,19 @@ const init = CONFIG.isStaticExport
 
 i18next
     .use(LanguageDetector)
+    .use(DatabaseBackend)
     .use(initReactI18next)
-    .use(resourcesToBackend((lang: string, ns: string) => import(`./langs/${lang}/${ns}.json`)))
+    //.use(resourcesToBackend((lang: string, ns: string) => import(`./langs/${lang}/${ns}.json`)))
     .init(init);
 
 // ----------------------------------------------------------------------
 
 type Props = {
-    lang?: LanguageValue | undefined;
+    lang?: LanguageValue;
     children: React.ReactNode;
 };
 
-export function I18nProvider({ lang, children }: Props) {
+export function I18nProvider({ lang, children }: Readonly<Props>) {
     useMemo(() => {
         if (lang) {
             i18next.changeLanguage(lang);

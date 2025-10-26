@@ -25,6 +25,7 @@ import { Form, Field } from 'src/components/hook-form';
 import { useAuthContext } from '../../hooks';
 import { FormHead } from '../../components/form-head';
 import { signInWithPassword, signInWithWordpress } from '../../context/supabase';
+import { useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
@@ -71,6 +72,7 @@ export function SupabaseSignInView() {
     const showPassword = useBoolean();
     const { checkUserSession } = useAuthContext();
     const [errorMessage, setErrorMessage] = useState<string | null>(errorParam);
+    const { t } = useTranslate();
 
     const defaultValues: SignInSchemaType = { email: '', password: '' };
 
@@ -127,7 +129,7 @@ export function SupabaseSignInView() {
             >
                 <Stack sx={{ width: 1, maxWidth: 450, marginRight: 'auto' }}>
                     <FormHead
-                        title="Belépés"
+                        title={t('login')}
                         sx={{ textAlign: { xs: 'center', md: 'left' }, mb: 5 }}
                     />
 
