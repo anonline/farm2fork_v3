@@ -46,7 +46,7 @@ export class DatabaseBackend implements BackendModule<object> {
     type = 'backend' as const;
 
     private cache: TranslationCache = {};
-    private readonly cacheDuration = 1000 * 60 * 60; // 1 óra cache
+    private readonly cacheDuration = 1000 * 10;//60 * 60; // 1 óra cache
     private readonly fetcher: TranslationFetcher;
 
     constructor(
@@ -61,7 +61,7 @@ export class DatabaseBackend implements BackendModule<object> {
 
     init(services?: any, backendOptions?: any, i18nextOptions?: any): void {
         // Inicializálás ha szükséges
-        console.log('DatabaseBackend initialized');
+        //console.log('DatabaseBackend initialized');
     }
 
     /**

@@ -10,6 +10,7 @@ import { CONFIG } from 'src/global-config';
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
+import { useTranslate } from 'src/locales/use-locales';
 
 interface ProducerProductsProps {
     producerId: string;
@@ -17,6 +18,7 @@ interface ProducerProductsProps {
 }
 
 export default function ProducerProducts({ producerId, excludeProductId }: Readonly<ProducerProductsProps>) {
+    const { t } = useTranslate('product');
     const { products, loading, error } = useProducts();
     const [displayedCount, setDisplayedCount] = useState(10);
 
@@ -76,7 +78,7 @@ export default function ProducerProducts({ producerId, excludeProductId }: Reado
                     fontSize: { sm: '16px', md: '24px' },
                 }}
             >
-                További termékek ({producerProducts.length})
+                {t('related_products_title')}
             </Typography>
             <Grid container spacing={2}>
                 {displayedProducts.map((product) => (

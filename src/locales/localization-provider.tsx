@@ -19,7 +19,7 @@ type Props = {
     children: React.ReactNode;
 };
 
-export function LocalizationProvider({ children }: Props) {
+export function LocalizationProvider({ children }: Readonly<Props>) {
     const { currentLang } = useTranslate();
 
     dayjs.locale(currentLang.adapterLocale);

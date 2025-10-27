@@ -26,8 +26,13 @@ import ProducerInfo from '../product-card/producer-info';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
+import { useTranslate } from 'src/locales';
 
 export default function ProductDetails() {
+    const { t } = useTranslate('product');
+    const { t: months } = useTranslate('month');
+    const { t: commonTranslate } = useTranslate('common');
+
     const { user } = useAuthContext();
     const { onAddToCart } = useCheckoutContext();
     const router = useRouter();
@@ -82,12 +87,12 @@ export default function ProductDetails() {
                     textTransform: 'capitalize',
                 }}
             >
-                <Typography sx={{ fontWeight: 600, display: 'inline' }}>Szezonalitás: </Typography>
+                <Typography sx={{ fontWeight: 600, display: 'inline' }}>{t('seasonality')}: </Typography>
                 {product.seasonality
                     .toSorted((a, b) => Object.keys(Months).indexOf(a) - Object.keys(Months).indexOf(b))
                     .map((season) => (
                         <Typography style={{ fontWeight: 500, display: 'inline' }} key={season}>
-                            {Months[season]}
+                            {months(Months[season].toLowerCase() as keyof typeof Months)}
                         </Typography>
                     ))
                     .reduce(
@@ -179,12 +184,12 @@ export default function ProductDetails() {
                 <Typography component="span" sx={priceStyle}>
                     {formattedPrice}
                     <Typography component="span" sx={unitStyle}>
-                        &nbsp;/ {product?.unit ?? 'kg'}
+                        &nbsp;/ {t(product?.unit ?? 'kg')}
                     </Typography>
                 </Typography>
 
                 <Typography component="span" sx={unitStyle}>
-                    min. {product?.mininumQuantity ?? 1} {product?.unit ?? 'kg'}
+                    min. {product?.mininumQuantity ?? 1} {t(product?.unit ?? 'kg')}
                 </Typography>
             </Box>
         );
@@ -361,7 +366,7 @@ export default function ProductDetails() {
                     }}
                 >
                     <F2FIcons name="ArrowLeft" width={16} height={16} />
-                    Vissza
+                    {commonTranslate('back')}
                 </Typography>
             </Container>
             <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '20px' }}>

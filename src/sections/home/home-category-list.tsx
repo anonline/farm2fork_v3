@@ -20,8 +20,10 @@ import { useCategories } from 'src/contexts/category-context';
 import { varFade, MotionViewport } from 'src/components/animate';
 
 import { SectionTitle } from './components/section-title';
+import { useTranslate } from 'src/locales';
 
 export function HomeCategoryList({ sx, ...other }: BoxProps) {
+    const { t } = useTranslate('home');
     const categories = useCategories();
 
     const [hoveredId, setHoveredId] = useState(-1);
@@ -36,7 +38,7 @@ export function HomeCategoryList({ sx, ...other }: BoxProps) {
         <>
             <SectionTitle
                 caption=""
-                title="NÉZZ SZÉT A TERMÉKEINK KÖZT"
+                title={t('category_selector_title')}
                 txtGradient=""
                 description=""
                 slotProps={{

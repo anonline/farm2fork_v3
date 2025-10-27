@@ -7,12 +7,16 @@ import { useRouter } from 'next/navigation';
 import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material';
 
 import { useProducers } from 'src/contexts/producers-context';
+import { useTranslate } from 'src/locales/use-locales';
 
 interface ProducerCardProps {
     producerId: string;
 }
 
 export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCardProps>) {
+    const { t } = useTranslate();
+    const { t: productTranslate } = useTranslate('product');
+
     const router = useRouter();
     const { producers, loading, error } = useProducers();
     const producer = producers.find((p) => p.id === producerId);
@@ -63,7 +67,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
     return (
         <Box
             sx={{
-                py:'32px',
+                py: '32px',
                 display: 'flex',
                 flexDirection: { xs: 'column', md: 'row' },
                 borderRadius: '12px',
@@ -74,7 +78,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
             }}
             onClick={openProducerPage}
         >
-            <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0, maxHeight: {xs: '400px', md: '480px'} }}>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, aspectRatio: '4/3', flexShrink: 0, maxHeight: { xs: '400px', md: '480px' } }}>
                 <img
                     src={producer.coverImage ?? producer.featuredImage ?? 'https://placehold.co/600x450'}
                     alt={producer.companyName || producer.name}
@@ -98,7 +102,7 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
             >
                 <Stack spacing={1.5}>
                     <Typography variant="overline" color="text.secondary">
-                        Termelő
+                        {t('producer')}
                     </Typography>
                     <Typography
                         variant="h3"
@@ -109,16 +113,15 @@ export default function FeaturedProducerCard({ producerId }: Readonly<ProducerCa
                             lineHeight: { xs: '34px', md: '42px' },
                         }}
                     >
-                        {producer.companyName ||producer.name}
+                        {producer.companyName || producer.name}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        {producer.shortDescription
-                            ? producer.shortDescription.length > 200
-                                ? producer.shortDescription.slice(0, 200) + '...'
-                                : producer.shortDescription
-                            : 'Az üvegházban biológiai növényvédelmet alkalmazunk.'}
+                        {producer.shortDescription.length > 200
+                            ? producer.shortDescription.slice(0, 200) + '...'
+                            : producer.shortDescription
+                        }
                     </Typography>
-                    <Button sx={buttonStyle}>Tovább a termelőhöz</Button>
+                    <Button sx={buttonStyle}>{productTranslate('go_to_producer')}</Button>
                 </Stack>
             </Box>
         </Box>

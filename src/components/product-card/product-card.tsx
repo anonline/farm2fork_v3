@@ -23,6 +23,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
+import { useTranslate } from 'src/locales';
 
 interface ProductCardProps {
     product: IProductItem;
@@ -274,6 +275,8 @@ export function ProductPriceDetails({
     unit = 'db',
     cardText
 }: Readonly<{ grossPrice?: number; unit?: string; cardText?: string }>) {
+    const { t } = useTranslate('product');
+
     const priceDetailsStyle: SxProps<Theme> = {
         display: 'flex',
         flexDirection: 'row',
@@ -302,7 +305,7 @@ export function ProductPriceDetails({
         <Box sx={priceDetailsStyle}>
             <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 0.5 }}>
                 <Typography sx={priceStyle}>{fCurrency(grossPrice)} </Typography>
-                <Typography sx={unitStyle}>/ {unit}</Typography>
+                <Typography sx={unitStyle}>/ {t(unit)}</Typography>
             </Box>
 
             {cardText && (
@@ -353,6 +356,9 @@ export function ProductQuantitySelector({
     showUnit = true,
     discountPercent = 0,
 }: Readonly<ProductQuantitySelectorProps>) {
+    const { t: productTranslate } = useTranslate('product');
+    const { t } = useTranslate('cart');
+
     const inputTextStyle: React.CSSProperties = {
         textAlign: 'center',
         color: themeConfig.textColor.grey,
@@ -518,7 +524,7 @@ export function ProductQuantitySelector({
         }
         const decimals = qty % 1 === 0 ? 0 : 1;
         if (showUnit) {
-            return qty.toFixed(decimals) + ' ' + unit;
+            return qty.toFixed(decimals) + ' ' + productTranslate(unit);
         } else {
             return qty.toFixed(decimals);
         }
@@ -555,7 +561,7 @@ export function ProductQuantitySelector({
                             },
                         },
                     }}
-                    placeholder={'min. ' + min + ' ' + unit}
+                    placeholder={'min. ' + min + ' ' + productTranslate(unit)}
                     inputProps={{
                         inputMode: 'text',
                         style: inputTextStyle,
@@ -588,7 +594,7 @@ export function ProductQuantitySelector({
                 <ProductCardButton
                     qty={quantity || 1}
                     product={product}
-                    label="Kosár"
+                    label={t('add_to_cart')}
                     discountPercent={discountPercent || 0}
                     onAddToCart={(newItem) => { 
                         onAddToCart?.(newItem);

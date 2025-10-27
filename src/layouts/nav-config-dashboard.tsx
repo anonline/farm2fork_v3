@@ -199,6 +199,12 @@ export const navData: NavSectionProps['data'] = [
                 icon: ICONS.menuItem,
                 caption: 'Gyakran Ismételt Kérdések',
             },
+            {
+                title: 'Statikus fordítások',
+                path: paths.dashboard.translation.root,
+                icon: ICONS.label,
+                caption: 'Statikus fordítások kezelése',
+            },
             /*{
                 /**
                  * Permissions can be set for each item by using the `allowedRoles` property.

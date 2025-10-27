@@ -17,7 +17,7 @@ export default function ProductDetailsSmallInfo({
     product,
 }: Readonly<ProductDetailsSmallInfoProps>) {
     const router = useRouter();
-    const { t } = useTranslate('productpage');
+    const { t } = useTranslate('product');
 
     if (!product) {
         return null;
@@ -94,7 +94,7 @@ export default function ProductDetailsSmallInfo({
                             </Typography>
                         </Box>
                         <Button sx={buttonStyle} onClick={() => router.push('/tarolas')}>
-                            Tovább a tároláshoz
+                            {t('move_on_storage')}
                         </Button>
                     </Box>
                 </Grid>

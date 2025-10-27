@@ -308,6 +308,9 @@ export const paths = {
             root: `${ROOTS.DASHBOARD}/emailtemplates`,
             newTemplate: `${ROOTS.DASHBOARD}/emailtemplates/new`,
             editTemplate: (type: string) => `${ROOTS.DASHBOARD}/emailtemplates/${type}/edit`,
-        }
+        },
+        translation: {
+            root: `${ROOTS.DASHBOARD}/translation`,
+        },
     },
 };

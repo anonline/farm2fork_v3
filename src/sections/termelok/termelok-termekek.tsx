@@ -13,6 +13,7 @@ import { CONFIG } from 'src/global-config';
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
+import { useTranslate } from 'src/locales';
 
 interface ProducerProductsProps {
     producerId: string;
@@ -22,6 +23,7 @@ export default function TermelokTermekek({ producerId }: Readonly<ProducerProduc
     const { products, loading, error } = useProducts();
     const [producerProducts, setProducerProducts] = useState<IProductItem[]>([]);
     const [displayedCount, setDisplayedCount] = useState(15);
+    const { t: producerTranslate } = useTranslate('producer');
 
     console.log('Producer ID:', producerId);
     useEffect(() => {
@@ -86,7 +88,7 @@ export default function TermelokTermekek({ producerId }: Readonly<ProducerProduc
                     lineHeight: { xs: '33.6px', md: '48px' },
                 }}
             >
-                Termékek ({producerProducts.length} db)
+                {producerTranslate('products')}
             </Typography>
             <Grid container spacing={2}>
                 {displayedProducts.map((product) => (

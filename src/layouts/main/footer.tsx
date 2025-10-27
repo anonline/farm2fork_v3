@@ -24,6 +24,7 @@ import { Logo } from 'src/components/logo';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { ContactModal } from 'src/components/contact-modal';
+import { useTranslate } from 'src/locales/use-locales';
 
 // ----------------------------------------------------------------------
 
@@ -69,6 +70,7 @@ export function Footer({
     layoutQuery = 'md',
     ...other
 }: FooterProps & { layoutQuery?: Breakpoint }) {
+    const { t: footerTranslate } = useTranslate('footer');
     const [contactModalOpen, setContactModalOpen] = useState(false);
     
     return (
@@ -78,21 +80,22 @@ export function Footer({
                     mt: 3,
                     mb: 6,
                     display: 'flex',
+                    width: '100%',
                     gap: { xs: 3, md: 1 },
                     flexDirection: { xs: 'column', md: 'row' },
                     justifyContent: 'space-between',
                     alignItems: 'start',
                 }}
             >
-                <Box sx={{ width: { xs: '100%', md: '60%' } }}>
+                <Box sx={{ flexGrow: 1, width: { xs: '100%', md: '60%' } }}>
                     <Typography variant="h3" sx={{ textTransform: 'uppercase', mb: 1, fontFamily: themeConfig.fontFamily.bricolage, fontSize: { xs: '20px', md: '28px' }, fontWeight: 600, lineHeight: { xs: '32px', md: '40px' } }}>
-                        Iratkozz fel a hírlevelünkre!
+                        {footerTranslate('subscribe_newsletter_title')}
                     </Typography>
                     <Typography variant="body2" sx={{ fontSize: { xs: '14px', md: '16px' }, py: { xs: 2, md: 2 } }}>
-                        Minden héten értesítünk az újdonságokról
+                        {footerTranslate('subscribe_newsletter_subtitle')}
                     </Typography>
                 </Box>
-                <Box sx={{ width: { xs: '100%', md: '60%' } }}>
+                <Box sx={{ width: { xs: '100%', md: '40%' } }}>
                     <Box
                         sx={{
                             gap: { xs: 3, md: 0 },
@@ -104,8 +107,8 @@ export function Footer({
                         <TextField
                             type="email"
                             variant="filled"
-                            label="E-mail cím"
-                            placeholder="E-mail cím"
+                            label={footerTranslate('subscribe_email_placeholder')}
+                            placeholder={footerTranslate('subscribe_email_placeholder')}
                             sx={{
                                 mr: { xs: 0, md: 2 },
                                 mb: 2,
@@ -119,12 +122,12 @@ export function Footer({
                             variant="outlined"
                             sx={{ border: 1, color: 'white', padding: '8px 24px', width: { xs: '100%', md: 'auto' } }}
                         >
-                            Feliratkozom
+                            {footerTranslate('subscribe')}
                         </Button>
                     </Box>
                     <FormControlLabel
                         value="mailchimp"
-                        label="Elfogadom az adatkezelési tájékoztatót"
+                        label={footerTranslate('accept_privacy_notice')}
                         labelPlacement="end"
                         control={
                             <Checkbox
@@ -200,7 +203,7 @@ export function Footer({
                                 [theme.breakpoints.up(layoutQuery)]: { mx: 'unset' },
                             })}
                         >
-                            Szezonális termékek hazai termelőktől
+                            {footerTranslate('subtitle')}
                         </Typography>
 
                         <Box
