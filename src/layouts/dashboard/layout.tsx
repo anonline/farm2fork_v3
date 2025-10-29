@@ -11,6 +11,8 @@ import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
+import { allLangs } from 'src/locales';
+
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
@@ -29,14 +31,13 @@ import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
 import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
+import { LanguagePopover } from '../components/language-popover';
 import { navData as dashboardNavData } from '../nav-config-dashboard';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
-import { LanguagePopover } from '../components/language-popover';
-import { allLangs } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
@@ -159,7 +160,7 @@ export function DashboardLayout({
                     <Searchbar data={navData} />
 
                     {/** @slot Language popover */}
-                    {<LanguagePopover data={allLangs} />}
+                    <LanguagePopover data={allLangs} />
 
                     {/** @slot Notifications popover */}
                     {/*<NotificationsDrawer data={_notifications} />*/}

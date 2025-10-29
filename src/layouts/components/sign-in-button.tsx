@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+
 import { useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------

@@ -4,12 +4,12 @@ import dayjs from 'dayjs';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { usePathname, useRouter } from 'src/routes/hooks';
+import { useRouter, usePathname } from 'src/routes/hooks';
 
 import { toast } from 'src/components/snackbar';
 
 import { allLangs } from './all-langs';
-import { languages as locales, fallbackLng, changeLangMessages as messages } from './locales-config';
+import { fallbackLng, languages as locales, changeLangMessages as messages } from './locales-config';
 
 import type { LanguageValue } from './locales-config';
 

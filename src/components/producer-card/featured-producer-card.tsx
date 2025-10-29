@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 
 import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material';
 
-import { useProducers } from 'src/contexts/producers-context';
 import { useTranslate } from 'src/locales/use-locales';
+import { useProducers } from 'src/contexts/producers-context';
 
 interface ProducerCardProps {
     producerId: string;

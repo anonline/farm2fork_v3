@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import type { LanguageValue } from 'src/locales';
+
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
+import { Typography } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
@@ -10,7 +13,11 @@ import MenuList from '@mui/material/MenuList';
 import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 
+import { allLangs, useTranslate } from 'src/locales';
+
 import { Logo } from 'src/components/logo';
+import { Iconify } from 'src/components/iconify';
+import { FlagIcon } from 'src/components/flag-icon';
 import { Scrollbar } from 'src/components/scrollbar';
 
 import { useAuthContext } from 'src/auth/hooks';
@@ -19,12 +26,6 @@ import { Nav, NavUl } from '../components';
 import { NavList } from './nav-mobile-list';
 
 import type { NavMainProps } from '../types';
-import { allLangs, useTranslate } from 'src/locales';
-import { Iconify } from 'src/components/iconify';
-import { Typography } from '@mui/material';
-import { FlagIcon } from 'src/components/flag-icon';
-
-import type { LanguageValue } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
@@ -133,7 +134,7 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
                             }}
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Iconify icon={'solar:globe-outline'} width={20} />
+                                <Iconify icon="solar:globe-outline" width={20} />
                                 <Typography>{t('language')}</Typography>
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

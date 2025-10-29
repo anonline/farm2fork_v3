@@ -6,15 +6,15 @@ import type { IconButtonProps } from '@mui/material/IconButton';
 import { useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
 
+import { Typography } from '@mui/material';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useTranslate } from 'src/locales';
 
+import { Iconify } from 'src/components/iconify';
 import { FlagIcon } from 'src/components/flag-icon';
 import { CustomPopover } from 'src/components/custom-popover';
-import { Typography } from '@mui/material';
-import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

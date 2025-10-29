@@ -2,24 +2,25 @@
 
 import type { ITranslation, ITranslationRow, ITranslationTableFilters } from 'src/types/translation';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TextField from '@mui/material/TextField';
 import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 
-import { DashboardContent } from 'src/layouts/dashboard';
 import { languages } from 'src/locales/locales-config';
+import { DashboardContent } from 'src/layouts/dashboard';
+import { updateTranslation, deleteTranslation } from 'src/actions/translation-management';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -36,9 +37,8 @@ import {
     TablePaginationCustom,
 } from 'src/components/table';
 
-import { updateTranslation, deleteTranslation } from 'src/actions/translation-management';
-import { TranslationTableToolbar } from '../translation-table-toolbar';
 import { TranslationNewDialog } from '../translation-new-dialog';
+import { TranslationTableToolbar } from '../translation-table-toolbar';
 
 // ----------------------------------------------------------------------
 

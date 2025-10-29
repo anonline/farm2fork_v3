@@ -10,10 +10,10 @@ import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
 
 import { themeConfig } from 'src/theme';
 import { CONFIG } from 'src/global-config';
+import { useTranslate } from 'src/locales';
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
-import { useTranslate } from 'src/locales';
 
 interface ProducerProductsProps {
     producerId: string;

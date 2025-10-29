@@ -15,10 +15,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
 import { languages } from 'src/locales/locales-config';
+import { createTranslationKey } from 'src/actions/translation-management';
 
 import { toast } from 'src/components/snackbar';
-
-import { createTranslationKey } from 'src/actions/translation-management';
 
 // ----------------------------------------------------------------------
 

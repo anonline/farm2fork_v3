@@ -8,6 +8,7 @@ import { useRouter } from 'src/routes/hooks';
 import { fCurrency } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
+import { useTranslate } from 'src/locales';
 import { useProduct } from 'src/contexts/product-context';
 import { ProductsProvider } from 'src/contexts/products-context';
 import { ProducersProvider } from 'src/contexts/producers-context';
@@ -26,7 +27,6 @@ import ProducerInfo from '../product-card/producer-info';
 import ProductDetailsSmallInfo from './product-details-small-info';
 import { ProductQuantitySelector } from '../product-card/product-card';
 import FeaturedProducerCard from '../producer-card/featured-producer-card';
-import { useTranslate } from 'src/locales';
 
 export default function ProductDetails() {
     const { t } = useTranslate('product');

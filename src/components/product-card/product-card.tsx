@@ -14,6 +14,7 @@ import { paths } from 'src/routes/paths';
 import { fCurrency } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
+import { useTranslate } from 'src/locales';
 
 import { toast } from 'src/components/snackbar';
 
@@ -23,7 +24,6 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import F2FIcons from '../f2ficons/f2ficons';
 import BioBadge from '../bio-badge/bio-badge';
-import { useTranslate } from 'src/locales';
 
 interface ProductCardProps {
     product: IProductItem;

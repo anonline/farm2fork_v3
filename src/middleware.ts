@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+
 import { languages as locales, fallbackLng as defaultLocale } from './locales';
 
 type Locale = (typeof locales)[number];

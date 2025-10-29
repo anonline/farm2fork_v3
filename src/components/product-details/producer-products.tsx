@@ -7,10 +7,10 @@ import { Box, Grid, Button, Typography, CircularProgress } from '@mui/material';
 import { useInfiniteScroll } from 'src/hooks/use-infinite-scroll';
 
 import { CONFIG } from 'src/global-config';
+import { useTranslate } from 'src/locales/use-locales';
 import { useProducts } from 'src/contexts/products-context';
 
 import ProductCard from 'src/components/product-card/product-card';
-import { useTranslate } from 'src/locales/use-locales';
 
 interface ProducerProductsProps {
     producerId: string;

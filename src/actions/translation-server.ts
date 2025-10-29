@@ -1,6 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
+
 import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 /**

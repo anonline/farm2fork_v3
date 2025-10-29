@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslate } from './use-locales';
+
 import type { LanguageValue } from './locales-config';
 
 interface TranslatedField {

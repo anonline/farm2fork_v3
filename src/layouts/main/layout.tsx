@@ -14,6 +14,8 @@ import { paths } from 'src/routes/paths';
 import { fPercent } from 'src/utils/format-number';
 
 import { themeConfig } from 'src/theme';
+import { useTranslate } from 'src/locales';
+import { allLangs } from 'src/locales/all-langs';
 import { ensureValidAnnouncement } from 'src/actions/announcements';
 
 import { Logo } from 'src/components/logo';
@@ -32,6 +34,7 @@ import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
 import { navData as mainNavData } from '../nav-config-main';
 import { SignInButton } from '../components/sign-in-button';
+import { LanguagePopover } from '../components/language-popover';
 import LoggedInHeaderAvatar from '../components/logged-in-header-avatar';
 import HeaderSearchMobile from '../components/header-search-mobile/header-search-mobile';
 import HeaderCartButtonMobile from '../components/header-cart-button-mobile/header-cart-button-mobile';
@@ -41,9 +44,6 @@ import type { NavMainProps } from './nav/types';
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
-import { LanguagePopover } from '../components/language-popover';
-import { allLangs } from 'src/locales/all-langs';
-import { useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------
 

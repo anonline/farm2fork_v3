@@ -1,5 +1,6 @@
 
-import type { BackendModule, ReadCallback } from 'i18next';
+import type { ReadCallback, BackendModule } from 'i18next';
+
 import { supabase } from 'src/lib/supabase';
 
 /**

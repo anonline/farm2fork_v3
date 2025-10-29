@@ -1,8 +1,10 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { supabaseSSR } from 'src/lib/supabase-ssr';
 import type { ITranslation, ITranslationUpdate } from 'src/types/translation';
+
+import { cookies } from 'next/headers';
+
+import { supabaseSSR } from 'src/lib/supabase-ssr';
 
 async function initSupabase() {
     const cookieStore = await cookies();

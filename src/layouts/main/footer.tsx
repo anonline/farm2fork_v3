@@ -19,12 +19,12 @@ import { RouterLink } from 'src/routes/components';
 import { _socials } from 'src/_mock';
 import { themeConfig } from 'src/theme';
 import { CONFIG } from 'src/global-config';
+import { useTranslate } from 'src/locales/use-locales';
 
 import { Logo } from 'src/components/logo';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { ContactModal } from 'src/components/contact-modal';
-import { useTranslate } from 'src/locales/use-locales';
 
 // ----------------------------------------------------------------------
 

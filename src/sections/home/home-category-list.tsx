@@ -15,12 +15,12 @@ import { RouterLink } from 'src/routes/components';
 
 import { themeConfig } from 'src/theme';
 import { CONFIG } from 'src/global-config';
+import { useTranslate } from 'src/locales';
 import { useCategories } from 'src/contexts/category-context';
 
 import { varFade, MotionViewport } from 'src/components/animate';
 
 import { SectionTitle } from './components/section-title';
-import { useTranslate } from 'src/locales';
 
 export function HomeCategoryList({ sx, ...other }: BoxProps) {
     const { t } = useTranslate('home');
