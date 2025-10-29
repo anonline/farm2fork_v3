@@ -1,6 +1,11 @@
+'use client';
 import { Box, Container, Typography } from '@mui/material';
+import { useTranslate } from 'src/locales/use-locales';
+import { themeConfig } from 'src/theme';
 
 export default function RolunkHero() {
+    const { t } = useTranslate('rolunk');
+    
     return (
         <Container sx={{ paddingY: { xs: 2, md: 4 } }}>
             <Box
@@ -78,6 +83,7 @@ export default function RolunkHero() {
                                 letterSpacing: '-0.01em',
                                 position: 'relative',
                                 zIndex: 1,
+                                fontFamily: themeConfig.fontFamily.bricolage
                             }}
                         >
                             Farm2Fork
@@ -94,14 +100,8 @@ export default function RolunkHero() {
                     },
                 }}
             >
-                <Typography sx={{ fontFamily: 'Inter, sans-serif' }}>
-                    A Farm2Fork mindennapi működtetése során nagy hangsúlyt fektetünk a
-                    környezetbarát megoldásokra és a bio alapanyagok beszerzésére. A farm-to-table
-                    elvnek megfelelően célunk, hogy a szállított zöldségek és gyümölcsök minél
-                    kevesebbet utazzanak a termelés helyétől a felhasználást jelentő konyháig.
-                    Emellett kulcsfontosságú a szoros személyes kapcsolat is, hiszen összekötő
-                    szerepet töltünk be a séfek és a termelők között, ezáltal segítve mindkét fél
-                    munkáját és a közös fejlődést.
+                <Typography sx={{ fontSize: '16px' }}>
+                    {t('top_description')}
                 </Typography>
             </Box>
         </Container>

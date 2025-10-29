@@ -43,6 +43,7 @@ import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
 import { LanguagePopover } from '../components/language-popover';
 import { allLangs } from 'src/locales/all-langs';
+import { useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
@@ -93,6 +94,7 @@ function MainLayoutContent({
     const navData = slotProps?.nav?.data ?? mainNavData;
     const [announcement, setAnnouncement] = useState<string | null>(null);
     const authContext = useAuthContext();
+    const { t, currentLang } = useTranslate();
 
     useEffect(() => {
         const fetchAnnouncement = async () => {
@@ -100,8 +102,16 @@ function MainLayoutContent({
                 // Use the new function that checks and creates announcements if needed
                 const announcementData = await ensureValidAnnouncement();
 
-                if (announcementData && announcementData.text) {
-                    setAnnouncement(announcementData.text);
+                if (announcementData?.text) {
+                    switch (currentLang?.value) {
+                        case 'en':
+                            setAnnouncement(announcementData.text_en);
+                            break;
+                        case 'hu':
+                        default:
+                            setAnnouncement(announcementData.text);
+                            break;
+                    }
                 }
             } catch (error) {
                 // Silently handle supabase connection errors
@@ -109,7 +119,7 @@ function MainLayoutContent({
             }
         };
         fetchAnnouncement();
-    }, []);
+    }, [currentLang]);
 
     const renderRoleChip = () => {
         const isAdmin = authContext.user?.user_metadata?.is_admin;
@@ -295,7 +305,7 @@ function MainLayoutContent({
                     )}
 
                     <LanguagePopover data={allLangs} sx={(muiTheme) => ({
-                        display: 'none',
+                        display: 'none !important',
                         [muiTheme.breakpoints.up(layoutQuery)]: {
                             display: 'flex',
                         }

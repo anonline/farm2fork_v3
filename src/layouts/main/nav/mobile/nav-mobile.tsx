@@ -116,7 +116,7 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
                 >
                     {/*<SignInButton fullWidth />*/}
 
-                    <Box>
+                    <Box sx={{display: 'none !important'}}>
                         <Box 
                             onClick={() => setLanguageOpen(!languageOpen)}
                             sx={{

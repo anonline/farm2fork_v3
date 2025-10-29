@@ -16,8 +16,14 @@ export function jwtDecode(token: string) {
         }
 
         const base64Url = parts[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const decoded = JSON.parse(atob(base64));
+        const base64 = base64Url.replaceAll(/-/g, '+').replaceAll(/_/g, '/');
+
+        // Ez a funkció biztonságosan kezeli az UTF-8 karaktereket (pl. 'á', 'ó')
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const decoded = JSON.parse(jsonPayload);
 
         return decoded;
     } catch (error) {
