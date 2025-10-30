@@ -99,6 +99,7 @@ function MainLayoutContent({
     useEffect(() => {
         const fetchAnnouncement = async () => {
             try {
+                console.log('Fetching announcement for layout...');
                 // Use the new function that checks and creates announcements if needed
                 const announcementData = await ensureValidAnnouncement();
 
@@ -119,7 +120,7 @@ function MainLayoutContent({
             }
         };
         fetchAnnouncement();
-    }, [currentLang]);
+    }, [currentLang?.value]);
 
     const renderRoleChip = () => {
         const isAdmin = authContext.user?.user_metadata?.is_admin;

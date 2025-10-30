@@ -34,7 +34,6 @@ export async function middleware(request: NextRequest) {
 
     // Ellenőrizzük az URL-ben lévő nyelv prefix-et
     const { locale, pathnameWithoutLocale } = getLocaleFromPath(pathname);
-    console.log('Detected locale in middleware:', locale);
 
     let response: NextResponse;
 

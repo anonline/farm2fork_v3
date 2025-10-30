@@ -57,7 +57,7 @@ export function getValidityDates() {
   // Valid until tomorrow at 23:59
   const validUntil = new Date(validFrom);
   validUntil.setDate(validUntil.getDate() + 1);
-  validUntil.setHours(23, 59, 59, 999);
+  validUntil.setHours(13, 15, 0, 999);
   
   return {
     validFrom: validFrom.toISOString().slice(0, 19), // Remove 'Z' for timestamp without time zone

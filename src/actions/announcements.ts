@@ -11,8 +11,7 @@ import { getValidityDates, getNextAnnouncementText } from 'src/lib/announcement-
  * Get all valid announcements for the current date/time
  */
 export async function getValidAnnouncements(): Promise<IAnnouncement[]> {
-    const now = new Date().toISOString();
-
+    const now = fDate(new Date(), 'YYYY-MM-DDTHH:mm:ss');
     const { data, error } = await supabase
         .from('Announcement')
         .select('*')
@@ -40,14 +39,13 @@ export async function ensureValidAnnouncement(): Promise<IAnnouncement | null> {
         // Use service role key for admin operations (if available)
         const supabaseAdmin = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY
             ? createClient(
-                  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY!
-              )
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY!
+            )
             : supabase;
 
         // Get current time
-        const now = new Date().toISOString();
-
+        const now = fDate(new Date(), 'YYYY-MM-DDTHH:mm:ss');
         // Check if there are any valid announcements
         const { data: existingAnnouncements, error: fetchError } = await supabaseAdmin
             .from('Announcement')

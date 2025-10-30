@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     title: `Statikus fordítások | Dashboard - ${CONFIG.appName}` 
 };
 
+// Force dynamic rendering since this page requires authentication
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
     const translations = await getAllTranslations();
 

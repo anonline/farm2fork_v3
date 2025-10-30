@@ -53,7 +53,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
                 }
                 return;
             }
-            console.log('accessing session', session);
+
             if (session) {
                 const accessToken = session?.access_token;
                 const payload = JSON.parse(b64DecodeUnicode(accessToken.split('.')[1]));
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
             } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                 if (session) {
                     const accessToken = session.access_token;
-                    console.log('accessToken', accessToken);
+
                     try {
                         const payload = JSON.parse(b64DecodeUnicode(accessToken.split('.')[1]));
 

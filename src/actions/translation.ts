@@ -34,7 +34,6 @@ const defaultFetcher: TranslationFetcher = async (language: string, namespace: s
         console.error('Error fetching translations:', error);
         throw error;
     }
-    console.log('Fetched translations from DB:', data);
     const result: { [key: string]: string } = {};
     for (const item of data) {
         result[item.key] = item.value;
@@ -71,7 +70,6 @@ export class DatabaseBackend implements BackendModule<object> {
     read(language: string, namespace: string, callback: ReadCallback): void {
         const now = Date.now();
         const cached = this.cache[language]?.[namespace];
-        console.log('Reading translations for:', language, namespace);
         // Cache ellenőrzés
         if (cached && now - cached.timestamp < this.cacheDuration) {
             callback(null, cached.data);
