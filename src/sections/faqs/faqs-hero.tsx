@@ -14,7 +14,7 @@ export function FaqsHero({ sx, ...other }: BoxProps) {
             sx={[
                 (theme) => ({
                     height: { md: 160 },
-                    py: { xs: 10, md: 10 },
+                    py: { xs: 2, md: 10 },
                     alignItems: 'center',
                     alignSelf: 'center',
                     width: '100%',
@@ -27,7 +27,11 @@ export function FaqsHero({ sx, ...other }: BoxProps) {
             ]}
             {...other}
         >
-            <Typography sx={{ textTransform: 'uppercase', fontFamily: themeConfig.fontFamily.bricolage, fontWeight: '600', fontSize: { xs: '48px', md: '48px', lg: '64px' } }}>
+            <Typography sx={{
+                textTransform: 'uppercase',
+                fontFamily: themeConfig.fontFamily.bricolage,
+                fontWeight: '600',
+                fontSize: { xs: '24px', md: '32px', lg: '64px' } }}>
                 Gyakran ismételt kérdések
             </Typography>
         </Box>

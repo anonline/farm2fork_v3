@@ -19,7 +19,7 @@ export function FaqsView({ faqs, faqCategories }: Readonly<FaqsViewProps>) {
             <FaqsHero />
             <Container
                 component="section"
-                sx={{ pb: 10, position: 'relative', pt: { xs: 10, md: 5 } }}
+                sx={{ pb: 10, position: 'relative', pt: { xs: 2, md: 5 } }}
             >
                 <FaqsCategory faqCategories={faqCategories} faqs={faqs} />
             </Container>
