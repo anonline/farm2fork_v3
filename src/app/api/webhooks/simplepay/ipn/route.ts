@@ -4,7 +4,7 @@ import type { OrderHistoryEntry } from 'src/types/order-management';
 import { NextResponse } from 'next/server';
 import { checkSignature, generateSignature } from 'simplepay-js-sdk';
 
-import { getOrderByIdSSR, addOrderHistoriesSSR, updateOrderStatusSSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
+import { getOrderByIdSSR, addOrderHistoriesSSR, updateOrderStatusSSR, ensureOrderInShipmentSSR, updateOrderPaymentStatusSSR, handleStockReductionForOrderSSR, revertStockReductionForOrderSSR, updateOrderPaymentSimpleStatusSSR } from 'src/actions/order-ssr';
 
 type SimplePayResponse = {
     r: number, //válasz kód
@@ -97,7 +97,6 @@ export async function POST(request: NextRequest) {
                 if (order.orderStatus === 'cancelled') {
                     console.log(`IPN: Order ${ipnOrderRef} was cancelled but payment authorized. Updating order status to pending.`);
                     await updateOrderStatusSSR(ipnOrderRef, 'pending');
-                    await ensureOrderInShipmentSSR(ipnOrderRef);
                     await handleStockReductionForOrderSSR(ipnOrderRef);
 
                     historyEntries.push({
@@ -106,6 +105,8 @@ export async function POST(request: NextRequest) {
                         note: 'Order status updated to pending after payment authorization via SimplePay IPN.',
                     });
                 }
+
+                await ensureOrderInShipmentSSR(ipnOrderRef);
             }
             else if (ipnData.status === 'FINISHED') {
                 if (order.paymentStatus !== 'closed') {
@@ -116,6 +117,30 @@ export async function POST(request: NextRequest) {
                         timestamp: new Date().toISOString(),
                         status: 'closed',
                         note: 'Payment finished via SimplePay IPN.',
+                    });
+                }
+            }
+            else if (ipnData.status === 'TIMEOUT' || ipnData.status === 'UNAUTHORIZED' || ipnData.status === 'CANCELLED') {
+                if (order.paymentStatus !== 'failed') {
+                    console.log(`IPN: Order ${ipnOrderRef} payment failed.`);
+                    // Here you would typically update the order status in your database
+                    await updateOrderPaymentStatusSSR(ipnOrderRef, 'failed', order.total);
+                    historyEntries.push({
+                        timestamp: new Date().toISOString(),
+                        status: 'failed',
+                        note: `Payment failed via SimplePay IPN (${ipnData.status}).`,
+                    });
+                }
+
+                if (order.orderStatus !== 'cancelled') {
+                    console.log(`IPN: Order ${ipnOrderRef} payment failed.`);
+                    await updateOrderStatusSSR(ipnOrderRef, 'cancelled');
+                    await revertStockReductionForOrderSSR(ipnOrderRef);
+
+                    historyEntries.push({
+                        timestamp: new Date().toISOString(),
+                        status: 'failed',
+                        note: `Order cancelled via SimplePay IPN (${ipnData.status}).`,
                     });
                 }
             }
