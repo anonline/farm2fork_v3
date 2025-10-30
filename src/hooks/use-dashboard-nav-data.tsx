@@ -147,42 +147,56 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                                 path: '#/dashboard/settings/home' 
                             },*/
                             {
-                                title: 'Vásárlás',
-                                path: paths.dashboard.settings.purchase,
+                                title: 'Rendelési beállítások',
+                                path: '#/dashboard/settings/orders',
                                 icon: ICONS.order,
+                                children: [
+                                    {
+                                        title: 'Vásárlás',
+                                        path: paths.dashboard.settings.purchase,
+                                        icon: ICONS.order,
+                                    },
+                                    {
+                                        title: 'Szállítási Zónák',
+                                        path: paths.dashboard.shipping.root,
+                                        icon: ICONS.tour,
+                                    },
+                                    {
+                                        title: 'Szállítási díjak és metódusok',
+                                        path: paths.dashboard.shippingCost.root,
+                                        icon: ICONS.banking,
+                                    },
+                                    {
+                                        title: 'Fizetésimódok',
+                                        path: paths.dashboard.paymentMethod.root,
+                                        icon: ICONS.external,
+                                    },
+                                    {
+                                        title: 'Átvételi pontok',
+                                        path: paths.dashboard.pickup.root,
+                                        icon: ICONS.folder,
+                                    },
+                                ],
                             },
-                            { 
-                                title: 'Futárok', 
-                                path: paths.dashboard.delivery.root, icon: ICONS.job 
-                            },
-                            { 
-                                title: 'Partnerek', 
-                                path: paths.dashboard.partners.root, icon: ICONS.kanban 
+
+                            {
+                                title: 'Futárok',
+                                path: paths.dashboard.delivery.root, icon: ICONS.job
                             },
                             {
-                                title: 'Szállítási Zónák',
-                                path: paths.dashboard.shipping.root,
-                                icon: ICONS.tour,
+                                title: 'Partnerek',
+                                path: paths.dashboard.partners.root, icon: ICONS.kanban
                             },
-                            {
-                                title: 'Szállítási díjak és metódusok',
-                                path: paths.dashboard.shippingCost.root,
-                                icon: ICONS.banking,
-                            },
-                            {
-                                title: 'Fizetésimódok',
-                                path: paths.dashboard.paymentMethod.root,
-                                icon: ICONS.external,
-                            },
-                            {
-                                title: 'Átvételi pontok',
-                                path: paths.dashboard.pickup.root,
-                                icon: ICONS.folder,
-                            },
-                            {
+
+                            /*{
                                 title: 'Woocommerce API',
                                 path: paths.dashboard.woocommerce.root,
                                 icon: ICONS.external,
+                            },*/
+                            {
+                                title: 'Statikus fordítások',
+                                path: paths.dashboard.translation.root,
+                                icon: ICONS.chat
                             },
                             {
                                 title: 'Rólunk oldal',
