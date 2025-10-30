@@ -159,6 +159,7 @@ type Props = CardProps & {
     onStartEdit?: () => void;
     userType?: 'public' | 'vip' | 'company';
     userDiscountPercent?: number;
+    recheckData?: { productId: string, discountPrice: number, priceInOrder: number }[];
 };
 
 export function OrderDetailsItems({
@@ -185,6 +186,7 @@ export function OrderDetailsItems({
     onStartEdit,
     userType = 'public',
     userDiscountPercent = 0,
+    recheckData = [],
     ...other
 }: Props) {
     const [editErrors, setEditErrors] = useState<Record<string, { netPrice?: string; grossPrice?: string; quantity?:string }>>({});
@@ -463,9 +465,15 @@ export function OrderDetailsItems({
                                     px: { xs: 1.5, md: 3 },
                                     py: { xs: 1.5, md: 2 },
                                     borderBottom: `dashed 2px ${theme.vars.palette.background.neutral}`,
+                                    backgroundColor: recheckData.some(recheckDataItem => recheckDataItem.productId == item.slug && recheckDataItem.discountPrice !== recheckDataItem.priceInOrder) ? theme.palette.warning.lighter : 'initial',
                                 }),
                             ]}
                         >
+                            {recheckData.some(recheckDataItem => recheckDataItem.productId == item.slug && recheckDataItem.discountPrice !== recheckDataItem.priceInOrder) && (
+                                <Typography variant="caption" sx={{ color: 'error.main', mb: 1, display: 'block' }}>
+                                    Figyelem: A termék ára kapcsán kedvezményes ár eltérést találtunk! A kedvezményes ár: <Typography variant='caption' component="span" sx={{ fontWeight: 'bold' }}>{fCurrency(recheckData.find(recheckDataItem => recheckDataItem.productId == item.slug)?.discountPrice || 0)} / {item.unit}</Typography>
+                                </Typography>
+                            )}
                             {/* Mobile Layout */}
                             <Box sx={{ 
                                 display: { xs: 'block', md: 'none' },

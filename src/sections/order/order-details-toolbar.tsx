@@ -52,6 +52,7 @@ type Props = {
     readonly deliveryGuys?: DeliveryGuyOption[];
     readonly currentDeliveryGuyId?: number | null;
     readonly onChangeDeliveryGuy?: (newDeliveryGuyId: number | null) => void;
+    readonly recheckedData?: { productId: string, discountPrice: number, priceInOrder: number }[]
 };
 
 export function OrderDetailsToolbar({
@@ -70,6 +71,7 @@ export function OrderDetailsToolbar({
     deliveryGuys = [],
     currentDeliveryGuyId,
     onChangeDeliveryGuy,
+    recheckedData
 }: Props) {
     const paymentMenuActions = usePopover();
     const { locations: pickupLocations } = useGetPickupLocations();
@@ -239,6 +241,20 @@ export function OrderDetailsToolbar({
                         <Typography variant="body2" sx={{ color: 'text.disabled' }}>
                             {fDateTime(createdAt)}
                         </Typography>
+
+                        {recheckedData 
+                            && recheckedData.some(item => item.discountPrice !== item.priceInOrder) && (
+                            <Typography variant="body2" sx={{ color: 'error.main' }}>
+                                Figyelem: A rendelés árai kapcsán kedvezményes ár eltérést találtunk!
+                            </Typography>
+                        )}
+
+                        {recheckedData && recheckedData.length > 0
+                            && !recheckedData.some(item => item.discountPrice !== item.priceInOrder) && (
+                            <Typography variant="body2" sx={{ color: 'success.main' }}>
+                                A rendelés árai kapcsán kedvezményes ár eltérést nem találtunk!
+                            </Typography>
+                        )}
                     </Stack>
                 </Box>
 

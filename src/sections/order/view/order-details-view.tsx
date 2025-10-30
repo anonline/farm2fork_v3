@@ -1,5 +1,6 @@
 'use client';
 
+import type { IProductItem } from 'src/types/product';
 import type { IOrderProductItem } from 'src/types/order';
 import type { OrderStatus, PaymentStatus } from 'src/types/order-management';
 
@@ -24,6 +25,7 @@ import { fetchCategoryConnectionsForOrders } from 'src/utils/pdf-generator';
 import { supabase } from 'src/lib/supabase';
 import { useGetDeliveries } from 'src/actions/delivery';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { fetchGetProductsByIds } from 'src/actions/product';
 import { useOrderContext } from 'src/contexts/order-context';
 import { useGetCategoryOrder } from 'src/actions/category-order';
 import { triggerOrderProcessedEmail } from 'src/actions/email-ssr';
@@ -78,7 +80,90 @@ export function OrderDetailsView({ orderId }: Props) {
     const [hasAutoSetShipmentTime, setHasAutoSetShipmentTime] = useState(false);
     const [categoryConnections, setCategoryConnections] = useState<Map<string, number[]>>(new Map());
 
+    const [discountPriceRecheckArray, setDiscountPriceRecheckArray] = useState<{ productId: string, discountPrice: number, priceInOrder: number }[]>([]);
+
     const userType = order?.customer?.userType || 'public';
+
+    // Function to collect discount price information from order items
+    const collectDiscountPriceInfo = useCallback(async () => {
+        if (!order?.items || order.items.length === 0) {
+            setDiscountPriceRecheckArray([]);
+            return;
+        }
+
+        const customerDiscountPercent = order?.customer?.discountPercent || 0;
+
+        try {
+            // Get all product IDs from order items (excluding custom items without slug)
+            const productIds = order.items
+                .filter(item => item.slug && item.slug.length > 0)
+                .map(item => item.id);
+
+            if (productIds.length === 0) {
+                setDiscountPriceRecheckArray([]);
+                return;
+            }
+
+            // Fetch current product data from database
+            const { products, error: fetchError } = await fetchGetProductsByIds(productIds);
+
+            if (fetchError || !products) {
+                console.error('Error fetching products for discount check:', fetchError);
+                return;
+            }
+
+            // Create a map for quick product lookup
+            const productsMap = new Map<string, IProductItem>(products.map((p: IProductItem) => [p.id.toString(), p]));
+
+            // Build the discount price recheck array
+            const recheckData: { productId: string, discountPrice: number, priceInOrder: number }[] = [];
+
+            for (const item of order.items) {
+                // Skip custom items
+                if (!item.slug || item.slug.length === 0) continue;
+
+                const currentProduct = productsMap.get(item.id);
+                if (!currentProduct) continue;
+
+                // Determine the price in order based on user type
+                let priceInOrder: number;
+                switch (userType) {
+                    case 'company':
+                        priceInOrder = item.netPrice;
+                        break;
+                    case 'vip':
+                        priceInOrder = item.netPrice;
+                        break;
+                    default:
+                        priceInOrder = item.grossPrice;
+                }
+
+                const discountedPriceInDb = (userType === 'company' ? currentProduct.netPriceCompany : userType === 'vip' ? currentProduct.netPriceVIP : currentProduct.grossPrice) * ((100 - customerDiscountPercent) / 100);
+
+                // Only add to array if there's a discount price and it differs from order price
+                recheckData.push({
+                    productId: item.slug,
+                    discountPrice: discountedPriceInDb,
+                    priceInOrder,
+                });
+            }
+
+            setDiscountPriceRecheckArray(recheckData);
+
+            if (recheckData.length > 0) {
+                console.log('Discount price discrepancies found:', recheckData);
+            }
+        } catch (err) {
+            console.error('Error collecting discount price info:', err);
+        }
+    }, [order?.items, userType]);
+
+    // Collect discount price info when order loads or changes
+    useEffect(() => {
+        if (order?.items && order.items.length > 0) {
+            collectDiscountPriceInfo();
+        }
+    }, [order?.items, collectDiscountPriceInfo]);
 
     // Fetch order data when component mounts or orderId changes
     useEffect(() => {
@@ -140,7 +225,7 @@ export function OrderDetailsView({ orderId }: Props) {
 
     // Auto-set shipment time for pickup orders without a time set (only once per order load)
     useEffect(() => {
-        const shouldAutoSetShipmentTime = 
+        const shouldAutoSetShipmentTime =
             orderData?.id &&
             order?.status === 'pending' && // Only for editable/pending orders
             !orderData?.shipment_time && // No shipment time set yet
@@ -151,11 +236,11 @@ export function OrderDetailsView({ orderId }: Props) {
         if (shouldAutoSetShipmentTime) {
             // Find the first available (non-closed) day
             const firstAvailableDay = pickupLocationOpenDays.findIndex(day => day !== 'zárva');
-            
+
             if (firstAvailableDay !== -1) {
                 // Auto-select the first available day's time
                 const autoSelectedTime = pickupLocationOpenDays[firstAvailableDay];
-                
+
                 // Update the orderData context and database
                 const updateShipmentTime = async () => {
                     try {
@@ -1210,7 +1295,7 @@ export function OrderDetailsView({ orderId }: Props) {
     // Calculate updated totals when in edit mode and apply category sorting
     const displayItems = useMemo(() => {
         const items = isEditing ? editedItems : order?.items || [];
-        
+
         // Apply category ordering if available
         if (categoryOrder && categoryOrder.length > 0 && categoryConnections.size > 0) {
             // Create order map for quick lookup (excluding category 42)
@@ -1231,7 +1316,7 @@ export function OrderDetailsView({ orderId }: Props) {
             items.forEach(item => {
                 const productIdKey = item.id ? String(item.id) : '';
                 const itemCategories = categoryConnections.get(productIdKey) || [];
-                
+
                 if (itemCategories.length === 0) {
                     buckets.get(42)!.push(item);
                     return;
@@ -1266,14 +1351,14 @@ export function OrderDetailsView({ orderId }: Props) {
                 bucket42Items.sort((a, b) => a.name.localeCompare(b.name));
                 sortedItems.push(...bucket42Items);
             }
-            
+
             return sortedItems;
         }
-        
+
         // Fallback to alphabetical sorting
         return [...items].sort((a, b) => a.name.localeCompare(b.name));
     }, [isEditing, editedItems, order?.items, categoryOrder, categoryConnections]);
-    
+
     const updatedSubtotal = isEditing
         ? editedItems.reduce((sum, item) => sum + item.subtotal, 0)
         : order?.subtotal || 0;
@@ -1353,6 +1438,7 @@ export function OrderDetailsView({ orderId }: Props) {
                 deliveryGuys={deliveries.map(d => ({ id: d.id, name: d.name }))}
                 currentDeliveryGuyId={orderData?.courier ? parseInt(orderData.courier, 10) : null}
                 onChangeDeliveryGuy={handleChangeDeliveryGuy}
+                recheckedData={discountPriceRecheckArray}
             />
 
             <Grid container spacing={3}>
@@ -1387,6 +1473,7 @@ export function OrderDetailsView({ orderId }: Props) {
                             onStartEdit={handleStartEdit}
                             userType={order.customer.userType}
                             userDiscountPercent={order.customer.discountPercent}
+                            recheckData={discountPriceRecheckArray}
                         />
 
                         {/* User history card */}
