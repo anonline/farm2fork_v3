@@ -3,7 +3,7 @@
 import type { ICategoryItem } from 'src/types/category';
 import type { SelectChangeEvent } from '@mui/material/Select';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
     Box,
@@ -105,13 +105,8 @@ export default function ProductsPage({ urlSlug }: Readonly<{ urlSlug?: string }>
         setIsBio(newIsBio);
     };
 
-    // Filter products by search text (client-side for better UX)
-    const filteredProducts = useMemo(() => {
-        if (!searchText.trim()) return products;
-        return products.filter((p) =>
-            p.name.toLowerCase().includes(searchText.toLowerCase())
-        );
-    }, [products, searchText]);
+    // No client-side filtering needed - server-side query handles accent variations
+    const filteredProducts = products;
 
     return (
         <Box

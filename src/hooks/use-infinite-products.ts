@@ -18,6 +18,60 @@ const PRODUCTS_PER_PAGE = CONFIG.pagination.productsPerPage;
 
 type SortingOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'default';
 
+/**
+ * Generate all accent variations for Hungarian search text
+ * Example: "körte" -> ["körte", "korte"]
+ * Example: "áfónya" -> ["áfónya", "afónya", "áfonya", "afonya"]
+ */
+function generateAccentVariations(text: string): string[] {
+    // Hungarian accent mappings (bidirectional)
+    const accentMap: Record<string, string[]> = {
+        'a': ['a', 'á'],
+        'á': ['a', 'á'],
+        'e': ['e', 'é'],
+        'é': ['e', 'é'],
+        'i': ['i', 'í'],
+        'í': ['i', 'í'],
+        'o': ['o', 'ó', 'ö', 'ő'],
+        'ó': ['o', 'ó', 'ö', 'ő'],
+        'ö': ['o', 'ó', 'ö', 'ő'],
+        'ő': ['o', 'ó', 'ö', 'ő'],
+        'u': ['u', 'ú', 'ü', 'ű'],
+        'ú': ['u', 'ú', 'ü', 'ű'],
+        'ü': ['u', 'ú', 'ü', 'ű'],
+        'ű': ['u', 'ú', 'ü', 'ű'],
+    };
+
+    const chars = text.toLowerCase().split('');
+    const positions: string[][] = chars.map(char => accentMap[char] || [char]);
+
+    // Generate all combinations
+    function generateCombinations(arrays: string[][]): string[] {
+        if (arrays.length === 0) return [''];
+        if (arrays.length === 1) return arrays[0];
+
+        const result: string[] = [];
+        const first = arrays[0];
+        const rest = generateCombinations(arrays.slice(1));
+
+        for (const item of first) {
+            for (const combination of rest) {
+                result.push(item + combination);
+            }
+        }
+
+        return result;
+    }
+
+    const variations = generateCombinations(positions);
+    
+    // Remove duplicates and limit to prevent too many variations
+    const unique = Array.from(new Set(variations));
+    
+    // Limit to 8 variations for performance (should be enough for most cases)
+    return unique.slice(0, 8);
+}
+
 export interface UseInfiniteProductsProps {
     categoryId?: number;
     subCategoryIds?: number[];
@@ -99,9 +153,16 @@ export function useInfiniteProducts({
             query = query.eq('bio', true);
         }
 
-        // Apply search filter
+        // Apply search filter with accent variations
         if (searchText.trim()) {
-            query = query.ilike('name', `%${searchText}%`);
+            const trimmedSearch = searchText.trim();
+            const variations = generateAccentVariations(trimmedSearch);
+            // Build OR conditions for all variations: name.ilike.%variation1%,name.ilike.%variation2%
+            const orConditions = variations
+                .map(variation => `name.ilike.%${variation}%`)
+                .join(',');
+            
+            query = query.or(orConditions);
         }
 
         // Apply sorting
@@ -143,7 +204,6 @@ export function useInfiniteProducts({
             }
 
             const offset = page * PRODUCTS_PER_PAGE;
-            console.log(`Fetching page ${page}, offset: ${offset}, PRODUCTS_PER_PAGE: ${PRODUCTS_PER_PAGE}`);
             const query = buildQuery(offset, PRODUCTS_PER_PAGE);
 
             const { data, error: supabaseError, count } = await query;
