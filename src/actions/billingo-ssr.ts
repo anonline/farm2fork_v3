@@ -85,7 +85,7 @@ async function createOrFindPartner(customerName: string, billingAddress: IAddres
         if (billingAddress?.taxNumber) {
             const isValidHungarianVat = vatNumberRegex.test(billingAddress.taxNumber.trim());
             const isValidEuVat = euVatNumberRegex.test(billingAddress.taxNumber.trim());
-            
+
             if (!isValidHungarianVat && !isValidEuVat) {
                 console.warn('Invalid VAT number format:', billingAddress.taxNumber);
                 billingAddress.taxNumber = undefined; // Ignore invalid VAT number
@@ -252,15 +252,17 @@ export async function createBillingoInvoiceSSR(orderData: IOrderData): Promise<{
             throw new Error('Invoice creation failed - no ID returned');
         }
 
-        const emailsNotification: SendDocument = {
-            emails: orderData.billingEmails || [],
-        };
-        try {
-            if (emailsNotification.emails?.length) {
-                await DocumentService.sendDocument(invoice.id, emailsNotification);
+        if (orderData.billingAddress?.email) {
+            const emailsNotification: SendDocument = {
+                emails: [orderData.billingAddress?.email || orderData.billingEmails[0]],
+            };
+            try {
+                if (emailsNotification.emails?.length) {
+                    await DocumentService.sendDocument(invoice.id, emailsNotification);
+                }
+            } catch (invoiceEmailError) {
+                console.error('Error sending invoice email:', invoiceEmailError);
             }
-        } catch (invoiceEmailError) {
-            console.error('Error sending invoice email:', invoiceEmailError);
         }
 
         // Get the download URL for the invoice
