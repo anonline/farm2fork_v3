@@ -34,7 +34,7 @@ export default function ProductDetails() {
     const { t: commonTranslate } = useTranslate('common');
 
     const { user } = useAuthContext();
-    const { onAddToCart } = useCheckoutContext();
+    const { onAddToCart, state } = useCheckoutContext();
     const router = useRouter();
 
     const { product, loading } = useProduct();
@@ -144,15 +144,17 @@ export default function ProductDetails() {
     };
 
     const getPrice = () => {
+        const discountPercent = state.discountPercent || 0;
+
         if (user?.user_metadata?.is_vip) {
-            return product?.netPriceVIP;
+            return (product?.netPriceVIP || 0) * ((100 - discountPercent) / 100);
         }
 
         if (user?.user_metadata?.is_corp) {
-            return product?.netPriceCompany;
+            return (product?.netPriceCompany || 0) * ((100 - discountPercent) / 100);
         }
 
-        return product?.salegrossPrice ?? product?.grossPrice;
+        return (product?.salegrossPrice || product?.grossPrice || 0) * ((100 - discountPercent) / 100);
     }
 
     const renderPriceDetails = () => {
@@ -217,6 +219,7 @@ export default function ProductDetails() {
                         min={product.mininumQuantity}
                         step={product.stepQuantity}
                         format="row"
+                        discountPercent={state.discountPercent}
                     />
                 </Box>
             );

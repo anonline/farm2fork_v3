@@ -54,6 +54,14 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
 
     const getGrossPrice = () => getNetPrice() * (1 + getVatPercent() / 100)
 
+    const getPriceToDisplay = () =>{
+        if (user?.user_metadata.is_vip || user?.user_metadata.is_corp) {
+            return getNetPrice();
+        }
+
+        return getGrossPrice();
+    }
+
     return (
         <Paper
             elevation={0}
@@ -165,7 +173,7 @@ export default function FeaturedProductCard({ product }: Readonly<FeaturedProduc
                 <Box sx={{ flexGrow: 1 }} />
 
                 <Stack direction="column" spacing={1.5} alignItems="flex-start" sx={{ mt: 3 }}>
-                    <ProductPriceDetails grossPrice={getGrossPrice()} unit={product.unit} cardText={product.cardText} />
+                    <ProductPriceDetails grossPrice={getPriceToDisplay()} unit={product.unit} cardText={product.cardText} />
                     <ProductQuantitySelector
                         product={product}
                         onAddToCart={onAddToCart}

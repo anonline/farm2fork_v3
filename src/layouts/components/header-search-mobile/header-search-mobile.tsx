@@ -30,6 +30,7 @@ import { Iconify } from 'src/components/iconify';
 import F2FIcons from 'src/components/f2ficons/f2ficons';
 
 import { useAuthContext } from 'src/auth/hooks';
+import { useCheckoutContext } from 'src/sections/checkout/context';
 
 type HeaderSearchBaseResultItem = {
     id: string;
@@ -58,12 +59,13 @@ const Transition = forwardRef(function Transition(
 
 export default function HeaderSearchMobile() {
     const theme = useTheme();
+    const { state } = useCheckoutContext();
+
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const searchTextLimit = 3;
-    const {roles} = useAuthContext();
-    const isVIP = roles?.isVip || false;
-    const isCORP = roles?.isCorp || false;
-    const isADMIN = roles?.isAdmin || false;
+    const { user} = useAuthContext();
+    const isVIP = user?.user_metadata?.is_vip || false;
+    const isCORP = user?.user_metadata?.is_corp || false;
 
     const searchIcon = <F2FIcons name="Search2" width={22} height={22} />;
     const loadingIcon = <F2FIcons name="Loading" width={20} height={20} />;
@@ -84,7 +86,7 @@ export default function HeaderSearchMobile() {
         id: product.id,
         name: product.name ?? 'Termék',
         image: product.featuredImage ?? 'https://qg8ssz19aqjzweso.public.blob.vercel-storage.com/images/product/placeholder.webp',
-        price: (isVIP || isADMIN || isCORP) ? product.netPrice : product.grossPrice,
+        price: (isVIP  ? product.netPriceVIP : (isCORP ? product.netPriceCompany : product.grossPrice)) * ((100-(state.discountPercent || 0))/100),
         bio: product.bio ?? false,
         slug: product.url,
         unit: product.unit ?? 'db',
@@ -554,7 +556,6 @@ function HeaderSearchProductResultItem({
     unit,
     isFromProducer,
 }: Readonly<HeaderSearchProductResultItem>) {
-    
     return (
         <Box
             sx={{
