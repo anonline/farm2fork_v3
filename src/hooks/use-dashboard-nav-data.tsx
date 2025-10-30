@@ -176,6 +176,11 @@ export function useDashboardNavData(): NavSectionProps['data'] {
                                         path: paths.dashboard.pickup.root,
                                         icon: ICONS.folder,
                                     },
+                                    {
+                                        title: 'Letiltott szállítási dátumok',
+                                        path: paths.dashboard.settings.deniedDates,
+                                        icon: ICONS.calendar,
+                                    },
                                 ],
                             },
 

@@ -285,6 +285,7 @@ export const paths = {
         },
         settings: {
             purchase: `${ROOTS.DASHBOARD}/settings/purchase`,
+            deniedDates: `${ROOTS.DASHBOARD}/settings/denieddates`,
         },
         shipping: {
             root: `${ROOTS.DASHBOARD}/shipping`,
